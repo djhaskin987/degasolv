@@ -2,6 +2,24 @@
   (:require [clojure.test :refer :all]
             [dependable.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest simple-find
+         (let [package-a
+               {:name "a"
+                :version 30
+                :url "a_loc30"}
+               repo-info
+               {"a"
+                [package-a]}
+               query (fn [nm]
+                       (let [result (find repo-info nm)]
+                         (if (nil? result)
+                           :unsatisfiable
+                           (get result 1))))]
+           (testing (is (= (resolve-dependencies
+                                 ["a"]
+                                 query)
+                           [package-a])))
+           (testing (is (= (resolve-dependencies
+                             ["b"]
+                             query)
+                           [:unsatisfiable])))))
