@@ -1,0 +1,34 @@
+#!/bin/sh
+POSIXLY_CORRECT=1
+
+set -e
+set -x
+
+# It is assumed that the PWD is the root of the source code
+if [ ! -s "project.clj" ] || \
+    ! grep -q -E 'defproject *dependable' ./project.clj
+then
+    echo "This script must be run from the root of the source code for" >&2
+    echo "dependable." >&2
+    exit 1
+fi
+
+if [ "${TRAVIS}" = "true" ]
+then
+    leinw="lein2"
+else
+    leinw="buildutils/lein"
+fi
+
+set -x
+
+${leinw} compile
+${leinw} test
+# Need to fix this so that it checks the other loaded files.
+#${leinw} cloverage
+
+# Test the coverage
+#buildutils/coverage.awk target/coverage/coverage.txt
+
+# Tests passed, jar it.
+${leinw} jar
