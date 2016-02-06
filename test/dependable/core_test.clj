@@ -44,7 +44,7 @@
                              [{:name "b"}]
                              query)
                            [:unsatisfiable "b"]))))
-  (deftest already-installed
+  (deftest previously-installed
            (testing "Asking to install a package twice."
                     (is (= (resolve-dependencies
                              [{:name "a"}
@@ -53,15 +53,14 @@
                            [:successful package-a30])))
            (testing (str "Asking to install a package that I have given as already "
                     "installed.")
-                    (is (= (resolve-dependencies
-                             [{:name "c"}]
-                             :already-installed
-                             {"c" 18})
+                    (is (= (resolve-dependencies [{:name "c"}]
+                                                 query
+                                                 :already-installed {"c" 18})
                            [:successful])))
            (testing (str "Asking to install a package that I have given as already "
-                         "installed, even though the package isn't availalbe.")
+                         "installed, even though the package isn't available.")
                     (is (= (resolve-dependencies
                              [{:name "b"}]
-                             :already-installed
-                             {"b" 30})
+                             query
+                             :already-installed {"b" 30})
                            [:successful])))))
