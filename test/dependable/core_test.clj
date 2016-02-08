@@ -22,12 +22,18 @@
       {:name "c"
        :version 10
        :url "c_loc10"}
+      package-d22
+       {:name "d"
+        :version 22
+        :url "d_loc22"}
       repo-info
       {"a"
        [package-a30
         package-a20]
        "c"
-       [package-c10]}
+       [package-c10]
+       "d"
+       [package-d22]}
        query (map-query repo-info)]
   (deftest simple-find
            (testing "Asking for a present package succeeds."
@@ -63,4 +69,31 @@
                              [{:name "b"}]
                              query
                              :already-installed {"b" 30})
-                           [:successful])))))
+                           [:successful]))))
+  (deftest conflicts
+           (testing (str "Install a package which conflicts with another "
+                         "package also to be installed.")
+                    (is (= (resolve-dependencies
+                             [{:name "a"}
+                              {:name "c"}]
+                             query)
+                           [:unsatisfiable "c"])))
+           (testing (str "Install a package which conflicts with a package "
+                         "marked a priori as conflicting.")
+                    (is (= (resolve-dependencies
+                             [{:name "d"}
+                              {:name "a"}]
+                             query
+                             :conflicts {["d" 22] {:name "a"}})
+                           [:unsatisfiable "a"])))
+           (testing (str "Install a package which conflicts with a package "
+                         "marked a priori as conflicting with something "
+                         "already installed.")
+                    (is (= (resolve-dependencies
+                             [{:name "d"}]
+                             query
+                             :already-installed {"a" 11}
+                             :conflicts {["d" 22] {:name "a"}})
+                           [:unsatisfiable "d"])))))
+
+
