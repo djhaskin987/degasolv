@@ -13,7 +13,9 @@
 (let  [package-a30
       {:name "a"
        :version 30
-       :url "a_loc30"}
+       :url "a_loc30"
+       :conflicts {"c" nil}
+       }
       package-a20
       {:name "a"
        :version 20
@@ -81,11 +83,11 @@
            (testing (str "Install a package which conflicts with a package "
                          "marked a priori as conflicting.")
                     (is (= (resolve-dependencies
-                             [{:name "d"}
-                              {:name "a"}]
+                             [{:name "a"}
+                              {:name "d"}]
                              query
-                             :conflicts {["d" 22] {:name "a"}})
-                           [:unsatisfiable "a"])))
+                             :conflicts {"d" nil})
+                           [:unsatisfiable "d"])))
            (testing (str "Install a package which conflicts with a package "
                          "marked a priori as conflicting with something "
                          "already installed.")
@@ -93,7 +95,7 @@
                              [{:name "d"}]
                              query
                              :already-installed {"a" 11}
-                             :conflicts {["d" 22] {:name "a"}})
+                             :conflicts {"d" nil})
                            [:unsatisfiable "d"])))))
 
 
