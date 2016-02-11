@@ -7,7 +7,7 @@ Engine
 - [X] already-installed
 - [X] conflicts
 - [X] version-spec: retrieval
-- [ ] version-spec: already-installed
+- [X] version-spec: already-installed
 - [ ] version-spec: conflicts
 - [ ] requires
 - [ ] provides

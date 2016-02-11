@@ -32,7 +32,9 @@
             pname (:name pkg)
             pspec (:version-spec pkg)]
         (cond (contains? installed pname)
-              (recur r installed conflict result)
+              (if (not (safe-spec-call pspec (installed pname)))
+                [:unsatisfiable pname]
+                (recur r installed conflict result))
               (contains? conflict pname)
               [:unsatisfiable pname]
               :else

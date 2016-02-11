@@ -37,7 +37,7 @@
        "d"
        [package-d22]}
        query (map-query repo-info)]
-  (deftest simple-find
+  (deftest retrieval
            (testing "Asking for a present package succeeds."
                     (is (= (resolve-dependencies
                              [{:name "a"}]
@@ -78,15 +78,15 @@
                                :version-spec #(>= %1 25)}]
                              query)
                            [:successful package-a30]))))
-  (deftest previously-installed
+  (deftest already-installed
            (testing "Asking to install a package twice."
                     (is (= (resolve-dependencies
                              [{:name "a"}
                               {:name "a"}]
                              query)
                            [:successful package-a30])))
-           (testing (str "Asking to install a package that I have given as already "
-                    "installed.")
+           (testing (str "Asking to install a package that I have given as "
+                    "already installed.")
                     (is (= (resolve-dependencies [{:name "c"}]
                                                  query
                                                  :already-installed {"c" 18})
@@ -97,6 +97,24 @@
                              [{:name "b"}]
                              query
                              :already-installed {"b" 30})
+                           [:successful])))
+           (testing (str "Asking to install a package that is already "
+                         "installed, but the installed version doesn't "
+                         "suit, even though there is a suitable version "
+                         "available.")
+                    (is (= (resolve-dependencies
+                             [{:name "a"
+                               :version-spec #(>= % 25)}]
+                             query
+                              :already-installed {"a" 15})
+                           [:unsatisfiable "a"])))
+           (testing (str "Asking to install a package that is already "
+                         "installed, and the installed version suits.")
+                    (is (= (resolve-dependencies
+                             [{:name "a"
+                               :version-spec #(>= % 25)}]
+                             query
+                             :already-installed {"a" 30})
                            [:successful]))))
   (deftest conflicts
            (testing (str "Install a package which conflicts with another "

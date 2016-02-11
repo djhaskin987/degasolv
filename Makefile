@@ -1,0 +1,2 @@
+check:
+	lein test
