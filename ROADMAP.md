@@ -3,13 +3,17 @@ Roadmap for 1.0
 
 Engine
 ------
-* version-spec: retrieval
-* version-spec: already-installed
-* version-spec: conflicts
-* requires
-* provides
-* overrides
-* disjunctions
+- [X] retrieval
+- [X] already-installed
+- [X] conflicts
+- [X] version-spec: retrieval
+- [ ] version-spec: already-installed
+- [ ] version-spec: conflicts
+- [ ] requires
+- [ ] provides
+- [ ] overrides
+- [ ] disjunctions
+
 
 EDN resolver
 ------------
