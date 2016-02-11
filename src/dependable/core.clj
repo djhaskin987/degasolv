@@ -8,12 +8,6 @@
 (def safe-spec-call
   (fnil spec-call (fn [v] true)))
 
-(defn- find-candidate [candidates nm spec]
-  (first
-    (filter
-      #(safe-spec-call spec (:version %))
-      candidates)))
-
 (defn resolve-dependencies
   [names
    query &
@@ -46,7 +40,7 @@
                                response))
                     chosen-conflicts (:conflicts chosen)]
                 (if (or (nil? chosen)
-                          (and (contains? conflict pname)
+                        (and (contains? conflict pname)
                                (safe-spec-call (conflict pname) (:version chosen))))
                       [:unsatisfiable pname]
                       (recur r (assoc

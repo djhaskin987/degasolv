@@ -154,7 +154,8 @@
                              query
                              :conflicts {"d" #(< % 22)})
                            [:successful package-d22]))))
-(deftest no-locking
+;; *maybe*. I'll think about it.
+#_(deftest no-locking
            (testing (str "Find two packages, even when the preferred version "
                          "of one package conflicts with the other")
                     (is (= (resolve-dependencies
