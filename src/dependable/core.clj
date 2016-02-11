@@ -35,7 +35,8 @@
               (if (not (safe-spec-call pspec (installed pname)))
                 [:unsatisfiable pname]
                 (recur r installed conflict result))
-              (contains? conflict pname)
+              (and (contains? conflict pname)
+                   (nil? (conflict pname)))
               [:unsatisfiable pname]
               :else
               (let [response (query pname)
@@ -44,17 +45,18 @@
                                #(safe-spec-call pspec (:version %))
                                response))
                     chosen-conflicts (:conflicts chosen)]
-                (if (nil? chosen)
-                  [:unsatisfiable pname]
-
-                  (recur r (assoc
-                             installed
-                             (:name chosen)
-                             (:version chosen))
-                         (into
-                           conflict
-                           chosen-conflicts)
-                         (conj result chosen)))))))))
+                (if (or (nil? chosen)
+                          (and (contains? conflict pname)
+                               (safe-spec-call (conflict pname) (:version chosen))))
+                      [:unsatisfiable pname]
+                      (recur r (assoc
+                                 installed
+                                 (:name chosen)
+                                 (:version chosen))
+                             (into
+                               conflict
+                               chosen-conflicts)
+                             (conj result chosen)))))))))
 
 #_(defn -main
   "I don't do a whole lot ... yet."

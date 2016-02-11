@@ -28,6 +28,11 @@
        {:name "d"
         :version 22
         :url "d_loc22"}
+      package-e18
+       {:name "e"
+        :version 18
+        :url "e_loc18"
+        :conflicts {"d" nil}}
       repo-info
       {"a"
        [package-a30
@@ -117,14 +122,14 @@
                              :already-installed {"a" 30})
                            [:successful]))))
   (deftest conflicts
-           (testing (str "Install a package which conflicts with another "
+           (testing (str "Find a package which conflicts with another "
                          "package also to be installed.")
                     (is (= (resolve-dependencies
-                             [{:name "a"}
-                              {:name "c"}]
+                             [{:name "d"}
+                              {:name "e"}]
                              query)
-                           [:unsatisfiable "c"])))
-           (testing (str "Install a package which conflicts with a package "
+                           [:unsatisfiable "e"])))
+           (testing (str "Find a package which conflicts with a package "
                          "marked a priori as conflicting.")
                     (is (= (resolve-dependencies
                              [{:name "a"}
@@ -132,7 +137,7 @@
                              query
                              :conflicts {"d" nil})
                            [:unsatisfiable "d"])))
-           (testing (str "Install a package which conflicts with a package "
+           (testing (str "Find a package which conflicts with a package "
                          "marked a priori as conflicting with something "
                          "already installed.")
                     (is (= (resolve-dependencies
@@ -140,6 +145,22 @@
                              query
                              :already-installed {"a" 11}
                              :conflicts {"d" nil})
-                           [:unsatisfiable "d"])))))
+                           [:unsatisfiable "d"])))
+
+           (testing (str "Find a package which conflicts with another "
+                         "package but not at its current version")
+                    (is (= (resolve-dependencies
+                             [{:name "d"}]
+                             query
+                             :conflicts {"d" #(< % 22)})
+                           [:successful package-d22]))))
+(deftest no-locking
+           (testing (str "Find two packages, even when the preferred version "
+                         "of one package conflicts with the other")
+                    (is (= (resolve-dependencies
+                             [{:name "a"}
+                              {:name "c"}]
+                             query)
+                           [:successful package-a20 package-c10])))))
 
 

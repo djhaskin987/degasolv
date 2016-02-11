@@ -9,6 +9,9 @@ Engine
 - [X] version-spec: retrieval
 - [X] version-spec: already-installed
 - [ ] version-spec: conflicts
+- [ ] no-locking: retrieval
+- [ ] no-locking: already-installed
+- [ ] no-locking: conflicts
 - [ ] requires
 - [ ] provides
 - [ ] overrides
