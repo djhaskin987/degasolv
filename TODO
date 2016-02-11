@@ -1,4 +1,0 @@
-* refactor already-installed to be callable instead of
-  a map, so that I/O can be performed if need be
-* refactor conflicts (tests) be callable instead of
-  a map, so that I/O can be performed if need be

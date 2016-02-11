@@ -57,22 +57,26 @@
                     (is (= (resolve-dependencies
                              [{:name "a"
                                :version-spec #(>= %1 40)}]
-                           [:unsatisfiable "a"]))))
+                             query)
+                           [:unsatisfiable "a"])))
            (testing (str "Asking for a package present within the repo but "
                          "with unsatisfiable constraints.")
                     (is (= (resolve-dependencies
                              [{:name "a"
-                               :version-spec (fn [v] false)}])
+                               :version-spec (fn [v] false)}]
+                             query)
                            [:unsatisfiable "a"])))
            (testing (str "Asking for a package present and having a "
                          "version that fits")
                     (is (= (resolve-dependencies
                              [{:name "a"
-                               :version-spec #(and (>= %1 15) (<= %1 25))}])
+                               :version-spec #(and (>= %1 15) (<= %1 25))}]
+                             query)
                              [:successful package-a20]))
                     (is (= (resolve-dependencies
                              [{:name "a"
-                               :version-spec #(>= 25)}])
+                               :version-spec #(>= %1 25)}]
+                             query)
                            [:successful package-a30]))))
   (deftest previously-installed
            (testing "Asking to install a package twice."
