@@ -9,13 +9,24 @@ Engine
 - [X] version-spec: retrieval
 - [X] version-spec: already-installed
 - [ ] version-spec: conflicts
+- [ ] requires: retrieval
+- [ ] requires: already-installed
+- [ ] requires: conflicts
+- [ ] requires: version-spec
+- [ ] requires: version-spec: retrieval
+- [ ] requires: version-spec: already-installed
+- [ ] requires: version-spec: conflicts
+- [ ] requires, version-spec, conflicts, already-installed
 - [ ] no-locking: retrieval
 - [ ] no-locking: already-installed
 - [ ] no-locking: conflicts
-- [ ] requires
+- [ ] no-locking: requires: version-spec a-b\_c
+- [ ] no-locking: requires: version-spec a-b\_c
+- [ ] no-locking: requires: version-spec a\_b-c\_d
 - [ ] provides
 - [ ] overrides
 - [ ] disjunctions
+- [ ] automatic upgrades of dependencies (perhaps sooner?)
 
 
 EDN resolver
