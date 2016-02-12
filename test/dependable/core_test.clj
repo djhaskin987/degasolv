@@ -13,25 +13,25 @@
 (let  [package-a30
       {:name "a"
        :version 30
-       :url "a_loc30"
+       :location "a_loc30"
        :conflicts {"c" nil}
        }
       package-a20
       {:name "a"
        :version 20
-       :url "a_loc20"}
+       :location "a_loc20"}
       package-c10
       {:name "c"
        :version 10
-       :url "c_loc10"}
+       :location "c_loc10"}
       package-d22
        {:name "d"
         :version 22
-        :url "d_loc22"}
+        :location "d_loc22"}
       package-e18
        {:name "e"
         :version 18
-        :url "e_loc18"
+        :location "e_loc18"
         :conflicts {"d" nil}}
       repo-info
       {"a"
@@ -153,8 +153,91 @@
                              [{:name "d"}]
                              query
                              :conflicts {"d" #(< % 22)})
-                           [:successful package-d22]))))
+                           [:successful package-d22])))))
+
+(deftest requires
+         (let [package-a
+               {:name "a"
+                :version 30
+                :location "a_loc30"
+                :requires [{:name "b"}]}
+               package-b
+               {:name "b"
+                :version 20
+                :location "b_loc20"}
+               repo-info
+               {"a" [package-a]
+                "b" [package-b]}
+               query (map-query repo-info)]
+           (testing (str "One package should require another and both "
+                         "should be found.")
+                    (is (= (resolve-dependencies
+                             [{:name "a"}]
+                             query)
+                           [:successful package-a package-b])))
+           (testing (str "One package should be found when it requires "
+                         "another, but it's already installed.")
+                    (is (= (resolve-dependencies
+                             [{:name "a"}]
+                             query
+                             :already-installed {"b" 20})
+                           [:successful package-a]))))
+         (let [package-a
+               {:name "a"
+                :version 10
+                :location "a_loc30"}
+               package-b
+               {:name "b"
+                :version 20
+                :location "b_loc20"
+                :requires [{:name "c"}]}
+               package-c
+               {:name "c"
+                :version 10
+                :conflicts {"a" nil}}
+
+               repo-info
+               {"a" [package-a]
+                "b" [package-b]
+                "c" [package-c]}
+               query (map-query repo-info)]
+           (testing (str "A package having dependencies which conflicts with "
+                         "other packages downloaded should be rejected.")
+                    (is (= (resolve-dependencies
+                             [{:name "a"}
+                              {:name "b"}]
+                             query)
+                           [:unsatisfiable "b" "c"]))))
+           (let [package-a
+                 {:name "a"
+                  :version 10
+                  :location "a_loc10"}
+                 package-b
+                 {:name "b"
+                  :version 10
+                  :location "b_loc10"
+                  :requires [{:name "c"}]}
+                 package-c
+                 {:name "c"
+                  :version 10
+                  :local "c_loc10"}
+                 repo-info
+                 {"a" [package-a]
+                  "b" [package-b]
+                  "c" [package-c]}
+                 query (map-query repo-info)]
+           (testing (str "A package having dependencies rejected a priori "
+                         "also gets rejected")
+                    (is (= (resolve-dependencies
+                             [{:name "a"}
+                              {:name "b"}]
+                             query
+                             :conflicts {"c" nil})
+                           [:unsatisfiable "b" "c"])))))
+
+
 ;; *maybe*. I'll think about it.
+;; Also get other tests from notebook.
 #_(deftest no-locking
            (testing (str "Find two packages, even when the preferred version "
                          "of one package conflicts with the other")
@@ -162,6 +245,6 @@
                              [{:name "a"}
                               {:name "c"}]
                              query)
-                           [:successful package-a20 package-c10])))))
+                           [:successful package-a20 package-c10]))))
 
 
