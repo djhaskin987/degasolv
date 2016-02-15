@@ -1,6 +1,24 @@
 Roadmap for 1.0
 ===============
 
+Introduction
+------------
+
+The design should address several goals:
+  1) As much as possible, for relatively sane use cases, the dependency
+     resolver itself should "just work".
+  2) The resolver should work within the framework of many strategies and
+     frameworks.
+  3) The resolver should allow the user of the tool to override anything
+     needed to get stuff to work. Sometimes, packages are malformed.
+     repositories don't have all the necessary packages. These things come
+     up and often have a simple solution that the user is able to provide.
+     The tool should allow for this.
+
+
+Checklist of Test Cases
+-----------------------
+
 Engine
 ------
 - [X] retrieval
