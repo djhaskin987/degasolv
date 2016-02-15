@@ -8,6 +8,17 @@
 (def safe-spec-call
   (fnil spec-call (fn [v] true)))
 
+
+(defn choose-candidate
+  [pname
+   pspec
+   query]
+  (let [response (query pname)]
+    (first
+      (filter
+        #(safe-spec-call pspec (:version %))
+        response))))
+
 (defn resolve-dependencies
   [names
    query &
@@ -33,11 +44,7 @@
                    (nil? (conflict pname)))
               [:unsatisfiable pname]
               :else
-              (let [response (query pname)
-                    chosen (first
-                             (filter
-                               #(safe-spec-call pspec (:version %))
-                               response))
+              (let [chosen (choose-candidate pname pspec query)
                     chosen-conflicts (:conflicts chosen)]
                 (if (or (nil? chosen)
                         (and (contains? conflict pname)
