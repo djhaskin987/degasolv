@@ -304,6 +304,63 @@
                             package-b
                             package-c
                             package-d3]))))
+         (testing (str "Inter-Locking Diamond problem")
+                  (let [package-a
+                        {:name "a"
+                         :version 1
+                         :location "a_loc1"
+                         :requires [{:name "b"}
+                                    {:name "c"}]}
+                        package-b
+                        {:name "b"
+                         :version 1
+                         :location "b_loc1"
+                         :requires [{:name "d"
+                                     :version-spec #(>= % 2)}
+                                    {:name "e"
+                                     :version-spec #(= % 5)}]}
+                        package-c
+                        {:name "c"
+                         :version 1
+                         :location "c_loc1"
+                         :requires [{:name "e"
+                                     :version-spec #(>= % 1)}
+                                    {:name "d"
+                                     :version-spec #(< % 4)}]}
+                        package-d3
+                        {:name "d"
+                         :version 3
+                         :location "d_loc3"}
+                        package-d4
+                        {:name "d"
+                         :version 4
+                         :location "d_loc4"}
+                        package-e6
+                        {:name "e"
+                         :version 6
+                         :location "e_loc6"}
+                        package-e5
+                        {:name "e"
+                         :version 6
+                         :location "e_loc5"}
+                        repo-info
+                        {"a" [package-a]
+                         "b" [package-b]
+                         "c" [package-c]
+                         "d" [package-d4 package-d3]
+                         "e" [package-e6 package-e5]}
+                        query
+                        (map-query repo-info)]
+                    (is (= (resolve-dependencies
+                             [{:name "a"}]
+                             query)
+                           [:successful
+                            package-a
+                            package-b
+                            package-c
+                            package-d3
+                            package-e5]))))
+(testing (str "The puzzle")
          (let [package-a
                {:name "a"
                 :version 1
@@ -315,48 +372,46 @@
                 :version 1
                 :location "b_loc1"
                 :requires [{:name "d"
-                            :version-spec #(>= % 2)}
-                           {:name "e"
-                            :version-spec #(= % 5)}]}
+                            :version-spec #(>= % 1)}]}
                package-c
                {:name "c"
                 :version 1
                 :location "c_loc1"
-                :requires [{:name "e"
-                            :version-spec #(>= % 1)}
-                           {:name "d"
+                :requires [{:name "d"
                             :version-spec #(< % 4)}]}
-               package-d3
+               package-d1
                {:name "d"
-                :version 3
-                :location "d_loc3"}
-               package-d4
+                :version 1
+                :location "d_loc1"
+                :requires [{:name "e"
+                            :version-spec #(= % 4)}]}
+               package-d2
                {:name "d"
+                :version 2
+                :location "d_loc2"
+                :requires [{:name "e"
+                            :version-spec #(= % 3)}]}
+               package-e4
+               {:name "e"
                 :version 4
-                :location "d_loc4"}
-               package-e6
+                :location "e_loc4"}
+               package-e3
                {:name "e"
-                :version 6
-                :location "e_loc6"}
-               package-e5
-               {:name "e"
-                :version 6
-                :location "e_loc5"}
+                :version 3
+                :location "e_loc3"}
                repo-info
                {"a" [package-a]
                 "b" [package-b]
                 "c" [package-c]
-                "d" [package-d4 package-d3]
-                "e" [package-e6 package-e5]}
+                "d" [package-d2 package-d1]
+                "e" [package-e4 package-e3]}
                query
                (map-query repo-info)]
-           (testing (str "Inter-Locking Diamond problem")
-                    (is (= (resolve-dependencies
-                             [{:name "a"}]
-                             query)
-                           [:successful
-                            package-a
-                            package-b
-                            package-c
-                            package-d3
-                            package-e5])))))
+           (is (= (resolve-dependencies
+                    [{:name "a"}]
+                    query)
+                  [:successful #{package-a
+                                 package-b
+                                 package-c
+                                 package-d1
+                                 package-d2}])))))
