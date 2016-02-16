@@ -83,7 +83,7 @@
                                :version-spec #(>= %1 25)}]
                              query)
                            [:successful package-a30]))))
-  (deftest already-installed
+  (deftest already-found
            (testing "Asking to install a package twice."
                     (is (= (resolve-dependencies
                              [{:name "a"}
@@ -94,14 +94,14 @@
                          "already installed.")
                     (is (= (resolve-dependencies [{:name "c"}]
                                                  query
-                                                 :already-installed {"c" 18})
+                                                 :already-found {"c" 18})
                            [:successful])))
            (testing (str "Asking to install a package that I have given as already "
                          "installed, even though the package isn't available.")
                     (is (= (resolve-dependencies
                              [{:name "b"}]
                              query
-                             :already-installed {"b" 30})
+                             :already-found {"b" 30})
                            [:successful])))
            (testing (str "Asking to install a package that is already "
                          "installed, but the installed version doesn't "
@@ -111,7 +111,7 @@
                              [{:name "a"
                                :version-spec #(>= % 25)}]
                              query
-                             :already-installed {"a" 15})
+                             :already-found {"a" 15})
                            [:unsatisfiable "a"])))
            (testing (str "Asking to install a package that is already "
                          "installed, and the installed version suits.")
@@ -119,7 +119,7 @@
                              [{:name "a"
                                :version-spec #(>= % 25)}]
                              query
-                             :already-installed {"a" 30})
+                             :already-found {"a" 30})
                            [:successful]))))
 (deftest conflicts
          (testing (str "Find a package which conflicts with another "
@@ -143,7 +143,7 @@
                   (is (= (resolve-dependencies
                            [{:name "d"}]
                            query
-                           :already-installed {"a" 11}
+                           :already-found {"a" 11}
                            :conflicts {"d" nil})
                          [:unsatisfiable "d"])))
 
@@ -180,7 +180,7 @@
                     (is (= (resolve-dependencies
                              [{:name "a"}]
                              query
-                             :already-installed {"b" 20})
+                             :already-found {"b" 20})
                            [:successful package-a]))))
          (let [package-a
                {:name "a"

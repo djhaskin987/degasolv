@@ -22,12 +22,12 @@
 (defn resolve-dependencies
   [names
    query &
-   {:keys [already-installed
+   {:keys [already-found
            conflicts]
-    :or {already-installed {}
+    :or {already-found {}
          conflicts {}}}]
   (loop [remaining (seq names)
-         installed already-installed
+         installed already-found
          conflict conflicts
          result [:successful]]
     (if (empty? remaining)
