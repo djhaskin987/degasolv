@@ -8,6 +8,10 @@
 (def safe-spec-call
   (fnil spec-call (fn [v] true)))
 
+
+(defn patch-graph
+  [graph patch] nil)
+
 (defn choose-candidate
   [pname
    pspec

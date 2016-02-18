@@ -235,6 +235,36 @@
                              :conflicts {"c" nil})
                            [:unsatisfiable ["b" "c"]])))))
 
+(deftest patch-tests
+         (let [graph {"a" {:version 1
+                           :self-spec nil
+                           :children
+                           {"b" {:version 1
+                                 :self-spec nil
+                                 :children {"c" {:version 2
+                                                 :self-spec nil
+                                                 :children nil}}}
+                            "c" {:version 3
+                                 :self-spec nil
+                                 :children nil}}}}
+               silly-patch {"e" {:version 1
+                                 :self-spec nil
+                                 :children nil}}
+               real-patch {"c" {:version 2
+                                :self-spec nil
+                                :children nil}}]
+           (testing (str "Patching with a non-matching node yields the same thing.")
+                    (is (= (patch-graph graph silly-patch) graph)))
+           (testing (str "Patching with a matching node yields a better graph.")
+                    (is (= (patch-graph graph real-patch)
+                           {"a" {:version 1
+                                 :self-spec nil
+                                 :children
+                                 {"b" {:version 1
+                                       :self-spec nil
+                                       :children {"c" (real-patch "c")}}
+                                  "c" (real-patch "c")}}})))))
+
 (deftest no-locking
          (testing (str "Find two packages, even when the preferred version "
                        "of one package conflicts with the other")
