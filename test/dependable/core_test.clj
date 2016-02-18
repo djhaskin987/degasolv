@@ -47,62 +47,62 @@
                     (is (= (resolve-dependencies
                              [{:name "a"}]
                              query)
-                           [:successful package-a30])))
+                           [:successful #{package-a30}])))
            (is (= (resolve-dependencies
                     [{:name "c"}]
                     query)
-                  [:successful package-c10]))
+                  [:successful #{package-c10}]))
            (testing "Asking for a nonexistent package fails."
                     (is (= (resolve-dependencies
                              [{:name "b"}]
                              query)
-                           [:unsatisfiable "b"])))
+                           [:unsatisfiable ["b"]])))
            (testing (str "Asking for a package present within the repo but "
                          "at no suitable version fails.")
                     (is (= (resolve-dependencies
                              [{:name "a"
                                :version-spec #(>= %1 40)}]
                              query)
-                           [:unsatisfiable "a"])))
+                           [:unsatisfiable ["a"]])))
            (testing (str "Asking for a package present within the repo but "
                          "with unsatisfiable constraints.")
                     (is (= (resolve-dependencies
                              [{:name "a"
                                :version-spec (fn [v] false)}]
                              query)
-                           [:unsatisfiable "a"])))
+                           [:unsatisfiable ["a"]])))
            (testing (str "Asking for a package present and having a "
                          "version that fits")
                     (is (= (resolve-dependencies
                              [{:name "a"
                                :version-spec #(and (>= %1 15) (<= %1 25))}]
                              query)
-                           [:successful package-a20]))
+                           [:successful #{package-a20}]))
                     (is (= (resolve-dependencies
                              [{:name "a"
                                :version-spec #(>= %1 25)}]
                              query)
-                           [:successful package-a30]))))
+                           [:successful #{package-a30}]))))
   (deftest already-found
            (testing "Asking to install a package twice."
                     (is (= (resolve-dependencies
                              [{:name "a"}
                               {:name "a"}]
                              query)
-                           [:successful package-a30])))
+                           [:successful #{package-a30}])))
            (testing (str "Asking to install a package that I have given as "
                          "already installed.")
                     (is (= (resolve-dependencies [{:name "c"}]
                                                  query
                                                  :already-found {"c" 18})
-                           [:successful])))
+                           [:successful #{}])))
            (testing (str "Asking to install a package that I have given as already "
                          "installed, even though the package isn't available.")
                     (is (= (resolve-dependencies
                              [{:name "b"}]
                              query
                              :already-found {"b" 30})
-                           [:successful])))
+                           [:successful #{}])))
            (testing (str "Asking to install a package that is already "
                          "installed, but the installed version doesn't "
                          "suit, even though there is a suitable version "
@@ -112,7 +112,7 @@
                                :version-spec #(>= % 25)}]
                              query
                              :already-found {"a" 15})
-                           [:unsatisfiable "a"])))
+                           [:unsatisfiable ["a"]])))
            (testing (str "Asking to install a package that is already "
                          "installed, and the installed version suits.")
                     (is (= (resolve-dependencies
@@ -120,7 +120,7 @@
                                :version-spec #(>= % 25)}]
                              query
                              :already-found {"a" 30})
-                           [:successful]))))
+                           [:successful #{}]))))
 (deftest conflicts
          (testing (str "Find a package which conflicts with another "
                        "package also to be installed.")
@@ -128,7 +128,7 @@
                            [{:name "d"}
                             {:name "e"}]
                            query)
-                         [:unsatisfiable "e"])))
+                         [:unsatisfiable ["e"]])))
          (testing (str "Find a package which conflicts with a package "
                        "marked a priori as conflicting.")
                   (is (= (resolve-dependencies
@@ -136,7 +136,7 @@
                             {:name "d"}]
                            query
                            :conflicts {"d" nil})
-                         [:unsatisfiable "d"])))
+                         [:unsatisfiable ["d"]])))
          (testing (str "Find a package which conflicts with a package "
                        "marked a priori as conflicting with something "
                        "already installed.")
@@ -145,7 +145,7 @@
                            query
                            :already-found {"a" 11}
                            :conflicts {"d" nil})
-                         [:unsatisfiable "d"])))
+                         [:unsatisfiable ["d"]])))
 
          (testing (str "Find a package which conflicts with another "
                        "package but not at its current version")
@@ -153,7 +153,7 @@
                            [{:name "d"}]
                            query
                            :conflicts {"d" #(< % 22)})
-                         [:successful package-d22])))))
+                         [:successful #{package-d22}])))))
 
 (deftest requires
          (let [package-a
@@ -174,14 +174,14 @@
                     (is (= (resolve-dependencies
                              [{:name "a"}]
                              query)
-                           [:successful package-a package-b])))
+                           [:successful #{package-a package-b}])))
            (testing (str "One package should be found when it requires "
                          "another, but it's already installed.")
                     (is (= (resolve-dependencies
                              [{:name "a"}]
                              query
                              :already-found {"b" 20})
-                           [:successful package-a]))))
+                           [:successful #{package-a}]))))
          (let [package-a
                {:name "a"
                 :version 10
@@ -207,7 +207,7 @@
                              [{:name "a"}
                               {:name "b"}]
                              query)
-                           [:unsatisfiable "b" "c"]))))
+                           [:unsatisfiable ["b" "c"]]))))
          (let [package-a
                {:name "a"
                 :version 10
@@ -233,7 +233,7 @@
                               {:name "b"}]
                              query
                              :conflicts {"c" nil})
-                           [:unsatisfiable "b" "c"])))))
+                           [:unsatisfiable ["b" "c"]])))))
 
 (deftest no-locking
          (testing (str "Find two packages, even when the preferred version "
@@ -260,8 +260,7 @@
                              [{:name "a"}
                               {:name "c"}]
                              query)
-                           [:successful package-a20 package-c10]))))
-
+                           [:successful #{package-a20 package-c10}]))))
          (testing (str "Diamond problem")
                   (let [package-a
                         {:name "a"
@@ -300,10 +299,10 @@
                              [{:name "a"}]
                              query)
                            [:successful
-                            package-a
+                            #{package-a
                             package-b
                             package-c
-                            package-d3]))))
+                            package-d3}]))))
          (testing (str "Inter-Locking Diamond problem")
                   (let [package-a
                         {:name "a"
@@ -355,11 +354,11 @@
                              [{:name "a"}]
                              query)
                            [:successful
-                            package-a
-                            package-b
-                            package-c
-                            package-d3
-                            package-e5]))))
+                            #{package-a
+                              package-b
+                              package-c
+                              package-d3
+                              package-e5}]))))
 (testing (str "The puzzle")
          (let [package-a
                {:name "a"
@@ -414,4 +413,46 @@
                                  package-b
                                  package-c
                                  package-d1
-                                 package-d2}])))))
+                                 package-e4}]))))
+(testing (str "Double diamond")
+         (let [package-a
+               {:name "a"
+                :version 1
+                :location "a_loc1"
+                :requires [{:name "b"}
+                           {:name "d"
+                            :version-spec #(>= % 1)}]}
+               package-b
+               {:name "b"
+                :version 1
+                :location "b_loc1"
+                :requires [{:name "d"
+                            :version-spec #(< % 4)}]}
+               package-c
+               {:name "c"
+                :version 1
+                :location "c_loc1"
+                :requires [{:name "d"
+                            :version-spec #(= % 2)}]}
+               package-d4
+               {:name "d"
+                :version 4
+                :location "d_loc4"}
+               package-d3
+               {:name "d"
+                :version 3
+                :location "d_loc3"}
+               package-d2
+               {:name "d"
+                :version 2
+                :location "d_loc2"}
+               repo-info
+               {"a" [package-a]
+                "b" [package-b]
+                "c" [package-c]
+                "d" [package-d4 package-d3 package-d2]}
+               query (map-query repo-info)]
+           (is (= (resolve-dependencies
+                    [{:name "a"}]
+                    query)
+                  [:successful #{package-d2 package-c package-b package-a}])))))
