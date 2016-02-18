@@ -10,7 +10,20 @@
 
 
 (defn patch-graph
-  [graph patch] nil)
+  [graph patch]
+  (reduce-kv
+    (fn [cmt k v]
+      (assoc cmt k
+             (assoc v
+                    :children
+                    (map
+                      (fn [x] (patch-graph x patch))
+                      (v :children)))))
+    {}
+    graph))
+
+
+
 
 (defn choose-candidate
   [pname
