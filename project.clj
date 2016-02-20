@@ -8,5 +8,5 @@
             :target-path "target/%s"
             :profiles {:uberjar {:aot :all}
 
-                       :user {:plugins [[lein-cloverage "1.0.0"]]}}
+                       :user {:plugins [[lein-cloverage "1.0.6"]]}}
             )
