@@ -1,6 +1,7 @@
 (ns dependable.core
   (:gen-class))
 
+; Helper functions
 
 (defn spec-call [f v]
   (f v))
@@ -8,6 +9,17 @@
 (def safe-spec-call
   (fnil spec-call (fn [v] true)))
 
+; Tested functions
+
+(defn realize
+  "Takes a request object and a query object and
+  returns an actual package object pull from the
+  query object, which satisfies the request"
+  [query request]
+  (first
+    (filter
+      #(safe-spec-call (:version-spec request) (:version %))
+      (query (:name request)))))
 
 (defn patch-graph
   [graph patch]

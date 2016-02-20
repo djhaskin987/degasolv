@@ -42,6 +42,23 @@
         "d"
         [package-d22]}
        query (map-query repo-info)]
+  (deftest realize-tests
+           (testing (str "Realize chooses first working thing")
+                    (is (= (realize query {:name "a"
+                                           :version-spec #(>= % 2)})
+                           package-a30)))
+           (testing (str "Realize doesn't need version-spec")
+                    (is (= (realize query {:name "a"})
+                           package-a30)))
+           (testing (str "Realize chooses working thing")
+                    (is (= (realize query {:name "a"
+                                           :version-spec #(and (>= % 2)
+                                                               (< % 4))})
+                           package-a20)))
+           (testing (str "Realize calls it quits appropriately")
+                    (is (empty? (realize query {:name "a"
+                                           :version-spec #(and (>= % 2)
+                                                               (< % 2))})))))
   (deftest retrieval
            (testing "Asking for a present package succeeds."
                     (is (= (resolve-dependencies
