@@ -252,6 +252,36 @@
                              :conflicts {"c" nil})
                            [:unsatisfiable ["b" "c"]])))))
 
+(deftest remove-node-tests
+         (let [to {"a" {:version 1
+                        :children
+                        {"b" :this-shouldnt-be-touched
+                         "c" :neither-this}}
+                   "d" {:version 2
+                        :children
+                        {"c" :this-neither}}
+                   "b" {:version 2}
+                   "c" {:version 3}}
+               from {"c" #{"d" "a"}
+                     "b" #{"a"}}
+               [result-to result-from] (remove-dep to from "a")]
+           (testing "a is removed."
+                    (is (not (get result-to "a"))))
+           (testing "b is removed also."
+                    (is (not (get result-to "a"))))
+           (testing (str "c is not removed -- "
+                         "it is depended on by more than just a.")
+                    (is (get result-to "c")))
+           (testing (str "post conditions -- result `to`.")
+                    (is (= result-to
+                           {"d" {:version 2
+                                 :children
+                                 {"c" :this-neither}}
+                            "c" {:version 3}})))
+           (testing (str "post conditions -- resultant `from`.")
+                    (is (= result-from
+                           {"c" #{"d"}})))))
+
 (deftest patch-tests
          (let [graph {"a" {:version 1
                            :self-spec nil

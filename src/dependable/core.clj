@@ -21,6 +21,26 @@
       #(safe-spec-call (:version-spec request) (:version %))
       (query (:name request)))))
 
+(defn remove-dep
+  [to from node]
+  (let [from' (reduce
+              (fn [c [child _parents]]
+                (if (= (count _parents) 1)
+                  c
+                  (assoc c
+                         child
+                         (dissoc _parents node))))
+              from
+              (map #(find from %)
+                   (keys (:children node))))
+        to' (dissoc to
+                    node)]
+      (reduce (fn [c v]
+                (let [[to'' from''] c]
+                  (remove-dep to'' from'' v)))
+          [to' from']
+          (:children node))))
+
 (defn patch-graph
   [graph patch]
   (reduce-kv
