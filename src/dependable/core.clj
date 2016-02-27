@@ -9,8 +9,15 @@
 (def safe-spec-call
   (fnil spec-call (fn [v] true)))
 
-; Tested functions
 
+#_(defmacro debug [form]
+  `(let [x# ~form]
+     (println (str "Debug: "
+                   (quote ~form)
+                   " is " x#))
+     x#))
+
+; Tested functions
 (defn realize
   "Takes a request object and a query object and
   returns an actual package object pull from the
@@ -23,23 +30,27 @@
 
 (defn remove-dep
   [to from node]
-  (let [from' (reduce
-              (fn [c [child _parents]]
-                (if (= (count _parents) 1)
-                  c
-                  (assoc c
-                         child
-                         (dissoc _parents node))))
-              from
-              (map #(find from %)
-                   (keys (:children node))))
+  (let [children (:children (to node))
+        children-names (keys children)
+        from' (reduce
+                (fn [c [child _parents]]
+                  (if (= (count _parents) 1)
+                    (dissoc c child)
+                    (assoc c
+                           child
+                           (disj _parents node))))
+                from
+                (map #(find from %)
+                     children-names))
         to' (dissoc to
                     node)]
-      (reduce (fn [c v]
-                (let [[to'' from''] c]
-                  (remove-dep to'' from'' v)))
-          [to' from']
-          (:children node))))
+    (reduce (fn [c [nm version-spec]]
+              (let [[to'' from''] c]
+                (if (contains? from' nm)
+                  c
+                  (remove-dep to'' from'' nm))))
+            [to' from']
+            children)))
 
 (defn patch-graph
   [graph patch]

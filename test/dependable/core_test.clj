@@ -42,23 +42,23 @@
         "d"
         [package-d22]}
        query (map-query repo-info)]
-  (deftest realize-tests
+  (deftest ^:underpinnings realize-tests
            (testing (str "Realize chooses first working thing")
                     (is (= (realize query {:name "a"
-                                           :version-spec #(>= % 2)})
+                                           :version-spec #(>= % 20)})
                            package-a30)))
            (testing (str "Realize doesn't need version-spec")
                     (is (= (realize query {:name "a"})
                            package-a30)))
            (testing (str "Realize chooses working thing")
                     (is (= (realize query {:name "a"
-                                           :version-spec #(and (>= % 2)
-                                                               (< % 4))})
+                                           :version-spec #(and (>= % 20)
+                                                               (< % 30))})
                            package-a20)))
            (testing (str "Realize calls it quits appropriately")
                     (is (empty? (realize query {:name "a"
-                                           :version-spec #(and (>= % 2)
-                                                               (< % 2))})))))
+                                           :version-spec #(and (>= % 20)
+                                                               (< % 20))})))))
   (deftest retrieval
            (testing "Asking for a present package succeeds."
                     (is (= (resolve-dependencies
@@ -252,7 +252,7 @@
                              :conflicts {"c" nil})
                            [:unsatisfiable ["b" "c"]])))))
 
-(deftest remove-node-tests
+(deftest ^:underpinnings remove-node-tests
          (let [to {"a" {:version 1
                         :children
                         {"b" :this-shouldnt-be-touched
