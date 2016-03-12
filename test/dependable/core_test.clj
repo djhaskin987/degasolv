@@ -10,6 +10,7 @@
         (let [[k v] result]
           v)))))
 
+
 (let  [package-a30
        {:name "a"
         :version 30
@@ -284,31 +285,31 @@
 
 (deftest patch-tests
          (let [graph {"a" {:version 1
-                           :self-spec nil
+                           :self-spec '()
                            :children
                            {"b" {:version 1
-                                 :self-spec nil
+                                 :self-spec '()
                                  :children {"c" {:version 2
-                                                 :self-spec nil
-                                                 :children nil}}}
+                                                 :self-spec '()
+                                                 :children '()}}}
                             "c" {:version 3
-                                 :self-spec nil
-                                 :children nil}}}}
+                                 :self-spec '()
+                                 :children '()}}}}
                silly-patch {"e" {:version 1
-                                 :self-spec nil
-                                 :children nil}}
+                                 :self-spec '()
+                                 :children '()}}
                real-patch {"c" {:version 2
-                                :self-spec nil
-                                :children nil}}]
+                                :self-spec '()
+                                :children '()}}]
            (testing (str "Patching with a non-matching node yields the same thing.")
                     (is (= (patch-graph graph silly-patch) graph)))
            (testing (str "Patching with a matching node yields a better graph.")
                     (is (= (patch-graph graph real-patch)
                            {"a" {:version 1
-                                 :self-spec nil
+                                 :self-spec '()
                                  :children
                                  {"b" {:version 1
-                                       :self-spec nil
+                                       :self-spec '()
                                        :children {"c" (real-patch "c")}}
                                   "c" (real-patch "c")}}})))))
 

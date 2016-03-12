@@ -18,16 +18,6 @@
      x#))
 
 ; Tested functions
-(defn realize
-  "Takes a request object and a query object and
-  returns an actual package object pull from the
-  query object, which satisfies the request"
-  [query request]
-  (first
-    (filter
-      #(safe-spec-call (:version-spec request) (:version %))
-      (query (:name request)))))
-
 (defn remove-dep
   [to from node]
   (let [children (:children (to node))
@@ -52,31 +42,53 @@
             [to' from']
             children)))
 
-(defn patch-graph
-  [graph patch]
-  (reduce-kv
-    (fn [cmt k v]
-      (assoc cmt k
-             (assoc v
-                    :children
-                    (map
-                      (fn [x] (patch-graph x patch))
-                      (v :children)))))
-    {}
-    graph))
+(defn realize
+  "Takes a request object and a query object and
+  returns an actual package object pull from the
+  query object, which satisfies the request"
+  [query request]
+  (first
+    (filter
+      #(safe-spec-call (:version-spec request) (:version %))
+      (query (:name request)))))
 
 
 
 
-(defn choose-candidate
-  [pname
-   pspec
-   query]
-  (let [response (query pname)]
-    (first
-      (filter
-        #(safe-spec-call pspec (:version %))
-        response))))
+
+;[package->dependencies dependee->dependers]
+;{:packageToDependencies {"name" {:package {}
+;                :children {"name" spec
+;                           "name" spec}}}
+; :dependeeToDependers {"dependee" ["depender" "depender"]}}
+
+(defrecord package-graph [records dependee-parents])
+
+; realize is already written
+; needs work to be able to handle conflicts, already-installeds, etc.
+; Therefore: ONLY SOLVE THE REQUIRES / DIAMOND TESTS FIRST
+(defn reconcile [a b]
+  (let [a-package-lines (set (keys (:records a)))
+        b-package-lines (set (keys (:records b)))
+        competing-packages
+        (intersection
+          a-package-lines
+          b-package-lines)]
+    ; compute the specs for each competing package
+    ; realize and resolve each competing package
+    ; then, when adding stuff from a and then b into the result graph,
+    ; if the package is a "competing" package, add it from competing packages,
+    ; else add it from a/b.
+    ))
+
+
+(defn resolve-dependencies [dep]
+  (reduce
+    reconcile
+    [{} {}]
+    (map #(resolve-dependencies (realize %1)) (:children dep))))
+
+
 
 (defn resolve-dependencies
   [specs
