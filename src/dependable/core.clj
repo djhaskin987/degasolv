@@ -68,7 +68,7 @@
 (defrecord package-graph [records dependee-parents])
 (defrecord package [name version location dependencies])
 (defn resolve-dependencies [package]
-  (reduce
+  #_(reduce
     reconcile
     (->package-graph {(:name package) package} {})
     (map #(resolve-dependencies
@@ -80,70 +80,13 @@
 ; needs work to be able to handle conflicts, already-installeds, etc.
 ; Therefore: ONLY SOLVE THE REQUIRES / DIAMOND TESTS FIRST
 (defn reconcile [a b]
-  (let [a-package-lines (set (keys (:records a)))
-        b-package-lines (set (keys (:records b)))
-        competing-lines
-        (intersection
-          a-package-lines
-          b-package-lines)]
-    ; take two graphs a and b
-    ; graphs are lookup from "line name" (the package name, not from the
-    ; package, but the package spec it fulfills)
-    ;
-    ; find the intersection of the package lines, called "competing lines"
-    ;
-    ; construct possible-incompletes, the set of all lines which depends on any
-    ; of the competing lines
-    ;
-    ; construct a' from a, where all the competing lines have been removed a la
-    ; remove-lines and keeping track of any lines which are not yet realized
-    ;
-    ; construct b' from b, where all the competing lines have been removed a la
-    ; remove-lines and keeping track of any lines which are not yet realized
-    ;
-    ; construct result from (->package-graph (into (:records a') (:records b'))
-    ;                                        (into (:parents a') (:parents b'))
-    ;                                        (into (:left-hanging a') (:left-hanging b')))
-    ; you can do this b/c a' and b' are mututally exclusive
-    ;
-    ; now we just need to know what needs to be re-resolved. So, for each node
-    ; in the graph from listed in possible-incompletes, we check for any dependencies
-    ; of those children which are not yet resolved. if any aren't, we resolve them
-    ; using all available specs from the current graph and add the packages to the
-    ; graph.
-    ; (reconcile graph-so-far (resolve-dependencies (:name same-name :spec combined-specs)))
-    ;
-    ; I just need to define some good test cases, work them manually, and then
-    ; codify my process.
-    ;
-    ; TODO define set of cases for just requires & diamonds
-    ; TODO THEN ship it. lean methodology
-    ; TODO remove-lines needs to handle cycles, ex. a -> b, b -> c, b -> d, d -> b, remove b.
-    (reduce (fn [graph [package-line package]]
-              (if ((:records graph) package-line)
-                (let [all-specs #(and ((specs-for package-line a) %1)
-                                     ((specs-for package-line b) %1))]
-
-                  (remove-line graph package-line)
-
-              (
-
-    (into (into
-            {}
-            (map (fn [x] (if (competing-packages x)
-                           (reconcile resolve
-    ; compute the specs for each competing package
-    ; realize and resolve each competing package
-    ; then, when adding stuff from a and then b into the result graph,
-    ; if the package is a "competing" package, add it from competing packages,
-    ; else add it from a/b.
-    ))
-
-(defn resolve-dependencies [graph package]
-
-
-
+  a
+    )
 (defn resolve-dependencies
+  [specs query & {:keys [already-found conflicts] :or {already-found {} conflicts {}}}]
+  nil)
+
+#_(defn resolve-dependencies
   [specs
    query &
    {:keys [already-found

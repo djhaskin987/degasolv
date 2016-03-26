@@ -43,7 +43,7 @@
         "d"
         [package-d22]}
        query (map-query repo-info)]
-  (deftest ^:underpinnings realize-tests
+  (deftest ^:resolve-basic realize-tests
            (testing (str "Realize chooses first working thing")
                     (is (= (realize query {:name "a"
                                            :version-spec #(>= % 20)})
@@ -173,7 +173,7 @@
                            :conflicts {"d" #(< % 22)})
                          [:successful #{package-d22}])))))
 
-(deftest requires
+(deftest ^:resolve-basic requires
          (let [package-a
                {:name "a"
                 :version 30
@@ -253,7 +253,7 @@
                              :conflicts {"c" nil})
                            [:unsatisfiable ["b" "c"]])))))
 
-(deftest ^:underpinnings remove-node-tests
+(deftest ^:resolve-basic remove-node-tests
          (let [to {"a" {:version 1
                         :children
                         {"b" :this-shouldnt-be-touched
@@ -283,37 +283,7 @@
                     (is (= result-from
                            {"c" #{"d"}})))))
 
-(deftest patch-tests
-         (let [graph {"a" {:version 1
-                           :self-spec '()
-                           :children
-                           {"b" {:version 1
-                                 :self-spec '()
-                                 :children {"c" {:version 2
-                                                 :self-spec '()
-                                                 :children '()}}}
-                            "c" {:version 3
-                                 :self-spec '()
-                                 :children '()}}}}
-               silly-patch {"e" {:version 1
-                                 :self-spec '()
-                                 :children '()}}
-               real-patch {"c" {:version 2
-                                :self-spec '()
-                                :children '()}}]
-           (testing (str "Patching with a non-matching node yields the same thing.")
-                    (is (= (patch-graph graph silly-patch) graph)))
-           (testing (str "Patching with a matching node yields a better graph.")
-                    (is (= (patch-graph graph real-patch)
-                           {"a" {:version 1
-                                 :self-spec '()
-                                 :children
-                                 {"b" {:version 1
-                                       :self-spec '()
-                                       :children {"c" (real-patch "c")}}
-                                  "c" (real-patch "c")}}})))))
-
-(deftest no-locking
+(deftest ^:resolve-harden no-locking
          (testing (str "Find two packages, even when the preferred version "
                        "of one package conflicts with the other")
                   (let [package-a30

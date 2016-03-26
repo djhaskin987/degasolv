@@ -6,7 +6,9 @@
             :dependencies [[org.clojure/clojure "1.7.0"]]
             :main ^:skip-aot dependable.core
             :target-path "target/%s"
-            :test-selectors {:underpinnings :underpinnings}
+            :test-selectors {:default :resolve-basic
+                             :resolve-basic :resolve-basic
+                             :resolve-harden :resolve-harden}
             :profiles {:uberjar {:aot :all}
 
                        :user {:plugins [[lein-cloverage "1.0.6"]]}}
