@@ -1,5 +1,4 @@
-(ns dependable.core
-  (:gen-class))
+(ns dependable.resolve)
 
 ; Helper functions
 

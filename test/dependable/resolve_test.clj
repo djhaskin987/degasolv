@@ -1,6 +1,6 @@
-(ns dependable.core-test
+(ns dependable.resolve-test
   (:require [clojure.test :refer :all]
-            [dependable.core :refer :all]))
+            [dependable.resolve :refer :all]))
 
 (defn map-query [m]
   (fn [nm]
@@ -43,7 +43,7 @@
         "d"
         [package-d22]}
        query (map-query repo-info)]
-  (deftest ^:resolve-basic realize-tests
+  (deftest ^:resolve-basic ^:resolve-underpinnings realize-tests
            (testing (str "Realize chooses first working thing")
                     (is (= (realize query {:name "a"
                                            :version-spec #(>= % 20)})
@@ -253,7 +253,7 @@
                              :conflicts {"c" nil})
                            [:unsatisfiable ["b" "c"]])))))
 
-(deftest ^:resolve-basic remove-node-tests
+(deftest ^:resolve-basic ^:resolve-underpinnings remove-node-tests
          (let [to {"a" {:version 1
                         :children
                         {"b" :this-shouldnt-be-touched
@@ -283,7 +283,7 @@
                     (is (= result-from
                            {"c" #{"d"}})))))
 
-(deftest ^:resolve-harden no-locking
+(deftest ^:resolve-basic no-locking
          (testing (str "Find two packages, even when the preferred version "
                        "of one package conflicts with the other")
                   (let [package-a30
