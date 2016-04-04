@@ -1,0 +1,57 @@
+Problem: 
+
+build a consistent dependency graph.
+
+you have a domain of stuff. each thing depends on one or more requirements. These requirements
+may be met by other stuff.
+
+item: <attributes> -> req, req, req
+where a requirement is a function that takes <attributes> and returns true or false.
+
+we simply start with a set of requirements
+
+requirement(x, y): exists x s.t. isPresent x and attributes(x) satisfies y
+requirement(x, y): exists x s.t. isNotPresent x or attributes(x) do not satisfy y
+
+
+find a set of packages present satisfying all requirements.
+
+
+
+
+Solution
+
+resolve:
+we have a list of requirements. 
+First, organize reqs so that all reqs on any one name are taken as one "dep".
+for each req:
+    try to find 1 item satisfying that requirement
+        prefer items sorted by some arbitrary (user-defined?) order ./
+        fully resolve that item and its children
+    find all conflicts conditions in the collective returned sets
+    if conflicts, remove the conflicting items from the two graphs, and resolve their requirements, together with the req that those versions of those packages are not to be used. These two graphs may be trivially merged, but just in case, reconcile recursively these two graphs into one.
+
+a graph need not keep track of what packages were removed but still needed, because this merge of graphs above will guarantee all reqs given to it are satisfied.
+    
+
+
+
+resolve one dep (one set of bool exprs that will be realized in one item)
+realize the req
+resolve its collective dependencies
+return
+
+
+
+
+realize an item (retrieve it)
+
+merge (trivially) two graphs
+
+graph resolve one dep
+
+reconcile two graphs
+
+graph resolve multiple deps (map resolve one dep, reduce using reconcile)
+
+project graph into list of items
