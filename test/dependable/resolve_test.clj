@@ -1,6 +1,18 @@
 (ns dependable.resolve-test
   (:require [clojure.test :refer :all]
-            [dependable.resolve :refer :all]))
+            [dependable.resolve :refer :all])
+  (:import [dependable.resolve
+            package
+            package-graph]))
+
+
+
+(defmacro debug [form]
+  `(let [x# ~form]
+     (println (str "Debug: "
+                   (quote ~form)
+                   " is " x#))
+     x#))
 
 (defn map-query [m]
   (fn [nm]
@@ -252,6 +264,26 @@
                              query
                              :conflicts {"c" nil})
                            [:unsatisfiable ["b" "c"]])))))
+(deftest ^:resolve-basic ^:resolve-underpinnings merge-graph-test
+         (let [pkg-a (->package "a" 1 "loc-a")
+               pkg-b (->package "b" 2 "loc-b")
+               pkg-c (->package "c" 3 "loc-c")
+               a (->package-graph {"a" pkg-a} {"a)
+               b (->package-graph {"b" pkg-b})
+               c (->package-graph {"a" pkg-a
+                                   "c" pkg-c})]
+           (testing "empty merge"
+                    (is (= (merge-graph a b)
+                           (->package-graph {"a" pkg-a
+                                             "b" pkg-b}
+
+
+                             
+
+
+         (let [a (->package-graph
+                   {"a" (->package "a"
+                                   1
 
 (deftest ^:resolve-basic ^:resolve-underpinnings remove-node-tests
          (let [to {"a" {:version 1
