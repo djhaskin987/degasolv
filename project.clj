@@ -7,10 +7,12 @@
                            [org.clojure/core.match "0.3.0-alpha4"]]
             :main ^:skip-aot dependable.core
             :target-path "target/%s"
-            :test-selectors {:default :resolve-basic
-                             :resolve-basic :resolve-basic
-                             :resolve-harden :resolve-harden
-                             :resolve-underpinnings :resolve-underpinnings}
+            :test-selectors
+            {
+             :default :resolve-basic
+             :resolve-basic :resolve-basic
+             :resolve-harden :resolve-harden
+             }
             :profiles {:uberjar {:aot :all}
 
                        :user {:plugins [[lein-cloverage "1.0.6"]]}})

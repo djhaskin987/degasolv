@@ -1,25 +1,8 @@
-(ns dependable.resolve)
-(require '[clojure.core.match :refer [match]])
-
-(defrecord literal [polarity id spec])
-(defrecord package [id version location requirements])
-
 (defmacro
   prefer
   [thing other]
   `(let [x# ~thing]
      (if x# x# ~other)))
-
-; Helper functions and macros
-(defmacro debug [form]
-  `(let [x# ~form]
-     (println
-       (str
-         "Debug: "
-         (quote ~form)
-         " is "
-         x#))
-     x#))
 
 (defn assoc-conj
   [mp k v]
@@ -42,7 +25,7 @@
   [result]
   (match
     result
-    [:satisfied _] result
+    [:successful _] result
     :else nil))
 
 (defn- resolve-deps
@@ -52,25 +35,25 @@
    absent-specs
    clauses]
   (if (empty? clauses)
-    [:successful found-packages]
-    (let [fclause (first clause)
-          rclauses (rest clause)
-          unsuccessful [:unsatisfiable fclause]]
+    [:successful (set (vals found-packages))]
+    (let [fclause (first clauses)
+          rclauses (rest clauses)
+          unsuccessful [:unsuccessful fclause]]
       (if (empty? fclause)
         unsuccessful
         (prefer
           (some
             first-successful
             (map
-              (fn try-literal
-                [literal]
-                (let [{polarity :polarity id :id spec :spec} literal
+              (fn try-requirement
+                [requirement]
+                (let [{status :status id :id spec :spec} requirement
                       present-package (get present-packages id)]
                   (cond
                     (not (nil? present-package))
-                    (when (or (and (= polarity :absent)
+                    (when (or (and (= status :absent)
                                    (not (spec present-package))
-                                   (and (= polarity :present)
+                                   (and (= status :present)
                                         (spec present-package))))
                       (resolve-deps
                         repo
@@ -78,14 +61,14 @@
                         found-packages
                         absent-specs
                         rclauses))
-                    (= polarity :absent)
+                    (= status :absent)
                     (resolve-deps
                       repo
                       present-packages
                       found-packages
                       (assoc-conj absent-specs id spec)
                       rclauses)
-                    (= polarity :present)
+                    (= status :present)
                     (some
                       first-successful
                       (let [candidates (repo id)]
@@ -94,20 +77,20 @@
                             [candidate]
                             (resolve-deps
                               repo
-                              (assoc present-packages candidate)
-                              (assoc found-packages candidate)
+                              (assoc present-packages id candidate)
+                              (assoc found-packages id candidate)
                               absent-specs
                               (into rclauses (:requirements candidate))))
                           (filter
                             (fn vet-candidate
                               [candidate]
-                              (let [absent-literal (get absent-specs id)]
+                              (let [absent-requirement (get absent-specs id)]
                                 (if
-                                  absent-literal
+                                  absent-requirement
                                   (reduce
                                     #(and %1 (not (%2 candidate)))
                                     true
-                                    absent-literal)
+                                    absent-requirement)
                                   true)))
                             candidates))))
                     :else nil)))
@@ -117,13 +100,13 @@
 (defn resolve-dependencies
   [specs
    query &
-   {:keys [already-found
+   {:keys [present-packages
            conflicts]
-    :or {already-found {}
+    :or {present-packages {}
          conflicts {}}}]
   (resolve-deps
     query
-    already-found
+    present-packages
     {}
     conflicts
     specs))

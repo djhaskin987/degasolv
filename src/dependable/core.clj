@@ -1,8 +1,6 @@
 (ns dependable.core
+  (:require [clojure.core.match :refer [match]])
   (:gen-class))
-
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+(load "core_types")
+(load "core_resolve")
 
