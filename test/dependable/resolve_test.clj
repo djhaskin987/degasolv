@@ -58,7 +58,7 @@
         "d"
         [package-d22]}
        query (map-query repo-info)]
-  (deftest ^:resolve-basic retrieval
+  (deftest ^:resolve-basic ^:resolve-first-tier retrieval
            (testing "Asking for a present package succeeds."
                     (is (= (resolve-dependencies
                              [
