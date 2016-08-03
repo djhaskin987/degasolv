@@ -89,16 +89,16 @@
                               (assoc found-packages id candidate)
                               absent-specs
                               (into rclauses (:requirements candidate))))
-                          (debug (filter
+                          (filter
                             (fn vet-candidate
                               [candidate]
                               (and
-                                (debug (safe-spec-call spec candidate))
+                                (safe-spec-call spec candidate)
                                 (reduce
                                   #(and %1 (not (safe-spec-call %2 candidate)))
                                   true
                                   (get absent-specs id))))
-                            candidates)))))
+                            candidates))))
                     :else nil)))
               fclause))
           unsuccessful)))))

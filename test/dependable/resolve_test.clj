@@ -101,14 +101,14 @@
            (testing (str "Asking for a package present and having a "
                          "version that fits")
                     (is (= (resolve-dependencies
-                             [[(present "a" #(debug (and (>= (:version %1) 15)
-                                                  (<= (:version %1) 25))))]]
+                             [[(present "a" #(and (>= (:version %1) 15)
+                                                  (<= (:version %1) 25)))]]
                              query)
                            [:successful #{package-a20}]))
                     (is (= (resolve-dependencies
-                             [[(present "a" #(>= (:version %1) 25))]]
+                             [[(present "d" #(>= (:version %1) 20))]]
                              query)
-                           [:successful #{package-a30}]))))
+                           [:successful #{package-d22}]))))
 (deftest present-packages
          (testing "Asking to install a package twice."
                   (is (= (resolve-dependencies
