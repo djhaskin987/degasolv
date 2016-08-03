@@ -1,8 +1,9 @@
 (defmacro debug [form]
   `(let [x# ~form]
-     (println (pr-str "Debug: "
+     (println (str "DD| "
                    (quote ~form)
-                   " is " x#))
+                   " is " (pr-str x#)
+                   "|DD"))
      x#))
 
 (defmacro
@@ -79,7 +80,7 @@
                     (some
                       first-successful
                       (let [candidates (repo id)]
-                        (debug (map
+                        (map
                           (fn try-candidate
                             [candidate]
                             (resolve-deps
@@ -88,17 +89,15 @@
                               (assoc found-packages id candidate)
                               absent-specs
                               (into rclauses (:requirements candidate))))
-                          (filter
+                          (debug (filter
                             (fn vet-candidate
                               [candidate]
-                              (let [absent-requirement (get absent-specs id)]
-                                (if
-                                  absent-requirement
-                                  (reduce
-                                    #(and %1 (not (%2 candidate)))
-                                    true
-                                    absent-requirement)
-                                  true)))
+                              (and
+                                (debug (safe-spec-call spec candidate))
+                                (reduce
+                                  #(and %1 (not (safe-spec-call %2 candidate)))
+                                  true
+                                  (get absent-specs id))))
                             candidates)))))
                     :else nil)))
               fclause))

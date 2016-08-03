@@ -62,16 +62,16 @@
            (testing "Asking for a present package succeeds."
                     (is (= (resolve-dependencies
                              [
-                              [(present "a")]
+                              [(present "d")]
                               ]
                              query)
-                           [:successful #{package-a30}])))
+                           [:successful #{package-d22}]))
            (is (= (resolve-dependencies
                     [
                      [(present "c")]
                      ]
                     query)
-                  [:successful #{package-c10}]))
+                  [:successful #{package-c10}])))
            (testing "Asking for a nonexistent package fails."
                     (let [b-clause [(present "b")]]
                       (is (= (resolve-dependencies
@@ -93,7 +93,7 @@
                     (let [a-clause
                           [(present
                              "a"
-                             #(false))]]
+                             (fn [v] false))]]
                       (is (= (resolve-dependencies
                                [a-clause]
                                query)
@@ -101,11 +101,12 @@
            (testing (str "Asking for a package present and having a "
                          "version that fits")
                     (is (= (resolve-dependencies
-                             [[(present "a" #(and (>= %1 15) (<= %1 25)))]]
+                             [[(present "a" #(debug (and (>= (:version %1) 15)
+                                                  (<= (:version %1) 25))))]]
                              query)
                            [:successful #{package-a20}]))
                     (is (= (resolve-dependencies
-                             [[(present "a" #(>= %1 25))]]
+                             [[(present "a" #(>= (:version %1) 25))]]
                              query)
                            [:successful #{package-a30}]))))
 (deftest present-packages
