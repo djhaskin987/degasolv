@@ -1,3 +1,10 @@
+(defmacro debug [form]
+  `(let [x# ~form]
+     (println (pr-str "Debug: "
+                   (quote ~form)
+                   " is " x#))
+     x#))
+
 (defmacro
   prefer
   [thing other]
@@ -49,7 +56,7 @@
                 [requirement]
                 (let [{status :status id :id spec :spec} requirement
                       present-package (get present-packages id)]
-                  (cond
+                         (cond
                     (not (nil? present-package))
                     (when (or (and (= status :absent)
                                    (not (spec present-package))
@@ -72,7 +79,7 @@
                     (some
                       first-successful
                       (let [candidates (repo id)]
-                        (map
+                        (debug (map
                           (fn try-candidate
                             [candidate]
                             (resolve-deps
@@ -92,7 +99,7 @@
                                     true
                                     absent-requirement)
                                   true)))
-                            candidates))))
+                            candidates)))))
                     :else nil)))
               fclause))
           unsuccessful)))))

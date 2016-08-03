@@ -5,12 +5,6 @@
             package
             requirement]))
 
-(defmacro debug [form]
-  `(let [x# ~form]
-     (println (str "Debug: "
-                   (quote ~form)
-                   " is " x#))
-     x#))
 
 (defn map-query [m]
   (fn [nm]
@@ -22,53 +16,39 @@
 
 
 (let  [package-a30
-       #dependable.core.package
-       {
-        :id "a"
-        :version 30
-        :location "a_loc30"
-        :requirements
-        [
-         #dependable.core.requirement
-         {
-          :status :present
-          :id "c"
-          }
-         ]
-        }
+       (->package
+         "a"
+         30
+         "a_loc30"
+         [
+          [(present "c")]
+          ])
        package-a20
-       #dependable.core.package
-       {
-        :id "a"
-        :version 20
-        }
+       (->package
+         "a"
+         20
+         "a_loc20"
+         nil)
        package-c10
-       #dependable.core.package
-       {
-        :id "c"
-        :version 10
-        :location "c_loc10"
-        }
+       (->package
+         "c"
+         10
+         "c_loc10"
+         nil)
        package-d22
-       #dependable.core.package
-       {
-        :id "d"
-        :version 22
-        :location "d_loc22"
-        }
+       (->package
+        "d"
+        22
+        "d_loc22"
+         nil)
        package-e18
-       #dependable.core.package
-       {:id "e"
-        :version 18
-        :location "e_loc18"
-        :requirements
-        [
-         #dependable.core.requirement
-         {
-          :id "d"
-          }
-         ]
-        }
+       (->package
+         "e"
+         18
+         "e_loc18"
+         [
+          [(present "d")]
+          ])
        repo-info
        {"a"
         [package-a30
@@ -81,26 +61,19 @@
   (deftest ^:resolve-basic retrieval
            (testing "Asking for a present package succeeds."
                     (is (= (resolve-dependencies
-                             [[
-                               #dependable.core.requirement
-                               {
-                                :id "a"
-                                }]]
+                             [
+                              [(present "a")]
+                              ]
                              query)
                            [:successful #{package-a30}])))
            (is (= (resolve-dependencies
-                    [[#dependable.core.requirement
-                      {
-                       :id "c"
-                       }]]
+                    [
+                     [(present "c")]
+                     ]
                     query)
                   [:successful #{package-c10}]))
            (testing "Asking for a nonexistent package fails."
-                    (let [b-clause [
-                                    #dependable.core.requirement
-                                    {
-                                     :id "b"
-                                     }]]
+                    (let [b-clause [(present "b")]]
                       (is (= (resolve-dependencies
                                [b-clause]
                                query)
@@ -108,12 +81,9 @@
            (testing (str "Asking for a package present within the repo but "
                          "at no suitable version fails.")
                     (let [a-clause
-                          [
-                           #dependable.core.requirement
-                           {
-                            :id "a"
-                            :spec #(>= (:version %1) 40)
-                            }]]
+                          [(present
+                             "a"
+                             #(>= (:version %1) 40))]]
                       (is (= (resolve-dependencies
                                [a-clause]
                                query)
@@ -121,11 +91,9 @@
            (testing (str "Asking for a package present within the repo but "
                          "with unsuccessful constraints.")
                     (let [a-clause
-                          [
-                           {
-                            :id "a"
-                            :spec #(false)
-                            }]]
+                          [(present
+                             "a"
+                             #(false))]]
                       (is (= (resolve-dependencies
                                [a-clause]
                                query)
@@ -133,13 +101,11 @@
            (testing (str "Asking for a package present and having a "
                          "version that fits")
                     (is (= (resolve-dependencies
-                             [{:id "a"
-                               :version-spec #(and (>= %1 15) (<= %1 25))}]
+                             [[(present "a" #(and (>= %1 15) (<= %1 25)))]]
                              query)
                            [:successful #{package-a20}]))
                     (is (= (resolve-dependencies
-                             [{:id "a"
-                               :version-spec #(>= %1 25)}]
+                             [[(present "a" #(>= %1 25))]]
                              query)
                            [:successful #{package-a30}]))))
 (deftest present-packages
