@@ -1,9 +1,8 @@
 (defmacro debug [form]
   `(let [x# ~form]
-     (println (str "DD| "
-                   (quote ~form)
-                   " is " (pr-str x#)
-                   "|DD"))
+     (println (str "Debug: `" (quote ~form)
+                   "` is `" (pr-str x#)
+                   "`"))
      x#))
 
 (defmacro
@@ -20,8 +19,8 @@
       (assoc mp [v])
       (assoc mp
              (conj
-               (mp k)
-               v)))))
+              (mp k)
+              v)))))
 
 (defn spec-call [f v]
   (f v))
@@ -32,9 +31,9 @@
 (defn- first-successful
   [result]
   (match
-    result
-    [:successful _] result
-    :else nil))
+   result
+   [:successful _] result
+   :else nil))
 
 (defn- resolve-deps
   [repo
@@ -42,6 +41,7 @@
    found-packages
    absent-specs
    clauses]
+  (debug clauses)
   (if (empty? clauses)
     [:successful (set (vals found-packages))]
     (let [fclause (first clauses)
@@ -50,58 +50,67 @@
       (if (empty? fclause)
         unsuccessful
         (prefer
-          (some
-            first-successful
-            (map
-              (fn try-requirement
-                [requirement]
-                (let [{status :status id :id spec :spec} requirement
-                      present-package (get present-packages id)]
-                         (cond
-                    (not (nil? present-package))
-                    (when (or (and (= status :absent)
-                                   (not (spec present-package))
-                                   (and (= status :present)
-                                        (spec present-package))))
-                      (resolve-deps
-                        repo
-                        present-packages
-                        found-packages
-                        absent-specs
-                        rclauses))
-                    (= status :absent)
-                    (resolve-deps
+         (some
+          first-successful
+          (map
+           (fn try-requirement
+             [requirement]
+             (let [{status :status id :id spec :spec} requirement
+                   present-package (get present-packages id)]
+               (debug requirement)
+               (debug rclauses)
+               (debug present-package)
+               (cond
+                 (not (nil? present-package))
+                 (do
+                   (debug (or (and (= status :absent)
+                                  (not (safe-spec-call spec present-package)))
+                             (and (= status :present)
+                                  (safe-spec-call spec present-package))))
+                   (when
+                       (or (and (= status :absent)
+                                (not (safe-spec-call spec present-package)))
+                           (and (= status :present)
+                                (safe-spec-call spec present-package)))
+                     (resolve-deps
                       repo
                       present-packages
                       found-packages
-                      (assoc-conj absent-specs id spec)
-                      rclauses)
-                    (= status :present)
-                    (some
-                      first-successful
-                      (let [candidates (repo id)]
-                        (map
-                          (fn try-candidate
-                            [candidate]
-                            (resolve-deps
-                              repo
-                              (assoc present-packages id candidate)
-                              (assoc found-packages id candidate)
-                              absent-specs
-                              (into rclauses (:requirements candidate))))
-                          (filter
-                            (fn vet-candidate
-                              [candidate]
-                              (and
-                                (safe-spec-call spec candidate)
-                                (reduce
-                                  #(and %1 (not (safe-spec-call %2 candidate)))
-                                  true
-                                  (get absent-specs id))))
-                            candidates))))
-                    :else nil)))
-              fclause))
-          unsuccessful)))))
+                      absent-specs
+                      rclauses)))
+                 (= status :absent)
+                 (resolve-deps
+                  repo
+                  present-packages
+                  found-packages
+                  (assoc-conj absent-specs id spec)
+                  rclauses)
+                 (= status :present)
+                 (some
+                  first-successful
+                  (let [candidates (repo id)]
+                    (map
+                     (fn try-candidate
+                       [candidate]
+                       (resolve-deps
+                        repo
+                        (assoc present-packages id candidate)
+                        (assoc found-packages id candidate)
+                        absent-specs
+                        (into rclauses (:requirements candidate))))
+                     (filter
+                      (fn vet-candidate
+                        [candidate]
+                        (and
+                         (safe-spec-call spec candidate)
+                         (reduce
+                          #(and %1 (not (safe-spec-call %2 candidate)))
+                          true
+                          (get absent-specs id))))
+                      candidates))))
+                 :else nil)))
+           fclause))
+         unsuccessful)))))
 
 (defn resolve-dependencies
   [specs
@@ -111,11 +120,11 @@
     :or {present-packages {}
          conflicts {}}}]
   (resolve-deps
-    query
-    present-packages
-    {}
-    conflicts
-    specs))
+   query
+   present-packages
+   {}
+   conflicts
+   specs))
 
 #_((loop [remaining (seq specs)
           installed already-found
@@ -140,16 +149,16 @@
                  (if (or (nil? chosen)
                          (and (contains? conflict pname)
                               (safe-spec-call
-                                (conflict pname)
-                                (:version chosen))))
+                               (conflict pname)
+                               (:version chosen))))
                    [:unsatisfiable [pname]]
                    (recur r (assoc
-                              installed
-                              (:name chosen)
-                              (:version chosen))
+                             installed
+                             (:name chosen)
+                             (:version chosen))
                           (into
-                            conflict
-                            chosen-conflicts)
+                           conflict
+                           chosen-conflicts)
                           (conj result chosen)))))))))
 
 #_(defn -main

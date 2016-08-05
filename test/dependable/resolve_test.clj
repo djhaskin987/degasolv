@@ -128,16 +128,19 @@
               :present-packages
               {"c" package-c10})
              [:successful #{}])))
+
+    (println "starting ---")
     (testing (str "Asking to install a package that I have given as already "
                   "installed, even though the package isn't available.")
       (is (= (resolve-dependencies
               [
-               [(present "c")]
+               [(present "b")]
                ]
               query
               :present-packages {"b"
                                  (->package "b" 10 "b-loc10" nil)})
              [:successful #{}])))
+    (println "ending ---")
     (testing (str "Asking to install a package that is already "
                   "installed, but the installed version doesn't "
                   "suit, even though there is a suitable version "
@@ -150,15 +153,18 @@
                 query
                 :present-packages {"a" package-a20})
                [:unsuccessful clause]))))
+
     (testing (str "Asking to install a package that is already "
                   "installed, and the installed version suits.")
       (is (= (resolve-dependencies
               [
-               [(present "a" #(>= (:version %) 25))]
+               [(present "a" #(>= (:version %) 20))]
                ]
               query
-              :present-packages {"a" package-a30})
-             [:successful #{}]))))
+              :present-packages {"a" package-a20})
+             [:successful #{}])))
+        )
+
   (deftest conflicts
     (testing (str "Find a package which conflicts with another "
                   "package also to be installed.")
