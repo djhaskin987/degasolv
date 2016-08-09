@@ -41,7 +41,6 @@
    found-packages
    absent-specs
    clauses]
-  (debug clauses)
   (if (empty? clauses)
     [:successful (set (vals found-packages))]
     (let [fclause (first clauses)
@@ -57,16 +56,8 @@
              [requirement]
              (let [{status :status id :id spec :spec} requirement
                    present-package (get present-packages id)]
-               (debug requirement)
-               (debug rclauses)
-               (debug present-package)
                (cond
                  (not (nil? present-package))
-                 (do
-                   (debug (or (and (= status :absent)
-                                  (not (safe-spec-call spec present-package)))
-                             (and (= status :present)
-                                  (safe-spec-call spec present-package))))
                    (when
                        (or (and (= status :absent)
                                 (not (safe-spec-call spec present-package)))
@@ -77,7 +68,7 @@
                       present-packages
                       found-packages
                       absent-specs
-                      rclauses)))
+                      rclauses))
                  (= status :absent)
                  (resolve-deps
                   repo
