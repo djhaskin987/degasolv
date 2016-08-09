@@ -47,7 +47,7 @@
         18
         "e_loc18"
         [
-         [(present "d")]
+         [(absent "d")]
          ])
        repo-info
        {"a"
@@ -161,41 +161,32 @@
               query
               :present-packages {"a" package-a20})
              [:successful #{}])))
-        )
+    )
 
-  (deftest conflicts
-    (testing (str "Find a package which conflicts with another "
-                  "package also to be installed.")
-      (is (= (resolve-dependencies
-              [{:id "d"}
-               {:id "e"}]
-              query)
-             [:unsuccessful ["e"]])))
-    (testing (str "Find a package which conflicts with a package "
-                  "marked a priori as conflicting.")
-      (is (= (resolve-dependencies
-              [{:id "a"}
-               {:id "d"}]
-              query
-              :conflicts {"d" nil})
-             [:unsuccessful ["d"]])))
-    (testing (str "Find a package which conflicts with a package "
-                  "marked a priori as conflicting with something "
-                  "already installed.")
-      (is (= (resolve-dependencies
-              [{:id "d"}]
-              query
-              :present-packages {"a" 11}
-              :conflicts {"d" nil})
-             [:unsuccessful ["d"]])))
-
-    (testing (str "Find a package which conflicts with another "
-                  "package but not at its current version")
-      (is (= (resolve-dependencies
-              [{:id "d"}]
-              query
-              :conflicts {"d" #(< % 22)})
-             [:successful #{package-d22}])))))
+  (deftest ^:resolve-basic conflicts
+    (let [dclause [(present "d")]]
+      (testing (str "Find a package which conflicts with another "
+                    "package also to be installed.")
+               (is (= (resolve-dependencies
+                        [dclause
+                         [(present "e")]]
+                        query)
+                      [:unsuccessful dclause])))
+      (testing (str "Find a package which conflicts with a package "
+                    "marked a priori as conflicting.")
+               (is (= (resolve-dependencies
+                        [dclause
+                         [(present "a" #(<= (:version %) 25))]]
+                        query
+                        :conflicts {"d" [nil]})
+                      [:unsuccessful dclause])))
+      (testing (str "Find a package which conflicts with another "
+                    "package but not at its current version")
+        (is (= (resolve-dependencies
+                [dclause]
+                query
+                :conflicts {"d" [#(< (:version %) 22)]})
+               [:successful #{package-d22}]))))))
 
 
 #_(deftest ^:resolve-basic requires
