@@ -129,7 +129,6 @@
               {"c" package-c10})
              [:successful #{}])))
 
-    (println "starting ---")
     (testing (str "Asking to install a package that I have given as already "
                   "installed, even though the package isn't available.")
       (is (= (resolve-dependencies
@@ -140,7 +139,6 @@
               :present-packages {"b"
                                  (->package "b" 10 "b-loc10" nil)})
              [:successful #{}])))
-    (println "ending ---")
     (testing (str "Asking to install a package that is already "
                   "installed, but the installed version doesn't "
                   "suit, even though there is a suitable version "
