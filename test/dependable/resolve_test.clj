@@ -15,6 +15,8 @@
           v)))))
 
 
+;; TODO: disjunctive clause tests
+
 (let  [package-a30
        (->package
         "a"
@@ -188,17 +190,21 @@
                 :conflicts {"d" [#(< (:version %) 22)]})
                [:successful #{package-d22}]))))))
 
-
-#_(deftest ^:resolve-basic requires
+(deftest ^:resolve-basic requires
     (let [package-a
-          {:id "a"
-           :version 30
-           :location "a_loc30"
-           :requires [{:id "b"}]}
+          (->package
+            "a"
+            30
+            "a_loc30"
+            [
+             [(present "b")]
+             ])
           package-b
-          {:id "b"
-           :version 20
-           :location "b_loc20"}
+          (->package
+            "b"
+            20
+            "b_loc20"
+            nil)
           repo-info
           {"a" [package-a]
            "b" [package-b]}
@@ -206,42 +212,59 @@
       (testing (str "One package should require another and both "
                     "should be found.")
         (is (= (resolve-dependencies
-                [{:id "a"}]
+                 [
+                  [(present "a")]
+                  ]
                 query)
                [:successful #{package-a package-b}])))
       (testing (str "One package should be found when it requires "
                     "another, but it's already installed.")
         (is (= (resolve-dependencies
-                [{:id "a"}]
+                 [
+                  [(present "a")]
+                  ]
                 query
-                :present-packages {"b" 20})
+                :present-packages {"b" package-b})
                [:successful #{package-a}]))))
     (let [package-a
-          {:id "a"
-           :version 10
-           :location "a_loc30"}
+          (->package
+            "a"
+            10
+            "a_loc10"
+            nil)
           package-b
-          {:id "b"
-           :version 20
-           :location "b_loc20"
-           :requires [{:id "c"}]}
+          (->package
+            "b"
+            20
+            "b_loc20"
+            [
+             [(present "c")]
+             ])
           package-c
-          {:id "c"
-           :version 10
-           :conflicts {"a" nil}}
-
+          (->package
+            "c"
+            10
+            "c_loc10"
+            [
+             [(absent "a")]
+             ])
           repo-info
           {"a" [package-a]
            "b" [package-b]
            "c" [package-c]}
           query (map-query repo-info)]
-      (testing (str "A package having dependencies which conflicts with "
-                    "other packages downloaded should be rejected.")
+      (testing
+        (str "A package having dependencies which conflicts with "
+             "other packages downloaded should be rejected.")
+        (let [aclause [(present "a")]
+              bclause [(present "b")]]
         (is (= (resolve-dependencies
-                [{:id "a"}
-                 {:id "b"}]
+                 [
+                  aclause
+                  bclause
+                  ]
                 query)
-               [:unsuccessful ["b" "c"]]))))
+               [:unsuccessful aclause])))))
     (let [package-a
           {:id "a"
            :version 10
@@ -262,12 +285,53 @@
           query (map-query repo-info)]
       (testing (str "A package having dependencies rejected a priori "
                     "also gets rejected")
-        (is (= (resolve-dependencies
-                [{:id "a"}
-                 {:id "b"}]
-                query
-                :conflicts {"c" nil})
-               [:unsuccessful ["b" "c"]])))))
+               (let [aclause [(present "a")]]
+                 (is (= (resolve-dependencies
+                          [
+                           aclause
+                           [(present "b")]
+                           ]
+                          query
+                          :conflicts {"c" nil})
+                        [:unsuccessful aclause]))))))
+
+(deftest
+  ^:resolve-basic disjunctive-clauses
+  (testing
+    "Disjunction tautology"
+    (is (= (resolve-dependencies
+             [
+              [(absent "c") (present "b")]
+              ]
+             (map-query {}))
+             [:successful #{}])))
+  (testing
+    "Skip past a conflict"
+    (let [package-a
+          (->package
+            "a"
+            30
+            "a_loc30"
+            [
+             [(present "b")]
+             ])
+          package-b
+          (->package
+            "b"
+            20
+            "b_loc20"
+            nil)
+          repo-info
+          {"a" [package-a]
+           "b" [package-b]}
+          query (map-query repo-info)]
+      (is (= (resolve-dependencies
+               [
+                [(absent "c") (present "b")]
+                ]
+               query
+               :present-packages (->package "c" 10 "c_loc10" nil))
+             [:successful #{package-b}])))))
 
 #_(deftest ^:resolve-basic no-locking
     (testing (str "Find two packages, even when the preferred version "
