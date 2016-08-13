@@ -1,4 +1,4 @@
-(defproject dependable "0.1.0-SNAPSHOT"
+(defproject dependable "0.1.0"
             :description "Dependency resolution for the impatient."
             :url "http://example.com/FIXME"
             :license {:name "Eclipse Public License"
