@@ -9,3 +9,10 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+
+# editor files
+.#*
+.*#
+\#*
+*~
+.*.sw[a-z]
