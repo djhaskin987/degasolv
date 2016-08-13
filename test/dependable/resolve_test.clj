@@ -5,7 +5,6 @@
             package
             requirement]))
 
-
 (defn map-query [m]
   (fn [nm]
     (let [result (find m nm)]
@@ -61,134 +60,143 @@
         [package-d22]}
        query (map-query repo-info)]
   (deftest ^:resolve-basic ^:resolve-first-tier retrieval
-    (testing "Asking for a present package succeeds."
-      (is (= (resolve-dependencies
-              [
-               [(present "d")]
-               ]
-              query)
-             [:successful #{package-d22}]))
-      (is (= (resolve-dependencies
-              [
-               [(present "c")]
-               ]
-              query)
-             [:successful #{package-c10}])))
-    (testing "Asking for a nonexistent package fails."
-      (let [b-clause [(present "b")]]
-        (is (= (resolve-dependencies
-                [b-clause]
-                query)
-               [:unsuccessful b-clause]))))
-    (testing (str "Asking for a package present within the repo but "
+           (testing
+             "Asking for a present package succeeds."
+             (is (= [:successful #{package-d22}]
+                    (resolve-dependencies
+                      [
+                       [(present "d")]
+                       ]
+                      query)))
+             (is (= [:successful #{package-c10}]
+                    (resolve-dependencies
+                      [
+                       [(present "c")]
+                       ]
+                      query))))
+           (testing
+             "Asking for a nonexistent package fails."
+             (let [b-clause [(present "b")]]
+               (is (= [:unsuccessful b-clause]
+                      (resolve-dependencies
+                        [b-clause]
+                        query)))))
+           (testing
+             (str "Asking for a package present within the repo but "
                   "at no suitable version fails.")
-      (let [a-clause
-            [(present
-              "a"
-              #(>= (:version %1) 40))]]
-        (is (= (resolve-dependencies
-                [a-clause]
-                query)
-               [:unsuccessful a-clause]))))
-    (testing (str "Asking for a package present within the repo but "
+             (let [a-clause
+                   [(present
+                      "a"
+                      #(>= (:version %1) 40))]]
+               (is (= [:unsuccessful a-clause]
+                      (resolve-dependencies
+                        [a-clause]
+                        query)))))
+           (testing
+             (str "Asking for a package present within the repo but "
                   "with unsuccessful constraints.")
-      (let [a-clause
-            [(present
-              "a"
-              (fn [v] false))]]
-        (is (= (resolve-dependencies
-                [a-clause]
-                query)
-               [:unsuccessful a-clause]))))
-    (testing (str "Asking for a package present and having a "
+             (let [a-clause
+                   [(present
+                      "a"
+                      (fn [v] false))]]
+               (is (= [:unsuccessful a-clause]
+                      (resolve-dependencies
+                        [a-clause]
+                        query)))))
+           (testing
+             (str "Asking for a package present and having a "
                   "version that fits")
-      (is (= (resolve-dependencies
-              [[(present "a" #(and (>= (:version %1) 15)
-                                   (<= (:version %1) 25)))]]
-              query)
-             [:successful #{package-a20}]))
-      (is (= (resolve-dependencies
-              [[(present "d" #(>= (:version %1) 20))]]
-              query)
-             [:successful #{package-d22}]))))
+             (is (= [:successful #{package-a20}]
+                    (resolve-dependencies
+                      [[(present "a" #(and (>= (:version %1) 15)
+                                           (<= (:version %1) 25)))]]
+                      query)))
+             (is (= [:successful #{package-d22}]
+                    (resolve-dependencies
+                      [[(present "d" #(>= (:version %1) 20))]]
+                      query)))))
   (deftest ^:resolve-basic present-packages
-    (testing "Asking to install a package twice."
-      (is (= (resolve-dependencies
-              [
-               [(present "c")]
-               [(present "c")]
-               ]
-              query)
-             [:successful #{package-c10}])))
-    (testing (str "Asking to install a package that I have given as "
+           (testing
+             "Asking to install a package twice."
+             (is (= [:successful #{package-c10}]
+                    (resolve-dependencies
+                      [
+                       [(present "c")]
+                       [(present "c")]
+                       ]
+                      query))))
+           (testing
+             (str "Asking to install a package that I have given as "
                   "already installed.")
-      (is (= (resolve-dependencies
-              [
-               [(present "c")]
-               ]
-              query
-              :present-packages
-              {"c" package-c10})
-             [:successful #{}])))
+             (is (= [:successful #{}]
+                    (resolve-dependencies
+                      [
+                       [(present "c")]
+                       ]
+                      query
+                      :present-packages
+                      {"c" package-c10}))))
 
-    (testing (str "Asking to install a package that I have given as already "
+           (testing
+             (str "Asking to install a package that I have given as already "
                   "installed, even though the package isn't available.")
-      (is (= (resolve-dependencies
-              [
-               [(present "b")]
-               ]
-              query
-              :present-packages {"b"
-                                 (->package "b" 10 "b-loc10" nil)})
-             [:successful #{}])))
-    (testing (str "Asking to install a package that is already "
+             (is (= [:successful #{}]
+                    (resolve-dependencies
+                      [
+                       [(present "b")]
+                       ]
+                      query
+                      :present-packages {"b"
+                                         (->package "b" 10 "b-loc10" nil)}))))
+           (testing
+             (str "Asking to install a package that is already "
                   "installed, but the installed version doesn't "
                   "suit, even though there is a suitable version "
                   "available.")
-      (let [clause [(present "a" #(>= (:version %) 25))]]
-        (is (= (resolve-dependencies
-                [
-                 clause
-                 ]
-                query
-                :present-packages {"a" package-a20})
-               [:unsuccessful clause]))))
+             (let [clause [(present "a" #(>= (:version %) 25))]]
+               (is (= [:unsuccessful clause]
+                      (resolve-dependencies
+                        [
+                         clause
+                         ]
+                        query
+                        :present-packages {"a" package-a20})))))
 
-    (testing (str "Asking to install a package that is already "
+           (testing
+             (str "Asking to install a package that is already "
                   "installed, and the installed version suits.")
-      (is (= (resolve-dependencies
-              [
-               [(present "a" #(>= (:version %) 20))]
-               ]
-              query
-              :present-packages {"a" package-a20})
-             [:successful #{}])))
-    )
-
+             (is (= [:successful #{}]
+                    (resolve-dependencies
+                      [
+                       [(present "a" #(>= (:version %) 20))]
+                       ]
+                      query
+                      :present-packages {"a" package-a20})))))
   (deftest ^:resolve-basic conflicts
-    (let [dclause [(present "d")]]
-      (testing (str "Find a package which conflicts with another "
-                    "package also to be installed.")
-               (is (= (resolve-dependencies
+           (let [dclause [(present "d")]]
+             (testing
+               (str "Find a package which conflicts with another "
+                           "package also to be installed.")
+               (is (= [:unsuccessful dclause]
+                      (resolve-dependencies
                         [dclause
                          [(present "e")]]
-                        query)
-                      [:unsuccessful dclause])))
-      (testing (str "Find a package which conflicts with a package "
-                    "marked a priori as conflicting.")
-               (is (= (resolve-dependencies
-                        [dclause
-                         [(present "a" #(<= (:version %) 25))]]
-                        query
-                        :conflicts {"d" [nil]})
-                      [:unsuccessful dclause])))
-      (testing (str "Find a package which conflicts with another "
-                    "package but not at its current version")
-        (is (= (resolve-dependencies
-                [dclause]
-                query
-                :conflicts {"d" [#(< (:version %) 22)]})
-               [:successful #{package-d22}]))))))
+                        query))))
+             (testing (str "Find a package which conflicts with a package "
+                           "marked a priori as conflicting.")
+                      (is (= [:unsuccessful dclause]
+                             (resolve-dependencies
+                               [dclause
+                                [(present "a" #(<= (:version %) 25))]]
+                               query
+                               :conflicts {"d" [nil]}))))
+             (testing (str "Find a package which conflicts with another "
+                           "package but not at its current version")
+                      (is (= [:successful #{package-d22}]
+                             (resolve-dependencies
+                               [dclause]
+                               query
+                               :conflicts {"d" [#(< (:version %) 22)]})))))))
 
 (deftest ^:resolve-basic requires
     (let [package-a
@@ -209,23 +217,25 @@
           {"a" [package-a]
            "b" [package-b]}
           query (map-query repo-info)]
-      (testing (str "One package should require another and both "
-                    "should be found.")
-        (is (= (resolve-dependencies
+      (testing
+        (str "One package should require another and both "
+             "should be found.")
+        (is (= [:successful #{package-a package-b}]
+               (resolve-dependencies
                  [
                   [(present "a")]
                   ]
-                query)
-               [:successful #{package-a package-b}])))
-      (testing (str "One package should be found when it requires "
-                    "another, but it's already installed.")
-        (is (= (resolve-dependencies
+                 query))))
+      (testing
+        (str "One package should be found when it requires "
+             "another, but it's already installed.")
+        (is (= [:successful #{package-a}]
+               (resolve-dependencies
                  [
                   [(present "a")]
                   ]
-                query
-                :present-packages {"b" package-b})
-               [:successful #{package-a}]))))
+                 query
+                 :present-packages {"b" package-b})))))
     (let [package-a
           (->package
             "a"
@@ -256,55 +266,68 @@
       (testing
         (str "A package having dependencies which conflicts with "
              "other packages downloaded should be rejected.")
+
         (let [aclause [(present "a")]
               bclause [(present "b")]]
-        (is (= (resolve-dependencies
-                 [
-                  aclause
-                  bclause
-                  ]
-                query)
-               [:unsuccessful aclause])))))
+          (is (= [:unsuccessful aclause]
+                 (resolve-dependencies
+                   [
+                    aclause
+                    bclause
+                    ]
+                   query)))))
     (let [package-a
-          {:id "a"
-           :version 10
-           :location "a_loc10"}
+          (->package
+            "a"
+            10
+            "a_loc10"
+            nil)
           package-b
-          {:id "b"
-           :version 10
-           :location "b_loc10"
-           :requires [{:id "c"}]}
+          (->package
+            "b"
+            10
+            "b_loc10"
+            [
+             [(present "c")]
+             ]
+            )
           package-c
-          {:id "c"
-           :version 10
-           :local "c_loc10"}
+          (->package
+            "c"
+            10
+            "c_loc10"
+            nil
+            )
           repo-info
           {"a" [package-a]
            "b" [package-b]
            "c" [package-c]}
           query (map-query repo-info)]
-      (testing (str "A package having dependencies rejected a priori "
-                    "also gets rejected")
-               (let [aclause [(present "a")]]
-                 (is (= (resolve-dependencies
-                          [
-                           aclause
-                           [(present "b")]
-                           ]
-                          query
-                          :conflicts {"c" nil})
-                        [:unsuccessful aclause]))))))
+      (testing
+        (str "A package having dependencies rejected a priori "
+             "also gets rejected")
+        (let [aclause [(present "a")]]
+
+          (is (= [:unsuccessful aclause]
+                 (resolve-dependencies
+                   [
+                    aclause
+                    [(present "b")]
+                    ]
+                   query
+                   :conflicts {"c" [nil]}))
+              ))))))
 
 (deftest
   ^:resolve-basic disjunctive-clauses
   (testing
     "Disjunction tautology"
-    (is (= (resolve-dependencies
+    (is (= [:successful #{}]
+           (resolve-dependencies
              [
               [(absent "c") (present "b")]
               ]
-             (map-query {}))
-             [:successful #{}])))
+             (map-query {})))))
   (testing
     "Skip past a conflict"
     (let [package-a
@@ -325,67 +348,94 @@
           {"a" [package-a]
            "b" [package-b]}
           query (map-query repo-info)]
-      (is (= (resolve-dependencies
+      (is (= [:successful #{package-b}]
+             (resolve-dependencies
                [
                 [(absent "c") (present "b")]
                 ]
                query
-               :present-packages (->package "c" 10 "c_loc10" nil))
-             [:successful #{package-b}])))))
+               :present-packages {"c" (->package "c" 10 "c_loc10" nil)}))))))
 
-#_(deftest ^:resolve-basic no-locking
-    (testing (str "Find two packages, even when the preferred version "
-                  "of one package conflicts with the other")
+(deftest ^:resolve-basic no-locking
+    (testing
+      (str "Find two packages, even when the preferred version "
+           "of one package conflicts with the other")
       (let [package-a30
-            {:id "a"
-             :version 30
-             :location "a_loc30"
-             :conflicts {"c" nil}
-             }
+            (->package
+              "a"
+              30
+              "a_loc30"
+              [
+               [(absent "c")]
+               ])
             package-a20
-            {:id "a"
-             :version 20
-             :location "a_loc20"}
+            (->package
+              "a"
+              20
+              "a_loc20"
+              nil)
             package-c10
-            {:id "c"
-             :version 10
-             :location "c_loc10"}
+            (->package
+              "c"
+              10
+              "c_loc10"
+              nil)
             repo-info
             {"a" [package-a30 package-a20]
              "c" [package-c10]}
             query (map-query repo-info)]
-        (is (= (resolve-dependencies
-                [{:id "a"}
-                 {:id "c"}]
-                query)
-               [:successful #{package-a20 package-c10}]))))
+        (is (= [:successful #{package-a20 package-c10}]
+               (resolve-dependencies
+                 [
+                  [(present "a")]
+                  [(present "c")]
+                  ]
+                 query)))))
     (testing (str "Diamond problem")
       (let [package-a
-            {:id "a"
-             :version 1
-             :location "a_loc1"
-             :requires [{:id "b"}
-                        {:id "c"}]}
+            (->package
+              "a"
+              1
+              "a_loc1"
+              [
+               [(present "b")]
+               [(present "c")]
+               ]
+              )
             package-b
-            {:id "b"
-             :version 1
-             :location "b_loc1"
-             :requires [{:id "d"
-                         :version-spec #(>= % 2)}]}
+            (->package
+              "b"
+              1
+              "b_loc1"
+              [
+               [(present
+                  "d"
+                  #(>= (:version %) 2))]
+               ]
+              )
             package-c
-            {:id "c"
-             :version 1
-             :location "c_loc1"
-             :requires [{:id "d"
-                         :version-spec #(< % 4)}]}
+            (->package
+              "c"
+              1
+              "c_loc1"
+              [
+               [(present
+                  "d"
+                  #(< (:version %) 4))]
+               ]
+              )
             package-d3
-            {:id "d"
-             :version 3
-             :location "d_loc3"}
+            (->package
+              "d"
+              3
+              "d_loc3"
+              nil)
             package-d4
-            {:id "d"
-             :version 4
-             :location "d_loc4"}
+            (->package
+              "d"
+              4
+              "d_loc4"
+              nil)
             repo-info
             {"a" [package-a]
              "b" [package-b]
@@ -393,53 +443,69 @@
              "d" [package-d4 package-d3]}
             query
             (map-query repo-info)]
-        (is (= (resolve-dependencies
-                [{:id "a"}]
-                query)
-               [:successful
+        (is (= [:successful
                 #{package-a
                   package-b
                   package-c
-                  package-d3}]))))
+                  package-d3}]
+               (resolve-dependencies
+                 [[(present "a")]]
+                 query)))))
     (testing (str "Inter-Locking Diamond problem")
       (let [package-a
-            {:id "a"
-             :version 1
-             :location "a_loc1"
-             :requires [{:id "b"}
-                        {:id "c"}]}
+            (->package
+              "a"
+              1
+              "a_loc1"
+              [
+               [(present "b")]
+               [(present "c")]
+               ]
+              )
             package-b
-            {:id "b"
-             :version 1
-             :location "b_loc1"
-             :requires [{:id "d"
-                         :version-spec #(>= % 2)}
-                        {:id "e"
-                         :version-spec #(= % 5)}]}
+            (->package
+              "b"
+              1
+              "b_loc1"
+              [
+               [(present "d" #(>= (:version %) 2))]
+               [(present "e" #(= (:version %) 5))]
+               ]
+              )
             package-c
-            {:id "c"
-             :version 1
-             :location "c_loc1"
-             :requires [{:id "e"
-                         :version-spec #(>= % 1)}
-                        {:id "d"
-                         :version-spec #(< % 4)}]}
+            (->package
+              "c"
+              1
+              "c_loc1"
+              [
+               [(present "e" #(>= (:version %) 1))]
+               [(present "d" #(< (:version %) 4))]
+               ]
+              )
             package-d3
-            {:id "d"
-             :version 3
-             :location "d_loc3"}
+            (->package
+              "d"
+              3
+              "d_loc3"
+              nil)
             package-d4
-            {:id "d"
-             :version 4
-             :location "d_loc4"}
+            (->package
+              "d"
+              4
+              "d_loc4"
+              nil)
             package-e6
-            {:id "e"
-             :version 6
-             :location "e_loc6"}
+            (->package
+              "e"
+              6
+              "e_loc6"
+              nil)
             package-e5
-            {:id "e"
-             :version 6
-             :location "e_loc5"}
+            (->package
+              "e"
+              5
+              "e_loc5"
+              nil)
             repo-info
             {"a" [package-a]
              "b" [package-b]
@@ -448,54 +514,77 @@
              "e" [package-e6 package-e5]}
             query
             (map-query repo-info)]
-        (is (= (resolve-dependencies
-                [{:id "a"}]
-                query)
-               [:successful
+        (is (= [:successful
                 #{package-a
                   package-b
                   package-c
                   package-d3
-                  package-e5}]))))
+                  package-e5}]
+               (resolve-dependencies
+                 [
+                  [(present "a")]
+                  ]
+                 query)
+               ))))
     (testing (str "The puzzle")
       (let [package-a
-            {:id "a"
-             :version 1
-             :location "a_loc1"
-             :requires [{:id "b"}
-                        {:id "c"}]}
+            (->package
+              "a"
+              1
+              "a_loc1"
+              [
+               [(present "b")]
+               [(present "c")]
+               ]
+              )
             package-b
-            {:id "b"
-             :version 1
-             :location "b_loc1"
-             :requires [{:id "d"
-                         :version-spec #(>= % 1)}]}
+            (->package
+              "b"
+              1
+              "b_loc1"
+              [
+               [(present "d" #(>= (:version %) 1))]
+               ]
+              )
             package-c
-            {:id "c"
-             :version 1
-             :location "c_loc1"
-             :requires [{:id "d"
-                         :version-spec #(< % 4)}]}
+            (->package
+              "c"
+              1
+              "c_loc1"
+              [
+               [(present "d" #(< (:version %) 4))]
+               ]
+              )
             package-d1
-            {:id "d"
-             :version 1
-             :location "d_loc1"
-             :requires [{:id "e"
-                         :version-spec #(= % 4)}]}
+            (->package
+              "d"
+              1
+              "d_loc1"
+              [
+               [(present "e" #(= (:version %) 4))]
+               ]
+              )
             package-d2
-            {:id "d"
-             :version 2
-             :location "d_loc2"
-             :requires [{:id "e"
-                         :version-spec #(= % 3)}]}
+            (->package
+              "d"
+              2
+              "d_loc2"
+              [
+               [(present "e" #(= (:version %) 3))]
+               ]
+              )
             package-e4
-            {:id "e"
-             :version 4
-             :location "e_loc4"}
+            (->package
+              "e"
+              4
+              "e_loc4"
+              nil)
             package-e3
-            {:id "e"
-             :version 3
-             :location "e_loc3"}
+            (->package
+              "3"
+              3
+              "e_loc3"
+              nil)
             repo-info
             {"a" [package-a]
              "b" [package-b]
@@ -504,53 +593,72 @@
              "e" [package-e4 package-e3]}
             query
             (map-query repo-info)]
-        (is (= (resolve-dependencies
-                [{:id "a"}]
-                query)
-               [:successful #{package-a
+        (is (= [:successful #{package-a
                               package-b
                               package-c
-                              package-d1
-                              package-e4}]))))
-    (testing (str "Double diamond")
+                              package-d2
+                              package-e3}]
+               (resolve-dependencies
+                 [
+                  [(present "a")]
+                  ]
+                 query)))))
+    (testing (str "Double Diamond")
       (let [package-a
-            {:id "a"
-             :version 1
-             :location "a_loc1"
-             :requires [{:id "b"}
-                        {:id "d"
-                         :version-spec #(>= % 1)}]}
+            (->package
+              "a"
+              1
+              "a_loc1"
+              [
+               [(present "b")]
+               [(present "d" #(>= (:version %) 1))]
+               ]
+              )
             package-b
-            {:id "b"
-             :version 1
-             :location "b_loc1"
-             :requires [{:id "d"
-                         :version-spec #(< % 4)}]}
+            (->package
+              "b"
+              1
+              "b_loc1"
+              [
+               [(present "d" #(< (:version %) 4))]
+               ]
+              )
             package-c
-            {:id "c"
-             :version 1
-             :location "c_loc1"
-             :requires [{:id "d"
-                         :version-spec #(= % 2)}]}
+            (->package
+              "c"
+              1
+              "c_loc1"
+              [
+               [(present "d" #(= (:version %) 2))]
+               ]
+              )
             package-d4
-            {:id "d"
-             :version 4
-             :location "d_loc4"}
+            (->package
+              "d"
+              4
+              "d_loc4"
+              nil)
             package-d3
-            {:id "d"
-             :version 3
-             :location "d_loc3"}
+            (->package
+              "d"
+              3
+              "d_loc3"
+              nil)
             package-d2
-            {:id "d"
-             :version 2
-             :location "d_loc2"}
+            (->package
+              "d"
+              2
+              "d_loc2"
+              nil)
             repo-info
             {"a" [package-a]
              "b" [package-b]
              "c" [package-c]
              "d" [package-d4 package-d3 package-d2]}
             query (map-query repo-info)]
-        (is (= (resolve-dependencies
-                [{:id "a"}]
-                query)
-               [:successful #{package-d2 package-c package-b package-a}])))))
+        (is (= [:successful #{package-d2 package-c package-b package-a}]
+               (resolve-dependencies
+                 [
+                  [(present "a")]
+                  ]
+                 query))))))

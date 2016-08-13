@@ -94,8 +94,8 @@
                         [candidate]
                         (and
                          (safe-spec-call spec candidate)
-                         (reduce
-                          #(and %1 (not (safe-spec-call %2 candidate)))
+                         (reduce (fn [x y]
+                          (and x (not (safe-spec-call y candidate))))
                           true
                           (get absent-specs id))))
                       candidates))))
@@ -105,52 +105,17 @@
 
 (defn resolve-dependencies
   [specs
-   query &
-   {:keys [present-packages
+   query & thing]
+  (let [{:keys [present-packages
            conflicts]
-    :or {present-packages {}
-         conflicts {}}}]
+          :or {present-packages {}
+               conflicts {}}} thing]
   (resolve-deps
    query
    present-packages
    {}
    conflicts
-   specs))
-
-#_((loop [remaining (seq specs)
-          installed already-found
-          conflict conflicts
-          result #{}]
-     (if (empty? remaining)
-       [:successful result]
-       (let [pkg (first remaining)
-             r (rest remaining)
-             pname (:name pkg)
-             pspec (:version-spec pkg)]
-         (cond (contains? installed pname)
-               (if (not (safe-spec-call pspec (installed pname)))
-                 [:unsatisfiable [pname]]
-                 (recur r installed conflict result))
-               (and (contains? conflict pname)
-                    (nil? (conflict pname)))
-               [:unsatisfiable [pname]]
-               :else
-               (let [chosen (choose-candidate pname pspec query)
-                     chosen-conflicts (:conflicts chosen)]
-                 (if (or (nil? chosen)
-                         (and (contains? conflict pname)
-                              (safe-spec-call
-                               (conflict pname)
-                               (:version chosen))))
-                   [:unsatisfiable [pname]]
-                   (recur r (assoc
-                             installed
-                             (:name chosen)
-                             (:version chosen))
-                          (into
-                           conflict
-                           chosen-conflicts)
-                          (conj result chosen)))))))))
+   specs)))
 
 #_(defn -main
     "I don't do a whole lot ... yet."
