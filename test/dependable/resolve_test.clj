@@ -603,7 +603,7 @@
                   [(present "a")]
                   ]
                  query)))))
-    (testing (str "Double Diamond")
+    (testing (str "Double diamond")
       (let [package-a
             (->package
               "a"
@@ -620,6 +620,7 @@
               1
               "b_loc1"
               [
+               [(present "c")]
                [(present "d" #(< (:version %) 4))]
                ]
               )
@@ -656,6 +657,7 @@
              "c" [package-c]
              "d" [package-d4 package-d3 package-d2]}
             query (map-query repo-info)]
+
         (is (= [:successful #{package-d2 package-c package-b package-a}]
                (resolve-dependencies
                  [
