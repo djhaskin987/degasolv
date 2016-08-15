@@ -664,3 +664,69 @@
                   [(present "a")]
                   ]
                  query))))))
+
+(deftest
+  ^:resolve-basic hoisting
+  (let [package-a
+        (->package
+          "a"
+          1
+          "a_loc1"
+          [
+           [(present "b") (present "c")]
+           ]
+          )
+        package-b
+        (->package
+          "b"
+          1
+          "b_loc1"
+          [
+           [(present "c")]
+           [(present "d" #(< (:version %) 4))]
+           ]
+          )
+        package-c
+        (->package
+          "c"
+          1
+          "c_loc1"
+          nil)
+        package-d
+        (->package
+          "d"
+          1
+          "d_loc1"
+          [
+           [(present "b") (absent "e")]
+           ]
+          )
+        repo-info
+        {"a" [package-a]
+         "b" [package-b]
+         "d" [package-d]}
+        query (map-query repo-info)
+        aclause
+        [(present "a")]]
+    (println "start ====")
+    (testing
+      "Prefer what's installed"
+      (is
+        (=
+          [:successful
+           #{package-a}]
+          (resolve-dependencies
+            [[(present "a")]]
+            query
+            :present-packages {"c" package-c}))))
+    (testing
+      "Prefer conflicts over installs"
+      (is
+        (=
+          [:successful
+           #{package-d}]
+          (resolve-dependencies
+            [[(present "d")]]
+            query
+            :present-packages {"c" package-c}
+            :conflicts {"e" [nil]}))))))
