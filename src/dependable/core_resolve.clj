@@ -16,8 +16,8 @@
   (if (empty? mp)
     {k [v]}
     (if (empty? (get mp k))
-      (assoc mp [v])
-      (assoc mp
+      (assoc mp k [v])
+      (assoc mp k
              (conj
               (mp k)
               v)))))
@@ -100,7 +100,26 @@
                           (get absent-specs id))))
                       candidates))))
                  :else nil)))
-           fclause))
+           ;; Hoisting
+           (if (= 1 (count fclause))
+             fclause
+             (let [partn
+                   (group-by
+                    (fn [term]
+                      (let [id (get term :id)]
+                        (cond
+                          (get
+                           absent-specs
+                           id)
+                          :absent
+                          (get
+                           present-packages
+                           id)
+                          :present
+                          :else
+                          :unspecified)))
+                    fclause)]
+               (concat (:absent partn) (:present partn) (:unspecified partn))))))
          unsuccessful)))))
 
 (defn resolve-dependencies
