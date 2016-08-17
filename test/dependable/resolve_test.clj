@@ -730,3 +730,17 @@
             :present-packages {"c" package-c}
             :conflicts {"e" [nil]}))))))
 
+(deftest
+  ^:resolve-basic incompatibility
+  (testing "The wind in the willows"
+    (let [spec #(< (:version %) 5)]
+    (is
+     (= [:incompatible "a" spec]
+    (resolve-dependencies
+     [[(present "a" 5 spec)]]
+     (map-query {})
+     :present-package {"a" (->package
+                            "a"
+                            5
+                            "a_loc5"
+                            nil)}))))))
