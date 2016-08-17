@@ -150,6 +150,17 @@
    conflicts
    specs)))
 
+;; some notes on how to program in the category dependency assumption
+;; where 'a spec' is the function which examines candidates
+;; this works well because candidates are first examined for hoisted terms
+#_(letfn [(a [spec] ...)]
+    (loop [spec spec]
+      (let [rs (a spec)]
+        (match rs
+               [:incompatible my_id s]
+               (recur #(and (s %) (spec %)))
+               :else
+               rs))))
 #_(defn -main
     "I don't do a whole lot ... yet."
     [& args]
