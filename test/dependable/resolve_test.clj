@@ -153,8 +153,9 @@
                   "installed, but the installed version doesn't "
                   "suit, even though there is a suitable version "
                   "available.")
-             (let [clause [(present "a" #(>= (:version %) 25))]]
-               (is (= [:unsuccessful clause]
+             (let [spec #(>= (:version %) 25)
+                   clause [(present "a" spec)]]
+               (is (= [:incompatible "a" spec]
                       (resolve-dependencies
                         [
                          clause
@@ -737,9 +738,9 @@
     (is
      (= [:incompatible "a" spec]
     (resolve-dependencies
-     [[(present "a" 5 spec)]]
+     [[(present "a" spec)]]
      (map-query {})
-     :present-package {"a" (->package
+     :present-packages {"a" (->package
                             "a"
                             5
                             "a_loc5"
