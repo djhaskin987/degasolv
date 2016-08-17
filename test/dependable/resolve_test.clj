@@ -708,7 +708,6 @@
         query (map-query repo-info)
         aclause
         [(present "a")]]
-    (println "start ====")
     (testing
       "Prefer what's installed"
       (is
@@ -730,3 +729,4 @@
             query
             :present-packages {"c" package-c}
             :conflicts {"e" [nil]}))))))
+

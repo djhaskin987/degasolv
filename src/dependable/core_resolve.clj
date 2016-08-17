@@ -101,23 +101,25 @@
                       candidates))))
                  :else nil)))
            ;; Hoisting
-           (let [partn
-                 (group-by
-             (fn [term]
-               (let [id (get term :id)]
-               (cond
-                 (get
-                         absent-specs
-                         id)
-                 :absent
-                 (get
-                  present-packages
-                  id)
-                 :present
-                 :else
-                 :unspecified)))
-             fclause)]
-             (concat (:absent partn) (:present partn) (:unspecified partn)))))
+           (if (= 1 (count fclause))
+             fclause
+             (let [partn
+                   (group-by
+                    (fn [term]
+                      (let [id (get term :id)]
+                        (cond
+                          (get
+                           absent-specs
+                           id)
+                          :absent
+                          (get
+                           present-packages
+                           id)
+                          :present
+                          :else
+                          :unspecified)))
+                    fclause)]
+               (concat (:absent partn) (:present partn) (:unspecified partn))))))
          unsuccessful)))))
 
 (defn resolve-dependencies
