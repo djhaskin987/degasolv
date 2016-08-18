@@ -53,7 +53,8 @@
                (fn try-requirement
                  [requirement]
                  (let [{status :status id :id spec :spec} requirement
-                       present-package (get present-packages id)]
+                       present-package (get present-packages id)
+                       absent-term-specs (get absent-specs id)]
                    (cond
                      (not (nil? present-package))
                      (if
@@ -68,6 +69,8 @@
                         absent-specs
                         rclauses)
                        [:incompatible id spec])
+                     (not (nil? absent-term-specs))
+                     
                      (= status :absent)
                      (resolve-deps
                       repo
@@ -76,29 +79,33 @@
                       (assoc-conj absent-specs id spec)
                       rclauses)
                      (= status :present)
-                     (some
-                      first-successful
-                      (let [candidates (repo id)]
-                        (map
-                         (fn try-candidate
-                           [candidate]
-                           (resolve-deps
-                            repo
-                            (assoc present-packages id candidate)
-                            (assoc found-packages id candidate)
-                            absent-specs
-                            (into rclauses (:requirements candidate))))
-                         (filter
-                          (fn vet-candidate
-                            [candidate]
-                            (and
-                             (safe-spec-call spec candidate)
-                             (reduce (fn [x y]
-                                       (and x (not (safe-spec-call y candidate))))
-                                     true
-                                     (get absent-specs id))))
-                          candidates))))
-                     :else nil)))
+                     (let [candidates
+                           (repo id)
+                           allowed-candidates
+                           (filter
+                            (fn check-candidate
+                              [candidate]
+                              (not (reduce
+                                    or
+                                    false
+                                    (map
+                                     #(% candidate)
+                                     absent-term-specs))))
+                            candidates)]
+                       (if (empty? allowed-candidates)
+                         [:forbidden id spec]
+                         (some
+                          first-successful
+                          (map
+                           (fn try-candidate
+                             [candidate]
+                             (resolve-deps
+                              repo
+                              (assoc present-packages id candidate)
+                              (assoc found-packages id candidate)
+                              absent-specs
+                              (into rclauses (:requirements candidate))))
+                           allowed-candidates)))))))
                ;; Hoisting
                (if (= 1 (count fclause))
                  fclause
