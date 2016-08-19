@@ -69,8 +69,6 @@
                         absent-specs
                         rclauses)
                        [:incompatible id spec])
-                     (not (nil? absent-term-specs))
-                     
                      (= status :absent)
                      (resolve-deps
                       repo
@@ -86,14 +84,14 @@
                             (fn check-candidate
                               [candidate]
                               (not (reduce
-                                    or
+                                    #(or %1 %2)
                                     false
                                     (map
                                      #(% candidate)
                                      absent-term-specs))))
                             candidates)]
                        (if (empty? allowed-candidates)
-                         [:forbidden id spec]
+                         [:forbidden id]
                          (some
                           first-successful
                           (map
@@ -133,15 +131,15 @@
            (let [result-groups
                  (group-by
                   (fn [result]
-                    (match
-                     result
-                     [:incompatible _ _] :incompatible
-                     [:unsuccessful _] :unsuccessful
-                     :else :other))
-                   results)]
+                    (if (or (= :incompatible (first result))
+                            (= :forbidden (first result)))
+                      :incompatible
+                      :unsuccessful))
+                  results)]
              (first
-              (conj  (:incompatible result-groups)
-                    unsuccessful)))))))))
+              (conj
+               (:incompatible result-groups)
+               unsuccessful)))))))))
 
 (defn resolve-dependencies
   [specs
