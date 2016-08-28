@@ -58,7 +58,7 @@
                    present-package (get present-packages id)]
                (cond
                  (not (nil? present-package))
-                   (when
+                   (if
                        (or (and (= status :absent)
                                 (not (safe-spec-call spec present-package)))
                            (and (= status :present)
@@ -68,7 +68,8 @@
                       present-packages
                       found-packages
                       absent-specs
-                      rclauses))
+                      rclauses)
+                     [:forbidden id])
                  (= status :absent)
                  (resolve-deps
                   repo
