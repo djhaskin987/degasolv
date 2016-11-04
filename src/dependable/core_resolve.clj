@@ -48,98 +48,79 @@
           unsuccessful [:unsuccessful fclause]]
       (if (empty? fclause)
         unsuccessful
-        (let [results
-              (map
-               (fn try-requirement
-                 [requirement]
-                 (let [{status :status id :id spec :spec} requirement
-                       present-package (get present-packages id)
-                       absent-term-specs (get absent-specs id)]
-                   (cond
-                     (not (nil? present-package))
-                     (if
-                         (or (and (= status :absent)
-                                  (not (safe-spec-call spec present-package)))
-                             (and (= status :present)
-                                  (safe-spec-call spec present-package)))
-                       (resolve-deps
-                        repo
-                        present-packages
-                        found-packages
-                        absent-specs
-                        rclauses)
-                       [:incompatible id spec])
-                     (= status :absent)
+        (prefer
+         (some
+          first-successful
+          (map
+           (fn try-requirement
+             [requirement]
+             (let [{status :status id :id spec :spec} requirement
+                   present-package (get present-packages id)]
+               (cond
+                 (not (nil? present-package))
+                   (when
+                       (or (and (= status :absent)
+                                (not (safe-spec-call spec present-package)))
+                           (and (= status :present)
+                                (safe-spec-call spec present-package)))
                      (resolve-deps
                       repo
                       present-packages
                       found-packages
-                      (assoc-conj absent-specs id spec)
-                      rclauses)
-                     (= status :present)
-                     (let [candidates
-                           (repo id)
-                           allowed-candidates
-                           (filter
-                            (fn check-candidate
-                              [candidate]
-                              (not (reduce
-                                    #(or %1 %2)
-                                    false
-                                    (map
-                                     #(safe-spec-call % candidate)
-                                     absent-term-specs))))
-                            candidates)]
-                       (if (empty? allowed-candidates)
-                         [:forbidden id]
-                         (some
-                          first-successful
-                          (map
-                           (fn try-candidate
-                             [candidate]
-                             (resolve-deps
-                              repo
-                              (assoc present-packages id candidate)
-                              (assoc found-packages id candidate)
-                              absent-specs
-                              (into rclauses (:requirements candidate))))
-                           allowed-candidates)))))))
-               ;; Hoisting
-               (if (= 1 (count fclause))
-                 fclause
-                 (let [partn
-                       (group-by
-                        (fn [term]
-                          (let [id (get term :id)]
-                            (cond
-                              (get
-                               absent-specs
-                               id)
-                              :absent
-                              (get
-                               present-packages
-                               id)
-                              :present
-                              :else
-                              :unspecified)))
-                        fclause)]
-                   (concat (:absent partn) (:present partn) (:unspecified partn)))))]
-          (prefer
-           (some
-            first-successful
-            results)
-           (let [result-groups
-                 (group-by
-                  (fn [result]
-                    (if (or (= :incompatible (first result))
-                            (= :forbidden (first result)))
-                      :incompatible
-                      :unsuccessful))
-                  results)]
-             (first
-              (conj
-               (:incompatible result-groups)
-               unsuccessful)))))))))
+                      absent-specs
+                      rclauses))
+                 (= status :absent)
+                 (resolve-deps
+                  repo
+                  present-packages
+                  found-packages
+                  (assoc-conj absent-specs id spec)
+                  rclauses)
+                 (= status :present)
+                 (some
+                  first-successful
+                  (let [candidates (repo id)]
+                    (map
+                     (fn try-candidate
+                       [candidate]
+                       (resolve-deps
+                        repo
+                        (assoc present-packages id candidate)
+                        (assoc found-packages id candidate)
+                        absent-specs
+                        (into rclauses (:requirements candidate))))
+                     (filter
+                      (fn vet-candidate
+                        [candidate]
+                        (and
+                         (safe-spec-call spec candidate)
+                         (reduce (fn [x y]
+                          (and x (not (safe-spec-call y candidate))))
+                          true
+                          (get absent-specs id))))
+                      candidates))))
+                 :else nil)))
+           ;; Hoisting
+           (if (= 1 (count fclause))
+             fclause
+             (let [partn
+                   (group-by
+                    (fn [term]
+                      (let [id (get term :id)]
+                        (cond
+                          (get
+                           absent-specs
+                           id)
+                          :absent
+                          (get
+                           present-packages
+                           id)
+                          :present
+                          :else
+                          :unspecified)))
+                    fclause)]
+               (concat (:absent partn) (:present partn) (:unspecified partn))))))
+         unsuccessful)))))
 
 (defn resolve-dependencies
   [specs
@@ -155,17 +136,6 @@
    conflicts
    specs)))
 
-;; some notes on how to program in the category dependency assumption
-;; where 'a spec' is the function which examines candidates
-;; this works well because candidates are first examined for hoisted terms
-#_(letfn [(a [spec] ...)]
-    (loop [spec spec]
-      (let [rs (a spec)]
-        (match rs
-               [:incompatible my_id s]
-               (recur #(and (s %) (spec %)))
-               :else
-               rs))))
 #_(defn -main
     "I don't do a whole lot ... yet."
     [& args]
