@@ -748,7 +748,7 @@
   (testing "Asking for a forbidden version returns forbidden"
     (let [spec #(< (:version %) 5)]
       (is
-       (= [:forbidden "a"]
+       (= [:forbidden "a" spec]
           (resolve-dependencies
            [[(present "a")]]
            (map-query {"a" [(->package
