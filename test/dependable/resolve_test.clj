@@ -733,7 +733,7 @@
 
 (deftest
   ^:resolve-basic incompatibility
-  (testing "Asking for an incompatible version returns incompatible"
+  (testing "The wind in the willows"
     (let [spec #(< (:version %) 5)]
     (is
      (= [:incompatible "a" spec]
@@ -744,16 +744,4 @@
                             "a"
                             5
                             "a_loc5"
-                            nil)})))))
-  (testing "Asking for a forbidden version returns forbidden"
-    (let [spec #(< (:version %) 5)]
-      (is
-       (= [:forbidden "a" spec]
-          (resolve-dependencies
-           [[(present "a")]]
-           (map-query {"a" [(->package
-                            "a"
-                            3
-                            "a_loc3"
-                            nil)]})
-           :conflicts {"a" [spec]}))))))
+                            nil)}))))))
