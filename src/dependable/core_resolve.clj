@@ -87,7 +87,7 @@
                                     #(or %1 %2)
                                     false
                                     (map
-                                     #(safe-spec-call % candidate)
+                                     #(% candidate)
                                      absent-term-specs))))
                             candidates)]
                        (if (empty? allowed-candidates)
