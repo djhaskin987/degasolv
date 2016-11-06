@@ -1,3 +1,18 @@
+(ns dependable.resolver
+  (:require [clojure.core.match :refer [match]]))
+
+(defrecord requirement [status id spec])
+
+(defn present
+  ([id] (present id nil))
+  ([id spec] (->requirement :present id spec)))
+
+(defn absent
+  ([id] (absent id nil))
+  ([id spec] (->requirement :absent id spec)))
+
+(defrecord package [id version location requirements])
+
 (defmacro debug [form]
   `(let [x# ~form]
      (println (str "Debug: `" (quote ~form)
@@ -135,8 +150,3 @@
    {}
    conflicts
    specs)))
-
-#_(defn -main
-    "I don't do a whole lot ... yet."
-    [& args]
-    (println "Hello, World!"))
