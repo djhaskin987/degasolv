@@ -1,2 +1,0 @@
-(in-ns 'dependable.core)
-
