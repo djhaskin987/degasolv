@@ -3,10 +3,12 @@
   :url "http://github.com/djhaskin987/dependable"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/core.match "0.3.0-alpha4"]]
-  :main ^:skip-aot dependable.core
-  :target-path "target/%s"
+  :dependencies [
+                 [org.clojure/clojure "1.8.0"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [org.clojure/tools.cli "0.3.5"]
+                 ]
+  :main ^:skip-aot dependable.main
   :test-selectors
   {
    :default :resolve-basic
@@ -17,7 +19,6 @@
              :test {:dependencies [[org.apache.commons/commons-io "1.3.2"]]}
              :uberjar {:aot :all}
              }
-  :main ^:skip-aot dependable.main
   :target-path "target/%s")
                                         ;:test-selectors
                                         ;{
