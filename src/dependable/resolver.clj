@@ -1,4 +1,4 @@
-lk(ns dependable.resolver
+(ns dependable.resolver
   (:require [clojure.core.match :refer [match]]))
 
 (defrecord requirement [status id spec])
