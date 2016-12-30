@@ -13,19 +13,6 @@
 
 (defrecord package [id version location requirements])
 
-(defmacro debug [form]
-  `(let [x# ~form]
-     (println (str "Debug: `" (quote ~form)
-                   "` is `" (pr-str x#)
-                   "`"))
-     x#))
-
-(defmacro
-  prefer
-  [thing other]
-  `(let [x# ~thing]
-     (if x# x# ~other)))
-
 (defn assoc-conj
   [mp k v]
   (if (empty? mp)
@@ -84,7 +71,7 @@
                       unsuccessful [:unsuccessful fclause]]
                   (if (empty? fclause)
                     unsuccessful
-                    (prefer
+                    (or
                      (some
                       first-successful
                       (map
