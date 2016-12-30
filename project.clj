@@ -1,4 +1,4 @@
-(defproject dependable "1.0.2-SNAPSHOT"
+(defproject org.clojars.djhaskin987/dependable "1.0.2-SNAPSHOT"
   :description "Dependency resolution for the impatient."
   :url "http://github.com/djhaskin987/dependable"
   :license {:name "Eclipse Public License"

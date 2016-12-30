@@ -1,4 +1,7 @@
 # dependable
+
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.djhaskin987/dependable.svg)](https://clojars.org/org.clojars.djhaskin987/dependable)
+
 Dependency resolver for the impatient.
 
 I got really tired of seeing how often this problem was re-solved over
