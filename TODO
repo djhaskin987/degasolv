@@ -1,9 +1,0 @@
-* Add term hoisting
-* Add category dependency assumption ([:incompatible...])
-* Add circular dependency
-* Add provides
-* edn-zip-file repo
-* aux constructors
-* cmdline, REST
-* MAVEN repo
-* callable record type for specs

@@ -1,7 +1,7 @@
 (ns dependable.resolve-test
   (:require [clojure.test :refer :all]
-            [dependable.core :refer :all])
-  (:import [dependable.core
+            [dependable.resolver :refer :all])
+  (:import [dependable.resolver
             package
             requirement]))
 
@@ -12,8 +12,6 @@
         []
         (let [[k v] result]
           v)))))
-
-
 ;; TODO: disjunctive clause tests
 
 (let  [package-a30
