@@ -11,8 +11,6 @@ containing a particular function,
 `dependable.resolver/resolve-dependencies`, which can be used as a
 generic dependency resolver.
 
-This will soon be on clojars.
-
 Rather than give you not-so-informative example code using it, I will
 point you to the unit tests for this function, found under
 `test/dependable/resolver_test.clj`. All unit tests point to functionality
