@@ -1,4 +1,4 @@
-(defproject dependable "0.2.1-SNAPSHOT"
+(defproject dependable "1.0.1"
   :description "Dependency resolution for the impatient."
   :url "http://github.com/djhaskin987/dependable"
   :license {:name "Eclipse Public License"
@@ -18,9 +18,3 @@
              :uberjar {:aot :all}
              }
   :target-path "target/%s")
-                                        ;:test-selectors
-                                        ;{
-                                        ; :default :resolve-basic
-                                        ; :resolve-basic :resolve-basic
-                                        ; :resolve-harden :resolve-harden
-                                        ; }
