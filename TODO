@@ -1,5 +1,0 @@
-* Add tests for alternate resolve strategies
-* Add category dependency assumption ([:incompatible...])
-* Add circular dependency
-* edn-zip-file repo
-* callable record type for spee

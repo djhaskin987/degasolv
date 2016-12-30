@@ -12,8 +12,6 @@
         []
         (let [[k v] result]
           v)))))
-
-
 ;; TODO: disjunctive clause tests
 
 (let  [package-a30
