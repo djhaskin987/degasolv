@@ -155,10 +155,10 @@ This new file could then be copied up to the HTTP server in place of the old fil
 located at `http://example.com/repo/index.edn`.
 
 So, to summarize:
-  - We've just build `e`.
+  - We've just built the package for `e`.
   - After we build `e`, we update the repo metadata.
   - We also upload the file associated
-    with `e` to the repo, in this case it's `e-1.8.0.zip`.
+    with `e` to the repo. In this case, it's `e-1.8.0.zip`.
 
 Let us now suppose that we have repeated these steps for all packages
 mentioned above, except for the package `a`. The repo's `index.edn`
@@ -167,18 +167,20 @@ file might then look like this:
 ```clojure
 {
     "b"
-    [{
+    [
+        {
         :id "b"
         :version "1.7.0"
         :location "http://example.com/repo/b-1.7.0.zip"
         :requirements []
-    }
-    {
+        }
+        {
         :id "b"
         :version "2.3.0"
         :location "http://example.com/repo/b-2.4.0.zip"
         :requirements [[{:status :present :id "c" :spec [{:relation :greater-equal :version "3.5"}]}]]
-    }]
+        }
+    ]
     "c"
     [
         {
@@ -194,7 +196,8 @@ file might then look like this:
         }
     ]
     "d"
-    [{
+    [
+        {
         :id "d"
         :version "0.8.0"
         :location "http://example.com/repo/d-0.8.0.zip"
@@ -202,7 +205,8 @@ file might then look like this:
             :spec [
               {:relation :greater-equal :version "1.1"}
               {:relation :less-than :version "2.0"}]}]]
-    }]
+        }
+    ]
     "e"
     [
         {
