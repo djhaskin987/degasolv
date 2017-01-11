@@ -207,17 +207,20 @@ file might then look like this:
     [
         {
         :id "e"
-        :version "1.8"
+        :version "1.8.0"
+        :location "http://exmaple.com/repo/e-1.8.0.zip"
         :requirements []
         }
         {
         :id "e"
-        :version "2.1"
+        :version "2.1.0"
+        :location "http://exmaple.com/repo/e-2.1.0.zip"
         :requirements []
         }
         {
         :id "e"
-        :version "2.4"
+        :version "2.4.0"
+        :location "http://exmaple.com/repo/e-2.4.0.zip"
         :requirements []
         }
     ]
@@ -242,8 +245,8 @@ repository associated with building `a`. It might look like this:
 ```clojure
 {
     :id "a"
-    :version "2.1"
-    :file-name "a-2.1.zip"
+    :version "2.1.0"
+    :file-name "a-2.1.0.zip"
     :requirements [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0"}]}]]
 }
 ```
