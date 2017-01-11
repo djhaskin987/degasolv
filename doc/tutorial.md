@@ -92,8 +92,7 @@ builds kick out artifacts, which we will here call "components". These
 components depend on each other's presence in order to build. That
 dependency tree looks like this:
 
-<br/>
-<img src='http://g.gravizo.com/g?
+![dependency graph](http://g.gravizo.com/g?
  digraph G {
    a -> b;
    b -> c;
@@ -101,8 +100,7 @@ dependency tree looks like this:
    d -> e;
    c -> e;
 }
-'/>
-<br/>
+)
 
 For example, in order to build (and operate) component `a`, you must
 first have `b`, `c`, `d`, and `e` present in the build directory.
