@@ -1,6 +1,7 @@
 (ns dependable.resolve-test
   (:require [clojure.test :refer :all]
-            [dependable.resolver :refer :all])
+            [dependable.resolver :refer :all]
+            [clj-semver.core :refer [older?]])
   (:import [dependable.resolver
             package
             requirement]))
@@ -728,3 +729,84 @@
             :present-packages {"c" package-c}
             :conflicts {"e" [nil]}))))))
 
+(deftest ^:resolve-data tutorial-test
+  (let [repo-info
+        {
+         "b"
+         [
+          {
+           :id "b"
+           :version "1.7.0"
+           :location "http://example.com/repo/b-1.7.0.zip"
+           :requirements []
+           }
+          {
+           :id "b"
+           :version "2.3.0"
+           :location "http://example.com/repo/b-2.4.0.zip"
+           :requirements [[{:status :present :id "c" :spec [{:relation :greater-equal :version "3.5"}]}]]
+           }
+          ]
+         "c"
+         [
+          {
+           :id "c"
+           :version "2.4.7"
+           :location "http://example.com/repo/c-2.4.7.zip"
+           :requirements []
+           }
+          {
+           :id "c"
+           :version "3.5.0"
+           :requirements [[{:status :present :id "e" :spec [{:relation :greater-equal :version "1.8"}]}]]
+           }
+          ]
+         "d"
+         [
+          {
+           :id "d"
+           :version "0.8.0"
+           :location "http://example.com/repo/d-0.8.0.zip"
+           :requirements [[{:status :present :id "e"
+                            :spec [
+                                   {:relation :greater-equal :version "1.1"}
+                                   {:relation :less-than :version "2.0"}]}]]
+           }
+          ]
+         "e"
+         [
+          {
+           :id "e"
+           :version "1.8.0"
+           :location "http://exmaple.com/repo/e-1.8.0.zip"
+           :requirements []
+           }
+          {
+           :id "e"
+           :version "2.1.0"
+           :location "http://exmaple.com/repo/e-2.1.0.zip"
+           :requirements []
+           }
+          {
+           :id "e"
+           :version "2.4.0"
+           :location "http://exmaple.com/repo/e-2.4.0.zip"
+           :requirements []
+           }
+          ]
+         }
+        query
+        (map-query repo-info)]
+    (testing "A test of the tutorial."
+      (is (=
+           [
+            "http://example.com/repo/b-2.4.0.zip"
+            "http://example.com/repo/c-3.5.0.zip"
+            "http://example.com/repo/d-0.8.0.zip"
+            "http://exmaple.com/repo/e-1.8.0.zip"
+            ]
+           (map :location
+                (resolve-dependencies
+                 [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0"}]}]]
+                 query
+                 :compare older?)))))))
