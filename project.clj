@@ -10,7 +10,6 @@
                  ]
   :test-selectors
   {
-   :default :resolve-basic
    :resolve-basic :resolve-basic
    :resolve-harden :resolve-harden
    }

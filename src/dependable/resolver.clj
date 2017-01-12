@@ -1,5 +1,6 @@
 (ns dependable.resolver
-  (:require [clojure.core.match :refer [match]]))
+  (:require [clojure.core.match :refer [match]]
+             [dependable.util :refer :all]))
 
 (defrecord requirement [status id spec])
 
@@ -13,18 +14,7 @@
 
 (defrecord package [id version location requirements])
 
-(defn assoc-conj
-  [mp k v]
-  (if (empty? mp)
-    {k [v]}
-    (if (empty? (get mp k))
-      (assoc mp k [v])
-      (assoc mp k
-             (conj
-              (mp k)
-              v)))))
-
-(defn spec-call [f v]
+(defn- spec-call [f v]
   (f v))
 
 (def safe-spec-call

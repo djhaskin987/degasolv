@@ -275,6 +275,8 @@ use the `resolve-dependencies` function will suffice here:
     :compare clj-semver.core/older?))
 ```
 
+Or, alternatively, on the commandline:
+
 The following `map` function should return an array of locations
 which can then be used to download artifacts needed for the build. In
 our example, that should look like this:
