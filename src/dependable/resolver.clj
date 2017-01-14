@@ -17,7 +17,7 @@
 (defn- spec-call [f v]
   (f v))
 
-(def safe-spec-call
+(def nil-safe-spec-call
   (fnil spec-call (fn [v] true)))
 
 (defn- first-successful
@@ -27,16 +27,46 @@
    [:successful _] result
    :else nil))
 
+(defprotocol SpecCaller
+  (p-safe-spec-call [this spec present-package])
+  nil
+  (p-safe-spec-call [this spec present-package]
+    (nil-safe-spec-call spec present-package))
+  clojure.lang.IFn
+  (p-safe-spec-call [less spec present-package]
+    (if (nil? spec)
+      true
+      (let [pkg-ver (:version present-package)]
+        (reduce
+         (fn [cum val]
+           (let [chk-ver (:version val)]
+             (and cum
+                  (match val
+                         {:relation :greater-than :version v}
+                         (less chk-ver pkg-ver)
+                         {:relation :greater-equal :version v}
+                         (not (less pkg-ver chk-ver))
+                         {:relation :less-equal :version v}
+                         (not (less chk-ver pkg-ver))
+                         {:relation :equal-to :version v}
+                         (and (not (less pkg-ver chk-ver))
+                              (not (less chk-ver pkg-ver)))
+                         :else
+                         false)))) true spec)))))
+
 (defn resolve-dependencies
   [specs
    query & {:keys [present-packages
                    conflicts
-                   strategy]
+                   strategy
+                   compare]
             :or {present-packages {}
                  conflicts {}
-                 strategy :thorough}
+                 strategy :thorough
+                 compare nil}
             }]
-  (let [cull (match strategy
+  (let [safe-spec-call (partial p-safe-spec-call compare)
+        cull (match strategy
                     :thorough
                     (fn [candidates] candidates)
                     :fast
@@ -73,9 +103,9 @@
                              (not (nil? present-package))
                              (when
                                  (or (and (= status :absent)
-                                          (not (safe-spec-call spec present-package)))
+                                          (not (safe-spec-call compare spec present-package)))
                                      (and (= status :present)
-                                          (safe-spec-call spec present-package)))
+                                          (safe-spec-call compare spec present-package)))
                                (resolve-deps
                                 repo
                                 present-packages

@@ -811,7 +811,7 @@
                 (get (resolve-dependencies
                  [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0"}]}]]
                  query
-                 :compare older?) 1 :unsuccessful)))))))
+                 :compare older?) 1 :unsuccessful))))))))
 
 (deftest ^:resolve-data-spec data-spec-cases
   (let [b1
