@@ -1,1 +1,13 @@
-SPEC AS MAPS (for ranges)
+- [ ] SPEC AS MAPS (for ranges)
+- [ ] Fix docs: match to make sure resolve deps was successful.
+- [ ] Doc ( + test) example: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
+- [ ] Doc ( + test) example: if-then requirements. IF b is present,
+  also I need "c".
+- [ ] Doc ( + test) example: provides. `"b" [{:id "c" ...`
+- [ ] Doc ( + test) example: generic location. i.e. location in code,
+  on filesystem, etc.
+- [ ] assoc-merge, allowing you to merge two repo-info maps.
+- [ ] priority-query, allowing you to query multiple repositories in a
+  first-match basis. + doc + test
+- [ ] global-query, allowing you to query multiple repositories and
+  sort them based on some specified order. + doc + test

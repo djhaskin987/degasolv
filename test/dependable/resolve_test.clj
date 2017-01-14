@@ -791,7 +791,9 @@
            :id "e"
            :version "2.4.0"
            :location "http://exmaple.com/repo/e-2.4.0.zip"
-           :requirements []
+           ; A lack of requirements should work fine here,
+           ; as this will yeild nil and work as an empty list.
+
            }
           ]
          }
@@ -799,14 +801,74 @@
         (map-query repo-info)]
     (testing "A test of the tutorial."
       (is (=
-           [
+           (set [
             "http://example.com/repo/b-2.4.0.zip"
             "http://example.com/repo/c-3.5.0.zip"
             "http://example.com/repo/d-0.8.0.zip"
             "http://exmaple.com/repo/e-1.8.0.zip"
-            ]
-           (map :location
-                (resolve-dependencies
+            ])
+           (set (map :location
+                (get (resolve-dependencies
                  [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0"}]}]]
                  query
-                 :compare older?)))))))
+                 :compare older?) 1 :unsuccessful)))))))
+
+(deftest ^:resolve-data-spec data-spec-cases
+  (let [b1
+        {
+         :id "b"
+         :version "1.0"
+         :location "http://example.com/repo/b-1.0.zip"
+         }
+        b23
+        {
+         :id "b"
+         :version "2.3"
+         :location "http://example.com/repo/b-2.3.zip"
+         }
+        b20
+        {
+         :id "b"
+         :version "2.0"
+         :location "http://example.com/repo/b-2.0.zip"
+         }
+        repo-info-mixed {"b" [b1 b23 b20]}
+        query-mixed (map-query repo-info-mixed)
+        repo-info-desc {"b" [b23 b20 b1]}
+        query-desc (map-query repo-info-desc)
+        repo-info-asc {"b" [b1 b20 b23]}
+        query-asc (map-query repo-info-asc)]
+      (testing "greater-than data spec case"
+        (is (= [:successful #{b23}]
+               (resolve-dependencies
+                          [[{:status :present
+                             :id "b"
+                             :spec [{:relation :greater-than :version "2.0"}]}]]
+                          query-asc
+                          :compare older?))))
+      (testing "greater-equal, less-than data spec case"
+        (is (= [:successful #{b20}]
+               (resolve-dependencies
+                [[{:status :present
+                   :id "b"
+                   :spec [{:relation :greater-equal :version "2.0"}
+                          {:relation :less-than :version "2.3"}]}]]
+                query-mixed
+                :compare older?))))
+      (testing "less-equal data spec case"
+        (is (= [:successful #{b20}]
+               (resolve-dependencies
+                [[{:status :present
+                   :id "b"
+                   :spec [{:relation :less-equal :version "2.3"}
+                          {:relation :greater-than :version "2.0"}]}]]
+                query-asc
+                :compare older?))))
+      (testing "equal-to data spec case"
+        (is (= [:successful #{b20}]
+               (resolve-dependencies
+                [[{:status :present
+                   :id "b"
+                   :spec [{:relation :equal-to :version "2.0"}]}]]
+                query-mixed
+                :compare older?))))))
