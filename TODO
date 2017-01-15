@@ -1,3 +1,14 @@
+AN assoc-merge should also ask for a sorting method to use to sort the lists.
+The dependable.edn file should be assoc-merged into the bigger repo file, not assoc-conj'd.
+In this way, the dependable.edn file can specify what packages are provided.
+Before the docs are finished, the commandline needs to be written.
+
+one to take dependable.edn and merge it with the bigger repo's index.edn,
+one to resolve dependencies,
+and then test the cli, packr-ize it, get it building, release it, host the
+.deb/.rpm/.dmg's.
+
+
 - [ ] Revamp the README
 - [ ] Fix docs: match to make sure resolve deps was successful.
 - [ ] Doc ( + test) recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
