@@ -1,8 +1,16 @@
-(ns dependable.resolver
+>(ns dependable.resolver
   (:require [clojure.core.match :refer [match]]
              [dependable.util :refer :all]))
 
 (defrecord requirement [status id spec])
+
+(defn map-query [m]
+  (fn [nm]
+    (let [result (find m nm)]
+      (if (nil? result)
+        []
+        (let [[k v] result]
+          v)))))
 
 (defn present
   ([id] (present id nil))
@@ -28,7 +36,8 @@
    :else nil))
 
 (defprotocol SpecCaller
-  (p-safe-spec-call [this spec present-package])
+  (p-safe-spec-call [this spec present-package]))
+(extend-protocol SpecCaller
   nil
   (p-safe-spec-call [this spec present-package]
     (nil-safe-spec-call spec present-package))
@@ -52,7 +61,9 @@
                          (and (not (less pkg-ver chk-ver))
                               (not (less chk-ver pkg-ver)))
                          :else
-                         false)))) true spec)))))
+                         false)))) true spec))))
+  )
+
 
 (defn resolve-dependencies
   [specs
@@ -103,9 +114,9 @@
                              (not (nil? present-package))
                              (when
                                  (or (and (= status :absent)
-                                          (not (safe-spec-call compare spec present-package)))
+                                          (not (safe-spec-call spec present-package)))
                                      (and (= status :present)
-                                          (safe-spec-call compare spec present-package)))
+                                          (safe-spec-call spec present-package)))
                                (resolve-deps
                                 repo
                                 present-packages

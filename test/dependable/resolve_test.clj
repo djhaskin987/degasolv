@@ -6,13 +6,6 @@
             package
             requirement]))
 
-(defn map-query [m]
-  (fn [nm]
-    (let [result (find m nm)]
-      (if (nil? result)
-        []
-        (let [[k v] result]
-          v)))))
 ;; TODO: disjunctive clause tests
 
 (let  [package-a30
@@ -744,7 +737,7 @@
            :id "b"
            :version "2.3.0"
            :location "http://example.com/repo/b-2.4.0.zip"
-           :requirements [[{:status :present :id "c" :spec [{:relation :greater-equal :version "3.5"}]}]]
+           :requirements [[{:status :present :id "c" :spec [{:relation :greater-equal :version "3.5.0"}]}]]
            }
           ]
          "c"
@@ -758,7 +751,7 @@
           {
            :id "c"
            :version "3.5.0"
-           :requirements [[{:status :present :id "e" :spec [{:relation :greater-equal :version "1.8"}]}]]
+           :requirements [[{:status :present :id "e" :spec [{:relation :greater-equal :version "1.8.0"}]}]]
            }
           ]
          "d"
@@ -770,7 +763,7 @@
            :requirements [[{:status :present :id "e"
                             :spec [
                                    {:relation :greater-equal :version "1.1"}
-                                   {:relation :less-than :version "2.0"}]}]]
+                                   {:relation :less-than :version "2.0.0"}]}]]
            }
           ]
          "e"
@@ -809,7 +802,7 @@
             ])
            (set (map :location
                 (get (resolve-dependencies
-                 [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0"}]}]]
+                 [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0.0"}]}]]
                  query
                  :compare older?) 1 :unsuccessful))))))))
 
@@ -817,20 +810,20 @@
   (let [b1
         {
          :id "b"
-         :version "1.0"
-         :location "http://example.com/repo/b-1.0.zip"
+         :version "1.0.0"
+         :location "http://example.com/repo/b-1.0.0.zip"
          }
         b23
         {
          :id "b"
-         :version "2.3"
-         :location "http://example.com/repo/b-2.3.zip"
+         :version "2.3.0"
+         :location "http://example.com/repo/b-2.3.0.zip"
          }
         b20
         {
          :id "b"
-         :version "2.0"
-         :location "http://example.com/repo/b-2.0.zip"
+         :version "2.0.0"
+         :location "http://example.com/repo/b-2.0.0.zip"
          }
         repo-info-mixed {"b" [b1 b23 b20]}
         query-mixed (map-query repo-info-mixed)
@@ -843,7 +836,7 @@
                (resolve-dependencies
                           [[{:status :present
                              :id "b"
-                             :spec [{:relation :greater-than :version "2.0"}]}]]
+                             :spec [{:relation :greater-than :version "2.0.0"}]}]]
                           query-asc
                           :compare older?))))
       (testing "greater-equal, less-than data spec case"
@@ -851,8 +844,8 @@
                (resolve-dependencies
                 [[{:status :present
                    :id "b"
-                   :spec [{:relation :greater-equal :version "2.0"}
-                          {:relation :less-than :version "2.3"}]}]]
+                   :spec [{:relation :greater-equal :version "2.0.0"}
+                          {:relation :less-than :version "2.3.0"}]}]]
                 query-mixed
                 :compare older?))))
       (testing "less-equal data spec case"
@@ -860,8 +853,8 @@
                (resolve-dependencies
                 [[{:status :present
                    :id "b"
-                   :spec [{:relation :less-equal :version "2.3"}
-                          {:relation :greater-than :version "2.0"}]}]]
+                   :spec [{:relation :less-equal :version "2.3.0"}
+                          {:relation :greater-than :version "2.0.0"}]}]]
                 query-asc
                 :compare older?))))
       (testing "equal-to data spec case"
@@ -869,6 +862,6 @@
                (resolve-dependencies
                 [[{:status :present
                    :id "b"
-                   :spec [{:relation :equal-to :version "2.0"}]}]]
+                   :spec [{:relation :equal-to :version "2.0.0"}]}]]
                 query-mixed
                 :compare older?))))))
