@@ -18,3 +18,8 @@
 - [ ] Doc discuss: order matters, both with specs and with order in repos.
 - [ ] Doc discuss: fast vs thorough, the whole SAT thing
 - [ ] Doc discuss: CNF specs, DNF relations
+- [ ] Autodoc/reference
+- [ ] Release
+- [ ] Building on Travis
+- [ ] Loaded on clojars
+- [ ] Submit talk idea to SL
