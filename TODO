@@ -1,3 +1,4 @@
+- [ ] Revamp the README
 - [ ] Fix docs: match to make sure resolve deps was successful.
 - [ ] Doc ( + test) recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
 - [ ] Doc ( + test) recipe: if-then requirements. IF b is present,
