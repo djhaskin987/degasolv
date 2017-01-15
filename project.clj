@@ -14,7 +14,10 @@
    :resolve-harden :resolve-harden
    }
   :profiles {
-             :dev {:dependencies [[ grimradical/clj-semver "0.3.0-20130920.191002-3" :exclusions [org.clojure/clojure]]]}
+             :dev {:dependencies [
+                                  [org.clojure/core.match "0.3.0-alpha4"]
+                                  [grimradical/clj-semver "0.3.0-20130920.191002-3" :exclusions [org.clojure/clojure]]
+                                  ]}
              :uberjar {:aot :all}
              }
   :target-path "target/%s")

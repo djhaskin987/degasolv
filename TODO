@@ -1,13 +1,19 @@
-- [ ] SPEC AS MAPS (for ranges)
 - [ ] Fix docs: match to make sure resolve deps was successful.
-- [ ] Doc ( + test) example: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
-- [ ] Doc ( + test) example: if-then requirements. IF b is present,
-  also I need "c".
-- [ ] Doc ( + test) example: provides. `"b" [{:id "c" ...`
-- [ ] Doc ( + test) example: generic location. i.e. location in code,
+- [ ] Doc ( + test) recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
+- [ ] Doc ( + test) recipe: if-then requirements. IF b is present,
+- [ ] Doc example: circular dependencies.
+
+- [ ] Doc ( + test) recipe: provides. `"b" [{:id "c" ...`
+- [ ] Doc ( + test) recipe: generic location. i.e. location in code,
   on filesystem, etc.
+- [ ] Doc discuss: circular dependencies are allowed. perhaps in top list of features.
 - [ ] assoc-merge, allowing you to merge two repo-info maps.
 - [ ] priority-query, allowing you to query multiple repositories in a
   first-match basis. + doc + test
 - [ ] global-query, allowing you to query multiple repositories and
   sort them based on some specified order. + doc + test
+- cool example: dual ranges -- I need b < 1.7 or b > 2.3, but in between b is broken.
+- [ ] 2.0: scale.
+- [ ] Doc discuss: order matters, both with specs and with order in repos.
+- [ ] Doc discuss: fast vs thorough, the whole SAT thing
+- [ ] Doc discuss: CNF specs, DNF relations
