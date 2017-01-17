@@ -2,7 +2,7 @@
   (:require [clojure.core.match :refer [match]]
              [dependable.util :refer :all]))
 
-(defmacro dbg [body]
+#_(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
@@ -141,7 +141,7 @@ x#))
                               repo
                               present-packages
                               found-packages
-                              (assoc-conj absent-specs id spec)
+                              (update-in absent-specs [id] conj spec)
                               rclauses)
                              (= status :present)
                              (some
