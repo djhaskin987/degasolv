@@ -2,7 +2,7 @@
   (:require [clojure.core.match :refer [match]]
              [dependable.util :refer :all]))
 
-#_(defmacro dbg [body]
+(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
