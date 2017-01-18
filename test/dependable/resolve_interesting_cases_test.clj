@@ -57,3 +57,40 @@
                  :spec [[{:relation :greater-than :version "2.2.0"}]]}]]
               query-asc
               :compare cmp))))))
+
+(deftest ^:resolve-interesting-cases implied-dependencies-case
+  (let [a1
+        {
+         :id "a"
+         :version "1.0.0"
+         :location "http://example.com/repo/a-1.0.0.zip"
+         :requirements [[{:status :present
+                          :id "b"}]]
+         }
+        b23
+        {
+         :id "b"
+         :version "2.3.0"
+         :location "http://example.com/repo/b-2.3.0.zip"
+         }
+        c353
+        {
+         :id "c"
+         :version "3.5.3"
+         :location "http://example.com/repo/c-3.5.3.zip"
+         }
+        repo-info {"a" [a1]
+                       "b" [b23]
+                       "c" [c353]}
+        query (map-query repo-info)]
+    (testing "Implied dependencies"
+      (is (= [:successful
+              #{a1 b23 c353}]
+             (resolve-dependencies
+              [[{:status :present
+                 :id "a"}]
+               [{:status :absent
+                 :id "b"}
+                {:status :present
+                 :id "c"}]]
+              query))))))
