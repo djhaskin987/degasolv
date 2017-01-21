@@ -14,11 +14,7 @@ build engineers who are just trying to get their software built.
 
 ## What is a `degasolv`?
 
-Named for *Degas*, and it's a *Solv*er.
-
-## Why Degas?
-
-My wife likes the impressionists :D
+Named for *Degas* the impressionist, and it's a *Solv*er.
 
 ## Installation, Quick Start, Tutorials?
 
