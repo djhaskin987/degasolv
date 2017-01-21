@@ -1,9 +1,9 @@
-(defproject org.clojars.djhaskin987/dependable "1.0.2-SNAPSHOT"
-  :description "Dependency resolution for the impatient."
-  :url "http://github.com/djhaskin987/dependable"
+(defproject degasolv/degasolv "1.0.2-SNAPSHOT"
+  :description "Dependency resolver with an eye toward building software."
+  :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :main dependable.cli
+  :main degasolv.cli
   :dependencies [
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
