@@ -1,5 +1,5 @@
-(ns dependable.cli
-  (:require [dependable.util :refer :all]
+(ns degasolv.cli
+  (:require [degasolv.util :refer :all]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.java.io :as io]
             [clojure.string :as string]
@@ -7,11 +7,11 @@
   (:gen-class))
 
 (def cli-options
-  [["-p" "--project-file FILE" "Project spec file"
-    :default "./dependable.edn"
+  [["-c" "--config-file FILE" "config file"
+    :default "~/.config/degasolv.edn"
     :validate [
                #(.exists (io/as-file %))
-               "Must be a regular file (which hopefully contains project info."]]])
+               "Must be a regular file (which hopefully contains config info."]]])
 
 (defn update-repo! [project-config options arguments]
   (println "goodbye"))
@@ -34,7 +34,7 @@
   (let [display-command (if sub-command
                           sub-command
                           "<command>")]
-    (->> [(str "Usage: dependable <options> "
+    (->> [(str "Usage: degasolv <options> "
                display-command
                " <"
                display-command

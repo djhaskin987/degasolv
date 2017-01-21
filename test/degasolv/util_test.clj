@@ -1,6 +1,6 @@
-(ns dependable.util-test
+(ns degasolv.util-test
   (:require [clojure.test :refer :all]
-            [dependable.util :refer :all]))
+            [degasolv.util :refer :all]))
 
 (deftest ^:util assoc-conj-basic
   (testing "Add to a blank map"

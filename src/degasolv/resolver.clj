@@ -1,6 +1,6 @@
-(ns dependable.resolver
+(ns degasolv.resolver
   (:require [clojure.core.match :refer [match]]
-             [dependable.util :refer :all]))
+             [degasolv.util :refer :all]))
 
 #_(defmacro dbg [body]
   `(let [x# ~body]

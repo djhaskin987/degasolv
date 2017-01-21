@@ -1,4 +1,4 @@
-(ns dependable.util)
+(ns degasolv.util)
 
 
 ; deprecated, we should just use update-in

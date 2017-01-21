@@ -1,29 +1,23 @@
-AN assoc-merge should also ask for a sorting method to use to sort the lists.
-The dependable.edn file should be assoc-merged into the bigger repo file, not assoc-conj'd.
-In this way, the dependable.edn file can specify what packages are provided.
-Before the docs are finished, the commandline needs to be written.
-
-one to take dependable.edn and merge it with the bigger repo's index.edn,
-one to resolve dependencies,
-and then test the cli, packr-ize it, get it building, release it, host the
-.deb/.rpm/.dmg's.
-
-
 - [ ] Revamp the README
-- [ ] Fix docs: match to make sure resolve deps was successful.
-- [ ] Doc ( + test) recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
-- [ ] Doc ( + test) recipe: if-then requirements. IF b is present,
-- [ ] Doc example: circular dependencies.
-
-- [ ] Doc ( + test) recipe: provides. `"b" [{:id "c" ...`
-- [ ] Doc ( + test) recipe: generic location. i.e. location in code,
-  on filesystem, etc.
-- [ ] Doc discuss: circular dependencies are allowed. perhaps in top list of features.
-- [ ] assoc-merge, allowing you to merge two repo-info maps.
 - [ ] priority-query, allowing you to query multiple repositories in a
-  first-match basis. + doc + test
+  first-match basis. + doc + test.
 - [ ] global-query, allowing you to query multiple repositories and
   sort them based on some specified order. + doc + test
+- [ ] YAML/JSON/EDN file in ./dependable/repos.edn using
+  priority-query and global query for CLI
+- [ ] CLI
+  - [ ] update-index
+  - [ ] resolve-locations
+  - [ ] help
+- [ ] Fix docs: match to make sure resolve deps was successful.
+- [ ] Doc recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
+- [x] Test recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
+- [ ] Doc ( + test) recipe: if-then requirements. IF b is present,
+- [ ] Doc ( + test) example: circular dependencies.
+- [ ] Doc recipe: generic location. i.e. location in code,
+  on filesystem, etc.
+- [ ] Doc discuss: circular dependencies are allowed. perhaps in top list of features.
+
 - cool example: dual ranges -- I need b < 1.7 or b > 2.3, but in between b is broken.
 - [ ] 2.0: scale.
 - [ ] Doc discuss: order matters, both with specs and with order in repos.

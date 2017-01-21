@@ -1,34 +1,32 @@
-# dependable
+# degasolv
 
-[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.djhaskin987/dependable.svg)](https://clojars.org/org.clojars.djhaskin987/dependable)
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.djhaskin987/degasolv.svg)](https://clojars.org/org.clojars.djhaskin987/degasolv)
 
-Dependency resolver for the impatient.
+Dependency resolver with an eye toward building software.
 
 I got really tired of seeing how often this problem was re-solved over
 and over every time a new programming language came out, and every
-time a new package manager was born. I ended up writing this library,
-containing a particular function,
-`dependable.resolver/resolve-dependencies`, which can be used as a
-generic dependency resolver.
+time a new package manager was born. I ended up writing this application.
 
-Rather than give you not-so-informative example code using it, I will
-point you to the unit tests for this function, found under
-`test/dependable/resolver_test.clj`. All unit tests point to functionality
-found in the function in question, and so also serve as a great starting
-point to using this function.
+When finished, it will be a dependency resolver that will work across
+programming language boundaries, customizable to fit the needs of
+build engineers who are just trying to get their software built.
 
-Is this function complicated? Yes. Sorry. Welcome to dep management :(
+## What is a `degasolv`?
 
-## Recent Improvements
+Named for *Degas*, and it's a *Solv*er.
 
-I just added dependency strategy option! You can set this to `:thorough` or
-`:fast` when calling the function. This means you can decide whether or not
-the resolver works like a SAT solver or just takes the first packages it
-finds instead.
+## Why Degas?
+
+My wife likes the impressionists :D
+
+## Installation, Quick Start, Tutorials?
+
+See the `docs` folder.
 
 ## License
 
-Copyright © 2016 Daniel Jay Haskin
+Copyright © 2016-2017 Daniel Jay Haskin
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

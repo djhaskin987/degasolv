@@ -1,8 +1,8 @@
-(ns dependable.resolve-test
+(ns degasolv.resolve-test
   (:require [clojure.test :refer :all]
-            [dependable.resolver :refer :all]
+            [degasolv.resolver :refer :all]
             [clj-semver.core :refer [cmp]])
-  (:import [dependable.resolver
+  (:import [degasolv.resolver
             package
             requirement]))
 
