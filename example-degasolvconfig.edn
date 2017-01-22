@@ -1,13 +1,5 @@
 {
- :id "a"
- :version "2.3.0+anyoldversion"
- :requirements [[{:status :present
-                  :id "b"
-                  :spec [[{:relation :greater-than :version "2.0.0"}]]}]]
- :artifact-location "dirname"
- :artifact-name "base_filename"
  :repo-search-mode :global ; other options:
-                                        ;`:priority` (prio is default)
  :repositories [ ; optional
                 {
                  :name "place1"
@@ -22,4 +14,4 @@
  { ; ... some inline repo data here; if repo-search-mode is
    ; `priority`, this is searched first
   }
- }
+}

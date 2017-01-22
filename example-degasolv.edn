@@ -1,0 +1,11 @@
+{
+ :id "a"
+ :version "2.3.0+anyoldversion"
+ :requirements [[{:status :present
+                  :id "b"
+                  :spec [[{:relation :greater-than :version "2.0.0"}]]}]]
+ :artifact-location "dirname"
+ :artifact-name "base_filename"
+
+                                        ;`:priority` (prio is default)
+ }
