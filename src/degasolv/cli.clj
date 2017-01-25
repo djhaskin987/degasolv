@@ -14,7 +14,7 @@
      (println "dbg:" '~body "=" x#)
 x#))
 
-(defn generate-repo-index!
+(defn- generate-repo-index!
   [options arguments]
   (let [{:keys [add-to
                 search-directory
@@ -44,8 +44,10 @@ x#))
                      (filter #(and (fs/file? %)
                                    (= ".dscard" (dbg (fs/extension %))))
                              (file-seq (fs/file search-directory))))))))
-
        ow))))
+
+(defn- resolve-locations!
+  [options arguments])
 
 (def subcommand-cli
   {"generate-repo-index"
@@ -61,7 +63,21 @@ x#))
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
-                      "Must be a directory which exists on the file system."]]]}})
+                      "Must be a directory which exists on the file system."]]]}}
+  {"resolve-locations"
+   {:description "Print the locations of the packages which will resolve all given dependencies."
+    :function resolve-locations!
+    :cli [["-r" "--repository REPO"
+           "Specify a repository to use. May be used more than once."]
+          ["-s" "--resolve-strategy STRATEGY"
+           "Specify a strategy to use when resolving. May be 'fast' or 'thorough'."
+           :default "thorough"]
+          ["-R" "--repo-merge-strategy STRATEGY"
+           "Specify a repo merge strategy. May be 'priority' or 'global'."
+           :default "priority"]
+          ["-c" "--resolve-card-spec CARD_FILE"
+           (str "Instead of resolving using commandline argument, resolve the"
+                " requirements found in the given degasolv card file.")]]}})
 
 (defn command-list [commands]
   (->> ["Commands are:"
