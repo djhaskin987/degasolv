@@ -57,14 +57,14 @@ x#))
            "Add to package information alread to be found at repo index REPO_LOC"]
           ["-o" "--output-file FILE"
            "The file to which to output the information."
-          :default "index.dsrepo"]
+           :default "index.dsrepo"]
           ["-d" "--search-directory DIR" "Directory to search for degasolv cards"
            :default "."
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
-                      "Must be a directory which exists on the file system."]]]}}
-  {"resolve-locations"
+                      "Must be a directory which exists on the file system."]]]}
+   "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
     :cli [["-r" "--repository REPO"

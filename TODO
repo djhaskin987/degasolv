@@ -1,30 +1,5 @@
-- [ ] Revamp the README
-- [ ] priority-query, allowing you to query multiple repositories in a
-  first-match basis. + doc + test.
-- [ ] global-query, allowing you to query multiple repositories and
-  sort them based on some specified order. + doc + test
-- [ ] YAML/JSON/EDN file in ./dependable/repos.edn using
-  priority-query and global query for CLI
-- [ ] CLI
-  - [ ] update-index
-  - [ ] resolve-locations
-  - [ ] help
-- [ ] Fix docs: match to make sure resolve deps was successful.
-- [ ] Doc recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
-- [x] Test recipe: managed requirements. "a"@2.1 OR a>=2.0,<=3.0 OR A
-- [ ] Doc ( + test) recipe: if-then requirements. IF b is present,
-- [ ] Doc ( + test) example: circular dependencies.
-- [ ] Doc recipe: generic location. i.e. location in code,
-  on filesystem, etc.
-- [ ] Doc discuss: circular dependencies are allowed. perhaps in top list of features.
-
-- cool example: dual ranges -- I need b < 1.7 or b > 2.3, but in between b is broken.
-- [ ] 2.0: scale.
-- [ ] Doc discuss: order matters, both with specs and with order in repos.
-- [ ] Doc discuss: fast vs thorough, the whole SAT thing
-- [ ] Doc discuss: CNF specs, DNF relations
-- [ ] Autodoc/reference
-- [ ] Release
-- [ ] Building on Travis
-- [ ] Loaded on clojars
-- [ ] Submit talk idea to SL
+- [ ] bug in generate-repo-index using add-to: what is this `nil` package
+- [ ] Validate options for resolve-locations
+- [ ] Make '--repo' option for resolve-locations non-idempotent
+- [ ] How to take in requirements
+- [ ] add a way to list packages already present?
