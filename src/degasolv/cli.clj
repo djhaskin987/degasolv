@@ -2,35 +2,57 @@
   (:require [degasolv.util :refer :all]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :as string]
+            [clojure.pprint :as pprint]
+            [clojure.java.io :as io]
             [clojure.edn :as edn]
             [me.raynes.fs :as fs]
-            )
+            [clj-semver.core :refer [cmp]])
   (:gen-class))
+
+(defmacro dbg [body]
+  `(let [x# ~body]
+     (println "dbg:" '~body "=" x#)
+x#))
 
 (def cli-options
   [["-c" "--config-file FILE" "config file"
-    :default "~/.config/degasolv/config.edn"
+    :default (fs/file (fs/expand-home "~/.config/degasolv/config.edn"))
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
                "Must be a regular file (which hopefully contains config info."]]])
 
-
 (defn generate-repo-index!
   [config options arguments]
-  (let [{:keys [add-to search-directory]} options
+  (let [{:keys [add-to
+                search-directory
+                output-file]} options
         initial-repository
         (if add-to
           (edn/read-string
            (slurp add-to))
           {})]
-    (reduce (fn merg [c v]
-              (update-in c [k] conj v))
-            initial-repository
-            (map
-             #(edn/read-string (slurp %))
-             (filter #(and (fs/file? %)
-                           (= "dscard" (fs/extension %)))
-                     (file-seq search-directory))))))
+    (with-open
+      [ow (io/writer output-file :encoding "UTF-8")]
+      (pprint/pprint
+       (into {}
+             (dbg (map
+                   (fn [x]
+                     [(first x)
+                      (into []
+                            (sort #(- (cmp (:version %1)
+                                           (:version %2)))
+                                  (second x)))])
+                   (reduce
+                    (fn merg [c v]
+                      (update-in c [(:id v)] conj v))
+                    initial-repository
+                    (map
+                     #(edn/read-string (slurp %))
+                     (filter #(and (fs/file? %)
+                                   (= ".dscard" (dbg (fs/extension %))))
+                             (file-seq (fs/file search-directory))))))))
+
+       ow))))
 
 (def subcommand-cli
   {"generate-repo-index"
@@ -38,14 +60,15 @@
     :function generate-repo-index!
     :cli [["-a" "--add-to REPO_LOC"
            "Add to package information alread to be found at repo index REPO_LOC"]
-          ["-d" "--directory DIR" "Directory to search for degasolv cards"
+          ["-o" "--output-file FILE"
+           "The file to which to output the information."
+          :default "index.dsrepo"]
+          ["-d" "--search-directory DIR" "Directory to search for degasolv cards"
            :default "."
-           :validate [
-                      #(and
+           :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
-                      "Must be a directory which exists on the file system."]]]
-    }})
+                      "Must be a directory which exists on the file system."]]]}})
 
 (defn command-list [commands]
   (->> ["Commands are:"
