@@ -14,15 +14,8 @@
      (println "dbg:" '~body "=" x#)
 x#))
 
-(def cli-options
-  [["-c" "--config-file FILE" "config file"
-    :default (fs/file (fs/expand-home "~/.config/degasolv/config.edn"))
-    :validate [#(and (fs/exists? %)
-                     (fs/file? %))
-               "Must be a regular file (which hopefully contains config info."]]])
-
 (defn generate-repo-index!
-  [config options arguments]
+  [options arguments]
   (let [{:keys [add-to
                 search-directory
                 output-file]} options
@@ -108,6 +101,13 @@ x#))
   (.println *err* msg)
   (System/exit status))
 
+(def cli-options
+  [["-c" "--config-file FILE" "config file"
+    :default (fs/file (fs/expand-home "~/.config/degasolv/config.edn"))
+    :validate [#(and (fs/exists? %)
+                     (fs/file? %))
+               "Must be a regular file (which hopefully contains config info."]]])
+
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
         (parse-opts args (concat
@@ -136,5 +136,9 @@ x#))
           (:help options) (exit 0 (usage summary :sub-command subcommand))
           errors (exit 1 (usage summary :sub-command subcommand)))
         ((:function subcmd-cli)
-         (edn/read-string (slurp (:config-file global-options)))
-         options arguments)))))
+         (merge
+          (edn/read-string
+           (slurp
+            (:config-file global-options)))
+          options)
+         arguments)))))
