@@ -1,6 +1,6 @@
 (ns degasolv.cli
   (:require [degasolv.util :refer :all]
-            [clojure.tools.cli :refer [parse-opts]]
+            [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
             [clojure.pprint :as pprint]
             [clojure.java.io :as io]
@@ -13,6 +13,19 @@
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
+
+(defn- mysummary [sq]
+  (with-out-str
+    (pprint/pprint
+     (map
+      (fn [arg-parts]
+        (select-keys arg-parts
+                     [:short-opt
+                      :long-opt
+                      :required
+                      :desc
+                      :default-desc]))
+      sq))))
 
 (defn- generate-repo-index!
   [options arguments]
@@ -47,7 +60,9 @@ x#))
        ow))))
 
 (defn- resolve-locations!
-  [options arguments])
+  [options arguments]
+  (pprint/pprint options)
+  )
 
 (def subcommand-cli
   {"generate-repo-index"
@@ -68,16 +83,22 @@ x#))
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
     :cli [["-r" "--repository REPO"
-           "Specify a repository to use. May be used more than once."]
+           "Specify a repository to use. May be used more than once."
+           :assoc-fn
+           (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-s" "--resolve-strategy STRATEGY"
            "Specify a strategy to use when resolving. May be 'fast' or 'thorough'."
-           :default "thorough"]
+           :default "thorough"
+          :validate [#(or (= "thorough" %) (= "fast" %))
+                     "Strategy must either be 'thorough' or 'fast'."]]
           ["-R" "--repo-merge-strategy STRATEGY"
            "Specify a repo merge strategy. May be 'priority' or 'global'."
-           :default "priority"]
-          ["-c" "--resolve-card-spec CARD_FILE"
-           (str "Instead of resolving using commandline argument, resolve the"
-                " requirements found in the given degasolv card file.")]]}})
+           :default "priority"
+           :validate [#(or (= "priority" %) (= "global" %))
+                      "Strategy must either be 'priority' or 'global'."]]
+          ["-c" "--project-file PROJECT_FILE"
+           "Resolve the requirements found in the given degasolv project file."
+          :validate [#(fs/file? %) "Project file must exist."]]]}})
 
 (defn command-list [commands]
   (->> ["Commands are:"
@@ -89,6 +110,16 @@ x#))
         ]
        (string/join \newline)))
 
+(defn errors [errors usg]
+  (string/join \newline
+               "Errors:"
+               ""
+               (map #(str "  - " %) errors)
+               ""
+               usg
+               ""
+               ""))
+
 (defn usage [options-summary & {:keys [sub-command]}]
   (let [display-command (if sub-command
                           sub-command
@@ -99,7 +130,8 @@ x#))
                display-command
                "-options>")
           ""
-          "Options are:"
+          "Options are shown below, with their default values and"
+          "  descriptions:"
           ""
           options-summary
           ]
@@ -111,7 +143,7 @@ x#))
          (str " for subcommand `" sub-command "`")
          "")
        ":\n\n"
-       (string/join \newline (map #(str "  - " errors)))))
+       (string/join \newline (map #(str "  - " %) errors))))
 
 (defn exit [status msg]
   (.println *err* msg)
@@ -120,6 +152,7 @@ x#))
 (def cli-options
   [["-c" "--config-file FILE" "config file"
     :default (fs/file (fs/expand-home "~/.config/degasolv/config.edn"))
+    :default-desc "~/.config/degasolv/config.edn"
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
                "Must be a regular file (which hopefully contains config info."]]])
@@ -128,7 +161,7 @@ x#))
   (let [{:keys [options arguments errors summary]}
         (parse-opts args (concat
                           cli-options
-                          [["-h" "--help"]])
+                          [["-h" "--help" "Print this help page"]])
                     :in-order true)]
     (cond
       (:help options) (exit 0 (str (usage summary)
@@ -136,9 +169,15 @@ x#))
                                    (command-list (keys subcommand-cli))
                                    "\n\n"
                                    ))
-      errors (exit 1 (usage summary
-                            "\n"
-                            (command-list (keys subcommand-cli)))))
+      errors (exit 1 (string/join
+                      \newline
+                      [(error-msg errors)
+                      ""
+                      (usage summary)
+                      ""
+                       (command-list (keys subcommand-cli))
+                       ""])))
+
     (let [global-options options
           subcommand (first arguments)
           subcmd-cli (get subcommand-cli subcommand)]
@@ -147,10 +186,15 @@ x#))
       (let [{:keys [options arguments errors summary]}
             (parse-opts args (concat
                               (:cli subcmd-cli)
-                              [["-h" "--help"]]))]
+                              [["-h" "--help" "Print this help page"]]))]
         (cond
           (:help options) (exit 0 (usage summary :sub-command subcommand))
-          errors (exit 1 (usage summary :sub-command subcommand)))
+          errors (exit 1 (string/join
+                          \newline
+                          [(error-msg errors :sub-command subcommand)
+                          ""
+                          (usage summary :sub-command subcommand)
+                          ""])))
         ((:function subcmd-cli)
          (merge
           (edn/read-string
