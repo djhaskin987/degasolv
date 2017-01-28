@@ -1,7 +1,8 @@
 (ns degasolv.resolver
   "Namespace containing `resolve-dependencies` and supporting functions."
   (:require [clojure.core.match :refer [match]]
-            [degasolv.util :refer :all]))
+            [degasolv.util :refer :all]
+            [clojure.string :as clj-str]))
 
 (load "resolver_utils")
 (load "resolver_core")

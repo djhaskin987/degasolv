@@ -46,12 +46,12 @@
            :id "z"
            :spec [[{:relation :greater-equal
                     :version "barbar"}]]}]
-       "!z>=barbar"))
+       (string-to-requirement "!z>=barbar")))
   (is (= [{:status :present
            :id "x"
            :spec [[{:relation :greater-than
                     :version "2.3.3"}]]}]
-       "x>2.3.3"))))
+       (string-to-requirement "x>2.3.3")))))
 
 (deftest ^:string-to-requirement test-string-to-requirement-illustrations
   (testing "Illustrative example"
