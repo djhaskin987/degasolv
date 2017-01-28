@@ -6,7 +6,6 @@
   :main degasolv.cli
   :dependencies [
                  [org.clojure/clojure "1.8.0"]
-                 [org.clojure/core.match "0.3.0-alpha4"]
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
                  ]

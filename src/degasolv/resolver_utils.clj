@@ -34,6 +34,6 @@
                                            ">=" :greater-equal
                                            ">" :greater-than)
                                :version version}))
-                          (clojure.string/split t #","))))
-                      (clojure.string/split spec-piece #";")))]]))))
-      (clojure.string/split str #"\|")))))
+                          (clj-str/split t #","))))
+                      (clj-str/split spec-piece #";")))]]))))
+      (clj-str/split str #"\|")))))

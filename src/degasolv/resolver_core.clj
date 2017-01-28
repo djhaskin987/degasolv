@@ -26,10 +26,11 @@
 
 (defn- first-successful
   [result]
-  (match
-   result
-   [:successful _] result
-   :else nil))
+  (if (and (sequential? result)
+           (= (first result)
+              :successful))
+    result
+    nil))
 
 (defprotocol ^:private SpecCaller
   (p-safe-spec-call [this spec present-package]))
@@ -51,7 +52,7 @@
                   (let [chk-ver (:version conj-val)
                         cmp-result (cmp pkg-ver chk-ver)]
                     (and conj-cum
-                         (match (:relation conj-val)
+                         (case (:relation conj-val)
                                 :greater-than
                                 (pos? cmp-result)
                                 :greater-equal
@@ -64,7 +65,6 @@
                                 (not (pos? cmp-result))
                                 :less-than
                                 (neg? cmp-result)
-                                :else
                                 false)))) true disj-val)))
          false
          spec)))))
@@ -81,12 +81,11 @@
                  compare nil}
             }]
   (let [safe-spec-call (partial p-safe-spec-call compare)
-        cull (match strategy
+        cull (case strategy
                     :thorough
                     (fn [candidates] candidates)
                     :fast
                     (fn [candidates] (first candidates))
-                    :else
                     (throw
                      (ex-info (str
                                "Invalid strategy `"
