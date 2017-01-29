@@ -1,0 +1,6 @@
+          {
+           :id "b"
+           :version "1.7.0"
+           :location "http://example.com/repo/b-1.7.0.zip"
+           :requirements []
+           }

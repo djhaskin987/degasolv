@@ -1,0 +1,5 @@
+        {
+        :id "c"
+        :version "3.5.0"
+        :requirements [[{:status :present :id "e" :spec [{:relation :greater-equal :version "1.8.0"}]}]]
+        }

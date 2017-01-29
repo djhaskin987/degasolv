@@ -42,7 +42,7 @@ x#))
       [ow (io/writer output-file :encoding "UTF-8")]
       (pprint/pprint
        (into {}
-             (dbg (map
+              (map
                    (fn [x]
                      [(first x)
                       (into []
@@ -56,8 +56,8 @@ x#))
                     (map
                      #(edn/read-string (slurp %))
                      (filter #(and (fs/file? %)
-                                   (= ".dscard" (dbg (fs/extension %))))
-                             (file-seq (fs/file search-directory))))))))
+                                   (= ".dscard" (fs/extension %)))
+                             (file-seq (fs/file search-directory)))))))
        ow))))
 
 (defn- resolve-locations!
@@ -101,12 +101,30 @@ x#))
                     (sort #(- (cmp (:version %1)
                                    (:version %2)))
                           v)])
-                 aggregate-repo)))]
-    (resolve-dependencies
-     requirements
-     used-repo
-     :strategy (keyword resolve-strategy)
-     :compare cmp)))
+                 aggregate-repo)))
+    result (resolve-dependencies
+            requirements
+            used-repo
+            :strategy (keyword resolve-strategy)
+            :compare cmp)]
+    (case
+        (first result)
+      :successful
+      (let [[_ packages] result]
+        (pprint/pprint
+         (map
+          (fn
+            [pkg]
+            [(:id pkg)
+             (:location pkg)])
+          packages)))
+      :unsuccessful
+      (let [[_ term] result]
+        (throw (ex-info
+                (str "\n\nCould not resolve dependencies.\n\n"
+                     "The resolver choked on this term: "
+                     (pprint/pprint term))
+                {:term term}))))))
 
 (def subcommand-cli
   {"generate-repo-index"
