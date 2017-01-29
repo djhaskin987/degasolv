@@ -1,5 +1,6 @@
 (ns degasolv.cli
   (:require [degasolv.util :refer :all]
+            [degasolv.resolver :refer :all]
             [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
             [clojure.pprint :as pprint]
@@ -61,8 +62,51 @@ x#))
 
 (defn- resolve-locations!
   [options arguments]
-  (pprint/pprint options)
-  )
+  (when (not (:repositories options))
+    (throw (ex-info
+            (str
+             "No repositories specified\n"
+             "(either through CLI or config file)"))))
+  (let [{:keys [repositories
+                resolve-strategy
+                repo-merge-strategy]}
+        options
+        requirements
+        (if (:project-file options)
+          (let [project-info (edn/read-string
+           (slurp
+            (:project-file options)))]
+            (when (not (:requirements project-info))
+              (.println *err* "Warning: project file does not contain a `:requirements` key."))
+            (:requirements project-info))
+           (map
+            #(string-to-requirement %)
+            arguments))
+        aggregate-repo
+        (merge-with
+         concat
+         (map
+          (fn slurp-url
+            [url]
+            (edn/read-string
+             (slurp url)))
+          repositories))
+        used-repo
+        (if (= repo-merge-strategy "priority")
+          aggregate-repo
+          (into {}
+                (map
+                 (fn [[k v]]
+                   [k
+                    (sort #(- (cmp (:version %1)
+                                   (:version %2)))
+                          v)])
+                 aggregate-repo)))]
+    (resolve-dependencies
+     requirements
+     used-repo
+     :strategy (keyword resolve-strategy)
+     :compare cmp)))
 
 (def subcommand-cli
   {"generate-repo-index"
@@ -84,6 +128,7 @@ x#))
     :function resolve-locations!
     :cli [["-r" "--repository REPO"
            "Specify a repository to use. May be used more than once."
+           :id :repositories
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-s" "--resolve-strategy STRATEGY"
