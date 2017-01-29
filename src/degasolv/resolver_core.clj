@@ -70,7 +70,7 @@
          spec)))))
 
 (defn resolve-dependencies
-  [specs
+  [requirements
    query & {:keys [present-packages
                    conflicts
                    strategy
@@ -187,4 +187,4 @@
        present-packages
        {}
        conflicts
-       specs))))
+       requirements))))
