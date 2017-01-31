@@ -14,6 +14,7 @@
    :resolve-basic :resolve-basic
    :resolve-harden :resolve-harden
    :string-to-requirement :string-to-requirement
+   :repo-aggregation :repo-aggregation
    }
   :profiles {
              :dev {:dependencies [

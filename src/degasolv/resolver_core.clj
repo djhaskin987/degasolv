@@ -1,12 +1,6 @@
 (defrecord requirement [status id spec])
 
-(defn map-query [m]
-  (fn [nm]
-    (let [result (find m nm)]
-      (if (nil? result)
-        []
-        (let [[k v] result]
-          v)))))
+
 
 (defn present
   ([id] (present id nil))
@@ -80,6 +74,7 @@
                  strategy :thorough
                  compare nil}
             }]
+
   (let [safe-spec-call (partial p-safe-spec-call compare)
         cull (case strategy
                     :thorough

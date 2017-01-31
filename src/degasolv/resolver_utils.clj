@@ -1,3 +1,29 @@
+(defn priority-repo [rs]
+  (fn [id]
+    (or
+     (first
+      (filter
+      #(not (empty? %))
+     (map #(% id)
+          rs)))
+     [])))
+
+(defn global-repo [rs & {:keys [cmp]
+                         :or {cmp #(- (compare %1 %2))}}]
+  (fn [id]
+    (or
+     (sort #(cmp (:version %1) (:version %2))
+           (flatten (map #(% id) rs)))
+     [])))
+
+(defn map-query [m]
+  (fn [nm]
+    (let [result (find m nm)]
+      (if (nil? result)
+        []
+        (let [[k v] result]
+          v)))))
+
 (defn string-to-requirement
   [str]
   (if (empty? str)

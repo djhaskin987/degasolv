@@ -1,4 +1,4 @@
-(ns degasolv.resolver-string-to-req-test
+(ns degasolv.resolve-string-to-req-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]))
 
