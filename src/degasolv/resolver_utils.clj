@@ -9,10 +9,10 @@
      [])))
 
 (defn global-repo [rs & {:keys [cmp]
-                         :or {cmp #(- (compare %1 %2))}}]
+                         :or {cmp #(- (compare (:version %1) (:version %2)))}}]
   (fn [id]
     (or
-     (sort #(cmp (:version %1) (:version %2))
+     (sort #(cmp %1 %2)
            (flatten (map #(% id) rs)))
      [])))
 

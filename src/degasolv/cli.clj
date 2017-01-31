@@ -82,31 +82,28 @@ x#))
            (map
             #(string-to-requirement %)
             arguments))
+        aggregator
+        (if (= repo-merge-strategy
+               "priority")
+          priority-repo
+          (fn [rs]
+            (global-repo rs
+                         :cmp #(- (cmp
+                                   (:version %1)
+                                   (:version %2))))))
         aggregate-repo
-        (merge-with
-         concat
+        (aggregator
          (map
           (fn slurp-url
             [url]
             (edn/read-string
              (slurp url)))
           repositories))
-        used-repo
-        (if (= repo-merge-strategy "priority")
-          aggregate-repo
-          (into {}
-                (map
-                 (fn [[k v]]
-                   [k
-                    (sort #(- (cmp (:version %1)
-                                   (:version %2)))
-                          v)])
-                 aggregate-repo)))
-    result (resolve-dependencies
-            requirements
-            used-repo
-            :strategy (keyword resolve-strategy)
-            :compare cmp)]
+        result (resolve-dependencies
+                requirements
+                aggregate-repo
+                :strategy (keyword resolve-strategy)
+                :compare cmp)]
     (case
         (first result)
       :successful
