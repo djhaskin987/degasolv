@@ -10,7 +10,7 @@
             [clj-semver.core :refer [cmp]])
   (:gen-class))
 
-(defmacro dbg [body]
+#_(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
@@ -79,9 +79,9 @@ x#))
             (when (not (:requirements project-info))
               (.println *err* "Warning: project file does not contain a `:requirements` key."))
             (:requirements project-info))
-           (map
+           (into [] (map
             #(string-to-requirement %)
-            arguments))
+            (rest arguments))))
         aggregator
         (if (= repo-merge-strategy
                "priority")
@@ -242,7 +242,7 @@ x#))
           subcommand (first arguments)
           subcmd-cli (get subcommand-cli subcommand)]
       (when (nil? subcmd-cli)
-        (exit 1 (error-msg (str "Unknown command: " subcommand))))
+        (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments errors summary]}
             (parse-opts args (concat
                               (:cli subcmd-cli)

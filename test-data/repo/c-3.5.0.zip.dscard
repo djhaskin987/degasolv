@@ -1,5 +1,6 @@
         {
         :id "c"
         :version "3.5.0"
-        :requirements [[{:status :present :id "e" :spec [{:relation :greater-equal :version "1.8.0"}]}]]
+        :location "http://example.com/repo/c-3.5.0.zip"
+        :requirements [[{:status :present :id "e" :spec [[{:relation :greater-equal :version "1.8.0"}]]}]]
         }

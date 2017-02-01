@@ -1,5 +1,9 @@
 (defrecord requirement [status id spec])
 
+(defmacro dbg2 [body]
+  `(let [x# ~body]
+     (println "dbg:" '~body "=" x#)
+x#))
 
 
 (defn present
@@ -108,6 +112,7 @@
                          [requirement]
                          (let [{status :status id :id spec :spec} requirement
                                present-package (get present-packages id)]
+                           present-package
                            (cond
                              (not (nil? present-package))
                              (when
