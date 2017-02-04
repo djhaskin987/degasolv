@@ -7,7 +7,9 @@
             [clojure.java.io :as io]
             [clojure.edn :as edn]
             [me.raynes.fs :as fs]
-            [clj-semver.core :refer [cmp]])
+            [version-clj.core
+             :refer [version-compare]
+             :rename {version-compare cmp}])
   (:gen-class))
 
 #_(defmacro dbg [body]

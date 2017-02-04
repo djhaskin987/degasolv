@@ -1,7 +1,8 @@
 (ns degasolv.resolve-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
-            [clj-semver.core :refer [cmp]])
+            [version-clj.core :refer [version-compare]
+             :rename {version-compare cmp}])
   (:import [degasolv.resolver
             package
             requirement]))

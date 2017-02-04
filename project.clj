@@ -6,6 +6,7 @@
   :main degasolv.cli
   :dependencies [
                  [org.clojure/clojure "1.8.0"]
+                 [version-clj "0.1.2"]
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
                  ]
@@ -19,7 +20,8 @@
   :profiles {
              :dev {:dependencies [
                                   [org.clojure/core.match "0.3.0-alpha4"]
-                                  [grimradical/clj-semver "0.3.0-20130920.191002-3" :exclusions [org.clojure/clojure]]
+                                  [version-clj "0.1.2"
+                                   :exclusions [org.clojure/clojure]]
                                   ]}
              :uberjar {:aot :all}
              }

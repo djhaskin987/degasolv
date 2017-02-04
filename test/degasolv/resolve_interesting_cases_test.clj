@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
-            [clj-semver.core :refer [cmp]])
+            [version-clj.core :refer [version-compare]
+             :rename {version-compare cmp}])
   (:import [degasolv.resolver
             package
             requirement]))

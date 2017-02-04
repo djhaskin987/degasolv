@@ -1,7 +1,8 @@
 (ns degasolv.resolve-repo-aggregation-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
-            [clj-semver.core :refer [cmp]]))
+            [version-clj.core :refer [version-compare]
+             :rename {version-compare cmp}]))
 
 (deftest ^:repo-aggregation priority-repo-test
   "Testing that priority-repo works"
