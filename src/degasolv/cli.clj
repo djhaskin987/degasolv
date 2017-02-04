@@ -12,6 +12,13 @@
              :rename {version-compare cmp}])
   (:gen-class))
 
+; UTF-8 by default :)
+(defn- default-slurp [loc]
+  (clojure.core/slurp loc :encoding "UTF-8"))
+
+(defn- default-spit [loc]
+  (clojure.core/spit loc :encoding "UTF-8"))
+
 #_(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
@@ -38,7 +45,7 @@ x#))
         initial-repository
         (if add-to
           (edn/read-string
-           (slurp add-to))
+           (default-slurp add-to))
           {})]
     (with-open
       [ow (io/writer output-file :encoding "UTF-8")]
@@ -56,7 +63,15 @@ x#))
                       (update-in c [(:id v)] conj v))
                     initial-repository
                     (map
-                     #(edn/read-string (slurp %))
+                     (fn read-card [card]
+                       (let [card-data (edn/read-string (default-slurp card))]
+                         (assoc card-data
+                                :requirements
+                                (map (fn translate-req-strings [req]
+                                       (if (string? req)
+                                         (string-to-requirement req)
+                                         req))
+                                  (:requirements card-data)))))
                      (filter #(and (fs/file? %)
                                    (= ".dscard" (fs/extension %)))
                              (file-seq (fs/file search-directory)))))))
@@ -75,9 +90,10 @@ x#))
         options
         requirements
         (if (:project-file options)
-          (let [project-info (edn/read-string
-           (slurp
-            (:project-file options)))]
+          (let [project-info
+                (edn/read-string
+                  (default-slurp
+                    (:project-file options)))]
             (when (not (:requirements project-info))
               (.println *err* "Warning: project file does not contain a `:requirements` key."))
             (:requirements project-info))
@@ -99,7 +115,7 @@ x#))
           (fn slurp-url
             [url]
             (edn/read-string
-             (slurp url)))
+             (default-slurp url)))
           repositories))
         result (resolve-dependencies
                 requirements
@@ -260,7 +276,7 @@ x#))
         ((:function subcmd-cli)
          (merge
           (edn/read-string
-           (slurp
+           (default-slurp
             (:config-file global-options)))
           options)
          arguments)))))
