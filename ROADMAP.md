@@ -1,7 +1,9 @@
 # MVP
-1. Specify reqs as string in dscard files
-2. Validate dscard files and print good error on generate-repo
-3. Support project files with resolve-locations and generate-card
+1. Validate dscard files and print good error on generate-repo, and in
+   resolve-locations when reading index.dsrepo
+2. Use JSON for dscard and index.dsrepo, modify error message logic to
+   be descriptive even when checking the JSON
+3. Support JSON project files with resolve-locations
 4. Document basic tutorial on how to use it.
 # 1.2
 1. Spec and generative test .resolver
