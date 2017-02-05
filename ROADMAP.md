@@ -1,10 +1,14 @@
 # MVP
 1. Document basic tutorial on how to use it.
-2. Package .deb and .rpm, make available
+2. Package with .deb, .rpm, homebrew, and MSI, using packr. Make available.
+3. binary EDN used in repo file
+4. Record type for version predicate
+5. record types used in EDN, now that .dscard are generated via CLI
 # 1.2
 1. Validate repo in resolve-locations
 1. Print *good* error on generate-repo, and in
    resolve-locations when reading index.dsrepo
+1. Man page
 1. Spec and generative test .resolver
 2. Set up autodocs and tutorial merger (sphinx)
 3. Put docs on readthedocs
