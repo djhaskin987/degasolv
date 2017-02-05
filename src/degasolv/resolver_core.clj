@@ -47,6 +47,7 @@ x#))
            (or disj-cum
                (reduce
                 (fn [conj-cum conj-val]
+                  conj-val
                   (let [chk-ver (:version conj-val)
                         cmp-result (cmp pkg-ver chk-ver)]
                     (and conj-cum

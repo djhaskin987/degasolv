@@ -1,19 +1,25 @@
 (s/def ::relation #{:less-than
-                    :less-equal
-                    :equal-to
+                    :less-equal :equal-to
                     :not-equal
                     :greater-equal
-                    :greater})
+                    :greater-than})
 
-(s/def ::id string?)
+(s/def ::id (s/and
+              string?
+              #(not (empty? %))))
 
 (def str-version-pattern "[A-Za-z0-9][A-Za-z0-9]*([.-][A-Za-z0-9]+)*")
 
-(def version-regex (re-pattern str-version-pattern))
+(def version-regex (re-pattern (str
+                                 "^"
+                                 str-version-pattern
+                                 "$")))
 
 (s/def ::version #(re-matches version-regex %))
 
-(s/def ::location string?)
+(s/def ::location (s/and
+                    string?
+                    #(not (empty? %))))
 
 (s/def ::status #{:present :absent})
 
@@ -50,7 +56,7 @@
          (s/coll-of
            ::requirement
            :kind sequential?
-           :min-count 1)))
+           :into [])))
 
 (s/def ::package
        (s/keys
@@ -67,8 +73,7 @@
 (def str-relation-pattern "(>=|==|!=|<=|<|>)")
 (def str-id-pattern "[^>=<!;,|]+")
 (def str-version-predicate-pattern
-  (str str-id-pattern
-       str-relation-pattern
+  (str str-relation-pattern
        str-version-pattern))
 (def str-version-conj-predicate-pattern
   (str str-version-predicate-pattern
@@ -91,9 +96,9 @@
 (def str-requirement-pattern
   (str
     str-alternative-pattern
-    "(|"
+    "([|]"
     str-alternative-pattern
-    ")"))
+    ")*"))
 
 (def str-requirement-regex
  (re-pattern

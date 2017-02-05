@@ -10,8 +10,7 @@
             [me.raynes.fs :as fs]
             [version-clj.core
              :refer [version-compare]
-             :rename {version-compare cmp}
-             ])
+             :rename {version-compare cmp}])
 
   (:gen-class))
 
@@ -22,7 +21,7 @@
 (defn- default-spit [loc]
   (clojure.core/spit loc :encoding "UTF-8"))
 
-#_(defmacro dbg [body]
+(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
@@ -48,10 +47,11 @@ x#))
                  (str
                    "Invalid requirement string in card `"
                    card
-                   "`")
+                   "`: "
+                   (s/explain ::r/requirement-string req))
                  (s/explain-data ::r/requirement-string
                                  req)))
-        (string-to-requirement vetted-req)))
+        (into [] (string-to-requirement vetted-req))))
     req))
 
 (defn- read-card!
@@ -63,13 +63,15 @@ x#))
                (map (partial translate-req-strings card)
                     (:requirements card-data)))
         vetted-card-data
-        (s/conform ::r/package)]
+        (s/conform ::r/package expanded-card-data)]
     (if (= vetted-card-data
            ::s/invalid)
       (throw (ex-info (str
                         "Invalid data in card file `"
                         card
-                        "`")
+                        "`: "
+                        (s/explain ::r/package
+                                   expanded-card-data))
                       (s/explain-data ::r/package
                                       expanded-card-data)))
       expanded-card-data)))
@@ -152,16 +154,16 @@ x#))
                 :strategy (keyword resolve-strategy)
                 :compare cmp)]
     (case
-        (first result)
+      (first result)
       :successful
       (let [[_ packages] result]
-        (pprint/pprint
-         (map
-          (fn
-            [pkg]
-            [(:id pkg)
-             (:location pkg)])
-          packages)))
+        (println (string/join
+          \newline
+          (map
+            (fn
+              [pkg]
+              (str (:id pkg) ": " (:location pkg)))
+            packages))))
       :unsuccessful
       (let [[_ term] result]
         (throw (ex-info
@@ -170,8 +172,51 @@ x#))
                      (pprint/pprint term))
                 {:term term}))))))
 
+(defn- generate-card!
+  [{:keys [id version location requirements out-file]}
+   arguments]
+  (with-open
+    [ow (io/writer (str out-file ".dscard") :encoding "UTF-8")]
+    (pprint/pprint
+      {:id id
+       :version version
+       :location location
+       :requirements (into [] requirements)}
+      ow)))
+
 (def subcommand-cli
-  {"generate-repo-index"
+  {"generate-card"
+   {:description "Generate dscard file based on arguments given"
+    :function generate-card!
+    :cli [["-i" "--id ID"
+           "ID (name) of the package to be put in the card"
+           :validate [#(not (empty? %))
+                      "ID must be a non-empty string."]
+           :required true]
+          ["-v" "--version VERSION"
+           "Version of the package to be put in the card"
+           :validate [#(re-matches r/version-regex %)
+                      "Sorry, given argument doesn't look like a version."]
+           :required true]
+          ["-l" "--location LOCATION"
+           "Location of the package referred to in the card"
+           :validate [#(not (empty? %))
+                      "Location must be a non-empty string."]
+           :required true]
+          ["-r" "--requirement REQ"
+           "Specify a requirement of the package. May be specified multiple times."
+           :validate [#(re-matches r/str-requirement-regex %)
+                      "Requirement must look like one of these: `!a`, `a`, `a|b`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]
+           :id :requirements
+           :assoc-fn
+           (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-o" "--out-file FILENAME"
+           (str "Specify the filename of the card.\n"
+                "Final file will be written as `<FILENAME>.dscard`.")
+           :default "./out"
+           :validate [#(not (empty? %))
+                      "Out file must not be empty."]]]}
+   "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index!
     :cli [["-a" "--add-to REPO_LOC"
@@ -202,10 +247,10 @@ x#))
            "Specify a repo merge strategy. May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
-                      "Strategy must either be 'priority' or 'global'."]]
-          ["-c" "--project-file PROJECT_FILE"
-           "Resolve the requirements found in the given degasolv project file."
-          :validate [#(fs/file? %) "Project file must exist."]]]}})
+                      "Strategy must either be 'priority' or 'global'."]]]}})
+;           ["-c" "--project-file PROJECT_FILE"
+;            "Resolve the requirements found in the given degasolv project file."
+;           :validate [#(fs/file? %) "Project file must exist."]]]}})
 
 (defn command-list [commands]
   (->> ["Commands are:"

@@ -1,11 +1,10 @@
 # MVP
-1. Validate dscard files and print good error on generate-repo, and in
-   resolve-locations when reading index.dsrepo
-2. Use JSON for dscard and index.dsrepo, modify error message logic to
-   be descriptive even when checking the JSON
-3. Support JSON project files with resolve-locations
-4. Document basic tutorial on how to use it.
+1. Document basic tutorial on how to use it.
+2. Package .deb and .rpm, make available
 # 1.2
+1. Validate repo in resolve-locations
+1. Print *good* error on generate-repo, and in
+   resolve-locations when reading index.dsrepo
 1. Spec and generative test .resolver
 2. Set up autodocs and tutorial merger (sphinx)
 3. Put docs on readthedocs
