@@ -10,4 +10,5 @@
 4. packr
 5. Pluggable config file
 6. inline-repository-data (using string reqs)
-
+# 1.3
+1. Better error message on unresolve

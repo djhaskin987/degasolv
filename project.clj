@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main degasolv.cli
   :dependencies [
-                 [org.clojure/clojure "1.8.0"]
+                 [org.clojure/clojure "1.9.0-alpha14"]
                  [version-clj "0.1.2"]
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]

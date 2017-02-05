@@ -1,15 +1,18 @@
 (ns degasolv.cli
   (:require [degasolv.util :refer :all]
-            [degasolv.resolver :refer :all]
+            [degasolv.resolver :as r :refer :all]
             [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
             [clojure.pprint :as pprint]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
+            [clojure.spec :as s]
             [me.raynes.fs :as fs]
             [version-clj.core
              :refer [version-compare]
-             :rename {version-compare cmp}])
+             :rename {version-compare cmp}
+             ])
+
   (:gen-class))
 
 ; UTF-8 by default :)
@@ -37,6 +40,40 @@ x#))
                       :default-desc]))
       sq))))
 
+(defn- translate-req-strings [card req]
+  (if (string? req)
+    (let [vetted-req (s/conform ::r/requirement-string req)]
+      (if (= ::s/invalid vetted-req)
+        (throw (ex-info
+                 (str
+                   "Invalid requirement string in card `"
+                   card
+                   "`")
+                 (s/explain-data ::r/requirement-string
+                                 req)))
+        (string-to-requirement vetted-req)))
+    req))
+
+(defn- read-card!
+  [card]
+  (let [card-data (edn/read-string (default-slurp card))
+        expanded-card-data
+        (assoc card-data
+               :requirements
+               (map (partial translate-req-strings card)
+                    (:requirements card-data)))
+        vetted-card-data
+        (s/conform ::r/package)]
+    (if (= vetted-card-data
+           ::s/invalid)
+      (throw (ex-info (str
+                        "Invalid data in card file `"
+                        card
+                        "`")
+                      (s/explain-data ::r/package
+                                      expanded-card-data)))
+      expanded-card-data)))
+
 (defn- generate-repo-index!
   [options arguments]
   (let [{:keys [add-to
@@ -45,37 +82,29 @@ x#))
         initial-repository
         (if add-to
           (edn/read-string
-           (default-slurp add-to))
+            (default-slurp add-to))
           {})]
     (with-open
       [ow (io/writer output-file :encoding "UTF-8")]
       (pprint/pprint
-       (into {}
+        (into {}
               (map
-                   (fn [x]
-                     [(first x)
-                      (into []
-                            (sort #(- (cmp (:version %1)
-                                           (:version %2)))
-                                  (second x)))])
-                   (reduce
-                    (fn merg [c v]
-                      (update-in c [(:id v)] conj v))
-                    initial-repository
-                    (map
-                     (fn read-card [card]
-                       (let [card-data (edn/read-string (default-slurp card))]
-                         (assoc card-data
-                                :requirements
-                                (map (fn translate-req-strings [req]
-                                       (if (string? req)
-                                         (string-to-requirement req)
-                                         req))
-                                  (:requirements card-data)))))
-                     (filter #(and (fs/file? %)
-                                   (= ".dscard" (fs/extension %)))
-                             (file-seq (fs/file search-directory)))))))
-       ow))))
+                (fn [x]
+                  [(first x)
+                   (into []
+                         (sort #(- (cmp (:version %1)
+                                        (:version %2)))
+                               (second x)))])
+                (reduce
+                  (fn merg [c v]
+                    (update-in c [(:id v)] conj v))
+                  initial-repository
+                  (map
+                    read-card!
+                    (filter #(and (fs/file? %)
+                                  (= ".dscard" (fs/extension %)))
+                            (file-seq (fs/file search-directory)))))))
+        ow))))
 
 (defn- resolve-locations!
   [options arguments]
