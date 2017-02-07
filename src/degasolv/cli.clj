@@ -108,51 +108,56 @@ x#))
                             (file-seq (fs/file search-directory)))))))
         ow))))
 
-(defn- resolve-locations!
+(defn-
+  resolve-locations!
   [options arguments]
   (when (not (:repositories options))
     (throw (ex-info
             (str
              "No repositories specified\n"
              "(either through CLI or config file)"))))
-  (let [{:keys [repositories
-                resolve-strategy
-                repo-merge-strategy]}
-        options
-        requirements
-        (if (:project-file options)
-          (let [project-info
-                (edn/read-string
-                  (default-slurp
-                    (:project-file options)))]
-            (when (not (:requirements project-info))
-              (.println *err* "Warning: project file does not contain a `:requirements` key."))
-            (:requirements project-info))
-           (into [] (map
-            #(string-to-requirement %)
-            (rest arguments))))
-        aggregator
-        (if (= repo-merge-strategy
-               "priority")
-          priority-repo
-          (fn [rs]
-            (global-repo rs
-                         :cmp #(- (cmp
-                                   (:version %1)
-                                   (:version %2))))))
-        aggregate-repo
-        (aggregator
-         (map
-          (fn slurp-url
-            [url]
-            (edn/read-string
+  (let
+    [{:keys [repositories
+             resolve-strategy
+             repo-merge-strategy]}
+     options
+     requirements
+     (if (:project-file options)
+       (let [project-info
+             (edn/read-string
+               (default-slurp
+                 (:project-file options)))]
+         (when (not (:requirements project-info))
+           (.println
+             *err*
+             "Warning: project file does not contain a `:requirements` key."))
+         (:requirements project-info))
+       (into [] (map
+                  #(string-to-requirement %)
+                  (rest arguments))))
+     aggregator
+     (if (= repo-merge-strategy
+            "priority")
+       priority-repo
+       (fn [rs]
+         (global-repo rs
+                      :cmp #(- (cmp
+                                 (:version %1)
+                                 (:version %2))))))
+     aggregate-repo
+     (aggregator
+       (map
+         (fn slurp-url
+           [url]
+           (edn/read-string
              (default-slurp url)))
-          repositories))
-        result (resolve-dependencies
-                requirements
-                aggregate-repo
-                :strategy (keyword resolve-strategy)
-                :compare cmp)]
+         repositories))
+     result
+     (resolve-dependencies
+       requirements
+       aggregate-repo
+       :strategy (keyword resolve-strategy)
+       :compare cmp)]
     (case
       (first result)
       :successful
