@@ -149,8 +149,24 @@ x#))
        (map
          (fn slurp-url
            [url]
-           (edn/read-string
-             (default-slurp url)))
+           (let
+             [repo-data
+              (edn/read-string
+                (default-slurp url))
+              vetted-repo-data
+              (s/conform
+                ::r/map-repo
+                repo-data)]
+             (when (= ::s/invalid vetted-repo-data)
+               (throw (ex-info
+                        (str
+                          "Invalid requirement string in repo `"
+                          url
+                          "`: "
+                          (s/explain ::r/map-repo repo-data))
+                        (s/explain-data ::r/map-repo
+                                        repo-data))))
+             repo-data))
          repositories))
      result
      (resolve-dependencies
