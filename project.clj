@@ -23,6 +23,6 @@
                                   [version-clj "0.1.2"
                                    :exclusions [org.clojure/clojure]]
                                   ]}
-             :uberjar {:aot :all}
+;             :uberjar {:aot :all}
              }
   :target-path "target/%s")
