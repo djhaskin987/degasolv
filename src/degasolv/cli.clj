@@ -18,8 +18,13 @@
 (defn- default-slurp [loc]
   (clojure.core/slurp loc :encoding "UTF-8"))
 
-(defn- default-spit [loc]
-  (clojure.core/spit loc :encoding "UTF-8"))
+(defn- default-spit [loc stuff]
+  (clojure.core/spit loc stuff :encoding "UTF-8"))
+
+(defn- pretty-spit [loc stuff]
+  (with-open
+    [ow (io/writer loc :encoding "UTF-8")]
+    (pprint/pprint stuff ow)))
 
 (defmacro dbg [body]
   `(let [x# ~body]
@@ -39,31 +44,11 @@ x#))
                       :default-desc]))
       sq))))
 
-(defn- translate-req-strings [card req]
-  (if (string? req)
-    (let [vetted-req (s/conform ::r/requirement-string req)]
-      (if (= ::s/invalid vetted-req)
-        (throw (ex-info
-                 (str
-                   "Invalid requirement string in card `"
-                   card
-                   "`: "
-                   (s/explain ::r/requirement-string req))
-                 (s/explain-data ::r/requirement-string
-                                 req)))
-        (into [] (string-to-requirement vetted-req))))
-    req))
-
 (defn- read-card!
   [card]
   (let [card-data (edn/read-string (default-slurp card))
-        expanded-card-data
-        (assoc card-data
-               :requirements
-               (map (partial translate-req-strings card)
-                    (:requirements card-data)))
         vetted-card-data
-        (s/conform ::r/package expanded-card-data)]
+        (s/conform ::r/package card-data)]
     (if (= vetted-card-data
            ::s/invalid)
       (throw (ex-info (str
@@ -86,9 +71,8 @@ x#))
           (edn/read-string
             (default-slurp add-to))
           {})]
-    (with-open
-      [ow (io/writer output-file :encoding "UTF-8")]
-      (pprint/pprint
+    (default-spit
+      output-file
         (into {}
               (map
                 (fn [x]
@@ -105,8 +89,7 @@ x#))
                     read-card!
                     (filter #(and (fs/file? %)
                                   (= ".dscard" (fs/extension %)))
-                            (file-seq (fs/file search-directory)))))))
-        ow))))
+                            (file-seq (fs/file search-directory))))))))))
 
 (defn-
   resolve-locations!
@@ -133,7 +116,18 @@ x#))
              "Warning: project file does not contain a `:requirements` key."))
          (:requirements project-info))
        (into [] (map
-                  #(string-to-requirement %)
+                  (fn [str-req]
+                    (let [vetted-str-req
+                          (s/conform ::r/requirement-string str-req)]
+                      (when (= vetted-str-req ::s/invalid)
+                        (throw (ex-info (str
+                                          "Requirement `"
+                                          str-req
+                                          "` given by commandline invalid:"
+                                          (s/explain
+                                            ::r/requirement-string
+                                            str-req)))))
+                      (string-to-requirement vetted-str-req)))
                   (rest arguments))))
      aggregator
      (if (= repo-merge-strategy
@@ -194,16 +188,17 @@ x#))
                 {:term term}))))))
 
 (defn- generate-card!
-  [{:keys [id version location requirements out-file]}
+  [{:keys [id version location requirements output-file]}
    arguments]
-  (with-open
-    [ow (io/writer (str out-file ".dscard") :encoding "UTF-8")]
-    (pprint/pprint
+  (pretty-spit output-file
       {:id id
        :version version
        :location location
-       :requirements (into [] requirements)}
-      ow)))
+       :requirements
+       (into []
+             (map
+               #(string-to-requirement %)
+               requirements))}))
 
 (def subcommand-cli
   {"generate-card"
@@ -231,7 +226,7 @@ x#))
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-o" "--out-file FILENAME"
+          ["-o" "--output-file FILENAME"
            (str "Specify the filename of the card.\n"
                 "Final file will be written as `<FILENAME>.dscard`.")
            :default "./out"
