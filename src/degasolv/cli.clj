@@ -10,16 +10,34 @@
             [me.raynes.fs :as fs]
             [version-clj.core
              :refer [version-compare]
-             :rename {version-compare cmp}])
-
+             :rename {version-compare cmp}]
+            [miner.tagged :as tag])
   (:gen-class))
+
+(defmethod
+  print-method
+  degasolv.resolver.PackageInfo
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+(defmethod
+  print-method
+  degasolv.resolver.VersionPredicate
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+(defmethod
+  print-method
+  degasolv.resolver.Requirement
+  [this w]
+  (tag/pr-tagged-record-on this w))
 
 ; UTF-8 by default :)
 (defn- default-slurp [loc]
   (clojure.core/slurp loc :encoding "UTF-8"))
 
 (defn- default-spit [loc stuff]
-  (clojure.core/spit loc stuff :encoding "UTF-8"))
+  (clojure.core/spit loc (pr-str stuff) :encoding "UTF-8"))
 
 (defn- pretty-spit [loc stuff]
   (with-open
@@ -46,7 +64,7 @@ x#))
 
 (defn- read-card!
   [card]
-  (let [card-data (edn/read-string (default-slurp card))
+  (let [card-data (tag/read-string (default-slurp card))
         vetted-card-data
         (s/conform ::r/package card-data)]
     (if (= vetted-card-data
@@ -56,10 +74,10 @@ x#))
                         card
                         "`: "
                         (s/explain ::r/package
-                                   expanded-card-data))
+                                   card-data))
                       (s/explain-data ::r/package
-                                      expanded-card-data)))
-      expanded-card-data)))
+                                      card-data)))
+      card-data)))
 
 (defn- generate-repo-index!
   [options arguments]
@@ -68,7 +86,7 @@ x#))
                 output-file]} options
         initial-repository
         (if add-to
-          (edn/read-string
+          (tag/read-string
             (default-slurp add-to))
           {})]
     (default-spit
@@ -107,7 +125,7 @@ x#))
      requirements
      (if (:project-file options)
        (let [project-info
-             (edn/read-string
+             (tag/read-string
                (default-slurp
                  (:project-file options)))]
          (when (not (:requirements project-info))
@@ -145,7 +163,7 @@ x#))
            [url]
            (let
              [repo-data
-              (edn/read-string
+              (tag/read-string
                 (default-slurp url))
               vetted-repo-data
               (s/conform
@@ -180,25 +198,26 @@ x#))
               (str (:id pkg) ": " (:location pkg)))
             packages))))
       :unsuccessful
-      (let [[_ term] result]
+      (let [[_ info] result]
         (throw (ex-info
                 (str "\n\nCould not resolve dependencies.\n\n"
-                     "The resolver choked on this term: "
-                     (pprint/pprint term))
-                {:term term}))))))
+                     "The resolver choked here: "
+                     (pr-str info))
+                {:info info}))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements output-file]}
    arguments]
-  (pretty-spit output-file
-      {:id id
-       :version version
-       :location location
-       :requirements
-       (into []
-             (map
-               #(string-to-requirement %)
-               requirements))}))
+  (default-spit
+    output-file
+    (->PackageInfo
+      id
+      version
+      location
+      (into []
+            (map
+              #(string-to-requirement %)
+              requirements)))))
 
 (def subcommand-cli
   {"generate-card"
@@ -364,9 +383,15 @@ x#))
                           (usage summary :sub-command subcommand)
                           ""])))
         ((:function subcmd-cli)
-         (merge
-          (edn/read-string
-           (default-slurp
-            (:config-file global-options)))
-          options)
+           (merge
+             (try
+               (tag/read-string
+                 (default-slurp
+                   (:config-file global-options)))
+               (catch Exception e
+                 (exit 1 (error-msg [(str "Problem reading configuration file `"
+                                          (:config-file global-options)
+                                          "`: "
+                                          (.getMessage e))]))))
+             options)
          arguments)))))

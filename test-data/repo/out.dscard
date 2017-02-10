@@ -1,4 +1,0 @@
-{:id "diddly-eye",
- :version "2.1.8-alpha1",
- :location "http://example.com/repo/diddly-eye-2.1.8-alpha1.zip",
- :requirements ["!b|b>3.0"]}

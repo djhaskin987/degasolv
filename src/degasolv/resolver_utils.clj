@@ -1,3 +1,5 @@
+(in-ns 'degasolv.resolver)
+
 (defn priority-repo [rs]
   (fn [id]
     (or
@@ -34,16 +36,15 @@
       (fn extract-name [x]
         (let [[status-piece name-piece spec-piece]
               (rest (re-find #"^(!?)([^!><=]+)(.*)$" x))
-              initial-term {:status (if (empty? status-piece)
-                                      :present
-                                      :absent)
-                            :id name-piece}]
+              initial-term (if (empty? status-piece)
+                             (present name-piece)
+                             (absent name-piece))]
           (if (empty? spec-piece)
             initial-term
-            (into
-             initial-term
-             [[:spec
-               (into []
+            (assoc
+              initial-term
+              :spec
+              (into []
                      (map
                       (fn [t]
                         (into
@@ -52,14 +53,15 @@
                           (fn [rough]
                             (let [[_ cse version]
                                   (re-find #"(<|<=|!=|==|>=|>)([^<>=!].*)$" rough)]
-                              {:relation (case cse
-                                           "<" :less-than
-                                           "<=" :less-equal
-                                           "==" :equal-to
-                                           "!=" :not-equal
-                                           ">=" :greater-equal
-                                           ">" :greater-than)
-                               :version version}))
+                              (->VersionPredicate
+                                version
+                                (case cse
+                                  "<" :less-than
+                                  "<=" :less-equal
+                                  "==" :equal-to
+                                  "!=" :not-equal
+                                  ">=" :greater-equal
+                                  ">" :greater-than))))
                           (clj-str/split t #","))))
-                      (clj-str/split spec-piece #";")))]]))))
+                      (clj-str/split spec-piece #";")))))))
       (clj-str/split str #"\|")))))

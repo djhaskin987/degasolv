@@ -1,9 +1,0 @@
-          {
-           :id "f"
-           :version "1.0.0"
-           :location "http://exmaple.com/repo/f-1.0.0.zip"
-            :requirements [
-            "!c|c<=3.0"
-            "b<=3.0,>2.0;>=4.0,<3.5"
-]
-           }

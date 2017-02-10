@@ -9,6 +9,7 @@
                  [version-clj "0.1.2"]
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
+                 [com.velisco/tagged "0.5.0"]
                  ]
   :test-selectors
   {
@@ -23,6 +24,6 @@
                                   [version-clj "0.1.2"
                                    :exclusions [org.clojure/clojure]]
                                   ]}
-;             :uberjar {:aot :all}
+             :uberjar {:aot [degasolv.cli degasolv.resolver]}
              }
   :target-path "target/%s")

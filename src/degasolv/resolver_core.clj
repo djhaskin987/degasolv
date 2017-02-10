@@ -1,20 +1,20 @@
-(defrecord requirement [status id spec])
-
+(in-ns 'degasolv.resolver)
 (defmacro dbg2 [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
 
+(defrecord VersionPredicate [version relation])
+(defrecord Requirement [status id spec])
+(defrecord PackageInfo [id version location requirements])
 
 (defn present
   ([id] (present id nil))
-  ([id spec] (->requirement :present id spec)))
+  ([id spec] (->Requirement :present id spec)))
 
 (defn absent
   ([id] (absent id nil))
-  ([id spec] (->requirement :absent id spec)))
-
-(defrecord package [id version location requirements])
+  ([id spec] (->Requirement :absent id spec)))
 
 (defn- spec-call [f v]
   (f v))

@@ -1,6 +1,5 @@
-/test-data/repo/index.dsrepo
 /target
-/foo
+/test-data/
 /*.dscard
 /*.dsrepo
 /classes
