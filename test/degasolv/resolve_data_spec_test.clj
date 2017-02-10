@@ -5,8 +5,8 @@
             [version-clj.core :refer [version-compare]
              :rename {version-compare cmp}])
   (:import [degasolv.resolver
-            package
-            requirement]))
+            PackageInfo
+            Requirement]))
 
 (deftest ^:resolve-data-spec tutorial-test
   (let [repo-info

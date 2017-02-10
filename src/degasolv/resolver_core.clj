@@ -8,6 +8,10 @@ x#))
 (defrecord Requirement [status id spec])
 (defrecord PackageInfo [id version location requirements])
 
+(def ->requirement ->Requirement)
+(def ->package ->PackageInfo)
+(def ->version-predicate ->VersionPredicate)
+
 (defn present
   ([id] (present id nil))
   ([id spec] (->Requirement :present id spec)))

@@ -5,8 +5,8 @@
             [version-clj.core :refer [version-compare]
              :rename {version-compare cmp}])
   (:import [degasolv.resolver
-            package
-            requirement]))
+            PackageInfo
+            Requirement]))
 
 (deftest ^:resolve-interesting-cases managed-dependencies-case
   (let [a1
