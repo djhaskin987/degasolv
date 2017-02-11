@@ -4,10 +4,11 @@
      (println "dbg:" '~body "=" x#)
 x#))
 
-(defrecord VersionPredicate [version relation])
+(defrecord VersionPredicate [relation version])
 (defrecord Requirement [status id spec])
 (defrecord PackageInfo [id version location requirements])
 
+; deprecated, do not use
 (def ->requirement ->Requirement)
 (def ->package ->PackageInfo)
 (def ->version-predicate ->VersionPredicate)

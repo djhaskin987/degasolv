@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./bootw uberjar
+lein uberjar
 
 cd test-data/repo
-java -jar ../../target/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations -r $PWD/index.dsrepo "b"
+java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations -r $PWD/index.dsrepo "b"

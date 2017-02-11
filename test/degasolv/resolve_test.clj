@@ -55,13 +55,13 @@
   (deftest ^:resolve-basic ^:resolve-first-tier retrieval
            (testing
              "Asking for a present package succeeds."
-             (is (= [:successful #{package-d22}]
+             (is (.equals [:successful #{package-d22}]
                     (resolve-dependencies
                       [
                        [(present "d")]
                        ]
                       query)))
-             (is (= [:successful #{package-c10}]
+             (is (.equals [:successful #{package-c10}]
                     (resolve-dependencies
                       [
                        [(present "c")]
@@ -70,7 +70,7 @@
            (testing
              "Asking for a nonexistent package fails."
              (let [b-clause [(present "b")]]
-               (is (= [:unsuccessful b-clause]
+               (is (.equals [:unsuccessful b-clause]
                       (resolve-dependencies
                         [b-clause]
                         query)))))
@@ -81,7 +81,7 @@
                    [(present
                       "a"
                       #(>= (:version %1) 40))]]
-               (is (= [:unsuccessful a-clause]
+               (is (.equals [:unsuccessful a-clause]
                       (resolve-dependencies
                         [a-clause]
                         query)))))
@@ -92,26 +92,26 @@
                    [(present
                       "a"
                       (fn [v] false))]]
-               (is (= [:unsuccessful a-clause]
+               (is (.equals [:unsuccessful a-clause]
                       (resolve-dependencies
                         [a-clause]
                         query)))))
            (testing
              (str "Asking for a package present and having a "
                   "version that fits")
-             (is (= [:successful #{package-a20}]
+             (is (.equals [:successful #{package-a20}]
                     (resolve-dependencies
                       [[(present "a" #(and (>= (:version %1) 15)
                                            (<= (:version %1) 25)))]]
                       query)))
-             (is (= [:successful #{package-d22}]
+             (is (.equals [:successful #{package-d22}]
                     (resolve-dependencies
                       [[(present "d" #(>= (:version %1) 20))]]
                       query)))))
   (deftest ^:resolve-basic present-packages
            (testing
              "Asking to install a package twice."
-             (is (= [:successful #{package-c10}]
+             (is (.equals [:successful #{package-c10}]
                     (resolve-dependencies
                       [
                        [(present "c")]
@@ -121,7 +121,7 @@
            (testing
              (str "Asking to install a package that I have given as "
                   "already installed.")
-             (is (= [:successful #{}]
+             (is (.equals [:successful #{}]
                     (resolve-dependencies
                       [
                        [(present "c")]
@@ -133,7 +133,7 @@
            (testing
              (str "Asking to install a package that I have given as already "
                   "installed, even though the package isn't available.")
-             (is (= [:successful #{}]
+             (is (.equals [:successful #{}]
                     (resolve-dependencies
                       [
                        [(present "b")]
@@ -147,7 +147,7 @@
                   "suit, even though there is a suitable version "
                   "available.")
              (let [clause [(present "a" #(>= (:version %) 25))]]
-               (is (= [:unsuccessful clause]
+               (is (.equals [:unsuccessful clause]
                       (resolve-dependencies
                         [
                          clause
@@ -158,7 +158,7 @@
            (testing
              (str "Asking to install a package that is already "
                   "installed, and the installed version suits.")
-             (is (= [:successful #{}]
+             (is (.equals [:successful #{}]
                     (resolve-dependencies
                       [
                        [(present "a" #(>= (:version %) 20))]
@@ -170,14 +170,14 @@
              (testing
                (str "Find a package which conflicts with another "
                            "package also to be installed.")
-               (is (= [:unsuccessful dclause]
+               (is (.equals [:unsuccessful dclause]
                       (resolve-dependencies
                         [dclause
                          [(present "e")]]
                         query))))
              (testing (str "Find a package which conflicts with a package "
                            "marked a priori as conflicting.")
-                      (is (= [:unsuccessful dclause]
+                      (is (.equals [:unsuccessful dclause]
                              (resolve-dependencies
                                [dclause
                                 [(present "a" #(<= (:version %) 25))]]
@@ -185,7 +185,7 @@
                                :conflicts {"d" [nil]}))))
              (testing (str "Find a package which conflicts with another "
                            "package but not at its current version")
-                      (is (= [:successful #{package-d22}]
+                      (is (.equals [:successful #{package-d22}]
                              (resolve-dependencies
                                [dclause]
                                query
@@ -213,7 +213,7 @@
       (testing
         (str "One package should require another and both "
              "should be found.")
-        (is (= [:successful #{package-a package-b}]
+        (is (.equals [:successful #{package-a package-b}]
                (resolve-dependencies
                  [
                   [(present "a")]
@@ -222,7 +222,7 @@
       (testing
         (str "One package should be found when it requires "
              "another, but it's already installed.")
-        (is (= [:successful #{package-a}]
+        (is (.equals [:successful #{package-a}]
                (resolve-dependencies
                  [
                   [(present "a")]
@@ -262,7 +262,7 @@
 
         (let [aclause [(present "a")]
               bclause [(present "b")]]
-          (is (= [:unsuccessful aclause]
+          (is (.equals [:unsuccessful aclause]
                  (resolve-dependencies
                    [
                     aclause
@@ -301,7 +301,7 @@
              "also gets rejected")
         (let [aclause [(present "a")]]
 
-          (is (= [:unsuccessful aclause]
+          (is (.equals [:unsuccessful aclause]
                  (resolve-dependencies
                    [
                     aclause
@@ -315,7 +315,7 @@
   ^:resolve-basic disjunctive-clauses
   (testing
     "Disjunction tautology"
-    (is (= [:successful #{}]
+    (is (.equals [:successful #{}]
            (resolve-dependencies
              [
               [(absent "c") (present "b")]
@@ -341,7 +341,7 @@
           {"a" [package-a]
            "b" [package-b]}
           query (map-query repo-info)]
-      (is (= [:successful #{package-b}]
+      (is (.equals [:successful #{package-b}]
              (resolve-dependencies
                [
                 [(absent "c") (present "b")]
@@ -377,7 +377,7 @@
             {"a" [package-a30 package-a20]
              "c" [package-c10]}
             query (map-query repo-info)]
-        (is (= [:successful #{package-a20 package-c10}]
+        (is (.equals [:successful #{package-a20 package-c10}]
                (resolve-dependencies
                  [
                   [(present "a")]
@@ -436,7 +436,7 @@
              "d" [package-d4 package-d3]}
             query
             (map-query repo-info)]
-        (is (= [:successful
+        (is (.equals [:successful
                 #{package-a
                   package-b
                   package-c
@@ -462,7 +462,7 @@
               "b_loc1"
               [
                [(present "d" #(>= (:version %) 2))]
-               [(present "e" #(= (:version %) 5))]
+               [(present "e" #(.equals (:version %) 5))]
                ]
               )
             package-c
@@ -507,7 +507,7 @@
              "e" [package-e6 package-e5]}
             query
             (map-query repo-info)]
-        (is (= [:successful
+        (is (.equals [:successful
                 #{package-a
                   package-b
                   package-c
@@ -554,7 +554,7 @@
               1
               "d_loc1"
               [
-               [(present "e" #(= (:version %) 4))]
+               [(present "e" #(.equals (:version %) 4))]
                ]
               )
             package-d2
@@ -563,7 +563,7 @@
               2
               "d_loc2"
               [
-               [(present "e" #(= (:version %) 3))]
+               [(present "e" #(.equals (:version %) 3))]
                ]
               )
             package-e4
@@ -586,7 +586,7 @@
              "e" [package-e4 package-e3]}
             query
             (map-query repo-info)]
-        (is (= [:successful #{package-a
+        (is (.equals [:successful #{package-a
                               package-b
                               package-c
                               package-d2
@@ -623,7 +623,7 @@
               1
               "c_loc1"
               [
-               [(present "d" #(= (:version %) 2))]
+               [(present "d" #(.equals (:version %) 2))]
                ]
               )
             package-d4
@@ -651,7 +651,7 @@
              "d" [package-d4 package-d3 package-d2]}
             query (map-query repo-info)]
 
-        (is (= [:successful #{package-d2 package-c package-b package-a}]
+        (is (.equals [:successful #{package-d2 package-c package-b package-a}]
                (resolve-dependencies
                  [
                   [(present "a")]
@@ -704,7 +704,7 @@
     (testing
       "Prefer what's installed"
       (is
-        (=
+        (.equals
           [:successful
            #{package-a}]
           (resolve-dependencies
@@ -714,7 +714,7 @@
     (testing
       "Prefer conflicts over installs"
       (is
-        (=
+        (.equals
           [:successful
            #{package-d}]
           (resolve-dependencies
@@ -745,13 +745,13 @@
           {"a" [package-a]
            "b" [package-b]}
           query (map-query repo-info)]
-      (is (= [:successful #{package-a package-b}]
+      (is (.equals [:successful #{package-a package-b}]
              (resolve-dependencies
               [
                [(present "a")]
                ]
               query)))
-      (is (= [:successful #{package-a package-b}]
+      (is (.equals [:successful #{package-a package-b}]
              (resolve-dependencies
               [
                [(present "b")]

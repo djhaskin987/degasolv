@@ -66,3 +66,5 @@
   (jar :file (format "%s-%s-standalone.jar" (get-env :project) (get-env :version)))
   (sift)
   (target)))
+
+(deftask deps [] (repl :server true))

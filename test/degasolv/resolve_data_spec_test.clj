@@ -96,7 +96,7 @@
         query
         (map-query repo-info)]
     (testing "A test of the tutorial."
-      (is (= #{
+      (is (.equals #{
                  "http://example.com/repo/b-2.3.0.zip"
                  "http://example.com/repo/c-3.5.0.zip"
                  "http://example.com/repo/d-0.8.0.zip"
@@ -138,7 +138,7 @@
         repo-info-asc {"b" [b1 b20 b23]}
         query-asc (map-query repo-info-asc)]
     (testing "greater-than data spec case"
-      (is (= [:successful #{b23}]
+      (is (.equals [:successful #{b23}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
@@ -147,7 +147,7 @@
               :compare cmp))))
 
     (testing "greater-equal, less-than data spec case"
-      (is (= [:successful #{b20}]
+      (is (.equals [:successful #{b20}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
@@ -156,7 +156,7 @@
               query-mixed
               :compare cmp))))
     (testing "less-equal data spec case"
-      (is (= [:successful #{b23}]
+      (is (.equals [:successful #{b23}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
@@ -165,7 +165,7 @@
               query-asc
               :compare cmp))))
     (testing "equal-to data spec case"
-      (is (= [:successful #{b20}]
+      (is (.equals [:successful #{b20}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
@@ -173,7 +173,7 @@
               query-mixed
               :compare cmp))))
     (testing "not-equal data spec case"
-      (is (= [:successful #{b1}]
+      (is (.equals [:successful #{b1}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
@@ -182,7 +182,7 @@
               query-desc
               :compare cmp))))
     (testing "dual ranges spec cases"
-      (is (= [:successful #{b23}]
+      (is (.equals [:successful #{b23}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
@@ -190,7 +190,7 @@
                         [{:relation :less-than :version "1.7.0"}]]}]]
               query-desc
               :compare cmp)))
-      (is (= [:successful #{b1}]
+      (is (.equals [:successful #{b1}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"

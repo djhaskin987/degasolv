@@ -36,7 +36,7 @@
                        "b" [b23 b20]}
         query-dsc (map-query repo-info-dsc)]
     (testing "That managed dependencies are a thing"
-      (is (= [:successful #{a1 b20}]
+      (is (.equals [:successful #{a1 b20}]
              (resolve-dependencies
               [[{:status :present
                  :id "a"}]
@@ -47,7 +47,7 @@
                  :spec [[{:relation :less-than :version "2.2.0"}]]}]]
               query-dsc
               :compare cmp)))
-      (is (= [:successful #{a1 b23}]
+      (is (.equals [:successful #{a1 b23}]
              (resolve-dependencies
               [[{:status :present
                  :id "a"}]
@@ -85,7 +85,7 @@
                        "c" [c353]}
         query (map-query repo-info)]
     (testing "Implied dependencies"
-      (is (= [:successful
+      (is (.equals [:successful
               #{a1 b23 c353}]
              (resolve-dependencies
               [[{:status :present

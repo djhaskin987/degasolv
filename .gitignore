@@ -1,4 +1,5 @@
 /target
+/.nrepl-history
 /test-data/
 /buildutils/boot
 /*.dscard

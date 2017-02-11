@@ -54,14 +54,14 @@
                             (let [[_ cse version]
                                   (re-find #"(<|<=|!=|==|>=|>)([^<>=!].*)$" rough)]
                               (->VersionPredicate
-                                version
                                 (case cse
                                   "<" :less-than
                                   "<=" :less-equal
                                   "==" :equal-to
                                   "!=" :not-equal
                                   ">=" :greater-equal
-                                  ">" :greater-than))))
+                                  ">" :greater-than)
+                                version)))
                           (clj-str/split t #","))))
                       (clj-str/split spec-piece #";")))))))
       (clj-str/split str #"\|")))))
