@@ -1,11 +1,44 @@
 (in-ns 'degasolv.resolver)
+
 (defmacro dbg2 [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
 x#))
 
-(defrecord VersionPredicate [relation version])
-(defrecord Requirement [status id spec])
+(def ^:private relation-strings
+  {:greater-than ">"
+   :greater-equal ">="
+   :equal-to "=="
+   :not-equal "!="
+   :less-equal "<="
+   :less-than "<"})
+
+(defrecord VersionPredicate [relation version]
+  Object
+  (toString [this]
+    (str
+     ((:relation this) relation-strings)
+     version)))
+
+(defrecord Requirement [status id spec]
+  Object
+  (toString [this]
+    (str
+     (if (= (:status this) :absent)
+       "!"
+       "")
+     (:id this)
+     (clj-str/join
+      ";"
+      (map
+       (fn conjoin-preds [conjunction]
+         (clj-str/join
+          ","
+          (map
+           #(str %)
+           conjunction)))
+       (:spec this))))))
+
 (defrecord PackageInfo [id version location requirements])
 
 ; deprecated, do not use
@@ -143,11 +176,11 @@ x#))
                                     {:problems
                                      [
                                       {:term fclause
-                                       :requirement requirement
                                        :found-packages found-packages
                                        :present-packages present-packages
                                        :absent-specs absent-specs
                                        :reason :present-package-conflict
+                                       :requirement requirement
                                        :package id}]}])
                                  (= status :absent)
                                  (resolve-deps
@@ -192,7 +225,7 @@ x#))
                                        (if (empty? filtered-query-results)
                                          [:unsuccessful
                                           {:problems
-                                           [{
+                                           [{:term fclause
                                              :requirement requirement
                                              :found-packages found-packages
                                              :present-packages present-packages
