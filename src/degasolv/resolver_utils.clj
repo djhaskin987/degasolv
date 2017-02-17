@@ -98,7 +98,7 @@
    :package-rejected "Package in question was found in the repository, but cannot be used due to conflicts."
    })
 
-(defn explanation-problem [problem]
+(defn explain-problem [problem]
   (clj-str/join
    \newline
    (concat

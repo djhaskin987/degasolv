@@ -200,9 +200,16 @@ x#))
       :unsuccessful
       (let [[_ info] result]
         (throw (ex-info
-                (str "\n\nCould not resolve dependencies.\n\n"
-                     "The resolver choked here: "
-                     (pr-str info))
+                (string/join
+                 \newline
+                 (into
+                  [""
+                   ""
+                   "Could not resolve dependencies."
+                   ""
+                   ""
+                 "The resolver choked because: "]
+                  (map r/explain-problem (:problems info))))
                 {:info info}))))))
 
 (defn- generate-card!
