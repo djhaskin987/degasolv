@@ -1,7 +1,5 @@
 # degasolv
 
-[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.djhaskin987/degasolv.svg)](https://clojars.org/org.clojars.djhaskin987/degasolv)
-
 Dependency resolver with an eye toward building software.
 
 I got really tired of seeing how often this problem was re-solved over
