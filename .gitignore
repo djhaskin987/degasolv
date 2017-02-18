@@ -1,4 +1,5 @@
 /target
+/docs/_build/
 /.nrepl-history
 /test-data/
 /buildutils/boot

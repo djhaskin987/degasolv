@@ -47,8 +47,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Degasolv'
-copyright = '2017, Daniel Jay Haskin et. al., see the AUTHORS.md file.'
-author = 'Daniel Jay Haskin et. al., see the AUTHORS.md file.'
+copyright = '2017, Daniel Jay Haskin et. al., see the AUTHORS.md file'
+author = 'Daniel Jay Haskin et. al., see the AUTHORS.md file'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
