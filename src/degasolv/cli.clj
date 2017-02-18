@@ -366,9 +366,9 @@ x#))
       errors (exit 1 (string/join
                       \newline
                       [(error-msg errors)
-                      ""
-                      (usage summary)
-                      ""
+                       ""
+                       (usage summary)
+                       ""
                        (command-list (keys subcommand-cli))
                        ""])))
     (let [global-options options
@@ -378,26 +378,27 @@ x#))
         (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments errors summary]}
             (parse-opts arguments (concat
-                              (:cli subcmd-cli)
-                              [["-h" "--help" "Print this help page"]]))]
+                                   (:cli subcmd-cli)
+                                   [["-h" "--help" "Print this help page"]]))]
         (cond
           (:help options) (exit 0 (usage summary :sub-command subcommand))
           errors (exit 1 (string/join
                           \newline
                           [(error-msg errors :sub-command subcommand)
-                          ""
-                          (usage summary :sub-command subcommand)
-                          ""])))
-        ((:function subcmd-cli)
+                           ""
+                           (usage summary :sub-command subcommand)
+                           ""])))
+          ((:function subcmd-cli)
            (merge
-             (try
-               (tag/read-string
-                 (default-slurp
-                   (:config-file global-options)))
-               (catch Exception e
-                 (exit 1 (error-msg [(str "Problem reading configuration file `"
-                                          (:config-file global-options)
-                                          "`: "
-                                          (.getMessage e))]))))
-             options)
-         arguments)))))
+            (try
+              (tag/read-string
+               (default-slurp
+                (:config-file global-options)))
+              (catch Exception e
+                (binding [*out* *err*]
+                  (println "Warning: problem reading config file `"
+                           (str (:config-file global-options))
+                           "`, configuration file not used."))
+                {}))
+            options)
+           arguments)))))
