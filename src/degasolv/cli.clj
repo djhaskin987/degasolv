@@ -362,8 +362,7 @@ x#))
       (:help options) (exit 0 (str (usage summary)
                                    "\n\n"
                                    (command-list (keys subcommand-cli))
-                                   "\n\n"
-                                   ))
+                                   "\n\n"))
       errors (exit 1 (string/join
                       \newline
                       [(error-msg errors)
@@ -372,14 +371,13 @@ x#))
                       ""
                        (command-list (keys subcommand-cli))
                        ""])))
-
     (let [global-options options
           subcommand (first arguments)
           subcmd-cli (get subcommand-cli subcommand)]
       (when (nil? subcmd-cli)
         (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments errors summary]}
-            (parse-opts args (concat
+            (parse-opts arguments (concat
                               (:cli subcmd-cli)
                               [["-h" "--help" "Print this help page"]]))]
         (cond

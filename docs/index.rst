@@ -4,11 +4,13 @@ Degasolv
 Download & Run
 --------------
 
-Degasolv comes in the form of a jar file, downloadable from GitHub.
+Degasolv comes in the form of a ``.jar`` file, `downloadable from GitHub`_.
 
 To use it, you need java installed. Degasolv can be run like this::
 
   java -jar ./degasolv-<version>-standalone.jar
+
+.. _downloadable from GitHub: https://github.com/djhaskin987/degasolv/releases
 
 Quickstart
 ----------
@@ -46,6 +48,8 @@ Further Reading
 
    Why Degasolv? <why-degasolv>
    A Longer Example <longer-example>
+   Resolving Dependency Problems <resolving-problems>
+   Command Reference <command-reference>
 
 Indices and tables
 ------------------
