@@ -113,10 +113,11 @@ x#))
   resolve-locations!
   [options arguments]
   (when (not (:repositories options))
-    (throw (ex-info
-            (str
-             "No repositories specified\n"
-             "(either through CLI or config file)"))))
+    (binding [*out* *err*]
+      (println (str
+             "ERROR: No repositories specified\n"
+             "  (either through CLI or config file)"))
+      (System/exit 1)))
   (let
     [{:keys [repositories
              resolve-strategy
@@ -138,13 +139,13 @@ x#))
                     (let [vetted-str-req
                           (s/conform ::r/requirement-string str-req)]
                       (when (= vetted-str-req ::s/invalid)
-                        (throw (ex-info (str
-                                          "Requirement `"
-                                          str-req
-                                          "` given by commandline invalid:"
-                                          (s/explain
-                                            ::r/requirement-string
-                                            str-req)))))
+                        (binding [*out* *err*]
+                          (println
+                           (str
+                            "Requirement `"
+                            str-req
+                            "` given by commandline invalid:"
+                            (s/explain ::r/requirement-string str-req)))))
                       (string-to-requirement vetted-str-req)))
                   (rest arguments))))
      aggregator
@@ -199,18 +200,18 @@ x#))
             packages))))
       :unsuccessful
       (let [[_ info] result]
-        (throw (ex-info
-                (string/join
-                 \newline
-                 (into
-                  [""
-                   ""
-                   "Could not resolve dependencies."
-                   ""
-                   ""
-                 "The resolver choked because: "]
-                  (map r/explain-problem (:problems info))))
-                {:info info}))))))
+        (binding [*out* *err*]
+          (println
+           (string/join
+            \newline
+            (into
+             [""
+              ""
+              "Could not resolve dependencies."
+              ""
+              ""
+              "The resolver encountered the following problems: "]
+             (map r/explain-problem (:problems info))))))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements output-file]}

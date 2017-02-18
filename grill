@@ -12,7 +12,8 @@ java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-c
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "e" -v "2.1.0" -l "https://example.com/repo/e-2.1.0.zip" -o $PWD/e-2.1.0.zip.dscard
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "e" -v "2.4.0" -l "https://example.com/repo/e-2.4.0.zip" -o $PWD/e-2.4.0.zip.dscard
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -o $PWD/index.dsrepo
-echo "This should fail"
+echo "These should fail"
+java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations "b" || :
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations -r $PWD/index.dsrepo "b" || :
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "e" -v "1.8.0" -l "https://example.com/repo/e-1.8.0.zip" -o $PWD/e-1.8.0.zip.dscard
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -o $PWD/index.dsrepo

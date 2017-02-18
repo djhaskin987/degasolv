@@ -67,6 +67,7 @@
       (clj-str/split str #"\|")))))
 
 (defn explain-package [pkg]
+  (dbg2 pkg)
   (str (:id pkg) "==" (:version pkg) " @ " (:location pkg)))
 
 (defn explain-absent-spec [[id specs]]
@@ -95,24 +96,27 @@
    :empty-alternative-set "Empty alternative set (e.g., the requirement \"|\")"
    :present-package-conflict "Package in question conflicts with a previously selected package."
    :package-not-found "Package in question is not present in the repository"
-   :package-rejected "Package in question was found in the repository, but cannot be used due to conflicts."
+   :package-rejected "Package in question was found in the repository, but cannot be used."
    })
 
 (defn explain-problem [problem]
   (clj-str/join
    \newline
    (concat
-    [(str "  - Clause: " (:term problem))
+    [(str "  Clause: " (clj-str/join "|"
+                                     (map
+                                      str
+                                      (:term problem))))
      (explain-package-list
-      (:found-packages problem)
+      (vals (:found-packages problem))
       "Packages selected")]
     (when (not (nil? (:present-packages problem)))
-      (explain-package-list
-       (:present-packages problem)
-       "Packages already present"))
+      [(explain-package-list
+       (vals (:present-packages problem))
+       "Packages already present")])
     (when (not (nil? (:requirement problem)))
-      [(str "Alternative being considered: " (:requirement problem))])
+      [(str "  - Requirement being considered: " (:requirement problem))])
     (when (not (nil? (:reason problem)))
-      [(str ((:reason problem) reason-explanations))])
-    (when (not (nil? (:package problem)))
-      [(str "  - Package in question: " (explain-package (:package problem)))]))))
+      [(str "  - " ((:reason problem) reason-explanations))])
+    (when (not (nil? (dbg2 (:package-id problem))))
+      [(str "  - Package ID in question: " (:package-id problem))]))))

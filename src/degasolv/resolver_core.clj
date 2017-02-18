@@ -181,7 +181,7 @@ x#))
                                        :absent-specs absent-specs
                                        :reason :present-package-conflict
                                        :requirement requirement
-                                       :package id}]}])
+                                       :package-id id}]}])
                                  (= status :absent)
                                  (resolve-deps
                                   repo
@@ -203,7 +203,7 @@ x#))
                                          :present-packages present-packages
                                          :absent-specs absent-specs
                                          :reason :package-not-found
-                                         :package id}]}]
+                                         :package-id id}]}]
                                      (let [filtered-query-results
                                            (cull
                                             (filter
@@ -231,7 +231,7 @@ x#))
                                              :present-packages present-packages
                                              :absent-specs absent-specs
                                              :reason :package-rejected
-                                             :package id}]}]
+                                             :package-id id}]}]
                                          (let [candidate-results
                                                (map
                                                 #(resolve-deps
