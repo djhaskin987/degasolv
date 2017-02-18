@@ -7,7 +7,7 @@ there are, and what they are for.
 Top-Level CLI
 -------------
 
-Running `java -jar degasolv-<version>-standalone.jar` will give you a page that looks something like this::
+Running ``java -jar degasolv-<version>-standalone.jar`` will give you a page that looks something like this::
 
   Usage: degasolv <options> <command> <<command>-options>
 
@@ -23,7 +23,7 @@ Running `java -jar degasolv-<version>-standalone.jar` will give you a page that 
     - generate-repo-index
     - resolve-locations
 
-  Simply run `degasolv <command> -h` for help information.
+  Simply run ``degasolv <command> -h`` for help information.
 
 Explanation of options:
 
@@ -49,7 +49,6 @@ Explanation of options:
     java -jar degasolv-<version>-standalone.jar \
       --config-file "$PWD/config.edn" \
       generate-repo-index [...]
-
 
   A notable exception to this rule is the ``--repository`` option of the
   ``resolve-locations`` command. This is because that option can be specified

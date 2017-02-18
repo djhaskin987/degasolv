@@ -37,7 +37,7 @@ Detailed Usage
 --------------
 
 To see the help page, call degasolv or any of its subcommands with the
-`-h` option. If this is your first time using degasolv, it's
+``-h`` option. If this is your first time using degasolv, it's
 recommended that you read :ref:`A Longer Example`.
 
 Further Reading
