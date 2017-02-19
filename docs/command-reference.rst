@@ -80,22 +80,52 @@ Explanation of options:
   sub-command as well.
 
 .. _EDN format: https://github.com/edn-format/edn
+
+
+CLI for ``generate-card``
+-------------------------
+
+Running ``java -jar degasolv-<version>-standalone.jar generate-card -h`` will give you a page that looks something like this::
+
+  Usage: degasolv <options> generate-card <generate-card-options>
+
+  Options are shown below, with their default values and
+    descriptions:
+
+    -i, --id true                         ID (name) of the package
+    -v, --version true                    Version of the package
+    -l, --location true                   URL or filepath of the package
+    -r, --requirement REQ                 List req, may be used multiple times
+    -o, --output-file FILE  ./out.dscard  The name of the card file
+    -h, --help                            Print this help page
+
+This command is used to generate a *card* file. A card file is a file
+which describes a package that degasolv can understand. It identifies
+a file, assigns it a package name and a version, and
+dependencies. This card file is then used to represent the package in
+a degasolv repository.  In this way, the package's location and file
+type is decoupled from the actual repository itself.
+
+Explanation of options:
+
+  - ``--id``: 
+
+SO BASICALLY, I need to make the options required first. See here: http://www.rkn.io/2014/02/27/clojure-cookbook-command-line-args/
+
+
+CLI for ``generate-repo-index``
+-------------------------------
+
+
+
+CLI for ``resolve-locations``
+-----------------------------
+
 Explanation for each option and subcommand is below
 
 
 ~/Workspace/src/github.com/djhaskin987/degasolv $ java -jar target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar``, -h
-Usage: degasolv <options> generate-card <generate-card-options>
 
-Options are shown below, with their default values and
-  descriptions:
-
-  -i, --id true                      ID (name) of the package to be put in the card
-  -v, --version true                 Version of the package to be put in the card
-  -l, --location true                Location of the package referred to in the card
-  -r, --requirement REQ              Specify a requirement of the package. May be specified multiple times.
-  -o, --output-file FILENAME  ./out  Specify the filename of the card.
-Final file will be written as `<FILENAME>.dscard`.
-  -h, --help                         Print this help page
 ~/Workspace/src/github.com/djhaskin987/degasolv $ java -jar target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -h
 Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
 
