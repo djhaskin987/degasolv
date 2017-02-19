@@ -232,31 +232,30 @@ x#))
    {:description "Generate dscard file based on arguments given"
     :function generate-card!
     :cli [["-i" "--id ID"
-           "ID (name) of the package to be put in the card"
+           "ID (name) of the package"
            :validate [#(not (empty? %))
                       "ID must be a non-empty string."]
            :required true]
           ["-v" "--version VERSION"
-           "Version of the package to be put in the card"
+           "Version of the package"
            :validate [#(re-matches r/version-regex %)
                       "Sorry, given argument doesn't look like a version."]
            :required true]
           ["-l" "--location LOCATION"
-           "Location of the package referred to in the card"
+           "URL or filepath of the package"
            :validate [#(not (empty? %))
                       "Location must be a non-empty string."]
            :required true]
           ["-r" "--requirement REQ"
-           "Specify a requirement of the package. May be specified multiple times."
+           "List req, may be used multiple times"
            :validate [#(re-matches r/str-requirement-regex %)
                       "Requirement must look like one of these: `!a`, `a`, `a|b`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-o" "--output-file FILENAME"
-           (str "Specify the filename of the card.\n"
-                "Final file will be written as `<FILENAME>.dscard`.")
-           :default "./out"
+          ["-o" "--output-file FILE"
+           (str "The name of the card file")
+           :default "./out.dscard"
            :validate [#(not (empty? %))
                       "Out file must not be empty."]]]}
    "generate-repo-index"
@@ -265,7 +264,7 @@ x#))
     :cli [["-a" "--add-to REPO_LOC"
            "Add to package information alread to be found at repo index REPO_LOC"]
           ["-o" "--output-file FILE"
-           "The file to which to output the information."
+           "The name of the repo file"
            :default "index.dsrepo"]
           ["-d" "--search-directory DIR" "Directory to search for degasolv cards"
            :default "."
