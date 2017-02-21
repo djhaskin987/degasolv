@@ -1,8 +1,1 @@
-- [ ] bug in generate-repo-index using add-to: what is this `nil` package
-- [ ] Validation of dscard files when running generate-repo-index .
-- [ ] project files
-- [ ] inline repository used in resolve-repo-locations
-- [ ] test prjoect file used in resolve-repo-locations
-- [ ] Make '--repo' option for resolve-locations non-idempotent
-- [ ] How to take in requirements
-- [ ] add a way to list packages already present?
+- [ ] add tests to grill for different repo merge strategies for both resolve-locations and query-repo

@@ -1,6 +1,7 @@
 # MVP
+1. 
 1. Document basic tutorial on how to use it.
-2. Package with .deb, .rpm, homebrew, and MSI, using packr. Make available.
+
 3. binary EDN used in repo file
 4. Record type for version predicate
 5. record types used in EDN, now that .dscard are generated via CLI
