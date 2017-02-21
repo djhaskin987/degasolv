@@ -67,7 +67,6 @@
       (clj-str/split str #"\|")))))
 
 (defn explain-package [pkg]
-  (dbg2 pkg)
   (str (:id pkg) "==" (:version pkg) " @ " (:location pkg)))
 
 (defn explain-absent-spec [[id specs]]
@@ -118,5 +117,5 @@
       [(str "  - Requirement being considered: " (:requirement problem))])
     (when (not (nil? (:reason problem)))
       [(str "  - " ((:reason problem) reason-explanations))])
-    (when (not (nil? (dbg2 (:package-id problem))))
+    (when (not (nil? (:package-id problem)))
       [(str "  - Package ID in question: " (:package-id problem))]))))

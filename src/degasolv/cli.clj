@@ -7,6 +7,7 @@
             [clojure.java.io :as io]
             [clojure.edn :as edn]
             [clojure.spec :as s]
+            [clojure.set :as st]
             [me.raynes.fs :as fs]
             [version-clj.core
              :refer [version-compare]
@@ -47,7 +48,7 @@
 (defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
-x#))
+     x#))
 
 (defn- mysummary [sq]
   (with-out-str
@@ -79,6 +80,43 @@ x#))
                                       card-data)))
       card-data)))
 
+
+(defn slurp-repository
+  [url]
+  (let
+      [repo-data
+       (tag/read-string
+        (default-slurp url))
+       vetted-repo-data
+       (s/conform
+        ::r/map-repo
+        repo-data)]
+    (when (= ::s/invalid vetted-repo-data)
+      (throw (ex-info
+              (str
+               "Invalid requirement string in repo `"
+               url
+               "`: "
+               (s/explain ::r/map-repo repo-data))
+              (s/explain-data ::r/map-repo
+                              repo-data))))
+    repo-data))
+
+(defn aggregate-repositories
+  [repo-merge-strategy
+   data-repositories]
+  (let [aggregator
+        (if (= repo-merge-strategy
+            "priority")
+       priority-repo
+       (fn [rs]
+         (global-repo rs
+                      :cmp #(- (cmp
+                                (:version %1)
+                                 (:version %2))))))]
+     (aggregator
+         data-repositories)))
+
 (defn- generate-repo-index!
   [options arguments]
   (let [{:keys [add-to
@@ -109,109 +147,79 @@ x#))
                                   (= ".dscard" (fs/extension %)))
                             (file-seq (fs/file search-directory))))))))))
 
+
+(defn exit [status msg]
+  (.println *err* msg)
+  (System/exit status))
+
 (defn-
   resolve-locations!
   [options arguments]
-  (when (not (:repositories options))
-    (binding [*out* *err*]
-      (println (str
-             "ERROR: No repositories specified\n"
-             "  (either through CLI or config file)"))
-      (System/exit 1)))
   (let
-    [{:keys [repositories
-             resolve-strategy
-             repo-merge-strategy]}
-     options
-     requirements
-     (if (:project-file options)
-       (let [project-info
-             (tag/read-string
-               (default-slurp
-                 (:project-file options)))]
-         (when (not (:requirements project-info))
-           (.println
-             *err*
-             "Warning: project file does not contain a `:requirements` key."))
-         (:requirements project-info))
-       (into [] (map
-                  (fn [str-req]
-                    (let [vetted-str-req
-                          (s/conform ::r/requirement-string str-req)]
-                      (when (= vetted-str-req ::s/invalid)
-                        (binding [*out* *err*]
-                          (println
-                           (str
-                            "Requirement `"
-                            str-req
-                            "` given by commandline invalid:"
-                            (s/explain ::r/requirement-string str-req)))))
-                      (string-to-requirement vetted-str-req)))
-                  (rest arguments))))
-     aggregator
-     (if (= repo-merge-strategy
-            "priority")
-       priority-repo
-       (fn [rs]
-         (global-repo rs
-                      :cmp #(- (cmp
-                                 (:version %1)
-                                 (:version %2))))))
-     aggregate-repo
-     (aggregator
-       (map
-         (fn slurp-url
-           [url]
-           (let
-             [repo-data
-              (tag/read-string
-                (default-slurp url))
-              vetted-repo-data
-              (s/conform
-                ::r/map-repo
-                repo-data)]
-             (when (= ::s/invalid vetted-repo-data)
-               (throw (ex-info
-                        (str
-                          "Invalid requirement string in repo `"
-                          url
-                          "`: "
-                          (s/explain ::r/map-repo repo-data))
-                        (s/explain-data ::r/map-repo
-                                        repo-data))))
-             repo-data))
-         repositories))
-     result
-     (resolve-dependencies
+      [{:keys [repositories
+               resolve-strategy
+               repo-merge-strategy]}
+       options
        requirements
+       (if (:project-file options)
+         (let [project-info
+               (tag/read-string
+                (default-slurp
+                 (:project-file options)))]
+           (when (not (:requirements project-info))
+             (.println
+              *err*
+              "Warning: project file does not contain a `:requirements` key."))
+           (:requirements project-info))
+         (into [] (map
+                   (fn [str-req]
+                     (let [vetted-str-req
+                           (s/conform ::r/requirement-string str-req)]
+                       (when (= vetted-str-req ::s/invalid)
+                         (binding [*out* *err*]
+                           (println
+                            (str
+                             "Requirement `"
+                             str-req
+                             "` given by commandline invalid:"
+                             (s/explain ::r/requirement-string str-req)))))
+                       (string-to-requirement vetted-str-req)))
+                   (rest arguments))))
        aggregate-repo
-       :strategy (keyword resolve-strategy)
-       :compare cmp)]
+       (aggregate-repositories
+        repo-merge-strategy
+        (map slurp-repository
+             repositories))
+       result
+       (resolve-dependencies
+        requirements
+        aggregate-repo
+        :strategy (keyword resolve-strategy)
+        :compare cmp)]
     (case
-      (first result)
+        (first result)
       :successful
       (let [[_ packages] result]
         (println (string/join
-          \newline
-          (map
-            (fn
-              [pkg]
-              (str (:id pkg) ": " (:location pkg)))
-            packages))))
+                  \newline
+                  (map
+                   (fn
+                     [pkg]
+                     (str (:id pkg) ": " (:location pkg)))
+                   packages))))
       :unsuccessful
       (let [[_ info] result]
-        (binding [*out* *err*]
-          (println
-           (string/join
-            \newline
-            (into
-             [""
-              ""
-              "Could not resolve dependencies."
-              ""
-              ""
-              "The resolver encountered the following problems: "]
-             (map r/explain-problem (:problems info))))))))))
+        (exit 1
+              (string/join
+               \newline
+               (into
+                [""
+                 ""
+                 "Could not resolve dependencies."
+                 ""
+                 ""
+                 "The resolver encountered the following problems: "]
+                (map r/explain-problem (:problems info)))))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements output-file]}
@@ -227,10 +235,36 @@ x#))
               #(string-to-requirement %)
               requirements)))))
 
+(defn query-repo!
+  [options arguments]
+  (let [{:keys [repositories query repo-merge-strategy]} options
+        req (first (string-to-requirement query))
+        {:keys [id spec]} req
+        aggregate-repo
+        (aggregate-repositories
+         repo-merge-strategy
+         (map slurp-repository
+              repositories))
+        spec-call (make-spec-call cmp)
+        results (filter
+                 #(spec-call spec %)
+                 (aggregate-repo id))]
+    (if (empty? results)
+      (exit 2 "No results returned from query")
+      (println
+       (string/join
+        \newline
+        (map
+         explain-package
+         results))))))
+
 (def subcommand-cli
   {"generate-card"
    {:description "Generate dscard file based on arguments given"
     :function generate-card!
+    :required-arguments {:id ["-i" "--id"]
+                         :version ["-v" "--version"]
+                         :location ["-l" "--location"]}
     :cli [["-i" "--id ID"
            "ID (name) of the package"
            :validate [#(not (empty? %))
@@ -258,6 +292,30 @@ x#))
            :default "./out.dscard"
            :validate [#(not (empty? %))
                       "Out file must not be empty."]]]}
+   "query-repo"
+   {:description "Query repository for a particular package"
+    :function query-repo!
+    :required-arguments {:repositories ["-r" "--repository"]
+                         :query ["-q" "--query"]}
+    :cli [["-r" "--repository REPO"
+           "Specify a repo. May be used more than once."
+           :id :repositories
+           :assoc-fn
+
+           (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-q" "--query QUERY"
+           "Specify query string."
+           :validate [#(and (re-matches r/str-requirement-regex %)
+                            (let [strreq (string-to-requirement %)]
+                              (and (= (count strreq) 1)
+                                   (= (:status (get strreq 0)) :present))))
+                      "Query must look like one of these: `a`, `a`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]]
+          ["-R" "--repo-merge-strategy STRATEGY"
+           "Specify a repo merge strategy. May be 'priority' or 'global'."
+           :default "priority"
+           :validate [#(or (= "priority" %) (= "global" %))
+                      "Strategy must either be 'priority' or 'global'."]]]}
+
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index!
@@ -275,6 +333,7 @@ x#))
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
+    :required-arguments {:repositories ["-r" "--repository"]}
     :cli [["-r" "--repository REPO"
            "Specify a repository to use. May be used more than once."
            :id :repositories
@@ -290,9 +349,6 @@ x#))
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]]}})
-;           ["-c" "--project-file PROJECT_FILE"
-;            "Resolve the requirements found in the given degasolv project file."
-;           :validate [#(fs/file? %) "Project file must exist."]]]}})
 
 (defn command-list [commands]
   (->> ["Commands are:"
@@ -339,9 +395,20 @@ x#))
        ":\n\n"
        (string/join \newline (map #(str "  - " %) errors))))
 
-(defn exit [status msg]
-  (.println *err* msg)
-  (System/exit status))
+(defn missing-required-argument
+  [required-arguments
+   missing-key]
+  (let [[small-arg large-arg] (missing-key required-arguments)]
+    (string/join
+     \newline
+     [""
+      (str "Missing argument `"
+           (name missing-key)
+           "`.")
+      (str "  To specify it, either use the `"
+           (str missing-key)
+           "` key in the config file,")
+      (str "  or use `" small-arg "` or `" large-arg "` at the command line.")])))
 
 (def cli-options
   [["-c" "--config-file FILE" "config file"
@@ -358,18 +425,20 @@ x#))
                           [["-h" "--help" "Print this help page"]])
                     :in-order true)]
     (cond
-      (:help options) (exit 0 (str (usage summary)
-                                   "\n\n"
-                                   (command-list (keys subcommand-cli))
-                                   "\n\n"))
-      errors (exit 1 (string/join
-                      \newline
-                      [(error-msg errors)
-                       ""
-                       (usage summary)
-                       ""
-                       (command-list (keys subcommand-cli))
-                       ""])))
+      (:help options) (exit 0
+                            (str (usage summary)
+                                 "\n\n"
+                                 (command-list (keys subcommand-cli))
+                                 "\n\n"))
+      errors (exit 1
+                   (string/join
+                    \newline
+                    [(error-msg errors)
+                     ""
+                     (usage summary)
+                     ""
+                     (command-list (keys subcommand-cli))
+                     ""])))
     (let [global-options options
           subcommand (first arguments)
           subcmd-cli (get subcommand-cli subcommand)]
@@ -387,17 +456,28 @@ x#))
                            ""
                            (usage summary :sub-command subcommand)
                            ""])))
+        (let [effective-options
+              (merge
+               (try
+                 (tag/read-string
+                  (default-slurp
+                   (:config-file global-options)))
+                 (catch Exception e
+                   (binding [*out* *err*]
+                     (println "Warning: problem reading config file `"
+                              (str (:config-file global-options))
+                              "`, configuration file not used."))
+                   {}))
+               options)
+              required-keys (set (keys (:required-arguments subcmd-cli)))
+              present-keys (set (keys effective-options))]
+          (when (not (st/subset? required-keys present-keys))
+            (exit 1
+                  (string/join
+                   \newline
+                   (map (partial missing-required-argument
+                                 (:required-arguments subcmd-cli))
+                        (st/difference required-keys present-keys)))))
           ((:function subcmd-cli)
-           (merge
-            (try
-              (tag/read-string
-               (default-slurp
-                (:config-file global-options)))
-              (catch Exception e
-                (binding [*out* *err*]
-                  (println "Warning: problem reading config file `"
-                           (str (:config-file global-options))
-                           "`, configuration file not used."))
-                {}))
-            options)
-           arguments)))))
+           effective-options
+           arguments))))))

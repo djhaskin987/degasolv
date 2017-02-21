@@ -109,6 +109,9 @@ x#))
 (defn- aggregate-attempts [c v]
   (conj c v))
 
+(defn make-spec-call [cmp]
+  (partial p-safe-spec-call cmp))
+
 (defn resolve-dependencies
   [requirements
    query & {:keys [present-packages
@@ -118,10 +121,8 @@ x#))
             :or {present-packages {}
                  conflicts {}
                  strategy :thorough
-                 compare nil}
-            }]
-
-  (let [safe-spec-call (partial p-safe-spec-call compare)
+                 compare nil}}]
+  (let [safe-spec-call (make-spec-call compare)
         cull (case strategy
                :thorough
                (fn [candidates] candidates)
@@ -163,9 +164,9 @@ x#))
                                (cond
                                  (not (nil? present-package))
                                  (if (or (and (= status :absent)
-                                              (not (safe-spec-call  spec  present-package)))
+                                              (not (safe-spec-call spec present-package)))
                                          (and (= status :present)
-                                              (safe-spec-call spec present-package)))
+                                             (safe-spec-call spec present-package)))
                                    (resolve-deps
                                     repo
                                     present-packages
