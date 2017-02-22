@@ -31,9 +31,9 @@ Longer Example`.
     even PXE files are used to deploy different parts of the cloud
     stack. Each come from a different team, and each are released on
     different schedules. Sravan uses degasolv to version and track
-    these artifacts, define and define relationships between them. He
+    these artifacts and define relationships between them. He
     uses a CI build to get the URLs of every VM template, docker
-    image, and pxe file, and places all these in a zip file which
+    image, and PXE file, and places all these in a zip file which
     represents his entire cloud stack as a standalone build artifact,
     which can be promoted through environments and run through QA with
     minimal effort.
