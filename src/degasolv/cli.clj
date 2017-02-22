@@ -103,10 +103,10 @@
     repo-data))
 
 (defn aggregate-repositories
-  [repo-merge-strategy
+  [repo-merge-strat
    data-repositories]
   (let [aggregator
-        (if (= repo-merge-strategy
+        (if (= repo-merge-strat
             "priority")
        priority-repo
        (fn [rs]
@@ -157,44 +157,36 @@
   [options arguments]
   (let
       [{:keys [repositories
-               resolve-strategy
-               repo-merge-strategy]}
+               resolve-strat
+               repo-merge-strat
+               requirements]}
        options
-       requirements
-       (if (:project-file options)
-         (let [project-info
-               (tag/read-string
-                (default-slurp
-                 (:project-file options)))]
-           (when (not (:requirements project-info))
-             (.println
-              *err*
-              "Warning: project file does not contain a `:requirements` key."))
-           (:requirements project-info))
-         (into [] (map
-                   (fn [str-req]
-                     (let [vetted-str-req
-                           (s/conform ::r/requirement-string str-req)]
-                       (when (= vetted-str-req ::s/invalid)
-                         (binding [*out* *err*]
-                           (println
-                            (str
-                             "Requirement `"
-                             str-req
-                             "` given by commandline invalid:"
-                             (s/explain ::r/requirement-string str-req)))))
-                       (string-to-requirement vetted-str-req)))
-                   (rest arguments))))
+       requirement-data
+       (into []
+             (map
+              (fn [str-req]
+                (let [vetted-str-req
+                      (s/conform ::r/requirement-string str-req)]
+                  (when (= vetted-str-req ::s/invalid)
+                    (binding [*out* *err*]
+                      (println
+                       (str
+                        "Requirement `"
+                        str-req
+                        "` invalid:"
+                        (s/explain ::r/requirement-string str-req)))))
+                  (string-to-requirement vetted-str-req)))
+              requirements))
        aggregate-repo
        (aggregate-repositories
-        repo-merge-strategy
+        repo-merge-strat
         (map slurp-repository
              repositories))
        result
        (resolve-dependencies
-        requirements
+        requirement-data
         aggregate-repo
-        :strategy (keyword resolve-strategy)
+        :strategy (keyword resolve-strat)
         :compare cmp)]
     (case
         (first result)
@@ -237,12 +229,12 @@
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories query repo-merge-strategy]} options
+  (let [{:keys [repositories query repo-merge-strat]} options
         req (first (string-to-requirement query))
         {:keys [id spec]} req
         aggregate-repo
         (aggregate-repositories
-         repo-merge-strategy
+         repo-merge-strat
          (map slurp-repository
               repositories))
         spec-call (make-spec-call cmp)
@@ -295,9 +287,9 @@
    "query-repo"
    {:description "Query repository for a particular package"
     :function query-repo!
-    :required-arguments {:repositories ["-r" "--repository"]
+    :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
-    :cli [["-r" "--repository REPO"
+    :cli [["-R" "--repository REPO"
            "Specify a repo. May be used more than once."
            :id :repositories
            :assoc-fn
@@ -310,7 +302,7 @@
                               (and (= (count strreq) 1)
                                    (= (:status (get strreq 0)) :present))))
                       "Query must look like one of these: `a`, `a`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]]
-          ["-R" "--repo-merge-strategy STRATEGY"
+          ["-S" "--repo-merge-strat STRAT"
            "Specify a repo merge strategy. May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
@@ -333,19 +325,29 @@
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
-    :required-arguments {:repositories ["-r" "--repository"]}
-    :cli [["-r" "--repository REPO"
-           "Specify a repository to use. May be used more than once."
+    :required-arguments {:repositories ["-R" "--repository"]
+                         :requirements ["-r" "--requirement"]}
+    :cli [["-r" "--requirement REQ"
+           "Resolve req. May be used more than once."
+           :id :requirements
+           :validate
+           [#(re-matches r/str-requirement-regex %)
+            "Requirement must look like one of these: `!a`, `a`, `a|b`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]
+           :id :requirements
+           :assoc-fn
+           (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-R" "--repository REPO"
+           "Location of a `dsrepo` file. May be used more than once."
            :id :repositories
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-s" "--resolve-strategy STRATEGY"
-           "Specify a strategy to use when resolving. May be 'fast' or 'thorough'."
+          ["-s" "--resolve-strat STRAT"
+           "May be 'fast' or 'thorough'. Choose speed or low failure rate."
            :default "thorough"
-          :validate [#(or (= "thorough" %) (= "fast" %))
+           :validate [#(or (= "thorough" %) (= "fast" %))
                      "Strategy must either be 'thorough' or 'fast'."]]
-          ["-R" "--repo-merge-strategy STRATEGY"
-           "Specify a repo merge strategy. May be 'priority' or 'global'."
+          ["-S" "--repo-merge-strat STRAT"
+           "May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]]}})
@@ -387,6 +389,27 @@
           ]
          (string/join \newline))))
 
+(defn required-args-msg [required-args & {:keys [sub-command]}]
+   (str "The following options are required"
+        (if sub-command
+          (str
+           " for subcommand `" sub-command "`"
+          ""))
+        ":\n\n"
+        (string/join
+         \newline
+         (map
+          (fn format-argument
+            [[k [small-arg large-arg]]]
+            (str "  - `"
+                 small-arg
+                 "`, `"
+                 large-arg
+                 "`, or the config file key `"
+                 k
+                 "`."))
+          required-args))))
+
 (defn error-msg [errors & {:keys [sub-command]}]
   (str "The following errors occurred while parsing commandline options"
        (if sub-command
@@ -425,20 +448,28 @@
                           [["-h" "--help" "Print this help page"]])
                     :in-order true)]
     (cond
-      (:help options) (exit 0
-                            (str (usage summary)
-                                 "\n\n"
-                                 (command-list (keys subcommand-cli))
-                                 "\n\n"))
-      errors (exit 1
-                   (string/join
-                    \newline
-                    [(error-msg errors)
-                     ""
-                     (usage summary)
-                     ""
-                     (command-list (keys subcommand-cli))
-                     ""])))
+      (:help options)
+      (exit 0
+            (str (usage summary)
+                 (if (:required-arguments cli-options)
+                   (str
+                    "\n\n"
+                    (required-args-msg
+                     (:required-arguments cli-options))
+                    "\n\n")
+                   "\n\n")
+                 (command-list (keys subcommand-cli))
+                 "\n\n"))
+      errors
+      (exit 1
+            (string/join
+             \newline
+             [(error-msg errors)
+              ""
+              (usage summary)
+              ""
+              (command-list (keys subcommand-cli))
+              ""])))
     (let [global-options options
           subcommand (first arguments)
           subcmd-cli (get subcommand-cli subcommand)]
@@ -449,7 +480,20 @@
                                    (:cli subcmd-cli)
                                    [["-h" "--help" "Print this help page"]]))]
         (cond
-          (:help options) (exit 0 (usage summary :sub-command subcommand))
+          (:help options)
+          (exit 0
+                (str (usage
+                      summary
+                      :sub-command
+                      subcommand)
+                     (if (:required-arguments subcmd-cli)
+                       (str
+                        "\n\n"
+                        (required-args-msg
+                         (:required-arguments subcmd-cli)
+                         :sub-command subcommand)
+                        "\n\n")
+                       "\n\n")))
           errors (exit 1 (string/join
                           \newline
                           [(error-msg errors :sub-command subcommand)
