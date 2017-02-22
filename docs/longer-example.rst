@@ -3,32 +3,17 @@
 A Longer Example
 ================
 
-Quick Start
-
-
 So you're a Build engineer/DevOps engineer-ish, and you have a list of
 dependencies, and you want to have them downloaded automatically as
 part of a build.
 
 Suppose you have your artifacts, all zip files, stored on an
-auto-indexed HTTP server at `http://example.com/repo/`. One of the
-developer teams you support makes a component or microservice called
-"A", and one makes a component or microservice called "B". In order to
-compose them into a bigger artifact that you can actually deploy, you
-need to download them into a build.
-
-Why use a dependency manager to do this? Well, probably because your
-dependency tree is actually much bigger than just two
-services/components. But this is a quickstart.
-
-
-Now, a longer example.
-======================
+auto-indexed HTTP server at `http://example.com/repo/`.
 
 The dependencies
 ----------------
 
-So, you have a suite of builds for which you are responsible. These
+You have a suite of builds for which you are responsible. These
 builds kick out artifacts, which we will here call "components". These
 components depend on each other's presence in order to build. That
 dependency tree looks like this:
