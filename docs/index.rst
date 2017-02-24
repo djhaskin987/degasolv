@@ -93,7 +93,6 @@ Further Reading
 ---------------
 
 .. toctree::
-   :maxdepth: 2
 
    Why Degasolv? <why-degasolv>
    A Longer Example <longer-example>
