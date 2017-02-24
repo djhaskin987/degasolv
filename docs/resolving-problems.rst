@@ -1,2 +1,0 @@
-Resolving Dependency Problems
-=============================

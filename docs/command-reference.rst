@@ -7,7 +7,8 @@ there are, and what they are for.
 Top-Level CLI
 -------------
 
-Running ``java -jar degasolv-<version>-standalone.jar`` will give you a page that looks something like this::
+Running ``java -jar degasolv-<version>-standalone.jar`` will give you
+a page that looks something like this::
 
   Usage: degasolv <options> <command> <<command>-options>
 
@@ -85,7 +86,8 @@ Explanation of options:
 CLI for ``generate-card``
 -------------------------
 
-Running ``java -jar degasolv-<version>-standalone.jar generate-card -h`` will give you a page that looks something like this::
+Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
+returns a page that looks something like this::
 
   Usage: degasolv <options> generate-card <generate-card-options>
 
@@ -108,7 +110,7 @@ type is decoupled from the actual repository itself.
 
 Explanation of options:
 
-  - ``--id``: 
+  - ``--id``:
 
 SO BASICALLY, I need to make the options required first. See here: http://www.rkn.io/2014/02/27/clojure-cookbook-command-line-args/
 
@@ -147,3 +149,7 @@ Options are shown below, with their default values and
   -R, --repo-merge-strategy STRATEGY  priority  Specify a repo merge strategy. May be 'priority' or 'global'.
   -h, --help                                    Print this help page
 ~/Workspace/src/github.com/djhaskin987/degasolv $  
+
+
+CLI for ``query-repo``
+----------------------

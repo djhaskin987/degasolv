@@ -96,7 +96,6 @@ Further Reading
 
    Why Degasolv? <why-degasolv>
    A Longer Example <longer-example>
-   Resolving Dependency Problems <resolving-problems>
    Command Reference <command-reference>
 
 Indices and tables
