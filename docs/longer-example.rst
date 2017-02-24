@@ -8,7 +8,8 @@ dependencies, and you want to have them downloaded automatically as
 part of a build.
 
 Suppose you have your artifacts, all zip files, stored on an
-auto-indexed HTTP server at ``http://example.com/repo/``.
+auto-indexed HTTP server called ``reposerver``, which serves
+the files at the URL ``http://example.com/repo/``.
 
 The dependencies
 ----------------
@@ -214,65 +215,43 @@ mentioned at the beginning of this example, except for the package
 Building ``a``
 --------------
 
-Now suppose that we are building ``a``. In our example, the build artifact for
-``a`` need not be
-uploaded to the zip file repository, because `a` represents our final
-product, and will be handed off to Project Management or Ops for later
-release. We don't need it for any other builds, and so (in this
-trivial example) we are not interested in uploading it to the repo.
-But we are interested in resolving its dependencies, downloading them,
-and using them to build the final product.
+Now suppose that we are building ``a``. In our example, the build
+artifact for ``a`` need not be uploaded to the zip file repository,
+because ``a`` represents our final product, and the build for ``a``
+will generate an artifact that will be handed off to Project
+Management or Ops for later release. We don't need it for any other
+builds. While we are not (in this trivial example) not interested in
+uploading it to the repo, we are interested in resolving its
+dependencies, downloading them, and using them to build the final
+product.
 
-Just like when we are uploading a package to the repository, we need a
-file called something like `dependable.edn` in the root of the git
-repository associated with building `a`. It might look like this:
+Just like some of our previously described builds in this example, we
+will put a file called ``degasolv.edn`` in the root of the git
+repository associated with building ``a``. It might look like this::
 
-```clojure
-{
-    :id "a"
-    :version "2.1.0"
-    :file-name "a-2.1.0.zip"
-    :requirements [[{:status :present :id "b" :spec [{:relation :greater-than :version "2.0"}]}]]
-}
-```
+  ; filename: degasolv.edn
+  {
+      :id "a"
+      :version "2.1.0"
+      :file-name "a-2.1.0.zip"
+      :requirements ["b>2.0"]
+      :repositories ["https://example.com/repo/index.dsrepo"]
+  }
 
-With some minor arrangements, the code in the quickstart used to show how to
-use the `resolve-dependencies` function will suffice here:
+Then, as in the script used to build the artifact for ``a``,
+we resolve its dependencies and download them, just as we did when we built
+``e``::
 
-```
-(ns my.namespace
-  (:require [dependable.resolver :refer :all]))
+  #!/bin/sh
 
-;; ...
+  java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
+      resolve-locations | while read pkg
+  do
+    name=$(echo "${pkg}" | awk -F ': ' '{print $1}')
+    url=$(echo "${pkg}" | awk -F ': ' '{print $2}')
+    curl -o ${name}.zip -L ${url}
+    unzip ${name}.zip
+  done
 
-(map :location
-  (resolve-dependencies
-    (:requirements
-      (clojure.edn/read-string
-        (slurp "dependable.edn")))
-    (map-query
-      (clojure.edn/read-string
-        (slurp "http://example.com/repo/index.edn")))
-    :compare clj-semver.core/older?))
-```
-
-Or, alternatively, on the commandline:
-
-The following `map` function should return an array of locations
-which can then be used to download artifacts needed for the build. In
-our example, that should look like this:
-
-```clojure
-[
-  "http://example.com/repo/b-2.4.0.zip"
-  "http://example.com/repo/c-3.5.0.zip"
-  "http://example.com/repo/d-0.8.0.zip"
-  "http://exmaple.com/repo/e-1.8.0.zip"
-]
-```
-
-# For more information
-
-To view reference material, see the [reference guide](https://github.com/dependable/blob/develop/doc/reference.md).
-
-To see how requirements works, see the [guide to the requirements parameter](https://github.com/dependable/blob/develop/doc/requirements.md).
+This will resolve all of the dependencies for ``a``, download them,
+and unzip them.
