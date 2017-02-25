@@ -119,9 +119,10 @@
 
 (defn- generate-repo-index!
   [options arguments]
-  (let [{:keys [add-to
-                search-directory
-                output-file]} options
+  (let [{:keys [search-directory
+                index-file
+                add-to]} options
+        output-file index-file
         initial-repository
         (if add-to
           (tag/read-string
@@ -214,18 +215,18 @@
                 (map r/explain-problem (:problems info)))))))))
 
 (defn- generate-card!
-  [{:keys [id version location requirements output-file]}
+  [{:keys [id version location requirements card-file]}
    arguments]
   (default-spit
-    output-file
-    (->PackageInfo
-      id
-      version
-      location
-      (into []
-            (map
-              #(string-to-requirement %)
-              requirements)))))
+   card-file
+   (->PackageInfo
+    id
+    version
+    location
+    (into []
+          (map
+           #(string-to-requirement %)
+           requirements)))))
 
 (defn query-repo!
   [options arguments]
@@ -279,7 +280,7 @@
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-o" "--output-file FILE"
+          ["-C" "--card-file FILE"
            (str "The name of the card file")
            :default "./out.dscard"
            :validate [#(not (empty? %))
@@ -311,17 +312,17 @@
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index!
-    :cli [["-a" "--add-to REPO_LOC"
-           "Add to package information alread to be found at repo index REPO_LOC"]
-          ["-o" "--output-file FILE"
-           "The name of the repo file"
-           :default "index.dsrepo"]
-          ["-d" "--search-directory DIR" "Directory to search for degasolv cards"
+    :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
            :default "."
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
-                      "Must be a directory which exists on the file system."]]]}
+                      "Must be a directory which exists on the file system."]]
+          ["-I" "--index-file FILE"
+           "The name of the repo file"
+           :default "index.dsrepo"]
+          ["-a" "--add-to REPO_LOC"
+           "Add to repo index REPO_LOC"]]}
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
