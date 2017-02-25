@@ -7,32 +7,34 @@ there are, and what they are for.
 Top-Level CLI
 -------------
 
-Running ``java -jar degasolv-<version>-standalone.jar`` will give you
+Running ``java -jar degasolv-<version>-standalone.jar -h`` will give you
 a page that looks something like this::
 
+  java -jar target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar -h
   Usage: degasolv <options> <command> <<command>-options>
 
   Options are shown below, with their default values and
     descriptions:
 
-    -c, --config-file FILE  ~/.config/degasolv/config.edn  config file
-    -h, --help                                             Print this help page
+    -c, --config-file FILE  ./degasolv.edn  config file
+    -h, --help                              Print this help page
 
   Commands are:
 
     - generate-card
+    - query-repo
     - generate-repo-index
     - resolve-locations
 
-  Simply run ``degasolv <command> -h`` for help information.
+  Simply run `degasolv <command> -h` for help information.
 
 Explanation of options:
 
-- ``--config-file FILE``: A config file may be specified at the
-  command line. The config file is in the `EDN format`_. As a rule,
-  any option for any sub-command may be given a value from this config
-  file, using the keyword form of the argument. For example, instead
-  of running this command::
+- ``-c FILE``, ``--config-file FILE``: A config file may be specified
+  at the command line. The config file is in the `EDN format`_. As a
+  rule, any option for any sub-command may be given a value from this
+  config file, using the keyword form of the argument. For example,
+  instead of running this command::
 
     java -jar degasolv-<version>-standalone.jar \
        generate-repo-index --search-directory /some/directory \
@@ -51,16 +53,20 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       generate-repo-index [...]
 
-  A notable exception to this rule is the ``--repository`` option of the
-  ``resolve-locations`` command. This is because that option can be specified
-  multiple times, and so its configuration equivalent is named ``:repositories``,
-  and shows up in the configuration file as a list of strings. So, instead of
-  using this command::
+  A few notable exceptions to this rule is the ``--repository`` option
+  of the ``resolve-locations`` command, and the ``--requirement``
+  rule. This is because these option can be specified multiple times,
+  and so their configuration equivalent is named ``:repositories`` and
+  ``:requirements`` respectively, and they show up in the
+  configuration file as a list of strings. So, instead of using this
+  command::
 
     java -jar degasolv-<version>-standalone.jar \
       resolve-locations \
       --repository "https://example.com/repo1/" \
       --repository "https://example.com/repo2/" \
+      --requirement "a" \
+      --requirement "b"
       [...]
 
   You might use this configuration file::
@@ -69,6 +75,8 @@ Explanation of options:
     {
         :respositories ["https://example.com/repo1/"
                         "https://example.com/repo2/"]
+        :requirements ["a"
+                       "b"]
     }
 
   With this command::
@@ -77,7 +85,7 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       [...]
 
-- ``--help``: Prints the help page. This can be used on every
+- ``-h``, ``--help``: Prints the help page. This can be used on every
   sub-command as well.
 
 .. _EDN format: https://github.com/edn-format/edn
@@ -89,6 +97,7 @@ CLI for ``generate-card``
 Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
 returns a page that looks something like this::
 
+  java -jar target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -h
   Usage: degasolv <options> generate-card <generate-card-options>
 
   Options are shown below, with their default values and
@@ -101,19 +110,52 @@ returns a page that looks something like this::
     -o, --output-file FILE  ./out.dscard  The name of the card file
     -h, --help                            Print this help page
 
-This command is used to generate a *card* file. A card file is a file
-which describes a package that degasolv can understand. It identifies
-a file, assigns it a package name and a version, and
-dependencies. This card file is then used to represent the package in
-a degasolv repository.  In this way, the package's location and file
-type is decoupled from the actual repository itself.
+  The following options are required for subcommand `generate-card`:
+
+    - `-i`, `--id`, or the config file key `:id`.
+    - `-v`, `--version`, or the config file key `:version`.
+    - `-l`, `--location`, or the config file key `:location`.
+
+This subcommand is used to generate a card file. This card file is
+used to represent a package within a degasolv repository. It is placed
+in a directory with other card files, and then the
+``generate-repo-index`` command is used to search that directory for
+card files to produce a repository index.
 
 Explanation of options:
 
-  - ``--id``:
+- ``-i ID``, ``--id ID``, ``:id "ID"``: **Required**. Specify the name of the
+  package described in the card file. May be composed of any characters
+  other than the following characters: ``<>=!,;|``.
 
-SO BASICALLY, I need to make the options required first. See here: http://www.rkn.io/2014/02/27/clojure-cookbook-command-line-args/
+- ``-v VERSION``, ``--version VERSION``, ``:version "VERSION"``:
+  **Required**. Specify the name of the package described in the card
+  file. Version comparison is done via `version-clj`_.
 
+- ``-l LOCATION``, ``--location LOCATION``, ``:location "LOCATION"``:
+  **Required**. Specify the location of the file associated with the
+  package to be described in the generated card file. Degasolv does
+  not place any restrictions on this string; it can be anything,
+  including a file location or a URL.
+
+- ``-r REQUIREMENT``, ``--requirement REQUIREMENT``,
+  ``:requirements ["REQ1", ...]``: Specify a requirement.  May be
+  specified multiple times as a command line option, or once as a list
+  of strings in a configuration file. See :ref:`Specifying a
+  requirement` for more information.
+
+- ``-o FILE``, ``--output-file FILE``, ``:output-file "FILE"``:
+  Specify the name of the card file to generate. It is best practice
+  to name this file after the name of the file referred to by the package's
+  location with a ``.dscard`` extension. For example, if I created a card
+  using the option ``--location http://example.com/repo/a-1.0.zip``,
+  I would name the output file ``a-1.0.zip.dscard``, as in
+  ``--output-file a-1.0.zip.dscard``. By default, the output file is named
+  ``out.dscard``.
+
+- ``-h``, ``--help``: Print a help page for the subcommand ``generate-dscard``.
+
+.. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
 
 CLI for ``generate-repo-index``
 -------------------------------
@@ -153,3 +195,10 @@ Options are shown below, with their default values and
 
 CLI for ``query-repo``
 ----------------------
+
+.. _Specifying a requirement:
+
+Specifying a requirement
+------------------------
+
+foo.

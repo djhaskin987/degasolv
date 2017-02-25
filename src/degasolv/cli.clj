@@ -435,8 +435,8 @@
 
 (def cli-options
   [["-c" "--config-file FILE" "config file"
-    :default (fs/file (fs/expand-home "~/.config/degasolv/config.edn"))
-    :default-desc "~/.config/degasolv/config.edn"
+    :default (fs/file (fs/expand-home "./degasolv.edn"))
+    :default-desc "./degasolv.edn"
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
                "Must be a regular file (which hopefully contains config info."]]])

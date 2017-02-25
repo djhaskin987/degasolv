@@ -86,7 +86,7 @@ to the ``reposerver`` so that it can be downloaded at
 ``dscard`` file for ``e``. This file will represent ``e`` in a
 degasolv repository. It is done like this::
 
-  $ java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
+  $ java -jar degasolv-<version>-standalone.jar \
       generate-card \
       --location "https://example.com/repo/e-1.8.0.zip" \
       --output-file "e-1.8.0.zip.dscard"
@@ -183,14 +183,15 @@ look like this::
   }
 
 As mentioned earlier, ``c`` needs the ``e`` artifact in order to
-build. We'll use ``degasolv`` as part of ``c`` build script to
+build. We will use ``degasolv`` as part of ``c`` build script to
 download the most recent version fitting the requirement for ``e``
 like this::
 
-  $ java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
+  $ java -jar degasolv-<version>-standalone.jar \
       resolve-locations
 
-This command will return output looking something like this::
+This command is run from the same directory where ``degasolv.edn``
+resides.  It will return output looking something like this::
 
   e: https://example.com/repo/e-1.8.0.zip
 
@@ -214,7 +215,7 @@ dependencies for ``c`` and unzip them in the current directory.
 At the end of the build for ``c``, we can create the degasolv card
 file for ``c`` like this::
 
-  $ java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
+  $ java -jar degasolv-<version>-standalone.jar \
       generate-card \
       --location "https://example.com/repo/c-3.5.0.zip" \
       --output-file "c-3.5.0.zip.dscard"
@@ -223,9 +224,11 @@ Then we upload this file to our http server and use it to update the
 ``index.dsrepo`` degasolv repository index file in the same way as
 what we did during the build for ``e``.
 
-Let us now suppose that we have repeated these steps for all packages
-mentioned at the beginning of this example, except for the package
-``a`` -- ``e``, ``d``, ``c``, and ``b``.
+Let us now suppose that we have repeated these steps for the build
+artifacts of ``b``.  Then all of the projects except for ``a`` which
+are mentioned at the beginning of this example will have had artifacts
+built from their builds and entries created in the degasolv
+respository index for their artifacts.
 
 Building ``a``
 --------------
@@ -259,7 +262,7 @@ we resolve its dependencies and download them, just as we did when we built
 
   #!/bin/sh
 
-  java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
+  java -jar degasolv-<version>-standalone.jar \
       resolve-locations | while read pkg
   do
     name=$(echo "${pkg}" | awk -F ': ' '{print $1}')
