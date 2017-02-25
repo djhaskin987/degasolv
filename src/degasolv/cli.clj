@@ -103,10 +103,10 @@
     repo-data))
 
 (defn aggregate-repositories
-  [repo-merge-strat
+  [index-strat
    data-repositories]
   (let [aggregator
-        (if (= repo-merge-strat
+        (if (= index-strat
             "priority")
        priority-repo
        (fn [rs]
@@ -159,7 +159,7 @@
   (let
       [{:keys [repositories
                resolve-strat
-               repo-merge-strat
+               index-strat
                requirements]}
        options
        requirement-data
@@ -180,7 +180,7 @@
               requirements))
        aggregate-repo
        (aggregate-repositories
-        repo-merge-strat
+        index-strat
         (map slurp-repository
              repositories))
        result
@@ -228,12 +228,12 @@
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories query repo-merge-strat]} options
+  (let [{:keys [repositories query index-strat]} options
         req (first (string-to-requirement query))
         {:keys [id spec]} req
         aggregate-repo
         (aggregate-repositories
-         repo-merge-strat
+         index-strat
          (map slurp-repository
               repositories))
         spec-call (make-spec-call cmp)
@@ -321,7 +321,7 @@
            :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
                      "Strategy must either be 'thorough' or 'fast'."]]
-          ["-S" "--repo-merge-strat STRAT"
+          ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
@@ -343,7 +343,7 @@
                               (and (= (count strreq) 1)
                                    (= (:status (get strreq 0)) :present))))
                       "Query must look like one of these: `a`, `a`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]]
-          ["-S" "--repo-merge-strat STRAT"
+          ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
