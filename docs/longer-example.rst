@@ -193,7 +193,7 @@ like this::
 This command is run from the same directory where ``degasolv.edn``
 resides.  It will return output looking something like this::
 
-  e: https://example.com/repo/e-1.8.0.zip
+  e==1.8.0 @ https://example.com/repo/e-1.8.0.zip
 
 We can use this output in a script to download and unzip the zip file
 so that it can be used as part of the build for ``c`` like this::
@@ -203,9 +203,11 @@ so that it can be used as part of the build for ``c`` like this::
   java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
       resolve-locations | while read pkg
   do
-    name=$(echo "${pkg}" | awk -F ': ' '{print $1}')
-    url=$(echo "${pkg}" | awk -F ': ' '{print $2}')
-    curl -o ${name}.zip -L ${url}
+    spec=$(echo "${pkg}" | awk -F ' @ ' '{print $1}')
+    name=$(echo "${spec}" | awk -F '==' '{print $1}')
+    version=$(echo "${spec}" | awk -F '==' '{print $2}')
+    url=$(echo "${pkg}" | awk -F ' @ ' '{print $2}')
+    curl -o ${name}-${version}.zip -L ${url}
     unzip ${name}.zip
   done
 
@@ -262,12 +264,14 @@ we resolve its dependencies and download them, just as we did when we built
 
   #!/bin/sh
 
-  java -jar degasolv-<version>-standalone.jar \
+  java -jar degasolv-<version>-standalone.jar -c ./degasolv.edn \
       resolve-locations | while read pkg
   do
-    name=$(echo "${pkg}" | awk -F ': ' '{print $1}')
-    url=$(echo "${pkg}" | awk -F ': ' '{print $2}')
-    curl -o ${name}.zip -L ${url}
+    spec=$(echo "${pkg}" | awk -F ' @ ' '{print $1}')
+    name=$(echo "${spec}" | awk -F '==' '{print $1}')
+    version=$(echo "${spec}" | awk -F '==' '{print $2}')
+    url=$(echo "${pkg}" | awk -F ' @ ' '{print $2}')
+    curl -o ${name}-${version}.zip -L ${url}
     unzip ${name}.zip
   done
 

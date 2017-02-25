@@ -63,8 +63,8 @@ have a look at :ref:`A Longer Example`.
 
    This should return something like this::
 
-      a: http://example.com/repo/a-1.0.zip
-      b: http://example.com/repo/b-3.0.zip
+      a==1.0 @ http://example.com/repo/a-1.0.zip
+      b==3.0 @ http://example.com/repo/b-3.0.zip
 
 Support & Problems
 ------------------

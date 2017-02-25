@@ -190,16 +190,14 @@
         :strategy (keyword resolve-strat)
         :compare cmp)]
     (case
-        (first result)
+      (first result)
       :successful
       (let [[_ packages] result]
         (println (string/join
                   \newline
                   (map
-                   (fn
-                     [pkg]
-                     (str (:id pkg) ": " (:location pkg)))
-                   packages))))
+                    explain-package
+                    packages))))
       :unsuccessful
       (let [[_ info] result]
         (exit 1
@@ -285,30 +283,6 @@
            :default "./out.dscard"
            :validate [#(not (empty? %))
                       "Out file must not be empty."]]]}
-   "query-repo"
-   {:description "Query repository for a particular package"
-    :function query-repo!
-    :required-arguments {:repositories ["-R" "--repository"]
-                         :query ["-q" "--query"]}
-    :cli [["-R" "--repository REPO"
-           "Specify a repo. May be used more than once."
-           :id :repositories
-           :assoc-fn
-
-           (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-q" "--query QUERY"
-           "Specify query string."
-           :validate [#(and (re-matches r/str-requirement-regex %)
-                            (let [strreq (string-to-requirement %)]
-                              (and (= (count strreq) 1)
-                                   (= (:status (get strreq 0)) :present))))
-                      "Query must look like one of these: `a`, `a`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]]
-          ["-S" "--repo-merge-strat STRAT"
-           "Specify a repo merge strategy. May be 'priority' or 'global'."
-           :default "priority"
-           :validate [#(or (= "priority" %) (= "global" %))
-                      "Strategy must either be 'priority' or 'global'."]]]}
-
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index!
@@ -321,8 +295,8 @@
           ["-I" "--index-file FILE"
            "The name of the repo file"
            :default "index.dsrepo"]
-          ["-a" "--add-to REPO_LOC"
-           "Add to repo index REPO_LOC"]]}
+          ["-a" "--add-to INDEX"
+           "Add to repo index INDEX"]]}
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
@@ -337,16 +311,38 @@
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-R" "--repository REPO"
-           "Location of a `dsrepo` file. May be used more than once."
+          ["-R" "--repository INDEX"
+           "Search INDEX for packages. May be used more than once."
            :id :repositories
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-s" "--resolve-strat STRAT"
-           "May be 'fast' or 'thorough'. Choose speed or low failure rate."
+           "May be 'fast' or 'thorough'."
            :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
                      "Strategy must either be 'thorough' or 'fast'."]]
+          ["-S" "--repo-merge-strat STRAT"
+           "May be 'priority' or 'global'."
+           :default "priority"
+           :validate [#(or (= "priority" %) (= "global" %))
+                      "Strategy must either be 'priority' or 'global'."]]]}
+   "query-repo"
+   {:description "Query repository for a particular package"
+    :function query-repo!
+    :required-arguments {:repositories ["-R" "--repository"]
+                         :query ["-q" "--query"]}
+    :cli [["-R" "--repository INDEX"
+           "Search INDEX for packages. May be used more than once."
+           :id :repositories
+           :assoc-fn
+           (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-q" "--query QUERY"
+           "Display packages matching query string."
+           :validate [#(and (re-matches r/str-requirement-regex %)
+                            (let [strreq (string-to-requirement %)]
+                              (and (= (count strreq) 1)
+                                   (= (:status (get strreq 0)) :present))))
+                      "Query must look like one of these: `a`, `a`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]]
           ["-S" "--repo-merge-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
