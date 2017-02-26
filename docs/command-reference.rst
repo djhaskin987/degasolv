@@ -254,12 +254,28 @@ Explanation of options:
 
 - ``-r REQ``, ``--requirement REQ``, ``:requirements ["REQ1", ...]``:
   **Required**. Resolve this requirement together with all other requirements
-  given.  May be specified one ore more times as a command line option, or once as
-  a list of strings in a configuration file. See
+  given.  May be specified one ore more times as a command line option, or once
+  as a list of strings in a configuration file. See
   :ref:`Specifying a requirement` for more information.
 
+  The last requirement specified will be the first to be resolved. If the
+  requirements are retrieved from the config file, they are resolved in order
+  from first to last in the list.  If requirements are specified both on the
+  command line and in the configuration file, the requirements in the
+  configuration file are ignored.
+
 - ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``:
-  **Required**.
+  **Required**. Search the repository index given by INDEX for packages when
+  resolving the given requirements. 
+
+  When the index strategy is ``priority`` The last repository index specified
+  will be the first to be consulted. If the repository indices are retrieved
+  from the config file, they are consulted in order from first to last in the
+  list.  If indices are specified both on the command line and in the
+  configuration file, the indices in the configuration file are ignored.
+
+
+- ``-s STRAT``, ``--resolve-strat STRAT``:
 
 CLI for ``query-repo``
 ----------------------
