@@ -140,10 +140,10 @@ Explanation of options:
   including a file location or a URL.
 
 - ``-r REQUIREMENT``, ``--requirement REQUIREMENT``,
-  ``:requirements ["REQ1", ...]``: Specify a requirement.  May be
-  specified multiple times as a command line option, or once as a list
-  of strings in a configuration file. See :ref:`Specifying a
-  requirement` for more information.
+  ``:requirements ["REQ1", ...]``: List a requirement (dependency) of the
+  package in the card file.  May be specified one or more times as a command
+  line option, or once as a list of strings in a configuration file. See
+  :ref:`Specifying a requirement` for more information.
 
 - ``-C FILE``, ``--card-file FILE``, ``:card-file "FILE"``:
   Specify the name of the card file to generate. It is best practice
@@ -250,6 +250,16 @@ and uses the package information in them to attempt to resolve the requirements
 given at the command line. If successful, it outputs the name of each package
 in the solution it has found, together with that package's location.
 
+Explanation of options:
+
+- ``-r REQ``, ``--requirement REQ``, ``:requirements ["REQ1", ...]``:
+  **Required**. Resolve this requirement together with all other requirements
+  given.  May be specified one ore more times as a command line option, or once as
+  a list of strings in a configuration file. See
+  :ref:`Specifying a requirement` for more information.
+
+- ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``:
+  **Required**.
 
 CLI for ``query-repo``
 ----------------------

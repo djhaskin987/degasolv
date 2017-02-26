@@ -75,6 +75,6 @@ cat > $PWD/config.edn <<EOF
 }
 EOF
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b"
+java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b" -s fast
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0"
-
 java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0,!=2.1.0"
