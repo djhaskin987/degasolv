@@ -264,21 +264,120 @@ Explanation of options:
   command line and in the configuration file, the requirements in the
   configuration file are ignored.
 
+.. _that option's explanation:
+
 - ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``:
   **Required**. Search the repository index given by INDEX for packages when
-  resolving the given requirements. 
+  resolving the given requirements.
 
   When the index strategy is ``priority`` The last repository index specified
   will be the first to be consulted. If the repository indices are retrieved
   from the config file, they are consulted in order from first to last in the
   list.  If indices are specified both on the command line and in the
-  configuration file, the indices in the configuration file are ignored.
+  configuration file, the indices in the configuration file are ignored. See
+  `index strategy`_ for more information.
 
+- ``-s STRAT``, ``--resolve-strat STRAT``, ``:resolve-strat "STRAT"``: This
+  option determines which versions of a given package id are considered when
+  resolving the given requirements.  If set to ``fast``, only the first
+  available version matching the first set of requirements on a particular
+  package id is consulted, and it is hoped that this version will match all
+  subsequent requirements constraining the versions of that id. If set to
+  ``thorough``, all available versions matching the requirements will be
+  considered.
 
-- ``-s STRAT``, ``--resolve-strat STRAT``:
+  This option should be used with care, since whatever setting is used will
+  greatly alter behavior. It is therefore recommended that whichever setting is
+  chosen should be used site-wide within an organization.  The default setting
+  is ``thorough`` and this setting should work for most environments.
+
+.. _index strategy:
+
+- ``-S STRAT``, ``--index-strat STRAT``, ``:index-strat "STRAT"``: Repositories
+  are queried by package id in order to discover what packages are available to
+  fulfill the given requirements. This option determines how multiple
+  repository indexes are queried if there are more than one. If set to
+  ``priority``, the first repository that answers with a non-empty result is
+  used, if any. Not that this is true even if the versions done't match what is
+  required.
+
+  For example, if ``<repo-x>`` contains a package ``a`` at version ``1.8``,
+  and ``<repo-y>`` contains a package ``a`` at version ``1.9``, then the
+  following command wil fail::
+
+    java -jar ./degasolv-<version>-standalone.jar -R <repo-x> -R <repo-y> \
+        -r "a==1.9"
+
+  While, on the other hand, this command will succeed::
+
+    java -jar ./degasolv-<version>-standalone.jar -R <repo-y> -R <repo-x> \
+        -r "a==1.9"
+
+  By contrast, if ``--index-strat`` is given the STRAT of ``global``, all versions
+  from all repositories answering to a particular package id will be considered. So,
+  both of the following commands would succeed, under the scenario presented above::
+
+    java -jar ./degasolv-<version>-standalone.jar -S global \
+        -R <repo-x> -R <repo-y> -r "a==1.9"
+
+    java -jar ./degasolv-<version>-standalone.jar -S global \
+        -R <repo-y> -R <repo-x> -r "a==1.9"
+
+  This option should be used with care, since whatever setting is used will
+  greatly alter behavior. It is therefore recommended that whichever setting is
+  chosen should be used site-wide within an organization.
+
+  The default setting is ``priority`` and this setting should work for most
+  environments.
 
 CLI for ``query-repo``
 ----------------------
+
+Running ``java -jar degasolv-<version>-standalone.jar query-repo -h`` returns a
+page that looks something like this::
+
+  Usage: degasolv <options> query-repo <query-repo-options>
+
+  Options are shown below, with their default values and
+    descriptions:
+
+    -R, --repository INDEX             Search INDEX for packages. May be used more than once.
+    -q, --query QUERY                  Display packages matching query string.
+    -S, --index-strat STRAT  priority  May be 'priority' or 'global'.
+    -h, --help                         Print this help page
+
+  The following options are required for subcommand `query-repo`:
+
+    - `-R`, `--repository`, or the config file key `:repositories`.
+    - `-q`, `--query`, or the config file key `:query`.
+
+This subcommand queries a repository index or indices for packages. This comand
+is intended to be useful or debugging dependency problems.
+
+Explanation of options:
+
+- ``-q QUERY``, ``--query QUERY``: **Required**. Query repository index or indices for a
+  package. Syntax is exactly the same as requirements except that only one
+  alternative may be specified (that is, using the ``|`` character or
+  specifying multiple package ids), and the requirement must specify
+  a present package (no ``!`` character may be used either).
+  See `Specifying a requirement`_ for more information.
+
+  Examples of valid queries:
+
+    - ``"pkg"``
+    - ``"pkg!=3.0.0"``
+
+  Examples if invalid queries:
+
+    - ``"a|b"``
+    - ``"!a"``
+
+- ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``: **Required**.
+  This option works exactly the same as the repository option for the
+  ``resolve-locations`` command, except that instead of using the repositories
+  for resolving requirements, it uses them for simple index queries. See `that
+  option's explanation`_ for more information.
 
 .. _Specifying a requirement:
 
