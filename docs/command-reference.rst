@@ -422,9 +422,6 @@ Explanation of options:
 Specifying a requirement
 ------------------------
 
-Definitions and Explanation
-+++++++++++++++++++++++++++
-
 A requirement is given as a string of text. It is given as a string. A
 requirement consists of one or more *alternatives*. Any of the alternatives
 will satisfy the requirement. Alternatives are specified by a bar character
@@ -512,12 +509,12 @@ interpretations.
 +-------------------------+---------------------------------------------------+
 | Requirement             | English Explanation                               |
 +-------------------------+---------------------------------------------------+
-| ``"oak_pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
+| ``"oak|pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
 |                         | versions greater than ``5.0``                     |
 +-------------------------+---------------------------------------------------+
 | ``"hickory>=3.0,<4.0"`` | Require ``hickory`` at a ``3.x`` version.         |
 +-------------------------+---------------------------------------------------+
-| ``"!birch_birch<=3.0"`` | An important example. This demonstrates how to    |
+| ``"!birch|birch<=3.0"`` | An important example. This demonstrates how to    |
 | ``"!birch>3.0"``        | specify what `maven`_ calls a                     |
 |                         | `managed dependency`_. It means if birch is       |
 |                         | It means if ``birch`` is required by another      |
@@ -525,7 +522,7 @@ interpretations.
 |                         | equal to ``3.0``. It is good practice to prefer   |
 |                         | the expression with only one alternative.         |
 +-------------------------+---------------------------------------------------+
-| ``"oak_!pine"``         | Require the presence of the ``oak`` package, or   |
+| ``"oak|!pine"``         | Require the presence of the ``oak`` package, or   |
 |                         | the absence of the ``pine`` package.              |
 +-------------------------+---------------------------------------------------+
 
@@ -534,6 +531,3 @@ interpretations.
 
 
 .. _managed dependency: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management
-
-
-
