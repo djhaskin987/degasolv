@@ -1,4 +1,10 @@
 /target
+/docs/_build/
+/.nrepl-history
+/test-data/
+/buildutils/boot
+/*.dscard
+/*.dsrepo
 /classes
 /checkouts
 pom.xml
@@ -9,6 +15,7 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+/.ve/
 
 # editor files
 .#*

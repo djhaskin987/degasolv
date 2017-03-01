@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+mkdir -p buildutils
+
+export PATH="${PWD}/buildutils:$PATH"
+if ! which boot >/dev/null 2>&1
+then
+    curl -fsSLo buildutils/boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh
+    chmod 755 buildutils/boot
+fi
+
+boot "${@}"

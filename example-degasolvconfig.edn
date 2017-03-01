@@ -1,0 +1,17 @@
+{
+ :repo-search-mode :global ; other options:
+ :repositories [ ; optional
+                {
+                 :name "place1"
+                 :location "https://example.com/repo/index.edn"
+                 }
+                {
+                 :name "place2"
+                 :location "https://example.com/other-repo/index.edn"
+                 }
+                ]
+ :inline-repository ; optional
+ { ; ... some inline repo data here; if repo-search-mode is
+   ; `priority`, this is searched first
+  }
+}

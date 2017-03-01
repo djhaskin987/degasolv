@@ -1,33 +1,21 @@
-# dependable
-Dependency resolver for the impatient.
+degasolv
+========
 
-I got really tired of seeing how often this problem was re-solved over
-and over every time a new programming language came out, and every
-time a new package manager was born. I ended up writing this library,
-containing a particular function,
-`dependable.resolver/resolve-dependencies`, which can be used as a
-generic dependency resolver.
+Degasolv is a generic dependency resolver that will work across
+programming language boundaries, customizable to fit the needs of
+build engineers who are just trying to get their software built.
 
-This will soon be on clojars.
+## What is a `degasolv`?
 
-Rather than give you not-so-informative example code using it, I will
-point you to the unit tests for this function, found under
-`test/dependable/resolver_test.clj`. All unit tests point to functionality
-found in the function in question, and so also serve as a great starting
-point to using this function.
+Named for *Degas* the impressionist, and it's a *Solv*er.
 
-Is this function complicated? Yes. Sorry. Welcome to dep management :(
+## Installation, Quick Start, Tutorials, Reference?
 
-## Recent Improvements
-
-I just added dependency strategy option! You can set this to `:thorough` or
-`:fast` when calling the function. This means you can decide whether or not
-the resolver works like a SAT solver or just takes the first packages it
-finds instead.
+See [Read the Docs](http://degasolv.readthedocs.io/en/develop/).
 
 ## License
 
-Copyright © 2016 Daniel Jay Haskin
+Copyright © 2016-2017 Daniel Jay Haskin and others, see the AUTHORS.md file.
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
