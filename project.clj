@@ -1,4 +1,4 @@
-(defproject degasolv/degasolv "1.0.2-SNAPSHOT"
+(defproject degasolv/degasolv "1.0.2"
   :description "Dependency resolver with an eye toward building software."
   :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
