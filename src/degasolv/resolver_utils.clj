@@ -113,8 +113,8 @@
       [(explain-package-list
        (vals (:present-packages problem))
        "Packages already present")])
-    (when (not (nil? (:requirement problem)))
-      [(str "  - Requirement being considered: " (:requirement problem))])
+    (when (not (nil? (:alternative problem)))
+      [(str "  - Alternative being considered: " (:alternative problem))])
     (when (not (nil? (:reason problem)))
       [(str "  - " ((:reason problem) reason-explanations))])
     (when (not (nil? (:package-id problem)))

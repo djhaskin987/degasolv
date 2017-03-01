@@ -154,10 +154,10 @@ x#))
                         :reason :empty-alternative-set}]}]
                     (let [clause-result
                           (map
-                           (fn try-requirement
-                             [requirement]
+                           (fn try-alternative
+                             [alternative]
                              (let [{status :status id :id spec :spec}
-                                   requirement
+                                   alternative
                                    present-package
                                    (or (get present-packages id)
                                        (get found-packages id))]
@@ -181,7 +181,7 @@ x#))
                                        :present-packages present-packages
                                        :absent-specs absent-specs
                                        :reason :present-package-conflict
-                                       :requirement requirement
+                                       :alternative alternative
                                        :package-id id}]}])
                                  (= status :absent)
                                  (resolve-deps
@@ -199,7 +199,7 @@ x#))
                                       {:problems
                                        [
                                         {:term fclause
-                                         :requirement requirement
+                                         :alternative alternative
                                          :found-packages found-packages
                                          :present-packages present-packages
                                          :absent-specs absent-specs
@@ -227,7 +227,7 @@ x#))
                                          [:unsuccessful
                                           {:problems
                                            [{:term fclause
-                                             :requirement requirement
+                                             :alternative alternative
                                              :found-packages found-packages
                                              :present-packages present-packages
                                              :absent-specs absent-specs
@@ -258,7 +258,7 @@ x#))
                                  [:unsuccessful {:problems
                                                  [{:term fclause
                                                    :reason :uncovered-case
-                                                   :requirement requirement
+                                                   :alternative alternative
                                                    :found-packages found-packages
                                                    :present-packages present-packages
                                                    :absent-specs absent-specs}]}])))

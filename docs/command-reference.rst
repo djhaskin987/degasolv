@@ -156,7 +156,6 @@ Explanation of options:
 
 - ``-h``, ``--help``: Print a help page for the subcommand ``generate-dscard``.
 
-.. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
 
 CLI for ``generate-repo-index``
 -------------------------------
@@ -247,8 +246,47 @@ returns a page that looks something like this::
 
 The ``resolve-locations`` command searches one or more repository index files,
 and uses the package information in them to attempt to resolve the requirements
-given at the command line. If successful, it outputs the name of each package
-in the solution it has found, together with that package's location.
+given at the command line. If successful, it exits with a return code of 0 and
+outputs the name of each package in the solution it has found, together with
+that package's location. 
+
+Example output on a successful run::
+
+    c==3.5.0 @ https://example.com/repo/c-3.5.0.zip
+    d==0.8.0 @ https://example.com/repo/d-0.8.0.zip
+    e==1.8.0 @ https://example.com/repo/e-1.8.0.zip
+    b==2.3.0 @ https://example.com/repo/b-2.3.0.zip
+
+In the above example out, each line takes the form::
+
+    <id>==<version> @ <location
+
+If the command fails, a non-zero exit code is returned. The output from such
+a run might look like this::
+
+  The resolver encountered the following problems: 
+
+  Clause: e>=1.1.0,<2.0.0
+  - Packages selected:
+    - b==2.3.0 @ https://example.com/repo/b-2.3.0.zip
+    - d==0.8.0 @ https://example.com/repo/d-0.8.0.zip
+  - Packages already present: None
+  - Alternative being considered: e>=1.1.0,<2.0.0
+  - Package in question was found in the repository, but cannot be used.
+  - Package ID in question: e
+
+As shown above, a list of clauses is printed. Each clause is an alternative (part of a requirement)
+that the resolver could not fulfill or resolve. Each field is explained as follows:
+
+1. ``Packages selected``: This is a list of packages found in order to resolve previous requirements
+   before the "problem" clause was encountered.
+2. ``Packages already present``: This is an artifact of the resolver. It will always be ``None`` and can
+   be ignored.
+3. ``Alternative being considered``: This field displays what alternative from the requirement
+   was being currently considered when the problem was encountered.
+4. The next field gives a reason for the problem.
+5. ``Package ID in question``: This field displays the package searched for
+   when the problem was encountered.
 
 Explanation of options:
 
@@ -383,4 +421,119 @@ Explanation of options:
 
 Specifying a requirement
 ------------------------
+
+Definitions and Explanation
++++++++++++++++++++++++++++
+
+A requirement is given as a string of text. It is given as a string. A
+requirement consists of one or more *alternatives*. Any of the alternatives
+will satisfy the requirement. Alternatives are specified by a bar character
+(``|``), like this::
+
+  "<alt1>|<alt2>|<alt3>"
+
+Or, more concretely::
+
+  "hickory|maple|oak"
+
+Alternatives will be considered in order fo appearance. In general, specifying
+more than one alternative should be msotly unecessary, and generally to be
+avoided. THis is because many alternatives tend to impact performance
+significantly; but they are there and usable if needed.
+
+Each alternative is composed of a package id and an optional specification of
+what versions of that package satisfy the alternative, like this::
+
+  "<pkgid><version spec>"
+
+For example::
+
+  "hickory>=3.0"
+
+A version spec is a boolean expression of version predicates describing what
+versions may satisfy the alternative. The character ``;`` represents discution
+(OR) and the character ``,`` represents conjunction (AND), like this::
+
+  "<pred1>,<pred2>;<pred3>,<pred4>"
+
+
+This is interpreted as::
+
+  "(<pred1> AND <pred2>) OR (<pred3> AND <pred4>)"
+
+Each version predicate is composed of a comparison operator and a valid version
+against which to compare a package's fversion. The character sequences ``<``,
+``<=``, ``!=``, ``==``, ``>=``, and ``>`` represent the comparisons "older
+than", "older than or equal to", "not equal to", "equal to", "newer than or
+equal to", and "newer than", respectively.In the current implementation,
+versions are compared using `version-clj`_ rules.
+
+.. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
+
+The follwoing are examples of valid alternatives, together with their english
+interpretations:
+
++------------------------------+----------------------------------------------+
+| Alternative                  | English Interpretation                       |
++==============================+==============================================+
+| ``"oak"``                    | Find package ``oak``                         |
++------------------------------+----------------------------------------------+
+| ``"pine>1.0"``               | Find pakcage ``pine`` of version newer than  |
+|                              | ``1.0``                                      |
++------------------------------+----------------------------------------------+
+| ``"hickory>1.0,<=2.0"``      | Find package ``hickory`` with version newer  |
+|                              | than``1.0`` and older than or equal to       |
+|                              | ``2.0``.                                     |
++------------------------------+----------------------------------------------+
+| ``"fir<=2.0;>3.5,!=3.8"``    | Find a package ``fir`` with version          |
+|                              | (newer than ``1.0`` and older than or equal  |
+|                              | to ``2.0``) OR (with version newer than      |
+|                              | ``3.5`` but not equal to ``3.8``)            |
++------------------------------+----------------------------------------------+
+
+Negative alternatives are requirements that all packages with a particular id
+and matching a particular version spec must be absent from the list of packages
+found when resolving dependencies. To negate an alternative, prepend it with
+the ``!`` character.
+
+For example, the following alternative means "make sure
+the ``spruce`` package is not present in the list"::
+
+  !spruce
+
+This alternative means "If package a is present in the list, make sure its
+version is not in the range ``(3.0,4.0]``"::
+
+  !a>3.0,<=4.0
+
+The following are practical examples of requirements, together with their
+interpretations.
+
++-------------------------+---------------------------------------------------+
+| Requirement             | English Explanation                               |
++-------------------------+---------------------------------------------------+
+| ``"oak_pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
+|                         | versions greater than ``5.0``                     |
++-------------------------+---------------------------------------------------+
+| ``"hickory>=3.0,<4.0"`` | Require ``hickory`` at a ``3.x`` version.         |
++-------------------------+---------------------------------------------------+
+| ``"!birch_birch<=3.0"`` | An important example. This demonstrates how to    |
+| ``"!birch>3.0"``        | specify what `maven`_ calls a                     |
+|                         | `managed dependency`_. It means if birch is       |
+|                         | It means if ``birch`` is required by another      |
+|                         | package, ensure that its version is older than or |
+|                         | equal to ``3.0``. It is good practice to prefer   |
+|                         | the expression with only one alternative.         |
++-------------------------+---------------------------------------------------+
+| ``"oak_!pine"``         | Require the presence of the ``oak`` package, or   |
+|                         | the absence of the ``pine`` package.              |
++-------------------------+---------------------------------------------------+
+
+
+.. _maven: https://maven.apache.org/
+
+
+.. _managed dependency: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management
+
+
 
