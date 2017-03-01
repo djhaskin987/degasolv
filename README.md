@@ -11,7 +11,7 @@ Named for *Degas* the impressionist, and it's a *Solv*er.
 
 ## Installation, Quick Start, Tutorials, Reference?
 
-See [Read the Docs](http://degasolv.readthedocs.io/en/latest/).
+See [Read the Docs](http://degasolv.readthedocs.io/en/develop/).
 
 ## License
 
