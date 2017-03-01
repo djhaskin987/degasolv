@@ -9,9 +9,9 @@ build engineers who are just trying to get their software built.
 
 Named for *Degas* the impressionist, and it's a *Solv*er.
 
-## Installation, Quick Start, Tutorials?
+## Installation, Quick Start, Tutorials, Reference?
 
-See the `docs` folder.
+See [Read the Docs](http://degasolv.readthedocs.io/en/develop/).
 
 ## License
 
