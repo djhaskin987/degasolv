@@ -516,11 +516,14 @@ interpretations.
 +-------------------------+---------------------------------------------------+
 | ``"!birch|birch<=3.0"`` | An important example. This demonstrates how to    |
 | ``"!birch>3.0"``        | specify what `maven`_ calls a                     |
-|                         | `managed dependency`_. It means if birch is       |
+|                         | `managed dependency`_.                            |
 |                         | It means if ``birch`` is required by another      |
 |                         | package, ensure that its version is older than or |
 |                         | equal to ``3.0``. It is good practice to prefer   |
 |                         | the expression with only one alternative.         |
++-------------------------+---------------------------------------------------+
+| ``"!oak|maple>3.0"``    | If oak is installed, then make sure maple after   |
+|                         | version 3.0 is installed also.                    |
 +-------------------------+---------------------------------------------------+
 | ``"oak|!pine"``         | Require the presence of the ``oak`` package, or   |
 |                         | the absence of the ``pine`` package.              |

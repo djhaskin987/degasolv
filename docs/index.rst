@@ -33,26 +33,26 @@ have a look at :ref:`A Longer Example`.
           --version "1.0" \
           --location "https://example.com/repo/a-1.0.zip" \
           --requirement "b>2.0" \
-          --output-file "$PWD/a-1.0.zip.dscard"
+          --card-file "$PWD/a-1.0.zip.dscard"
 
       $ java -jar degasolv-<version>-standalone.jar generate-card \
           --id "b" \
           --version "2.0" \
           --location "https://example.com/repo/b-2.0.zip" \
-          --output-file "$PWD/b-2.0.zip.dscard"
+          --card-file "$PWD/b-2.0.zip.dscard"
 
       $ java -jar degasolv-<version>-standalone.jar generate-card \
           --id "b" \
           --version "3.0" \
           --location "https://example.com/repo/b-3.0.zip" \
-          --output-file "$PWD/b-2.0.zip.dscard"
+          --card-file "$PWD/b-2.0.zip.dscard"
 
 2. Generate a ``dsrepo`` file from the cards::
 
       $ java -jar degasolv-<version>-standalone.jar \
           generate-repo-index \
           --search-directory $PWD \
-          --output-file $PWD/index.dsrepo
+          --index-file $PWD/index.dsrepo
 
 3. Then use the ``dsrepo`` file to resolve dependencies::
 
