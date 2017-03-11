@@ -6,7 +6,7 @@
   :main degasolv.cli
   :dependencies [
                  [org.clojure/clojure "1.9.0-alpha14"]
-                 [version-clj "0.1.2"]
+                 [serovers "1.1.0"]
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]
@@ -21,9 +21,11 @@
   :profiles {
              :dev {:dependencies [
                                   [org.clojure/core.match "0.3.0-alpha4"]
-                                  [version-clj "0.1.2"
+                                  [serovers "1.1.0"
                                    :exclusions [org.clojure/clojure]]
                                   ]}
-             :uberjar {:aot [degasolv.cli degasolv.resolver]}
+             :uberjar {:aot [degasolv.cli
+                             degasolv.resolver
+                             degasolv.pkgsys.debian]}
              }
   :target-path "target/%s")

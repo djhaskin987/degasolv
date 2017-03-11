@@ -1,154 +1,122 @@
 (ns degasolv.pkgsys.debian
   "Namespace containing functions related to the debian package system."
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io]
+            [degasolv.util :refer :all]
+            [degasolv.resolver :as r :refer :all])
+  (:import (java.util.zip GZIPInputStream)))
 
-(defmacro dbg [body]
-  `(let [x# ~body]
-     (println "dbg:" '~body "=" x#)
-x#))
-
-(defn-
-  lexical-comparison
-  "Lexically compare two characters according to debian version rules."
-  [a b]
-  (cond (= a b) 0
-        (= a \~) -1
-        (= b \~) 1
-        (= a (char 0)) -1
-        (= b (char 0)) 1
-        (and (java.lang.Character/isLetter a)
-             (not (java.lang.Character/isLetter b)))
-        -1
-        (and (java.lang.Character/isLetter b)
-             (not (java.lang.Character/isLetter a)))
-        1
-        :else
-        (- (int a) (int b))))
-
-(defn- justify-strings
-  "Returns two seqs of equal length, composed either
-  of the characters from the strings, or the null character."
-  [a b]
-  (let [va (vec a)
-        vb (vec b)
-        ca (count a)
-        cb (count b)
-        nullc (char 0)]
-  (cond
-    (= ca
-       cb)
-    [va
-     vb]
-    (> cb ca)
-
-    [(into va
-           (repeat (- cb ca)
-                   nullc))
-     vb]
-    :else
-    [va
-     (into vb
-           (repeat (- ca cb)
-                   nullc))])))
-(defn- split
-  [vers]
-  (vec
-    (interleave
-      (string/split vers #"[0-9]+")
-      (map
-        #(java.lang.Integer/parseInt %)
-        (string/split vers #"[^0-9]+")))))
-
-(defprotocol ^:private Default
-  (default [this]))
-
-(extend-protocol Default
-  clojure.lang.BigInt
-  (default [this] 0N)
-  java.math.BigDecimal
-  (default [this] 0M)
-  java.lang.Long
-  (default [this] 0)
-  java.lang.Integer
-  (default [this] 0)
-  java.lang.Double
-  (default [this] 0.0)
-  java.lang.String
-  (default [this] ""))
-
-(defn- justify
-  [a b]
-  (cond
-    (= (count a)
-       (count b))
-    [a b]
-    (> (count b) (count a))
-    [(into
-       a
-       (map default (subvec b (count a))))
-     b]
-    :else
-    [a
-     (into
-       b
-       (map default (subvec a (count b))))]))
-
-(defprotocol ^:private DebianPartCompare
-  (part-cmp [a b]))
-
-(extend-protocol DebianPartCompare
-  java.lang.Integer
-  (part-cmp
-    [a b]
-    (- a b))
-  java.lang.Long
-  (part-cmp
-    [a b]
-    (- a b))
-  java.lang.String
-  (part-cmp
-    [a b]
-    (or
-      (some
-        #(if (not (zero? %)) % nil)
-        (let [[justa justb] (justify-strings a b)]
-          (map
-            lexical-comparison
-            justa
-            justb)))
-      0)))
-
-(defn vercmp
-  [a b]
-  (or
-    (some
-      #(if (not (zero? %)) % nil)
-      (let [[justa justb] (justify (split a) (split b))]
-        (map
-          part-cmp
-          justa
-          justb)))
-    0))
+; In case I change the zip input streamer later
+(defn ->zip-input-stream
+  [is]
+  (GZIPInputStream. is))
 
 (defn deb-to-degasolv-requirement
   [s]
-  (string/split (string/replace (string/replace (string/replace (string/replace s #"[ ()]" "") #"<<" "<")#">>" ">") "," " ") #" "))
+  (as-> s it
+        (string/replace it #"[ ()]" "")
+        (string/replace it #"<<" "<")
+        (string/replace it #">>" ">")
+        (string/split it #",")
+        (into [] it)))
 
-(defn restructure-apt-output
-  [output]
-  (map
-    (fn foreach-thing [x]
-      (into
-        {}
+(defn group-pkg-lines
+  [lines]
+  (as-> lines it
+        (partition-by
+          #(re-matches #"^Package:.*$" %)
+          it)
+        (partition 2 it)
+        (map #(apply concat %) it)))
+
+(defn lines-to-map
+  [lines]
+  (as-> lines it
         (map
-          (fn foreach-string [y]
-            (string/split y #": ")) x)))
-    (map #(apply concat %)
-         (partition
-           2
-           (partition-by
-             #(re-matches #"^Package:.*" %)
-             (filter
-               #(re-matches #"^(Package|Depends|Filename|Origin):.*" %)
-               (string/split-lines
-                 output)))))))
+          (fn [line]
+            (let [[_ k v] (re-matches #"^([^:]+): +(.*)$" line)]
+              [(keyword
+                (string/lower-case k))
+              v]))
+          it)
+        (into {} it)))
+
+
+
+(defn convert-pkg-requirements
+  [pkg]
+  (let [deps (:depends pkg)]
+    (if deps
+      (assoc
+        pkg
+        :depends
+        (deb-to-degasolv-requirement
+          deps)))))
+
+(defn add-pkg-location
+  [pkg url]
+  (assoc pkg
+         :location
+         (string/replace
+           (str url "/" (:filename pkg))
+           #"/+"
+           "/")))
+
+(defn apt-repo
+  [url info]
+  (as-> info it
+        (string/split-lines it)
+        (filter
+          #(re-matches #"^(Package|Depends|Filename):.*" %)
+          it)
+        (group-pkg-lines it)
+        (map
+          lines-to-map
+          it)
+        (map
+          (fn each-package
+            [pkg]
+            (as->
+              pkg each
+              (convert-pkg-requirements each)
+              (add-pkg-location each url)
+              (->PackageInfo
+                (:package each)
+                (:version each)
+                (:location each)
+                (:depends each))))
+          it)
+        (reduce
+          (fn [c v]
+            (if (not (get c (:id v)))
+              (assoc c (:id v) [v])
+              (update-in
+                c
+                [(:id v)] conj v)))
+          {}
+          it)))
+
+(defn slurp-apt-repo
+  [repospec aggregator]
+  (let [[pkgtype url dist & pools]
+             (string/split repospec #" +")]
+    (aggregator
+      (map
+        (fn each-pool
+          [pool]
+          (as-> pool it
+                (string/join
+                  "/"
+                  [url
+                   "dists"
+                   dist
+                   it
+                   pkgtype
+                   "Packages.gz"])
+                (with-open
+                  [in
+                   (->zip-input-stream
+                     (io/input-stream it))]
+                  (slurp in))
+                (apt-repo url it)))
+      pools))))

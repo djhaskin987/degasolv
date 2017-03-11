@@ -6,75 +6,75 @@ rm -rf test-data/repo
 mkdir -p test-data/repo
 
 cd test-data/repo
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "b" -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "b" -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
 
 
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "c" -v "2.4.7" -l "https://example.com/repo/c-2.4.7.zip" -C $PWD/c-2.4.7.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "c" -v "2.4.7" -l "https://example.com/repo/c-2.4.7.zip" -C $PWD/c-2.4.7.zip.dscard
 
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "d" -v "0.8.0" -l "https://example.com/repo/d-0.8.0.zip" -r "e>=1.1.0,<2.0.0" -C $PWD/d-0.8.0.zip.dscard
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "e" -v "2.1.0" -l "https://example.com/repo/e-2.1.0.zip" -C $PWD/e-2.1.0.zip.dscard
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "e" -v "2.4.0" -l "https://example.com/repo/e-2.4.0.zip" -C $PWD/e-2.4.0.zip.dscard
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "d" -v "0.8.0" -l "https://example.com/repo/d-0.8.0.zip" -r "e>=1.1.0,<2.0.0" -C $PWD/d-0.8.0.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "e" -v "2.1.0" -l "https://example.com/repo/e-2.1.0.zip" -C $PWD/e-2.1.0.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "e" -v "2.4.0" -l "https://example.com/repo/e-2.4.0.zip" -C $PWD/e-2.4.0.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
 echo "These should fail"
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "b" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "b" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "b" -v "2.3.0" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "b" -v "2.3.0" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations -r "b"
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar resolve-locations -r "b"
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar query-repo -R $PWD/index.dsrepo --query "e>2.0.0|c<4.0.0"
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar query-repo -R $PWD/index.dsrepo --query "e>2.0.0|c<4.0.0"
 then
     exit 1
 fi
 
 echo '#degasolv.resolver/PackageInfo {:id "c", :version "3.5.0", :location "https://example.com/repo/c-3.5.0.zip", :requirements [#degasolv.resolver/Requirement {:status :present, :id "e", :spec [[#degasolv.resolver/VersionPredicate {:relation :greater-equal, :version "1.8.0"}]]}]]}' > $PWD/c-3.5.0.zip.dscard
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
 then
     exit 1
 fi
 echo '#degasolv.resolver/PackageInfo {:id "c", :version "3.5.0", :location "https://example.com/repo/c-3.5.0.zip", :requirements [#degasolv.resolver/Requirement {:status :present, :id "e", :spec [[#degasolv.resolver/VersionPredicate {:relation :greater-equal, :version "1.8.0"}]]}]}' > $PWD/c-3.5.0.zip.dscard
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
 then
     exit 1
 fi
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "c" -v "3.5.0" -l "https://example.com/repo/c-3.5.0.zip" -r "e>=1.8.0" -C $PWD/c-3.5.0.zip.dscard
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "c" -v "3.5.0" -l "https://example.com/repo/c-3.5.0.zip" -r "e>=1.8.0" -C $PWD/c-3.5.0.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar query-repo -R $PWD/index.dsrepo --query "e>6.0.0"
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar query-repo -R $PWD/index.dsrepo --query "e>6.0.0"
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file test-data/repo/config.edn query-repo --query "!e"
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar --config-file test-data/repo/config.edn query-repo --query "!e"
 then
     exit 1
 fi
-if java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file test-data/repo/config.edn query-repo --query "!"
+if java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar --config-file test-data/repo/config.edn query-repo --query "!"
 then
     exit 1
 fi
 
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -i "e" -v "1.8.0" -l "https://example.com/repo/e-1.8.0.zip" -C $PWD/e-1.8.0.zip.dscard
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "e" -v "1.8.0" -l "https://example.com/repo/e-1.8.0.zip" -C $PWD/e-1.8.0.zip.dscard
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
 echo "These should succeed"
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
 cat > $PWD/config.edn <<EOF
 {  :repositories ["$PWD/index.dsrepo"]
 }
 EOF
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b"
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b" -s fast
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0"
-java -jar ../../target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0,!=2.1.0"
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b"
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b" -s fast
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0"
+java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0,!=2.1.0"

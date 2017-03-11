@@ -1,6 +1,8 @@
 (ns degasolv.cli
   (:require [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]
+            [degasolv.pkgsys.debian :as debian-pkg]
+            [degasolv.pkgsys.degasolv :as degasolv-pkg]
             [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
             [clojure.pprint :as pprint]
@@ -9,9 +11,9 @@
             [clojure.spec :as s]
             [clojure.set :as st]
             [me.raynes.fs :as fs]
-            [version-clj.core
-             :refer [version-compare]
-             :rename {version-compare cmp}]
+            [serovers.core :as vers
+             :refer [maven-vercmp]
+             :rename {maven-vercmp cmp}]
             [miner.tagged :as tag])
   (:gen-class))
 
@@ -33,12 +35,6 @@
   [this w]
   (tag/pr-tagged-record-on this w))
 
-; UTF-8 by default :)
-(defn- default-slurp [loc]
-  (clojure.core/slurp loc :encoding "UTF-8"))
-
-(defn- default-spit [loc stuff]
-  (clojure.core/spit loc (pr-str stuff) :encoding "UTF-8"))
 
 (defn- pretty-spit [loc stuff]
   (with-open
@@ -64,8 +60,6 @@
       sq))))
 
 (defn- read-card!
-  [card]
-  (let [card-data (tag/read-string (default-slurp card))
         vetted-card-data
         (s/conform ::r/package card-data)]
     (if (= vetted-card-data
@@ -80,42 +74,42 @@
                                       card-data)))
       card-data)))
 
+(defn aggregator
+  [index-strat cmp]
+  (cond
+    (= index-strat "priority")
+    priority-repo
+    (= index-strat "global")
+    (fn [rs]
+      global-repo rs
+      :cmp #(- (cmp
+                 (:version %1)
+                 (:version %2))))))
 
-(defn slurp-repository
-  [url]
-  (let
-      [repo-data
-       (tag/read-string
-        (default-slurp url))
-       vetted-repo-data
-       (s/conform
-        ::r/map-repo
-        repo-data)]
-    (when (= ::s/invalid vetted-repo-data)
-      (throw (ex-info
-              (str
-               "Invalid requirement string in repo `"
-               url
-               "`: "
-               (s/explain ::r/map-repo repo-data))
-              (s/explain-data ::r/map-repo
-                              repo-data))))
-    repo-data))
+(def
+  ^:private
+  package-systems
+  {"debian" {:slurp debian-pkg/slurp-apt-repo
+             :vercmp vers/debian-vercmp}
+   "degasolv" {:slurp degasolv-pkg/slurp-degasolv-repo
+               :vercmp cmp}})
 
 (defn aggregate-repositories
   [index-strat
    data-repositories]
-  (let [aggregator
-        (if (= index-strat
-            "priority")
-       priority-repo
-       (fn [rs]
-         (global-repo rs
-                      :cmp #(- (cmp
-                                (:version %1)
-                                 (:version %2))))))]
-     (aggregator
-         data-repositories)))
+  ((get aggregators index-strat)
+     data-repositories))
+
+(defn slurp-repository
+  [spec aggregator package-system]
+  ((:slurp
+    (get
+      package-systems
+      package-system))
+     spec)
+  )
+
+
 
 (defn- generate-repo-index!
   [options arguments]
@@ -152,6 +146,7 @@
 (defn exit [status msg]
   (.println *err* msg)
   (System/exit status))
+
 
 (defn-
   resolve-locations!
@@ -234,7 +229,7 @@
         aggregate-repo
         (aggregate-repositories
          index-strat
-         (map slurp-repository
+         (map #(slurp-repository aggregate-
               repositories))
         spec-call (make-spec-call cmp)
         results (filter
@@ -321,6 +316,11 @@
            :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
                      "Strategy must either be 'thorough' or 'fast'."]]
+          ["-t" "--package-system SYS"
+           "Package system to use. May be 'degasolv' or 'debian'."
+           :default "degasolv"
+           :validate [#(or (= "degasolv" %) (= "debian" %))
+                      "Package system must be either 'degasolv' or 'debian'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
