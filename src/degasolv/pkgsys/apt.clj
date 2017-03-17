@@ -1,11 +1,14 @@
-(ns degasolv.pkgsys.debian
-  "Namespace containing functions related to the debian package system."
+(ns degasolv.pkgsys.apt
+  "Namespace containing functions related to the APT package system."
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
             [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all])
   (:import (java.util.zip GZIPInputStream)))
 
+
+; TODO: Add provides
+;
 ; In case I change the zip input streamer later
 (defn ->zip-input-stream
   [is]
@@ -40,8 +43,6 @@
               v]))
           it)
         (into {} it)))
-
-
 
 (defn convert-pkg-requirements
   [pkg]

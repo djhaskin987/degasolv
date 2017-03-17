@@ -1,7 +1,7 @@
 (ns degasolv.cli
   (:require [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]
-            [degasolv.pkgsys.debian :as debian-pkg]
+            [degasolv.pkgsys.apt :as apt-pkg]
             [degasolv.pkgsys.degasolv :as degasolv-pkg]
             [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
@@ -35,7 +35,6 @@
   [this w]
   (tag/pr-tagged-record-on this w))
 
-
 (defn- pretty-spit [loc stuff]
   (with-open
     [ow (io/writer loc :encoding "UTF-8")]
@@ -46,20 +45,9 @@
      (println "dbg:" '~body "=" x#)
      x#))
 
-(defn- mysummary [sq]
-  (with-out-str
-    (pprint/pprint
-     (map
-      (fn [arg-parts]
-        (select-keys arg-parts
-                     [:short-opt
-                      :long-opt
-                      :required
-                      :desc
-                      :default-desc]))
-      sq))))
-
 (defn- read-card!
+  [card]
+  (let [card-data (tag/read-string (default-slurp card))
         vetted-card-data
         (s/conform ::r/package card-data)]
     (if (= vetted-card-data
@@ -89,27 +77,10 @@
 (def
   ^:private
   package-systems
-  {"debian" {:slurp debian-pkg/slurp-apt-repo
+  {"apt" {:slurp apt-pkg/slurp-apt-repo
              :vercmp vers/debian-vercmp}
    "degasolv" {:slurp degasolv-pkg/slurp-degasolv-repo
                :vercmp cmp}})
-
-(defn aggregate-repositories
-  [index-strat
-   data-repositories]
-  ((get aggregators index-strat)
-     data-repositories))
-
-(defn slurp-repository
-  [spec aggregator package-system]
-  ((:slurp
-    (get
-      package-systems
-      package-system))
-     spec)
-  )
-
-
 
 (defn- generate-repo-index!
   [options arguments]
@@ -147,6 +118,14 @@
   (.println *err* msg)
   (System/exit status))
 
+(defn aggregate-repositories
+  [index-strat
+   pkgsys
+   repositories]
+   ((aggregator index-strat
+                (get-in package-systems [pkgsys :vercmp]))
+      (map (get-in package-systems [pkgsys :slurp])
+           repositories)))
 
 (defn-
   resolve-locations!
@@ -155,29 +134,30 @@
       [{:keys [repositories
                resolve-strat
                index-strat
-               requirements]}
+               requirements
+               package-system]}
        options
        requirement-data
        (into []
              (map
-              (fn [str-req]
-                (let [vetted-str-req
-                      (s/conform ::r/requirement-string str-req)]
-                  (when (= vetted-str-req ::s/invalid)
-                    (binding [*out* *err*]
-                      (println
-                       (str
-                        "Requirement `"
-                        str-req
-                        "` invalid:"
-                        (s/explain ::r/requirement-string str-req)))))
-                  (string-to-requirement vetted-str-req)))
-              requirements))
+               (fn [str-req]
+                 (let [vetted-str-req
+                       (s/conform ::r/requirement-string str-req)]
+                   (when (= vetted-str-req ::s/invalid)
+                     (binding [*out* *err*]
+                       (println
+                         (str
+                           "Requirement `"
+                           str-req
+                           "` invalid:"
+                           (s/explain ::r/requirement-string str-req)))))
+                   (string-to-requirement vetted-str-req)))
+               requirements))
        aggregate-repo
        (aggregate-repositories
-        index-strat
-        (map slurp-repository
-             repositories))
+         index-strat
+         package-system
+         repositories)
        result
        (resolve-dependencies
         requirement-data
@@ -223,14 +203,14 @@
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories query index-strat]} options
-        req (first (string-to-requirement query))
+  (let [{:keys [repositories query index-strat package-system]} options
+		aggregate-repo
+		(aggregate-repositories
+		  index-strat
+		  package-system
+		  repositories)
+		req (first (string-to-requirement query))
         {:keys [id spec]} req
-        aggregate-repo
-        (aggregate-repositories
-         index-strat
-         (map #(slurp-repository aggregate-
-              repositories))
         spec-call (make-spec-call cmp)
         results (filter
                  #(spec-call spec %)
@@ -317,10 +297,10 @@
            :validate [#(or (= "thorough" %) (= "fast" %))
                      "Strategy must either be 'thorough' or 'fast'."]]
           ["-t" "--package-system SYS"
-           "Package system to use. May be 'degasolv' or 'debian'."
+           "Package system to use. May be 'degasolv' or 'apt'."
            :default "degasolv"
-           :validate [#(or (= "degasolv" %) (= "debian" %))
-                      "Package system must be either 'degasolv' or 'debian'."]]
+           :validate [#(or (= "degasolv" %) (= "apt" %))
+                      "Package system must be either 'degasolv' or 'apt'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
@@ -336,6 +316,11 @@
            :id :repositories
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-t" "--package-system SYS"
+           "Package system to use. May be 'degasolv' or 'apt'."
+           :default "degasolv"
+           :validate [#(or (= "degasolv" %) (= "apt" %))
+                      "Package system must be either 'degasolv' or 'apt'."]]
           ["-q" "--query QUERY"
            "Display packages matching query string."
            :validate [#(and (re-matches r/str-requirement-regex %)
