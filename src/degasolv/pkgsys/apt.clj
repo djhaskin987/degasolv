@@ -58,10 +58,46 @@
   [pkg url]
   (assoc pkg
          :location
-         (string/replace
-           (str url "/" (:filename pkg))
-           #"/+"
-           "/")))
+         (as-> url it
+               (str it "/" (:filename pkg))
+               (string/replace
+                 it
+                 #"/+"
+                 "/")
+               (string/replace
+                 it
+                 #"^([a-zA-Z]+:)/"
+                 "$1//"))))
+
+(defn deb-to-degasolv-provides
+  [s]
+  (as-> s it
+        (string/replace it #"\p{Blank}" "")
+        (string/split it #",")
+        (into [] it)))
+
+(defn expand-provides
+  [pkg]
+  (let [new-package
+        (->PackageInfo
+          (:package pkg)
+          (:version pkg)
+          (:location pkg)
+          (:depends pkg))]
+  (if (:provides pkg)
+    (as->
+      (deb-to-degasolv-provides (:provides pkg)) it
+        (map
+        #(->PackageInfo
+           %
+           "0"
+           (:location pkg)
+           (:depends pkg))
+        it)
+      (conj
+        it
+        new-package))
+    [new-package])))
 
 (defn apt-repo
   [url info]
@@ -81,12 +117,9 @@
               pkg each
               (convert-pkg-requirements each)
               (add-pkg-location each url)
-              (->PackageInfo
-                (:package each)
-                (:version each)
-                (:location each)
-                (:depends each))))
+              (expand-provides each)))
           it)
+        (apply concat it)
         (reduce
           (fn [c v]
             (if (not (get c (:id v)))
@@ -98,26 +131,25 @@
           it)))
 
 (defn slurp-apt-repo
-  [repospec aggregator]
+  [repospec]
   (let [[pkgtype url dist & pools]
-             (string/split repospec #" +")]
-    (aggregator
-      (map
-        (fn each-pool
-          [pool]
-          (as-> pool it
-                (string/join
-                  "/"
-                  [url
-                   "dists"
-                   dist
-                   it
-                   pkgtype
-                   "Packages.gz"])
-                (with-open
-                  [in
-                   (->zip-input-stream
-                     (io/input-stream it))]
-                  (slurp in))
-                (apt-repo url it)))
-      pools))))
+        (string/split repospec #" +")]
+    [(map
+       (fn each-pool
+         [pool]
+         (as-> pool it
+               (string/join
+                 "/"
+                 [url
+                  "dists"
+                  dist
+                  it
+                  pkgtype
+                  "Packages.gz"])
+               (with-open
+                 [in
+                  (->zip-input-stream
+                    (io/input-stream it))]
+                 (slurp in))
+               (apt-repo url it)))
+       pools)]))

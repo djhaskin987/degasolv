@@ -2,7 +2,7 @@
   (:require [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]
             [degasolv.pkgsys.apt :as apt-pkg]
-            [degasolv.pkgsys.degasolv :as degasolv-pkg]
+            [degasolv.pkgsys.core :as degasolv-pkg]
             [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
             [clojure.pprint :as pprint]
@@ -124,8 +124,11 @@
    repositories]
    ((aggregator index-strat
                 (get-in package-systems [pkgsys :vercmp]))
-      (map (get-in package-systems [pkgsys :slurp])
-           repositories)))
+      (as-> repositories it
+            (map
+              (get-in package-systems [pkgsys :slurp])
+              it)
+            (apply concat it))))
 
 (defn-
   resolve-locations!

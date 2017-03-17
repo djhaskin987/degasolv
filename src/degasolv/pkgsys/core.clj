@@ -1,10 +1,12 @@
-﻿(ns degasolv.pkgsys.degasolv
-  (:require [degasolv.util :refer :all]
-            [degasolv.resolver :as r :refer :all]
-            [minder.tagged :as tag]))
+(ns degasolv.pkgsys.core
+  (:require
+    [degasolv.util :refer :all]
+    [clojure.spec :as s]
+    [degasolv.resolver :as r :refer :all]
+    [miner.tagged :as tag]))
 
 (defn slurp-degasolv-repo
-  [url aggregator]
+  [url]
   (let
       [repo-data
        (tag/read-string
@@ -22,4 +24,4 @@
                (s/explain ::r/map-repo repo-data))
               (s/explain-data ::r/map-repo
                               repo-data))))
-    repo-data))
+    [repo-data]))

@@ -24,8 +24,12 @@
                                   [serovers "1.1.0"
                                    :exclusions [org.clojure/clojure]]
                                   ]}
-             :uberjar {:aot [degasolv.cli
+             :uberjar {:aot [
+                             degasolv.pkgsys.core
+                             degasolv.pkgsys.apt
+                             degasolv.util
                              degasolv.resolver
-                             degasolv.pkgsys.debian]}
+                             degasolv.cli
+                             ]}
              }
   :target-path "target/%s")
