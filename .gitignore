@@ -1,7 +1,7 @@
 /target
 /docs/_build/
 /.nrepl-history
-/test-data/
+/test-data/grill/
 /buildutils/boot
 /*.dscard
 /*.dsrepo
