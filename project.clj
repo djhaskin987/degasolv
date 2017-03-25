@@ -21,7 +21,7 @@
    }
   :profiles {
              :dev {:dependencies [
-                                  [org.clojure/core.match "0.3.0-alpha4"]
+                                  [tupelo "0.9.29"]
                                   [serovers "1.1.0"
                                    :exclusions [org.clojure/clojure]]
                                   ]}

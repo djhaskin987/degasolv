@@ -3,9 +3,10 @@
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
             [degasolv.util :refer :all]
-            [degasolv.resolver :as r :refer :all])
+            [degasolv.resolver :as r :refer :all]
+            [tupelo.core :as t :refer :all])
+;            #_[tupelo.core :as t :refer :all])
   (:import (java.util.zip GZIPInputStream)))
-
 
 ; TODO: Add provides
 ;
@@ -14,22 +15,31 @@
   [is]
   (GZIPInputStream. is))
 
-(defn deb-to-degasolv-requirement
+(defn deb-to-degasolv-requirements
   [s]
-  (as-> s it
-        (string/replace it #"[ ()]" "")
-        (string/replace it #"<<" "<")
-        (string/replace it #">>" ">")
-        (string/split it #",")
-        (into [] it)))
+  (if (empty? s)
+    nil
+    (it-> s
+          (string/replace it #"[ ()]" "")
+          (string/replace it #"<<" "<")
+          (string/replace it #">>" ">")
+          (string/replace it #"([^><=,]+)=([^><=|,]+)"
+                          "$1==$2")
+          (string/split it #",")
+          (mapv
+            #(string-to-requirement %)
+            it))))
+
+(defn start-pkg-segment?
+  [lines]
+  #(re-matches #"^Package:.*$" (first lines)))
 
 (defn group-pkg-lines
   [lines]
-  (as-> lines it
-        (partition-by
-          #(re-matches #"^Package:.*$" %)
-          it)
-        (partition 2 it)
+  (it-> lines
+        (partition-using
+         start-pkg-segment?
+         it)
         (map #(apply concat %) it)))
 
 (defn lines-to-map
@@ -51,7 +61,7 @@
       (assoc
         pkg
         :depends
-        (deb-to-degasolv-requirement
+        (deb-to-degasolv-requirements
           deps)))))
 
 (defn add-pkg-location
@@ -104,7 +114,7 @@
   (as-> info it
         (string/split-lines it)
         (filter
-          #(re-matches #"^(Package|Depends|Filename):.*" %)
+          #(re-matches #"^(Provides|Package|Depends|Filename):.*" %)
           it)
         (group-pkg-lines it)
         (map

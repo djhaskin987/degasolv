@@ -1,8 +1,8 @@
 (ns degasolv.resolve-repo-aggregation-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
-            [version-clj.core :refer [version-compare]
-             :rename {version-compare cmp}]))
+            [serovers.core :refer [maven-vercmp]
+             :rename {maven-vercmp cmp}]))
 
 (deftest ^:repo-aggregation priority-repo-test
   "Testing that priority-repo works"
