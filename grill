@@ -2,10 +2,10 @@
 lein uberjar
 set -ex
 
-rm -rf test-data/repo
-mkdir -p test-data/repo
+rm -rf test-data/grill
+mkdir -p test-data/grill
 
-cd test-data/repo
+cd test-data/grill
 java -jar ../../target/uberjar/degasolv-1.0.3-SNAPSHOT-standalone.jar generate-card -i "b" -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
 
 
