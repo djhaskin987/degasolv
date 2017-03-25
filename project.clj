@@ -10,6 +10,7 @@
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]
+                 [tupelo "0.9.29"]
                  ]
   :test-selectors
   {
