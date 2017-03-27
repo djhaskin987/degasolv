@@ -41,7 +41,7 @@
 
 (defn lines-to-map
   [lines]
-  (as-> lines it
+  (t/it-> lines
         (map
           (fn [line]
             (let [[_ k v] (re-matches #"^([^:]+): +(.*)$" line)]
@@ -65,7 +65,7 @@
   [pkg url]
   (assoc pkg
          :location
-         (as-> url it
+         (t/it-> url
                (str it "/" (:filename pkg))
                (string/replace
                  it
@@ -92,8 +92,8 @@
           (:location pkg)
           (:depends pkg))]
   (if (:provides pkg)
-    (as->
-      (deb-to-degasolv-provides (:provides pkg)) it
+    (t/it->
+      (deb-to-degasolv-provides (:provides pkg))
         (map
         #(->PackageInfo
            %
@@ -144,7 +144,7 @@
     [(map
        (fn each-pool
          [pool]
-         (as-> pool it
+         (t/it-> pool
                (string/join
                  "/"
                  [url
