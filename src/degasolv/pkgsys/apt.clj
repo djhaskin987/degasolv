@@ -4,8 +4,7 @@
             [clojure.java.io :as io]
             [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]
-            [tupelo.core :as t :refer :all])
-;            #_[tupelo.core :as t :refer :all])
+            [tupelo.core :as t])
   (:import (java.util.zip GZIPInputStream)))
 
 ; TODO: Add provides
@@ -19,7 +18,7 @@
   [s]
   (if (empty? s)
     nil
-    (it-> s
+    (t/it-> s
           (string/replace it #"[ ()]" "")
           (string/replace it #"<<" "<")
           (string/replace it #">>" ">")
@@ -32,15 +31,13 @@
 
 (defn start-pkg-segment?
   [lines]
-  #(re-matches #"^Package:.*$" (first lines)))
+  (t/truthy? (re-matches #"^Package:.*$" (first lines))))
 
 (defn group-pkg-lines
   [lines]
-  (it-> lines
-        (partition-using
-         start-pkg-segment?
-         it)
-        (map #(apply concat %) it)))
+  (partition-using
+    start-pkg-segment?
+    lines))
 
 (defn lines-to-map
   [lines]
@@ -81,7 +78,7 @@
 
 (defn deb-to-degasolv-provides
   [s]
-  (as-> s it
+  (t/it-> s
         (string/replace it #"\p{Blank}" "")
         (string/split it #",")
         (into [] it)))
@@ -111,7 +108,7 @@
 
 (defn apt-repo
   [url info]
-  (as-> info it
+  (t/it-> info
         (string/split-lines it)
         (filter
           #(re-matches #"^(Provides|Package|Depends|Filename):.*" %)
