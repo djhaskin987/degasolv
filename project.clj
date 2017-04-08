@@ -10,7 +10,7 @@
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]
-                 [tupelo "0.9.29"]
+                 [tupelo "0.9.31"]
                  ]
   :test-selectors
   {
@@ -21,7 +21,7 @@
    }
   :profiles {
              :dev {:dependencies [
-                                  [tupelo "0.9.29"]
+                                  [tupelo "0.9.31"]
                                   [serovers "1.1.0"
                                    :exclusions [org.clojure/clojure]]
                                   ]}

@@ -40,7 +40,7 @@
     [ow (io/writer loc :encoding "UTF-8")]
     (pprint/pprint stuff ow)))
 
-(defmacro dbg [body]
+#_(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
      x#))
@@ -122,13 +122,16 @@
   [index-strat
    pkgsys
    repositories]
+
    ((aggregator index-strat
                 (get-in package-systems [pkgsys :vercmp]))
       (as-> repositories it
             (map
-              (get-in package-systems [pkgsys :slurp])
-              it)
-            (apply concat it))))
+              (fn [url]
+                (as-> url each
+                      ((get-in package-systems [pkgsys :slurp]) each)
+                      (map-query each)))
+              it))))
 
 (defn-
   resolve-locations!

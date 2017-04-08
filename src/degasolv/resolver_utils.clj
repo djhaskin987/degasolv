@@ -3,12 +3,12 @@
 (defn priority-repo [rs]
   (fn [id]
     (or
-     (first
-      (filter
-      #(not (empty? %))
-     (map #(% id)
-          rs)))
-     [])))
+      (first
+        (filter
+          #(not (empty? %))
+          (map #(% id)
+               rs)))
+      [])))
 
 (defn global-repo [rs & {:keys [cmp]
                          :or {cmp #(- (compare (:version %1) (:version %2)))}}]
@@ -20,7 +20,10 @@
 
 (defn map-query [m]
   (fn [nm]
+    (dbg nm)
+    (dbg (get m nm))
     (let [result (find m nm)]
+      (dbg result)
       (if (nil? result)
         []
         (let [[k v] result]

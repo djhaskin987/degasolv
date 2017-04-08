@@ -31,11 +31,14 @@
 
 (defn start-pkg-segment?
   [lines]
-  (t/truthy? (re-matches #"^Package:.*$" (first lines))))
+  (t/truthy?
+    (re-matches
+      #"^Package:.*$"
+      (first lines))))
 
 (defn group-pkg-lines
   [lines]
-  (partition-using
+  (t/partition-using
     start-pkg-segment?
     lines))
 
@@ -59,7 +62,8 @@
         pkg
         :depends
         (deb-to-degasolv-requirements
-          deps)))))
+          deps))
+      pkg)))
 
 (defn add-pkg-location
   [pkg url]
@@ -87,7 +91,10 @@
   [pkg]
   (let [new-package
         (->PackageInfo
-          (:package pkg)
+          (string/replace
+            (:package pkg)
+            #"[:]any$"
+            "")
           (:version pkg)
           (:location pkg)
           (:depends pkg))]
@@ -108,15 +115,15 @@
 
 (defn apt-repo
   [url info]
+  (t/spy url)
   (t/it-> info
         (string/split-lines it)
         (filter
           #(re-matches #"^(Provides|Package|Depends|Filename):.*" %)
           it)
         (group-pkg-lines it)
-        (map
-          lines-to-map
-          it)
+        (map lines-to-map it)
+        (t/spy (first it) :msg "map sample")
         (map
           (fn each-package
             [pkg]
@@ -126,6 +133,7 @@
               (add-pkg-location each url)
               (expand-provides each)))
           it)
+        (t/spy (first it) :msg "package sample")
         (apply concat it)
         (reduce
           (fn [c v]
@@ -139,6 +147,7 @@
 
 (defn slurp-apt-repo
   [repospec]
+  (println "FOO")
   (let [[pkgtype url dist & pools]
         (string/split repospec #" +")]
     [(map

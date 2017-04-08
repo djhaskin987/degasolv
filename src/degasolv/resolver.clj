@@ -5,11 +5,12 @@
             [clojure.string :as clj-str]))
 
 
+(defmacro dbg [body]
+  `(let [x# ~body]
+     (println "dbg:" '~body "=" x#)
+     x#))
+
 (load "resolver_core")
 (load "resolver_spec")
 (load "resolver_utils")
 
-#_(defmacro dbg [body]
-  `(let [x# ~body]
-     (println "dbg:" '~body "=" x#)
-x#))
