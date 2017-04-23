@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/degasolv
     docker:
-      - image: openjdk:8
+      - image: openjdk:9
     environment:
       LEIN_ROOT=nbd
     steps:

@@ -1,6 +1,5 @@
 #!/bin/sh
 POSIXLY_CORRECT=1
-
 set -e
 set -x
 
@@ -32,3 +31,9 @@ ${leinw} test
 
 # Tests passed, jar it.
 ${leinw} jar
+
+# Also uberjar it.
+
+# Also package it.
+fpm -s
+
