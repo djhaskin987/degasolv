@@ -1,0 +1,7 @@
+#!/bin/sh
+
+
+name=$(lein print :name)
+version=$(lein print :version)
+java -jar target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "binary-amd64 http://us.archive.ubuntu.com/ubuntu/ yakkety main restricted" --package-system apt --requirement "libc6"
+
