@@ -19,6 +19,9 @@
    :string-to-requirement :string-to-requirement
    :repo-aggregation :repo-aggregation
    }
+  :plugins [
+            [lein-print "0.1.0"]
+            ]
   :profiles {
              :dev {:dependencies [
                                   [tupelo "0.9.31"]
