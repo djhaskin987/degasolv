@@ -146,10 +146,11 @@
   [repospec]
   (let [[pkgtype url dist & pools]
         (string/split repospec #" +")]
-    [(map
+    (mapv
        (fn each-pool
          [pool]
-         (t/it-> pool
+         (map-query
+           (t/it-> pool
                (string/join
                  "/"
                  [url
@@ -163,5 +164,5 @@
                   (->zip-input-stream
                     (io/input-stream it))]
                  (slurp in))
-               (apt-repo url it)))
-       pools)]))
+               (apt-repo url it))))
+       pools)))

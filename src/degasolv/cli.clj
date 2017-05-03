@@ -53,9 +53,9 @@
 (def
   ^:private
   package-systems
-  {"apt" {:slurp apt-pkg/slurp-apt-repo
+  {"apt" {:genrepo apt-pkg/slurp-apt-repo
              :vercmp vers/debian-vercmp}
-   "degasolv" {:slurp degasolv-pkg/slurp-degasolv-repo
+   "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :vercmp cmp}})
 
 (defn- generate-repo-index!
@@ -99,15 +99,13 @@
    pkgsys
    repositories]
 
-   ((aggregator index-strat
-                (get-in package-systems [pkgsys :vercmp]))
-      (as-> repositories it
-            (map
-              (fn [url]
-                (as-> url each
-                      ((get-in package-systems [pkgsys :slurp]) each)
-                      (map-query each)))
-              it))))
+  ((aggregator index-strat
+               (get-in package-systems [pkgsys :vercmp]))
+     (map
+       (fn [url]
+         ((get-in package-systems [pkgsys :genrepo]) url)
+         )
+       repositories)))
 
 (defn-
   resolve-locations!
