@@ -19,11 +19,11 @@
      [])))
 
 (defn map-query [m]
+  (pretty-spit
+    "./foo.edn"
+    m)
   (fn [nm]
-    (dbg nm)
-    (dbg (get m nm))
     (let [result (find m nm)]
-      (dbg result)
       (if (nil? result)
         []
         (let [[k v] result]

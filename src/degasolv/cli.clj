@@ -5,40 +5,16 @@
             [degasolv.pkgsys.core :as degasolv-pkg]
             [clojure.tools.cli :refer [parse-opts summarize]]
             [clojure.string :as string]
-            [clojure.pprint :as pprint]
-            [clojure.java.io :as io]
             [clojure.edn :as edn]
             [clojure.spec :as s]
             [clojure.set :as st]
             [me.raynes.fs :as fs]
+            [miner.tagged :as tag]
             [serovers.core :as vers
              :refer [maven-vercmp]
-             :rename {maven-vercmp cmp}]
-            [miner.tagged :as tag])
+             :rename {maven-vercmp cmp}])
   (:gen-class))
 
-(defmethod
-  print-method
-  degasolv.resolver.PackageInfo
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defmethod
-  print-method
-  degasolv.resolver.VersionPredicate
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defmethod
-  print-method
-  degasolv.resolver.Requirement
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defn- pretty-spit [loc stuff]
-  (with-open
-    [ow (io/writer loc :encoding "UTF-8")]
-    (pprint/pprint stuff ow)))
 
 #_(defmacro dbg [body]
   `(let [x# ~body]

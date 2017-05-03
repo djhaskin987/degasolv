@@ -2,8 +2,8 @@
   "Namespace containing `resolve-dependencies` and supporting functions."
   (:require [degasolv.util :refer :all]
             [clojure.spec :as s]
-            [clojure.string :as clj-str]))
-
+            [clojure.string :as clj-str]
+            [miner.tagged :as tag]))
 
 (defmacro dbg [body]
   `(let [x# ~body]

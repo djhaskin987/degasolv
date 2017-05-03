@@ -115,15 +115,13 @@
 
 (defn apt-repo
   [url info]
-  (t/spy url)
   (t/it-> info
         (string/split-lines it)
         (filter
-          #(re-matches #"^(Provides|Package|Depends|Filename):.*" %)
+          #(re-matches #"^(Provides|Version|Package|Depends|Filename):.*" %)
           it)
         (group-pkg-lines it)
         (map lines-to-map it)
-        (t/spy (first it) :msg "map sample")
         (map
           (fn each-package
             [pkg]
@@ -133,7 +131,6 @@
               (add-pkg-location each url)
               (expand-provides each)))
           it)
-        (t/spy (first it) :msg "package sample")
         (apply concat it)
         (reduce
           (fn [c v]
@@ -147,7 +144,6 @@
 
 (defn slurp-apt-repo
   [repospec]
-  (println "FOO")
   (let [[pkgtype url dist & pools]
         (string/split repospec #" +")]
     [(map
