@@ -31,7 +31,11 @@
 \end{frame}
 \begin{frame}
   \frametitle{Why Degasolv?}
+  
   Does this sound like problems you deal with?
+  
+  \break
+  
   \begin{itemize}
   \item Lots of first party dependencies within the product
   \item All (or lots) of the product's third-party dependencies are built on-site
@@ -39,24 +43,27 @@
   \item Cross-technology dependencies
   \item Deal with site-specific quirks
   \end{itemize}
+  
+  \break
+  
   Then degasolv may be for you.
+  
 \end{frame}
 \begin{frame}
-  \frametitle{Design}
+  \frametitle{Design Goals}
   \begin{itemize}
     \item Degasolv is a ``closed diamond'' resolver
   \end{itemize}
   \centerline{\includegraphics[scale=0.5]{diamonddep.png}}
 \end{frame}
 \begin{frame}
-  \frametitle{Design}
+  \frametitle{Design Goals}
   \begin{itemize}
+  \item Degasolv is safe to use
   \item Degasolv is a ``stays out of your way''
   \item If Degasolv makes you angry, then there is a bug in Degasolv.
   \end{itemize}
-  \centerline{\includegraphics[scale=0.5]{diamonddep.png}}
 \end{frame}
-
 \begin{frame}
   \frametitle{Overview}
   \begin{itemize}
@@ -81,10 +88,9 @@
 \begin{frame}
   \frametitle{\texttt{generate-card} Overview}
   \begin{itemize}
-  \item Degasolv ``stays out of your way''
   \item Generates ``card'' files, which contain data about a particular package
   \item Keeps track of dependency information indepently of actual package file contents
-  \item As a convention, it's good to name your dscard file after the file to which \\
+  \item As a convention, it's good to name your dscard file after the file to which
     the URL points (e.g., \texttt{e-1.8.0.zip.dscard})
   \end{itemize}
 \end{frame}
@@ -116,7 +122,7 @@
 \begin{frame}[fragile]
   \frametitle{\texttt{generate-card} Final Step: Deposit the Card File}
   \begin{itemize}
-  \item After the card file is generated, it needs to be deposited into a \\
+  \item After the card file is generated, it needs to be deposited into a
     central file share
   \end{itemize}
 \begin{minted}{bash}
@@ -139,9 +145,9 @@
   \begin{itemize}
   \item Patterned after YUM's \texttt{createrepo}
   \item Running \texttt{generate-repo-index} from the directory containing \texttt{*.dscard}
-    files.
+    files
   \item The index will then contain information about packages represented in those
-    files.
+    files
   \end{itemize}
 \end{frame}
 \begin{frame}[fragile]
@@ -271,15 +277,24 @@
 \end{frame}
 \begin{frame}
   \frametitle{Community}
+  \textit{To use a thing, join its people.}
+  
+  \break
+
+  \begin{itemize}
+  \item Gitter room ``degasolv'' \\
+    https://gitter.im/degasolv/Lobby
+  \item Google group ``degasolv-users'' \\
+    https://groups.google.com/forum/\#!forum/degasolv-users
+  \end{itemize}
 \end{frame}
 \begin{frame}
   \frametitle{Future Directions}
   \begin{itemize}
-  \item Bintray, Artifactory plugin
+  \item JFrog Artifactory plugin
   \item Resolution directly from different types of repositories
   \item Homebrew: https://github.com/Homebrew/brew/blob/master/docs/Formula-Cookbook.md
   \item RPM, Debian packages
-
   \end{itemize}
 \end{frame}
 \begin{frame}
