@@ -60,9 +60,11 @@
 \begin{frame}
   \frametitle{\texttt{generate-card} Overview}
   \begin{itemize}
+  \item Degasolv ``stays out of your way''
   \item Generates ``card'' files, which contain data about a particular package
   \item Keeps track of dependency information indepently of actual package file contents
-  \item Degasolv ``stays out of your way''
+  \item As a convention, it's good to name your dscard file after the file to which \\
+    the URL points (e.g., \texttt{e-1.8.0.zip.dscard})
   \end{itemize}
 \end{frame}
 \begin{frame}[fragile]
@@ -90,11 +92,33 @@
     }
   \end{minted}
 \end{frame}
+\begin{frame}[fragile]
+  \frametitle{\texttt{generate-card} Final Step: Deposit the Card File}
+  \begin{itemize}
+  \item After the card file is generated, it needs to be deposited into a \\
+    central file share
+  \end{itemize}
+\begin{minted}{bash}
+    $ find .
+    .
+    ./c-3.5.0.zip.dscard
+    ./b-2.3.0.zip.dscard
+    ./e-2.1.0.zip.dscard
+    ./e-2.4.0.zip.dscard
+    ./e-1.8.0.zip.dscard
+    ./d-0.8.0.zip.dscard
+    ./c-2.4.7.zip.dscard
+\end{minted}
+\end{frame}
 \begin{frame}
   \centerline{\color{blue}\Large \texttt{generate-card} Demo}
 \end{frame}
 \begin{frame}
   \frametitle{\texttt{generate-index} Overview}
+  \begin{itemize}
+  \item Patterned after YUM's \texttt{createrepo}
+  \item Running \texttt{generate-index} from 
+  \end{itemize}
 \end{frame}
 \begin{frame}
   \frametitle{\texttt{generate-index} Example}
