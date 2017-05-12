@@ -204,13 +204,13 @@
   \centerline{\color{blue}\Large Demo}
 \end{frame}
 \begin{frame}[fragile]
-  \frametitle{JFrog CLI Integration}
+  \frametitle{JFrog Artifactory Integration}
   \begin{itemize}
   \item JFrog artifactory CLI already pairs well with degasolv
   \end{itemize}
 \end{frame}
 \begin{frame}[fragile]
-\frametitle{JFrog CLI Integration: Setup}
+\frametitle{JFrog Artifactory Integration: Setup}
 \begin{minted}{bash}
     #!/bin/sh
 
@@ -224,7 +224,7 @@
 \end{minted}
 \end{frame}
 \begin{frame}[fragile]
-\frametitle{JFrog CLI Integration: Download}
+\frametitle{JFrog Artifactory Integration: Download}
 \begin{minted}{bash}
     for dep in $(java \
         -jar ./degasolv-1.0.3-SNAPSHOT-standalone.jar \
@@ -244,7 +244,7 @@
 \end{minted}
 \end{frame}
 \begin{frame}[fragile]
-\frametitle{JFrog CLI Integration: Upload}
+\frametitle{JFrog Artifactory Integration: Upload}
 \begin{minted}{bash}
     jfrog rt upload \
         --build-name "${build_name}" \
@@ -261,16 +261,13 @@
 \end{minted}
 \end{frame}
 \begin{frame}
-\frametitle{JFrog CLI Integration: Screenshots}
-\end{frame}
-\begin{frame}
-\frametitle{JFrog CLI Integration: Screenshots}
-\end{frame}
-\begin{frame}
-\frametitle{JFrog CLI Integration: Screenshots}
-\end{frame}
-\begin{frame}
-    \centerline{\color{blue}\Large JFrog CLI Integration Demo}
+  \frametitle{JFrog Artifactory Integration: Result}
+  \begin{itemize}
+  \item Build information for your artifact is published
+  \item Artifacts that were downloaded via \texttt{jfrog rt download} are listed as
+    dependencies to the artifacts uploaded via \texttt{jfrog rt upload} in the build
+    information
+  \end{itemize}
 \end{frame}
 \begin{frame}
   \frametitle{Summary}
@@ -278,7 +275,7 @@
 \begin{frame}
   \frametitle{Community}
   \textit{To use a thing, join its people.}
-  
+
   \break
 
   \begin{itemize}
