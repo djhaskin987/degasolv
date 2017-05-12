@@ -17,6 +17,9 @@ pom.xml.asc
 .hg/
 /.ve/
 
+*.dscard
+*.dsrepo
+
 # editor files
 .#*
 .*#

@@ -150,15 +150,21 @@
        (fn each-pool
          [pool]
          (map-query
-           (t/it-> pool
+           (t/it->
+             pool
                (string/join
                  "/"
-                 [url
-                  "dists"
-                  dist
-                  it
-                  pkgtype
-                  "Packages.gz"])
+                 (if
+                   (.contains pool "/")
+                   [url
+                    pool
+                    "Packages.gz"]
+                   [url
+                    "dists"
+                    dist
+                    it
+                    pkgtype
+                    "Packages.gz"]))
                (with-open
                  [in
                   (->zip-input-stream

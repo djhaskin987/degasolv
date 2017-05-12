@@ -1,7 +1,0 @@
-#!/bin/sh
-
-
-name=$(lein print :name | sed 's|"||g')
-version=$(lein print :version | sed 's|"||g')
-java -jar target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "binary-amd64 http://us.archive.ubuntu.com/ubuntu/ yakkety main restricted" --package-system apt --requirement "libc6"
-

@@ -1,0 +1,14 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+test_home=test/data/resources/apt
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+java -jar target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "binary-amd64 file://${PWD}/${test_home} /" --package-system apt --requirement "libc6"
