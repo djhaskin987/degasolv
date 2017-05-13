@@ -422,7 +422,7 @@ Explanation of options:
 Specifying a requirement
 ------------------------
 
-A requirement is given as a string of text. It is given as a string. A
+A requirement is given as a string of text. A
 requirement consists of one or more *alternatives*. Any of the alternatives
 will satisfy the requirement. Alternatives are specified by a bar character
 (``|``), like this::
