@@ -67,13 +67,22 @@
 \begin{frame}
   \frametitle{Overview}
   \begin{itemize}
+  \item Docs: {\small http://degasolv.readthedocs.io/en/latest/}
+  \item Dependency resolver designed for builds
+  \item Command-line interface
+  \item Distributed as a JAR file; runs on the JVM
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{Operations}
+  \begin{itemize}
   \item \texttt{generate-card}: Generate a ``card file'' which represents a package
   \item Upload the card file to a NAS or other central file share
   \item \texttt{generate-repo-index}: Generate a ``repository index''
     based on the card files in the central file share
-  \item \texttt{query-repo}: Inspect what packages exist in the repository
   \item \texttt{resolve-locations}: Using repository indices, find the locations
     of packages and their dependencies
+  \item \texttt{query-repo}: Inspect what packages exist in the repository
   \end{itemize}
 \end{frame}
 \begin{frame}
@@ -86,7 +95,7 @@
   \end{itemize}
 \end{frame}
 \begin{frame}
-  \frametitle{Requirement Syntax Overview}
+  \frametitle{Requirement Overview}
   \begin{itemize}
   \item A "requirement" is a predicate describing a package, given as a string.
   \item Sort of its own mini language, but it should look familiar
@@ -101,7 +110,7 @@
   \end{itemize}
 \end{frame}
 \begin{frame}[fragile]
-  \frametitle{Requirement Syntax Examples}
+  \frametitle{Requirement Examples}
 \begin{verbatim}
     "oak"
     "pine>1.0"
@@ -130,7 +139,7 @@
   \frametitle{\texttt{generate-card} Example}
 \begin{minted}{bash}
     java \
-        -jar ./degasolv-1.0.3-SNAPSHOT-standalone.jar \
+        -jar ./degasolv-1.0.2-standalone.jar \
         generate-card \
         --id "d" \
         --version "0.8.0" \
@@ -141,19 +150,19 @@
 \end{frame}
 \begin{frame}[fragile]
   \frametitle{\texttt{generate-card} Output: The \texttt{*.dscard} File}
-\begin{minted}{clojure}
+\begin{minted}[fontsize=\footnotesize]{clojure}
     ; Filename: d-0.8.0.dscard
     #degasolv.resolver/PackageInfo {
         :id "d",
-        :version "0.8.0", 
-        :location "https://example.com/repo/d-0.8.0.zip", 
+        :version "0.8.0",
+        :location "https://example.com/repo/d-0.8.0.zip",
         :requirements [ [
             #degasolv.resolver/Requirement {
                 :status :present,
-                :id "e", 
+                :id "e",
                 :spec [ [
                     #degasolv.resolver/VersionPredicate {
-                        :relation :greater-equal, 
+                        :relation :greater-equal,
                         :version "1.1.0"}
                     #degasolv.resolver/VersionPredicate {
                         :relation :less-than,
@@ -198,17 +207,16 @@
 \end{frame}
 \begin{frame}[fragile]
   \frametitle{\texttt{generate-repo-index} Example}
-\begin{minted}{bash}
+  Command:
+\begin{minted}[fontsize=\footnotesize]{bash}
     java \
-        -jar ./degasolv-1.0.3-SNAPSHOT-standalone.jar \
+        -jar ./degasolv-1.0.2-standalone.jar \
         generate-repo-index \
-        -d $PWD \
-        -I $PWD/index.dsrepo
+        --search-directory $PWD \
+        --index-file $PWD/index.dsrepo
 \end{minted}
-\end{frame}
-\begin{frame}[fragile]
-  \frametitle{\texttt{generate-repo-index} Output}
-\begin{minted}{bash}
+  Result:
+\begin{minted}[fontsize=\footnotesize]{bash}
     $ find .
     .
     ./c-3.5.0.zip.dscard
@@ -238,10 +246,10 @@
   Command:
 \begin{minted}{bash}
     java \
-        -jar ./degasolv-1.0.3-SNAPSHOT-standalone.jar \
+        -jar ./degasolv-1.0.2-standalone.jar \
         resolve-locations \
-        -R $PWD/index.dsrepo \
-        -r "b"
+        --repository $PWD/index.dsrepo \
+        --requirement "b"
 \end{minted}
   Output:
 \begin{verbatim}
@@ -267,7 +275,7 @@
   Command:
 \begin{minted}{bash}
     java \
-        -jar ./degasolv-1.0.3-SNAPSHOT-standalone.jar \
+        -jar ./degasolv-1.0.2-standalone.jar \
         --config-file $PWD/config.edn \
         query-repo \
         --query "e>2.0.0,!=2.1.0"
@@ -295,7 +303,7 @@
 \end{frame}
 \begin{frame}[fragile]
 \frametitle{JFrog Artifactory Integration: Setup}
-\begin{minted}{bash}
+\begin{minted}[fontsize=\footnotesize]{bash}
     #!/bin/sh
 
     package_name="top"
@@ -309,9 +317,9 @@
 \end{frame}
 \begin{frame}[fragile]
 \frametitle{JFrog Artifactory Integration: Download}
-\begin{minted}{bash}
+\begin{minted}[fontsize=\footnotesize]{bash}
     for dep in $(java \
-        -jar ./degasolv-1.0.3-SNAPSHOT-standalone.jar \
+        -jar ./degasolv-1.0.2-standalone.jar \
         resolve-locations \
         --repository=<ARTIFACTORY-REPO-URL>/index.dsrepo \
         top_dep_a top_dep_b top_dep_c | \
@@ -329,7 +337,7 @@
 \end{frame}
 \begin{frame}[fragile]
 \frametitle{JFrog Artifactory Integration: Upload}
-\begin{minted}{bash}
+\begin{minted}[fontsize=\footnotesize]{bash}
     jfrog rt upload \
         --build-name "${build_name}" \
         --build-number "${build_number}" \
@@ -341,21 +349,46 @@
         ./target/<artifact>.dscard \
         <artifactory-degasolv-repo>/<path-to-card>.dscard
     jfrog rt build-publish "${build_name}" "${build_number}"
-
+\end{minted}
+\end{frame}
+\begin{frame}[fragile]
+\frametitle{JFrog Artifactory Integration: Index}
+\begin{minted}[fontsize=\footnotesize]{bash}
+    java \
+        -jar ./degasolv-1.0.2-standalone.jar \
+        generate-repo-index \
+        --search-directory $PWD \
+        --add-to <artifactory-degasolv-repo>/<path-to-index>.dsrepo \
+        --index-file $PWD/index.dsrepo
+    curl -i -H 'X-JFrog-Art-Api: <API-KEY>' \
+        -XPOST \
+        <artifactory-degasolv-repo>/<path-to-index>.dsrepo \
+        -T $PWD/index.dsrepo
 \end{minted}
 \end{frame}
 \begin{frame}
   \frametitle{JFrog Artifactory Integration: Result}
   \begin{itemize}
-  \item Build information for your artifact is published
+  \item Degasolv resolves the dependencies for this particular artifact
   \item Artifacts that were downloaded via \texttt{jfrog rt download} are listed as
-    dependencies to the artifacts uploaded via \texttt{jfrog rt upload} in the build
-    information
+    dependencies to the build artifacts
+  \item Build information for your artifact is published
+  \item Artifacts were uploaded via \texttt{jfrog rt upload}
+  \item Repository index is updated*
   \end{itemize}
 \end{frame}
 \begin{frame}
   \frametitle{Summary}
-\end{frame}
+  \begin{itemize}
+  \item Degasolv helps you manage out-of-control first party and third party dependencies
+  \item Degasolv can be implemented without asking developers to change the contents
+    of build artifacts
+  \item Degasolv is specifically designed for build engineers who are responsible for
+    many different types of builds
+  \item Degasolv integrates cleanly into existing build scripts and infrastructure (e.g.
+    Artifactory or a build artifact NAS)
+  \end{itemize}
+  \end{frame}
 \begin{frame}
   \frametitle{Community}
   \textit{To use a thing, join its people.}
