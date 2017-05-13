@@ -1,0 +1,33 @@
+#!/bin/sh
+
+export POSIXLY_CORRECT=1
+
+# This script builds the "legacy" library, puts it into a zip file, and uploads
+# it to the NAS.
+
+# This part compiles the SO file.
+rm -rf cmake
+mkdir -p cmake
+cd cmake
+cmake ..
+make
+
+# This part makes the zip file.
+# Files are placed in 'external' because
+# In other builds, that's the folder where
+# they'll be expected
+cat > manifest.txt <<MANIFEST
+Name: legacy
+Version: 1.0
+Git Hash: $(git rev-parse HEAD)
+MANIFEST
+mkdir -p external/lib
+mkdir -p external/pkg/legacy
+mv manifest.txt external/pkg/legacy/
+mv liblegacy.so external/lib/liblegacy.so
+zip \
+    -r liblegacy-1.0.zip \
+    external
+
+# This represents the "Push to NAS" step
+cp liblegacy-1.0.zip ../../nas

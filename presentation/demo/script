@@ -1,0 +1,57 @@
+TODO:
+  - Add card generation to build-legacy
+  - Add card generation to build-shiny
+  - Write build-shiny
+  - Write build-pygui
+  - Write build-product_package
+
+1. Clear out the NAS directory:
+   ```
+   rm -f nas/*
+   ```
+
+1. Start the screenshot
+
+1. Start the NAS http server:
+   ```
+   lighttpd -D -f lighttpd.conf 2>&1 >/dev/null &
+   ```
+
+1. Go into the `liblegacy` project:
+   ```
+   cd liblegacy
+   ```
+
+1. Edit the `build-legacy` script
+  1. Pause at each block to show what is happening
+
+1. Run the build-legacy script:
+   ```
+   ./build-legacy
+   ``
+
+1. Change directory to the nas folder and show its contents:
+   ```
+   cd ../nas
+   ls
+   ```
+1. Show the contents of the zip file:
+   ```
+   unzip -l ./liblegacy-1.0.zip
+   ```
+
+1. Show the zip file and card file in the browser
+
+1. Change directory into libshiny:
+   ```
+   cd ../libshiny
+   ```
+
+1. Edit the ./build-shiny script, pausing on each block:
+   ```
+   vim ./build-shiny
+   ```
+
+1. Run the ./build-shiny script
+
+1. Show the contents of the NAS using the browser
