@@ -1,4 +1,7 @@
 /target
+/presentation/target/
+/presentation/auto/
+/presentation/_minted-*/
 /docs/_build/
 /.nrepl-history
 /test-data/
