@@ -1,0 +1,60 @@
+#!/bin/sh
+
+export POSIXLY_CORRECT=1
+set -ex
+
+rm -rf external
+mkdir -p external
+rm -rf *.zip
+
+degasolv resolve-locations > degasolv-lock.txt
+
+cat degasolv-lock.txt | sed 's|^[^@]*@ *||g' | \
+    while read url
+    do
+        curl -L -O "${url}"
+        fname="$(echo "${url}" | sed 's|[^/]*/||g')"
+        unzip "${fname}"
+    done
+
+rm -rf ve
+python3 -m venv ve
+ve/bin/pip install PyQt5
+
+ve/bin/python ./pyfrontend.py
+
+# they'll be expected
+cat > manifest.txt <<MANIFEST
+Name: pyfrontend
+Version: 2.0
+Git Hash: $(git rev-parse HEAD)
+MANIFEST
+
+# This is not a library, it's a product
+mkdir -p product/
+cp degasolv-lock.txt product/
+cp manifest.txt product/
+cp pyfrontend.py product/
+cp -a ve product/
+
+zip \
+    -r pyfrontend-2.0.zip \
+    product
+
+# This represents the "Push to NAS" step
+cp pyfrontend-2.0.zip ../nas
+
+
+# ***
+# This represents the "Push to NAS" step
+cp pyfrontend-2.0.zip ../nas
+
+# ***
+# Create the degasolv card
+degasolv -c ../degasolv.edn generate-card --card-file pyfrontend-2.0.zip.dscard
+cp pyfrontend-2.0.dscard ../nas
+
+# ***
+# Update repo index
+cd ../nas
+degasolv generate-repo-index

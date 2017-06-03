@@ -19,8 +19,14 @@ pom.xml.asc
 .hgignore
 .hg/
 /.ve/
+/presentation/demo/pyfrontend/ve/
+/presentation/demo/pyfrontend/external/
+/presentation/demo/pyfrontend/product/
+/presentation/demo/nas/
 *.zip
 cmake/
+*.so
+
 # editor files
 .#*
 .*#
