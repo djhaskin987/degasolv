@@ -9,11 +9,12 @@
 \graphicspath{ {images/} }
 
 \title{Degasolv}
-\subtitle{A Generic Dependency Resolver}
+\subtitle{A Generic Dependency Tracker }
 \author{Daniel Jay Haskin}
 \begin{document}
 \begin{frame}
   \titlepage
+    \centerline{\footnotesize{Slides: bit.ly/degasolv2017pres}}
 \end{frame}
 \begin{frame}
   \centerline{\includegraphics[scale=0.5]{Edgar_Degas_self_portrait_1855.jpeg}}
@@ -26,7 +27,10 @@
   }
 \end{frame}
 \begin{frame}[fragile]
-  \centerline{\color{blue}\Large Dependencies Are The Worst}
+  \frametitle{Dependencies Are The Worst}
+    \centerline{\includegraphics[scale=0.3]{dependencyhell.jpg}}
+    \break
+    \centerline{\tiny{https://www.slideshare.net/rajeevrvis/writing-solid-code-51414211}}
 \end{frame}
 \begin{frame}
     \frametitle{What is Degasolv?}
@@ -78,9 +82,15 @@
   \frametitle{Design Goals}
   \begin{itemize}
   \item Degasolv is designed specifically for use by build and DevOps engineers
-  \item Degasolv is a ``closed diamond'' resolver
+  \item Degasolv stays out of your way
   \item If Degasolv makes you angry, then there is a bug in Degasolv.
   \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Design Goals}
+    \begin{itemize}
+  \item Degasolv is a ``closed diamond'' resolver
+    \end{itemize}
   \centerline{\includegraphics[scale=0.5]{diamonddep.png}}
 \end{frame}
 \begin{frame}

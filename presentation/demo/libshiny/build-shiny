@@ -10,7 +10,7 @@ set -ex
 # ***
 # This is the part where degasolv pulls in the libraries.
 # Creates a lockfile for the build if it isn't present.
-if [ ! -f degasolv.lock ]
+if [ ! -f degasolv-lock.txt ]
 then
     degasolv resolve-locations > degasolv-lock.txt
 fi
@@ -46,7 +46,7 @@ Git Hash: $(git rev-parse HEAD)
 MANIFEST
 mkdir -p external/lib
 mkdir -p external/pkg/shiny
-cp degasolv-lock.txt external/pkg/shiny/
+cp ../degasolv-lock.txt external/pkg/shiny/
 cp manifest.txt external/pkg/shiny/
 cp libshiny.so external/lib/libshiny.so
 zip \

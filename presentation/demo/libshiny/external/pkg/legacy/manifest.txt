@@ -1,3 +1,0 @@
-Name: liblegacy
-Version: 0.8.0
-Git Hash: ab5971940a8b1875bf8cd03d3214127d344fcc31

@@ -19,6 +19,8 @@ pom.xml.asc
 .hgignore
 .hg/
 /.ve/
+/presentation/demo/*/external
+/presentation/demo/*/degasolv-lock.txt
 /presentation/demo/pyfrontend/ve/
 /presentation/demo/pyfrontend/external/
 /presentation/demo/pyfrontend/product/

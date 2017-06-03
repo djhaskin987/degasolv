@@ -1,9 +1,3 @@
-TODO:
-  - Add card generation to build-legacy
-  - Add card generation to build-shiny
-  - Write build-shiny
-  - Write build-pygui
-  - Write build-product_package
 
 1. Clear out the NAS directory:
    ```
@@ -106,3 +100,8 @@ TODO:
    ```
 
 1. Show the zip file and card file in the browser
+
+1. Query the repo:
+   ```
+   degasolv query-repo -q pyfrontend
+   ```

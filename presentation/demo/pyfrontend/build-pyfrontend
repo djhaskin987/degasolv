@@ -3,6 +3,7 @@
 export POSIXLY_CORRECT=1
 set -ex
 
+rm -rf product
 rm -rf external
 mkdir -p external
 rm -rf *.zip
@@ -30,12 +31,22 @@ Version: 2.0
 Git Hash: $(git rev-parse HEAD)
 MANIFEST
 
-# This is not a library, it's a product
+# This is not a library, it's a product.
 mkdir -p product/
-cp degasolv-lock.txt product/
-cp manifest.txt product/
-cp pyfrontend.py product/
-cp -a ve product/
+mkdir -p product/bin
+
+cp -a external/pkg product/pkg
+
+# I'd copy the virtualenv into the product zip,
+# except that it takes too long for the demo :)
+#cp -a ve product/
+
+mkdir -p product/pkg/pyfrontend
+
+# *** Put pkg info into the product
+cp degasolv-lock.txt product/pkg/pyfrontend
+cp manifest.txt product/pkg/pyfrontend
+cp pyfrontend.py product/bin/
 
 zip \
     -r pyfrontend-2.0.zip \
@@ -51,8 +62,8 @@ cp pyfrontend-2.0.zip ../nas
 
 # ***
 # Create the degasolv card
-degasolv -c ../degasolv.edn generate-card --card-file pyfrontend-2.0.zip.dscard
-cp pyfrontend-2.0.dscard ../nas
+degasolv generate-card --card-file pyfrontend-2.0.zip.dscard
+cp pyfrontend-2.0.zip.dscard ../nas
 
 # ***
 # Update repo index

@@ -2,6 +2,8 @@
     :repositories ["http://localhost:3000/index.dsrepo"]
     :id "pyfrontend"
     :version "2.0"
+    ;; Note: either URLs or file paths OK here
+    :location "http://localhost:3000/pyfrontend-2.0.zip"
     :requirements ["libshiny>=1.3.0"
                    "liblegacy>=0.5.0"]
 }
