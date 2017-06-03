@@ -29,6 +29,31 @@
   \centerline{\color{blue}\Large Dependencies Are The Worst}
 \end{frame}
 \begin{frame}
+    \frametitle{What is Degasolv?}
+  \begin{itemize}
+      \item Generic dependency tracker with an eye for building and shipping
+          software.
+      \item Associates something's name, version, and location together
+      \item Location can be anything
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Possible Use Cases}
+    \begin{itemize}
+        \item Track dependencies between build artifacts of different
+            languages, new languages, DSLs, C/C++
+        \item Download artifacts built by different teams to create a
+            product installer
+        \item Track dependencies between microservices and use this information
+            to determine what services need to be redeployed/restarted
+            when a downstream service is changed
+    \end{itemize}
+\end{frame}
+\begin{frame}
+  \centerline{\includegraphics[scale=0.5]{gitsubmodules.jpg}}
+\end{frame}
+\begin{frame}
   \frametitle{Why Degasolv?}
 
   Does this sound like problems you deal with?
@@ -37,7 +62,8 @@
 
   \begin{itemize}
   \item Lots of first party dependencies within the product
-  \item All (or lots) of the product's third-party dependencies are built on-site
+  \item All (or lots) of the product's third-party dependencies are built
+      on-site
   \item Some languages/technologies don't have a dependency manager
   \item Cross-technology dependencies
   \item Deal with site-specific quirks
@@ -52,15 +78,8 @@
   \frametitle{Design Goals}
   \begin{itemize}
   \item Degasolv is designed specifically for use by build and DevOps engineers
-  \item Degasolv is safe to use
-  \item Degasolv is a ``stays out of your way''
+  \item Degasolv is a ``closed diamond'' resolver
   \item If Degasolv makes you angry, then there is a bug in Degasolv.
-  \end{itemize}
-\end{frame}
-\begin{frame}
-  \frametitle{Design Goals}
-  \begin{itemize}
-    \item Degasolv is a ``closed diamond'' resolver
   \end{itemize}
   \centerline{\includegraphics[scale=0.5]{diamonddep.png}}
 \end{frame}
@@ -68,20 +87,21 @@
   \frametitle{Overview}
   \begin{itemize}
   \item Docs: {\small http://degasolv.readthedocs.io/en/latest/}
-  \item Dependency resolver designed for builds
-  \item Command-line interface
+  \item CLI tool designed for use within a build script
+  \item Command-line interface tool
   \item Distributed as a JAR file; runs on the JVM
   \end{itemize}
 \end{frame}
 \begin{frame}
   \frametitle{Operations}
   \begin{itemize}
-  \item \texttt{generate-card}: Generate a ``card file'' which represents a package
+      \item \texttt{generate-card}: Generate a \textit{card file} which
+          represents a \textit{package}
   \item Upload the card file to a NAS or other central file share
-  \item \texttt{generate-repo-index}: Generate a ``repository index''
+  \item \texttt{generate-repo-index}: Generate a \textit{repository index}
     based on the card files in the central file share
-  \item \texttt{resolve-locations}: Using repository indices, find the locations
-    of packages and their dependencies
+  \item \texttt{resolve-locations}: Using repository indices, find the
+      locations of packages and their dependencies
   \item \texttt{query-repo}: Inspect what packages exist in the repository
   \end{itemize}
 \end{frame}
@@ -90,21 +110,21 @@
   \begin{itemize}
   \item A name
   \item A version
-  \item A URL
+  \item A location (URL, file path, bad driving directions...)
   \item A list of dependencies
   \end{itemize}
 \end{frame}
 \begin{frame}
   \frametitle{Requirement Overview}
   \begin{itemize}
-  \item A "requirement" is a predicate describing a package, given as a string.
+      \item A \textit{requirement} is a predicate describing a package, given
+          as a string.
   \item Sort of its own mini language, but it should look familiar
-  \item Given as a string
   \item Used in \texttt{generate-card} to specify dependencies
   \item Used in \texttt{resolve-locations} to specify what packages to resolve
-  \item Subset of the language used in \texttt{query-repo} to query repository for
-    matching packages
-  \item Specify version ranges, version exceptions
+  \item Subset of the language used in \texttt{query-repo} to query repository
+      for matching packages
+\item Specify version ranges and exceptions
   \item Supports boolean operators
   \item Consult the docs for more info
   \end{itemize}
@@ -126,10 +146,12 @@
 \begin{frame}
   \frametitle{\texttt{generate-card} Overview}
   \begin{itemize}
-  \item Generates ``card'' files, which contain data about a particular package
-  \item Keeps track of dependency information indepently of actual package file contents
-  \item As a convention, it's good to name your dscard file after the file to which
-    the URL points (e.g., \texttt{e-1.8.0.zip.dscard})
+  \item Generates card files, which contain data about a particular package
+  \item Keeps track of dependency information indepently of actual package or
+      service
+  \item As a convention, it's good to name your card file after the file or
+      service to which the its location points (e.g.,
+          \texttt{e-1.8.0.zip.dscard}, \texttt{p-dc1-devopsconsul.dscard})
   \item Using card files as in place of actual build artifacts makes
     dependency resolution a completely independent part of your build; you
     don't have to ask developers to change the product to use it.
@@ -236,7 +258,7 @@
   \frametitle{\texttt{resolve-locations} Overview}
   \begin{itemize}
   \item This command resolves dependencies given a target expression
-  \item The names, versions, and URLs of the resolved packages are printed
+  \item The names, versions, and locations of the resolved packages are printed
   \item The output is designed to be both machine and human readable
   \item Command is designed to be used within build scripts
   \end{itemize}
@@ -267,7 +289,7 @@
   \frametitle{\texttt{query-repo} Overview}
   \begin{itemize}
   \item This command allows the user to query the repository index directly
-  \item Implemented to allow the engineer to debug the build
+  \item Implemented to allow engineers to debug builds
   \end{itemize}
 \end{frame}
 \begin{frame}[fragile]
@@ -318,19 +340,20 @@
 \begin{frame}[fragile]
 \frametitle{JFrog Artifactory Integration: Download}
 \begin{minted}[fontsize=\footnotesize]{bash}
-    for dep in $(java \
+    mkdir -p deps
+    for loc in $(java \
         -jar ./degasolv-1.0.2-standalone.jar \
         resolve-locations \
         --repository=<ARTIFACTORY-REPO-URL>/index.dsrepo \
         top_dep_a top_dep_b top_dep_c | \
         awk -F' *@ *' '{print $2}')
     do
-        # In this example, the `dep` variable is of the form
-        # <artifactory-repo>/<path-to-artifact>
+        # The `loc` var holds a location of the form
+        # `<artifactory-repo>/<path-to-artifact>`
         jfrog rt download \
             --build-name "${build_name}" \
             --build-number "${build_number}" \
-            "${dep}"
+            "${loc}"
             ./deps
     done
 \end{minted}
@@ -418,6 +441,8 @@
   \item Kill Your Dependencies {\small http://www.mikeperham.com/2016/02/09/kill-your-dependencies/}
   \item Embracing Conway's Law {\small https://wingolog.org/archives/2015/11/09/embracing-conways-law}
   \item JFrog Artifactory CLI {\small https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory}
+  \item So You Want to Write a Package Manager {\small https://yarnpkg.com/blog/2016/11/24/lockfiles-for-all/}
+  \item Lockfiles should be committed on all projects {\small https://yarnpkg.com/blog/2016/11/24/lockfiles-for-all/}
   \end{itemize}
 \end{frame}
 \begin{frame}
