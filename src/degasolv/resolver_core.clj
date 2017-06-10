@@ -131,8 +131,7 @@ x#))
                  conflict-strat :exclusive
                  compare nil}}]
   (let [safe-spec-call (make-spec-call compare)
-        cull (if (= conflict-strat :exclusive)
-               (case strategy
+        cull (case strategy
                  :thorough
                  cull-nothing
                  :fast
@@ -142,8 +141,7 @@ x#))
                             "Invalid strategy `"
                             strategy
                             "`.")
-                           {:strategy strategy})))
-               cull-all-but-first)]
+                           {:strategy strategy})))]
     (letfn [(resolve-deps
               [repo
                present-packages

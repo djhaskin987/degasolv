@@ -75,11 +75,11 @@
                  "http://example.com/repo/c-0.2.3.zip"
                }
           (match
-           (dbg2 (resolve-dependencies
+           (resolve-dependencies
                            [[{:status :present :id "a"}]]
                            query
                            :compare cmp
-                           :conflict-strat :inclusive))
+                           :conflict-strat :inclusive)
                     [:successful s]
                     (set (map :location s))
                     [:unsuccessful u]
@@ -100,6 +100,7 @@
                     (set (map :location s))
                     [:unsuccessful u]
                     :unsuccessful))))))
+
 ;; TODO: Test empty cases
 ;; TODO: Test that it implies `fast`
 ;; TODO: Test using absences
