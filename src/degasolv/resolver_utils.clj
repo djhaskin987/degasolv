@@ -107,7 +107,7 @@
                                       str
                                       (:term problem))))
      (explain-package-list
-      (vals (:found-packages problem))
+      (flatten (vals (:found-packages problem)))
       "Packages selected")]
     (when (not (nil? (:present-packages problem)))
       [(explain-package-list
