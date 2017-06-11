@@ -233,11 +233,12 @@ returns a page that looks something like this::
   Options are shown below, with their default values and
     descriptions:
 
-    -r, --requirement REQ                Resolve req. May be used more than once.
-    -R, --repository INDEX               Use INDEX. May be used more than once.
-    -s, --resolve-strat STRAT  thorough  May be 'fast' or 'thorough'.
-    -S, --index-strat STRAT    priority  May be 'priority' or 'global'.
-    -h, --help                           Print this help page
+    -r, --requirement REQ                  Resolve req. May be used more than once.
+    -R, --repository INDEX                 Use INDEX. May be used more than once.
+    -s, --resolve-strat STRAT   thorough   May be 'fast' or 'thorough'.
+    -f, --conflict-strat STRAT  exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
+    -S, --index-strat STRAT     priority   May be 'priority' or 'global'.
+    -h, --help                             Print this help page
 
   The following options are required for subcommand `resolve-locations`:
 
@@ -248,7 +249,7 @@ The ``resolve-locations`` command searches one or more repository index files,
 and uses the package information in them to attempt to resolve the requirements
 given at the command line. If successful, it exits with a return code of 0 and
 outputs the name of each package in the solution it has found, together with
-that package's location. 
+that package's location.
 
 Example output on a successful run::
 
@@ -259,7 +260,7 @@ Example output on a successful run::
 
 In the above example out, each line takes the form::
 
-    <id>==<version> @ <location
+    <id>==<version> @ <location>
 
 If the command fails, a non-zero exit code is returned. The output from such
 a run might look like this::
@@ -315,6 +316,7 @@ Explanation of options:
   configuration file, the indices in the configuration file are ignored. See
   `index strategy`_ for more information.
 
+
 - ``-s STRAT``, ``--resolve-strat STRAT``, ``:resolve-strat "STRAT"``: This
   option determines which versions of a given package id are considered when
   resolving the given requirements.  If set to ``fast``, only the first
@@ -322,12 +324,52 @@ Explanation of options:
   package id is consulted, and it is hoped that this version will match all
   subsequent requirements constraining the versions of that id. If set to
   ``thorough``, all available versions matching the requirements will be
-  considered.
+  considered. The default setting is ``thorough`` and this setting
+  should work for most environments.
 
-  This option should be used with care, since whatever setting is used will
-  greatly alter behavior. It is therefore recommended that whichever setting is
-  chosen should be used site-wide within an organization.  The default setting
-  is ``thorough`` and this setting should work for most environments.
+  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+
+- ``-f STRAT``, ``--conflict-strat STRAT``, ``:conflict-strat "STRAT"``:
+  This option determines how encountered version conflicts will be
+  handled.  The default setting is ``exclusive`` and this setting
+  should work for most environments.
+
+  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+
+  - If set to ``exclusive``, all dependencies and their version
+    specifications must be satisfied in order for the command to
+    succeed, and only one version of each package is allowed. This is
+    the default option, and is the safest, though it may carry with it
+    significant performance ramifications. It turns dependency
+    resolution into an NP hard problem. This is normally not a problem
+    since the number of dependencies at most organizations (on the
+    order of hundreds) is relatively small, but it is something of which the
+    reader should be aware.
+
+  - If set to ``inclusive``, all dependencies and their version specifications
+    must be satisfied in order for the command to succeed, but multiple versions
+    of each package are allowed to be part of the solution. To call for
+    similar behavior to ruby's gem or node's npm, for example, set
+    ``--conflict-strat`` to ``inclusive`` and set ``--resolve-strat``
+    to ``fast``.
+
+  - If set to ``prioritized``, then the first time a package is required and
+    is found at a particular version, it will be considered to fulfill the
+    all other encountered requirements asking for that package. This is
+    intended to mimic the behavior of java's maven package manager.
+
+    It means that, for example, if package ``a`` at version ``1``
+    requires package ``b`` at version ``1`` and also package ``c`` at
+    version ``1``; and package ``c`` at version ``1`` requires package
+    ``b`` at version ``2``; then the packages ``a`` at version ``1``,
+    the package ``b`` at version ``1``, and the package ``c`` at
+    version ``1`` will be found. Despite the fact that ``c`` needed
+    ``b`` to be at version ``2``, it had already been found at version
+    ``1`` and that version was assumed to fulfill all requirements asking
+    for package ``b``.
+
+    To mimic the behavior of maven, set ``--conflict-strat`` to ``prioritized``
+    and ``--resolve-strat`` to ``fast``.
 
 .. _index strategy:
 
@@ -336,7 +378,7 @@ Explanation of options:
   fulfill the given requirements. This option determines how multiple
   repository indexes are queried if there are more than one. If set to
   ``priority``, the first repository that answers with a non-empty result is
-  used, if any. Not that this is true even if the versions done't match what is
+  used, if any. Note that this is true even if the versions don't match what is
   required.
 
   For example, if ``<repo-x>`` contains a package ``a`` at version ``1.8``,
@@ -351,9 +393,10 @@ Explanation of options:
     java -jar ./degasolv-<version>-standalone.jar -R <repo-y> -R <repo-x> \
         -r "a==1.9"
 
-  By contrast, if ``--index-strat`` is given the STRAT of ``global``, all versions
-  from all repositories answering to a particular package id will be considered. So,
-  both of the following commands would succeed, under the scenario presented above::
+  By contrast, if ``--index-strat`` is given the STRAT of ``global``,
+  all versions from all repositories answering to a particular package
+  id will be considered. So, both of the following commands would
+  succeed, under the scenario presented above::
 
     java -jar ./degasolv-<version>-standalone.jar -S global \
         -R <repo-x> -R <repo-y> -r "a==1.9"
@@ -361,12 +404,12 @@ Explanation of options:
     java -jar ./degasolv-<version>-standalone.jar -S global \
         -R <repo-y> -R <repo-x> -r "a==1.9"
 
-  This option should be used with care, since whatever setting is used will
-  greatly alter behavior. It is therefore recommended that whichever setting is
-  chosen should be used site-wide within an organization.
-
   The default setting is ``priority`` and this setting should work for most
   environments.
+
+  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+
+
 
 CLI for ``query-repo``
 ----------------------

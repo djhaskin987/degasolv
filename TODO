@@ -1,1 +1,3 @@
 - [ ] add tests to grill for different repo merge strategies for both resolve-locations and query-repo
+- [ ] Add tree returned value when `fast` is used.
+- [ ] Add option to print said tree when fast is used.

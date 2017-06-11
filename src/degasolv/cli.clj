@@ -159,6 +159,7 @@
   (let
       [{:keys [repositories
                resolve-strat
+               conflict-strat
                index-strat
                requirements]}
        options
@@ -188,6 +189,7 @@
         requirement-data
         aggregate-repo
         :strategy (keyword resolve-strat)
+        :conflict-strat (keyword conflict-strat)
         :compare cmp)]
     (case
       (first result)
@@ -320,7 +322,14 @@
            "May be 'fast' or 'thorough'."
            :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
-                     "Strategy must either be 'thorough' or 'fast'."]]
+                      "Resolve strategy must either be 'thorough' or 'fast'."]]
+          ["-f" "--conflict-strat STRAT"
+           "May be 'exclusive', 'inclusive' or 'prioritized'."
+           :default "exclusive"
+           :validate [#(or (= "exclusive" %)
+                           (= "inclusive" %)
+                           (= "prioritized" %))
+                      "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"

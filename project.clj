@@ -17,6 +17,7 @@
    :resolve-harden :resolve-harden
    :string-to-requirement :string-to-requirement
    :repo-aggregation :repo-aggregation
+   :resolve-conflict-strat :resolve-conflict-strat
    }
   :profiles {
              :dev {:dependencies [
