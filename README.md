@@ -13,6 +13,10 @@ Named for *Degas* the impressionist, and it's a *Solv*er.
 
 See [Read the Docs](http://degasolv.readthedocs.io/en/develop/).
 
+## 2017 Degasolv Presentation Slides
+
+See [here](http://bit.ly/degasolv2017pres).
+
 ## License
 
 Copyright © 2016-2017 Daniel Jay Haskin and others, see the AUTHORS.md file.

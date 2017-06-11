@@ -1,0 +1,12 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -ex
+
+rm -rf target
+mkdir -p target
+
+pdflatex \
+    -shell-escape \
+    -halt-on-error \
+    -output-directory ./target \
+    degasolv-2017.tex
