@@ -154,6 +154,12 @@
   (System/exit status))
 
 (defn-
+  display-config!
+  [options arguments]
+  (pprint/pprint
+   (assoc options :arguments arguments)))
+
+(defn-
   resolve-locations!
   [options arguments]
   (let
@@ -299,6 +305,10 @@
            :default "index.dsrepo"]
           ["-a" "--add-to INDEX"
            "Add to repo index INDEX"]]}
+   "display-config"
+   {:description "Print the effective combined configuration (and arguments) of all the given config files."
+    :function display-config!
+    }
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
@@ -441,11 +451,21 @@
 
 (def cli-options
   [["-c" "--config-file FILE" "config file"
-    :default (fs/file (fs/expand-home "./degasolv.edn"))
+    :id :config-files
+    :default []
     :default-desc "./degasolv.edn"
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
-               "Must be a regular file (which hopefully contains config info."]]])
+               "Must be a regular file (which hopefully contains config info."]
+    :assoc-fn
+    (fn [m k v] (update-in m [k] #(conj % v)))]])
+
+(defn- deep-merge [a b]
+  (merge-with (fn [x y]
+                (cond (map? y) (deep-merge x y)
+                      (vector? y) (conj x y)
+                      :else y))
+              a b))
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
@@ -506,17 +526,26 @@
                            ""
                            (usage summary :sub-command subcommand)
                            ""])))
-        (let [effective-options
+        (let [config-files (if (empty? (:config-files global-options))
+                             [(fs/file (fs/expand-home "./degasolv.edn"))]
+                             (:config-files global-options))
+              effective-options
               (merge
                (try
-                 (tag/read-string
-                  (default-slurp
-                   (:config-file global-options)))
+                 (reduce
+                  merge
+                  (map
+                  tag/read-string
+                  (map
+                   default-slurp
+                   (:config-files global-options))))
                  (catch Exception e
                    (binding [*out* *err*]
-                     (println "Warning: problem reading config file `"
-                              (str (:config-file global-options))
-                              "`, configuration file not used."))
+                     (println "Warning: problem reading config files, they were not used:"
+                              (str (string/join
+                                    \newline
+                                    (map #(str "  - " %)
+                                         (:config-files global-options))))))
                    {}))
                options)
               required-keys (set (keys (:required-arguments subcmd-cli)))
