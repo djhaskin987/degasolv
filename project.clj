@@ -11,6 +11,7 @@
                  [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]
                  ]
+  :plugins [[lein-print "0.1.0"]]
   :test-selectors
   {
    :resolve-basic :resolve-basic
