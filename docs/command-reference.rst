@@ -10,7 +10,6 @@ Top-Level CLI
 Running ``java -jar degasolv-<version>-standalone.jar -h`` will yield
 a page that looks something like this::
 
-  java -jar target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar -h
   Usage: degasolv <options> <command> <<command>-options>
 
   Options are shown below, with their default values and
@@ -21,10 +20,11 @@ a page that looks something like this::
 
   Commands are:
 
+    - display-config
     - generate-card
-    - query-repo
     - generate-repo-index
     - resolve-locations
+    - query-repo
 
   Simply run `degasolv <command> -h` for help information.
 
@@ -86,11 +86,96 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       [...]
 
+  Multiple Config Files
+  +++++++++++++++++++++
+
+  As of version 1.2.0, the ``--config-file`` option may be specified multiple
+  times. Each config file specified will get its configuration
+  merged into the previously specified configuration files. If both
+  configuration files contain the same option, the option specified in
+  the latter specified configuration file will be used.
+
+  .. _config files section:
+
+  As an example, consider the following `display-config command`_::
+
+    java -jar degasolv-<version>-standalone.jar \
+      --config-file "$PWD/a.edn" \
+      --config-file "$PWD/b.edn" \
+      display-config
+
+  If this is the contents of the file ``a.edn``::
+
+    {
+        :index-strat "priority"
+        :repositories ["https://example.com/repo1/"]
+        :id "a"
+        :version "1.0.0"
+    }
+
+  And this were the contents of ``b.edn``::
+
+    {
+        :conflict-strat "exclusive"
+        :repositories ["https://example.com/repo2/"]
+        :id "b"
+        :version "2.0.0"
+    }
+
+  Then the output of the above command would look like this::
+
+    {
+        :index-strat "priority",
+        :repositories ["https://example.com/repo2/"],
+        :id "b",
+        :version "2.0.0",
+        :conflict-strat "exclusive",
+        :arguments ["display-config"]
+    }
+
+  The merging of config files, together with the interesting
+  fact that config files may be specified via HTTP URLs,
+  allows the user to specify a *site config file*.
+
+  Many options, such as ``--index-strat``, ``--conflict-strat``,
+  and ``--resolve-strat`` fundamentally change how degasolv
+  works, and so it is recommended that they are specified site-wide.
+  Specifying these in a site config file, then serving that config
+  file internally via HTTP(S) would allow all instances of degasolv
+  to point to a site-wide file, together with a build-specific config
+  file, as in this example::
+
+    java -jar degasolv-<version>-standalone.jar \
+        --config-file "https://nas.example.com/degasolv/site.edn" \
+        --config-file "./degasolv.edn" \
+        generate-card
+
 - ``-h``, ``--help``: Prints the help page. This can be used on every
   sub-command as well.
 
 .. _EDN format: https://github.com/edn-format/edn
 
+.. _display-config command:
+
+CLI for ``display-config``
+--------------------------
+
+Running ``java -jar degasolv-<version>-standalone.jar display-config -h``
+returns a page that looks something like this::
+
+  Usage: degasolv <options> display-config <display-config-options>
+
+  Options are shown below, with their default values and
+    descriptions:
+
+    -h, --help  Print this help page
+
+The ``display-config`` command is used to print all the options
+in the "effective configuration". It allows the user to debug
+configuration by printing the actual configuration used by degasolv
+after all the command-line arguments and config files have
+been merged together. An example of this is found in the
+`config files section`_.
 
 CLI for ``generate-card``
 -------------------------

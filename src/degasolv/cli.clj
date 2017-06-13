@@ -258,7 +258,11 @@
          results))))))
 
 (def subcommand-cli
-  {"generate-card"
+  {"display-config"
+   {:description "Print the effective combined configuration (and arguments) of all the given config files."
+    :function display-config!
+    }
+   "generate-card"
    {:description "Generate dscard file based on arguments given"
     :function generate-card!
     :required-arguments {:id ["-i" "--id"]
@@ -305,10 +309,7 @@
            :default "index.dsrepo"]
           ["-a" "--add-to INDEX"
            "Add to repo index INDEX"]]}
-   "display-config"
-   {:description "Print the effective combined configuration (and arguments) of all the given config files."
-    :function display-config!
-    }
+
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
