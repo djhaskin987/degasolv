@@ -20,9 +20,6 @@
    :repo-aggregation :repo-aggregation
    :resolve-conflict-strat :resolve-conflict-strat
    }
-  :plugins [
-            [lein-print "0.1.0"]
-            ]
   :profiles {
              :dev {:dependencies [
                                   [org.clojure/core.match "0.3.0-alpha4"]
