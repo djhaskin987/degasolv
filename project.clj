@@ -28,6 +28,7 @@
                                   ]}
              :uberjar {:aot [degasolv.cli degasolv.resolver]}
              }
-  :jar-name "degasolv.jar"
-  :uberjar-name "degasolv-standalone.jar"
-  :target-path "target/%s")
+  )
+;;  :jar-name "degasolv.jar"
+;;  :uberjar-name "degasolv-standalone.jar"
+;;  :target-path "target/%s")
