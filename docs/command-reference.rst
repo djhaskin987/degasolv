@@ -86,9 +86,6 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       [...]
 
-  Multiple Config Files
-  +++++++++++++++++++++
-
   As of version 1.2.0, the ``--config-file`` option may be specified multiple
   times. Each config file specified will get its configuration
   merged into the previously specified configuration files. If both
