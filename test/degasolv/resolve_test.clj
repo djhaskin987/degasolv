@@ -72,10 +72,9 @@
       (let [b-clause [(present "b")]]
         (is (= :unsuccessful
                (first
-                (dbg2
                  (resolve-dependencies
                   [b-clause]
-                  query)))))))
+                  query))))))
     (testing
         (str "Asking for a package present within the repo but "
              "at no suitable version fails.")
@@ -85,10 +84,9 @@
               #(>= (:version %1) 40))]]
         (is (= :unsuccessful
                (first
-                (dbg2
                  (resolve-dependencies
                   [a-clause]
-                  query)))))))
+                  query))))))
     (testing
         (str "Asking for a package present within the repo but "
              "with unsuccessful constraints.")
@@ -98,10 +96,9 @@
               (fn [v] false))]]
         (is (= :unsuccessful
                (first
-                (dbg2
                  (resolve-dependencies
                   [a-clause]
-                  query)))))))
+                  query))))))
     (testing
         (str "Asking for a package present and having a "
              "version that fits")
@@ -155,13 +152,12 @@
       (let [clause [(present "a" #(>= (:version %) 25))]]
         (is (= :unsuccessful
                (first
-                (dbg2
                  (resolve-dependencies
                   [
                    clause
                    ]
                   query
-                  :present-packages {"a" package-a20}))))))
+                  :present-packages {"a" package-a20})))))
 
     (testing
         (str "Asking to install a package that is already "
@@ -179,19 +175,19 @@
           (str "Find a package which conflicts with another "
                "package also to be installed.")
         (is (= :unsuccessful (first
-                              (dbg2 (resolve-dependencies
+                              (resolve-dependencies
                                      [dclause
                                       [(present "e")]]
-                                     query))))))
+                                     query)))))
     (testing (str "Find a package which conflicts with a package "
                   "marked a priori as conflicting.")
       (is (= :unsuccessful
              (first
-              (dbg2 (resolve-dependencies
+              (resolve-dependencies
                      [dclause
                       [(present "a" #(<= (:version %) 25))]]
                      query
-                     :conflicts {"d" [nil]}))))))
+                     :conflicts {"d" [nil]})))))
     (testing (str "Find a package which conflicts with another "
                   "package but not at its current version")
       (is (.equals [:successful #{package-d22}]
@@ -273,12 +269,12 @@
             bclause [(present "b")]]
         (is (= :unsuccessful
                (first
-                (dbg2 (resolve-dependencies
+                (resolve-dependencies
                        [
                         aclause
                         bclause
                         ]
-                       query)))))))
+                       query))))))
     (let [package-a
           (->package
            "a"
@@ -312,13 +308,13 @@
         (let [aclause [(present "a")]]
           (is (= :unsuccessful
                  (first
-                  (dbg2 (resolve-dependencies
+                  (resolve-dependencies
                          [
                           aclause
                           [(present "b")]
                           ]
                          query
-                         :conflicts {"c" [nil]}))))))))))
+                         :conflicts {"c" [nil]})))))))))
 
 (deftest
   ^:resolve-basic disjunctive-clauses

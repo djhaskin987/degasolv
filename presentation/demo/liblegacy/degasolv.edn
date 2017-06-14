@@ -1,0 +1,12 @@
+;; ***
+;; Comments shown after a `;`
+
+;; ****
+;; Each line is used in place of a similarly named
+;; cli option in degasolv commands.
+{
+ :id "liblegacy"
+ :version "0.8.0"
+ ;; Note: either URLs or file paths OK here
+ :location "http://localhost:3000/liblegacy-0.8.0.zip"
+}

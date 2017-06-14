@@ -112,28 +112,36 @@ x#))
 (defn make-spec-call [cmp]
   (partial p-safe-spec-call cmp))
 
+(defn- cull-nothing [candidates]
+  candidates)
+
+(defn- cull-all-but-first [candidates]
+  [(first candidates)])
+
 (defn resolve-dependencies
   [requirements
    query & {:keys [present-packages
                    conflicts
                    strategy
+                   conflict-strat
                    compare]
             :or {present-packages {}
                  conflicts {}
                  strategy :thorough
+                 conflict-strat :exclusive
                  compare nil}}]
   (let [safe-spec-call (make-spec-call compare)
         cull (case strategy
-               :thorough
-               (fn [candidates] candidates)
-               :fast
-               (fn [candidates] [(first candidates)])
-               (throw
-                (ex-info (str
-                          "Invalid strategy `"
-                          strategy
-                          "`.")
-                         {:strategy strategy})))]
+                 :thorough
+                 cull-nothing
+                 :fast
+                 cull-all-but-first
+                 (throw
+                  (ex-info (str
+                            "Invalid strategy `"
+                            strategy
+                            "`.")
+                           {:strategy strategy})))]
     (letfn [(resolve-deps
               [repo
                present-packages
@@ -141,9 +149,11 @@ x#))
                absent-specs
                clauses]
               (if (empty? clauses)
-                [:successful (set (vals found-packages))]
+                (if (= conflict-strat :inclusive)
+                  [:successful (set (flatten (vals found-packages)))]
+                  [:successful (set (vals found-packages))])
                 (let [fclause (first clauses)
-                      rclauses (rest clauses)]
+                      rclauses (subvec clauses 1)]
                   (if (empty? fclause)
                     [:unsuccessful
                      {:problems
@@ -162,11 +172,13 @@ x#))
                                    (or (get present-packages id)
                                        (get found-packages id))]
                                (cond
-                                 (not (nil? present-package))
-                                 (if (or (and (= status :absent)
+                                 (and (not (= conflict-strat :inclusive))
+                                           (not (nil? present-package)))
+                                 (if (or (= conflict-strat :prioritized)
+                                         (and (= status :absent)
                                               (not (safe-spec-call spec present-package)))
                                          (and (= status :present)
-                                             (safe-spec-call spec present-package)))
+                                              (safe-spec-call spec present-package)))
                                    (resolve-deps
                                     repo
                                     present-packages
@@ -238,7 +250,12 @@ x#))
                                                 #(resolve-deps
                                                   repo
                                                   present-packages
-                                                  (assoc found-packages id %)
+                                                  (if (= conflict-strat :inclusive)
+                                                    (update-in found-packages [id]
+                                                               conj
+                                                               %)
+                                                    (assoc found-packages
+                                                           id %))
                                                   absent-specs
                                                   (into rclauses
                                                         (:requirements %)))
@@ -298,4 +315,4 @@ x#))
        present-packages
        {}
        conflicts
-       requirements))))
+       (vec requirements)))))
