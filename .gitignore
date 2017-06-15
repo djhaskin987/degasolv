@@ -1,7 +1,17 @@
 /target
+/pkg/
+/presentation/target/
+/presentation/auto/
+/presentation/_minted-*/
+/presentation/demo/*/external
+/presentation/demo/*/degasolv-lock.txt
+/presentation/demo/pyfrontend/ve/
+/presentation/demo/pyfrontend/external/
+/presentation/demo/pyfrontend/product/
+/presentation/demo/nas/
 /docs/_build/
 /.nrepl-history
-/test-data/grill/
+/test-data/
 /buildutils/boot
 /*.dscard
 /*.dsrepo
@@ -17,8 +27,12 @@ pom.xml.asc
 .hg/
 /.ve/
 
-*.dscard
-*.dsrepo
+*.zip
+cmake/
+*.so
+
+# Vagrant
+.vagrant/
 
 # editor files
 .#*
