@@ -78,7 +78,6 @@
                        "Package: baz"
                        "Version: 3.0.0"])))))
 
-
 (deftest ^:pkgsys-apt test-apt-repo
          (testing "A basic, sanity-check test on apt-repo"
                   (is (=
