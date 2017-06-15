@@ -10,10 +10,13 @@
             [clojure.set :as st]
             [me.raynes.fs :as fs]
             [miner.tagged :as tag]
+            [clojure.pprint :as pprint]
             [serovers.core :as vers
              :refer [maven-vercmp]
              :rename {maven-vercmp cmp}])
   (:gen-class))
+
+
 
 (defmethod
   print-method
@@ -26,26 +29,6 @@
   degasolv.resolver.Requirement
   [this w]
   (tag/pr-tagged-record-on this w))
-
-; UTF-8 by default :)
-(defn- default-slurp [loc]
-  (let [input (if (= loc "-")
-                    *in*
-                    loc)]
-    (clojure.core/slurp input :encoding "UTF-8")))
-
-(defn- default-spit [loc stuff]
-  (clojure.core/spit loc (pr-str stuff) :encoding "UTF-8"))
-
-(defn- pretty-spit [loc stuff]
-  (with-open
-    [ow (io/writer loc :encoding "UTF-8")]
-    (pprint/pprint stuff ow)))
-
-(defmacro dbg [body]
-  `(let [x# ~body]
-     (println "dbg:" '~body "=" x#)
-     x#))
 
 (defn- read-card!
   [card]
