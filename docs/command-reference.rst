@@ -436,6 +436,8 @@ Explanation of options:
 
   .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
 
+  .. _conflict strategies:
+
 - ``-f STRAT``, ``--conflict-strat STRAT``, ``:conflict-strat "STRAT"``:
   This option determines how encountered version conflicts will be
   handled.  The default setting is ``exclusive`` and this setting
@@ -584,9 +586,10 @@ Or, more concretely::
   "hickory|maple|oak"
 
 Alternatives will be considered in order of appearance. In general, specifying
-more than one alternative should be msotly unecessary, and generally to be
-avoided. THis is because many alternatives tend to impact performance
-significantly; but they are there and usable if needed.
+more than one alternative should be mostly unecessary, and generally to be
+avoided. This is because specifying too many alternatives tend to
+impact performance significantly; but they are available and usable if
+needed.
 
 Each alternative is composed of a package id and an optional specification of
 what versions of that package satisfy the alternative, like this::
@@ -637,6 +640,13 @@ interpretations:
 |                              | to ``2.0``) OR (with version newer than      |
 |                              | ``3.5`` but not equal to ``3.8``)            |
 +------------------------------+----------------------------------------------+
+
+.. note:: To make debugging easier, try to keep things as simple as
+   possible. Try not to make requirement strings very long. When using
+   the ``inclusive`` or ``priority`` `conflict strategies`_, it is
+   recommended to specify exact package names and versions, like this:
+   ``pkgname==1.0.0``. The simpler the requirement string, the easier
+   it will be to untangle any untoward dependency problems.
 
 Negative alternatives are requirements that all packages with a particular id
 and matching a particular version spec must be absent from the list of packages
