@@ -110,11 +110,12 @@
 
   ((aggregator index-strat
                (get-in package-systems [pkgsys :vercmp]))
-     (map
+   (flatten
+    (map
        (fn [url]
          ((get-in package-systems [pkgsys :genrepo]) url)
          )
-       repositories)))
+       repositories))))
 
 (defn-
   display-config!

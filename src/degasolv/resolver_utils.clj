@@ -1,12 +1,13 @@
 (in-ns 'degasolv.resolver)
 
 (defn priority-repo [rs]
+  (t/spy "I seeping" rs)
   (fn [id]
     (or
       (first
         (filter
           #(not (empty? %))
-          (map #(% id)
+          (map #((t/spy "map this" %) (t/spy "priority-repo id" id))
                rs)))
       [])))
 

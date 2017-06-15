@@ -12,6 +12,8 @@
 /docs/_build/
 /.nrepl-history
 /test-data/
+/test/resources/data/grill/
+/test/resources/test-data/
 /buildutils/boot
 /*.dscard
 /*.dsrepo
@@ -26,6 +28,7 @@ pom.xml.asc
 .hgignore
 .hg/
 /.ve/
+foo.edn
 
 *.zip
 cmake/

@@ -3,6 +3,7 @@
   (:require [degasolv.util :refer :all]
             [clojure.spec :as s]
             [clojure.string :as clj-str]
+            [tupelo.core :as t]
             [miner.tagged :as tag]))
 
 (defmacro dbg [body]
