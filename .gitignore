@@ -3,6 +3,12 @@
 /presentation/target/
 /presentation/auto/
 /presentation/_minted-*/
+/presentation/demo/*/external
+/presentation/demo/*/degasolv-lock.txt
+/presentation/demo/pyfrontend/ve/
+/presentation/demo/pyfrontend/external/
+/presentation/demo/pyfrontend/product/
+/presentation/demo/nas/
 /docs/_build/
 /.nrepl-history
 /test-data/
@@ -20,15 +26,13 @@ pom.xml.asc
 .hgignore
 .hg/
 /.ve/
-/presentation/demo/*/external
-/presentation/demo/*/degasolv-lock.txt
-/presentation/demo/pyfrontend/ve/
-/presentation/demo/pyfrontend/external/
-/presentation/demo/pyfrontend/product/
-/presentation/demo/nas/
+
 *.zip
 cmake/
 *.so
+
+# Vagrant
+.vagrant/
 
 # editor files
 .#*

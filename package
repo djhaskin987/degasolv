@@ -18,7 +18,7 @@ mkdir -p pkg/
 mkdir -p pkg/usr/bin/
 mkdir -p pkg/usr/lib/${name}/
 mkdir -p pkg/usr/share/doc/${name}/
-cat > pkg/usr/share/doc/${name}/manifest << MANIFEST
+cat > pkg/usr/share/doc/${name}/manifest.txt << MANIFEST
 Name:               ${name}
 Version:            ${version}
 Previous Version:   ${previous_version}
@@ -27,7 +27,7 @@ Git hash:           ${hash}
 Build date:         ${builddate}
 MANIFEST
 
-cp target/uberjar/degasolv-standalone.jar \
+cp target/uberjar/${name}-${version}-standalone.jar \
     pkg/usr/lib/degasolv/degasolv.jar
 
 cp scripts/degasolv pkg/usr/bin
@@ -43,7 +43,7 @@ fpm \
     --architecture "all" \
     --depends "java-runtime" \
     --maintainer "djhaskin987@gmail.com" \
-    --description "Generic dependency resolver with an eye toward building software." \
+    --description "Dependency tracker with an eye toward building and shipping software." \
     --url "http://degasolv.readthedocs.io/en/latest/" \
     -C pkg
 
