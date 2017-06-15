@@ -21,9 +21,6 @@
    :repo-aggregation :repo-aggregation
    :resolve-conflict-strat :resolve-conflict-strat
    }
-  :plugins [
-            [lein-print "0.1.0"]
-            ]
   :profiles {
              :dev {:dependencies [
                                   [tupelo "0.9.31"]
