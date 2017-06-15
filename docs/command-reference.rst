@@ -583,7 +583,7 @@ Or, more concretely::
 
   "hickory|maple|oak"
 
-Alternatives will be considered in order fo appearance. In general, specifying
+Alternatives will be considered in order of appearance. In general, specifying
 more than one alternative should be msotly unecessary, and generally to be
 avoided. THis is because many alternatives tend to impact performance
 significantly; but they are there and usable if needed.
