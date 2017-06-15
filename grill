@@ -80,11 +80,20 @@ java -jar ../../target/uberjar/${name}-${version}-standalone.jar generate-repo-i
 # Make sure the tests succeed.
 echo "These should succeed"
 java -jar ../../target/uberjar/${name}-${version}-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
+
+echo "Test of standard in"
+cat ${PWD}/index.dsrepo | \
+    java -jar ../../target/uberjar/${name}-${version}-standalone.jar \
+         resolve-locations \
+         -R - -r "b"
+
 cat > $PWD/config.edn <<EOF
 {  :repositories ["$PWD/index.dsrepo"]
 }
 EOF
 java -jar ../../target/uberjar/${name}-${version}-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b"
+
+
 if java -jar ../../target/uberjar/${name}-${version}-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b" -s fast
 then
     exit 1

@@ -75,6 +75,12 @@ via `GitHub issue`_ :).
 
 .. _Github issue: https://github.com/djhaskin987/degasolv/issues
 
+You can also talk to us using `Gitter`_ or the `Google Group "degasolv-users"`_.
+
+.. _Gitter: https://gitter.im/degasolv/Lobby
+
+.. _Google Group "degasolv-users": https://groups.google.com/forum/#!forum/degasolv-users
+
 Contribution
 ------------
 
