@@ -15,8 +15,34 @@
              :rename {maven-vercmp cmp}])
   (:gen-class))
 
+(defmethod
+  print-method
+  degasolv.resolver.VersionPredicate
+  [this w]
+  (tag/pr-tagged-record-on this w))
 
-#_(defmacro dbg [body]
+(defmethod
+  print-method
+  degasolv.resolver.Requirement
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+; UTF-8 by default :)
+(defn- default-slurp [loc]
+  (let [input (if (= loc "-")
+                    *in*
+                    loc)]
+    (clojure.core/slurp input :encoding "UTF-8")))
+
+(defn- default-spit [loc stuff]
+  (clojure.core/spit loc (pr-str stuff) :encoding "UTF-8"))
+
+(defn- pretty-spit [loc stuff]
+  (with-open
+    [ow (io/writer loc :encoding "UTF-8")]
+    (pprint/pprint stuff ow)))
+
+(defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
      x#))
@@ -108,11 +134,18 @@
        repositories)))
 
 (defn-
+  display-config!
+  [options arguments]
+  (pprint/pprint
+   (assoc options :arguments arguments)))
+
+(defn-
   resolve-locations!
   [options arguments]
   (let
       [{:keys [repositories
                resolve-strat
+               conflict-strat
                index-strat
                requirements
                package-system]}
@@ -143,6 +176,7 @@
         requirement-data
         aggregate-repo
         :strategy (keyword resolve-strat)
+        :conflict-strat (keyword conflict-strat)
         :compare cmp)]
     (case
       (first result)
@@ -205,7 +239,11 @@
          results))))))
 
 (def subcommand-cli
-  {"generate-card"
+  {"display-config"
+   {:description "Print the effective combined configuration (and arguments) of all the given config files."
+    :function display-config!
+    }
+   "generate-card"
    {:description "Generate dscard file based on arguments given"
     :function generate-card!
     :required-arguments {:id ["-i" "--id"]
@@ -252,6 +290,7 @@
            :default "index.dsrepo"]
           ["-a" "--add-to INDEX"
            "Add to repo index INDEX"]]}
+
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
     :function resolve-locations!
@@ -275,12 +314,19 @@
            "May be 'fast' or 'thorough'."
            :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
-                     "Strategy must either be 'thorough' or 'fast'."]]
+                      "Resolve strategy must either be 'thorough' or 'fast'."]]
           ["-t" "--package-system SYS"
            "Package system to use. May be 'degasolv' or 'apt'."
            :default "degasolv"
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
+          ["-f" "--conflict-strat STRAT"
+           "May be 'exclusive', 'inclusive' or 'prioritized'."
+           :default "exclusive"
+           :validate [#(or (= "exclusive" %)
+                           (= "inclusive" %)
+                           (= "prioritized" %))
+                      "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
@@ -397,11 +443,21 @@
 
 (def cli-options
   [["-c" "--config-file FILE" "config file"
-    :default (fs/file (fs/expand-home "./degasolv.edn"))
+    :id :config-files
+    :default []
     :default-desc "./degasolv.edn"
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
-               "Must be a regular file (which hopefully contains config info."]]])
+               "Must be a regular file (which hopefully contains config info."]
+    :assoc-fn
+    (fn [m k v] (update-in m [k] #(conj % v)))]])
+
+(defn- deep-merge [a b]
+  (merge-with (fn [x y]
+                (cond (map? y) (deep-merge x y)
+                      (vector? y) (conj x y)
+                      :else y))
+              a b))
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
@@ -462,17 +518,26 @@
                            ""
                            (usage summary :sub-command subcommand)
                            ""])))
-        (let [effective-options
+        (let [config-files (if (empty? (:config-files global-options))
+                             [(fs/file (fs/expand-home "./degasolv.edn"))]
+                             (:config-files global-options))
+              effective-options
               (merge
                (try
-                 (tag/read-string
-                  (default-slurp
-                   (:config-file global-options)))
+                 (reduce
+                  merge
+                  (map
+                  tag/read-string
+                  (map
+                   default-slurp
+                   (:config-files global-options))))
                  (catch Exception e
                    (binding [*out* *err*]
-                     (println "Warning: problem reading config file `"
-                              (str (:config-file global-options))
-                              "`, configuration file not used."))
+                     (println "Warning: problem reading config files, they were not used:"
+                              (str (string/join
+                                    \newline
+                                    (map #(str "  - " %)
+                                         (:config-files global-options))))))
                    {}))
                options)
               required-keys (set (keys (:required-arguments subcmd-cli)))

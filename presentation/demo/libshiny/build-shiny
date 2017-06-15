@@ -1,0 +1,72 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -ex
+
+# ***
+# This script builds the "shiny" library, which depends on the legacy library.
+# This library, too, is put into a zip file, and uploaded to the NAS.
+
+
+# ***
+# This is the part where degasolv pulls in the libraries.
+# Creates a lockfile for the build if it isn't present.
+if [ ! -f degasolv-lock.txt ]
+then
+    degasolv resolve-locations > degasolv-lock.txt
+fi
+
+rm -rf external
+mkdir -p external
+
+cat degasolv-lock.txt | sed 's|^[^@]*@ *||g' | \
+    while read url
+    do
+        curl -L -O "${url}"
+        fname="$(echo "${url}" | sed 's|[^/]*/||g')"
+        unzip "${fname}"
+    done
+
+# ***
+# This part compiles the SO file.
+rm -rf cmake
+mkdir -p cmake
+cd cmake
+cmake ..
+make
+
+# ***
+# This part makes the zip file.
+# Files are placed in 'external' because
+# In other builds, that's the folder where
+# they'll be expected
+cat > manifest.txt <<MANIFEST
+Name: libshiny
+Version: 1.3.0
+Git Hash: $(git rev-parse HEAD)
+MANIFEST
+mkdir -p external/lib
+mkdir -p external/pkg/shiny
+cp ../degasolv-lock.txt external/pkg/shiny/
+cp manifest.txt external/pkg/shiny/
+cp libshiny.so external/lib/libshiny.so
+zip \
+    -r libshiny-1.3.0.zip \
+    external
+
+# This represents the "Push to NAS" step
+cp libshiny-1.3.0.zip ../../nas
+
+
+# ***
+# This represents the "Push to NAS" step
+cp libshiny-1.3.0.zip ../../nas
+
+# ***
+# Create the degasolv card
+degasolv -c ../degasolv.edn generate-card --card-file libshiny-1.3.0.zip.dscard
+cp libshiny-1.3.0.zip.dscard ../../nas
+
+# ***
+# Update repo index
+cd ../../nas
+degasolv generate-repo-index
