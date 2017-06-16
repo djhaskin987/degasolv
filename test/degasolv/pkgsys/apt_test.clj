@@ -40,7 +40,13 @@
                        :equal-to
                        "1.0.0")]])]]
                (deb-to-degasolv-requirements
-                "a|b (<< 1.2.3), c (= 1.0.0)")))))
+                "a|b (<< 1.2.3), c (= 1.0.0)")))
+        (is (= [[(->Requirement
+                   :present
+                   "a"
+                   nil)]]
+               (deb-to-degasolv-requirements
+                 "a:any")))))
 
 (deftest ^:pkgsys-apt test-group-package-lines
     (testing "Empty cases"
@@ -49,8 +55,7 @@
       (is (=
             [[""]]
             (group-pkg-lines [""]))))
-    (testing "Edge cases"
-             (is (= [["Package: "
+    (testing "Edge cases" (is (= [["Package: "
                       "foo"]]
                     (group-pkg-lines
                       ["Package: "
@@ -81,7 +86,31 @@
 (deftest ^:pkgsys-apt test-apt-repo
          (testing "A basic, sanity-check test on apt-repo"
                   (is (=
-                        {"a11y-profile-manager"
+                        {
+                         "foo"
+                         [(->PackageInfo
+                            "foo"
+                            "0.1.11-0ubuntu3"
+                            "http://us.archive.ubuntu.com/ubuntu/pool/main/f/foo/foo_0.1.11-0ubuntu3_amd64.deb"
+                            [[(->Requirement
+                                :present
+                                "liba11y-profile-manager-0.1-0"
+                                [[(->VersionPredicate
+                                    :greater-equal
+                                    "0.1.11")]])]
+                             [(->Requirement
+                                :present
+                                "libc6"
+                                [[(->VersionPredicate
+                                    :greater-equal
+                                    "2.4")]])]
+                             [(->Requirement
+                                :present
+                                "libglib2.0-0"
+                                [[(->VersionPredicate
+                                    :greater-equal
+                                    "2.26.0")]])]])]
+                         "a11y-profile-manager"
                          [(->PackageInfo
                             "a11y-profile-manager"
                             "0.1.11-0ubuntu3"
@@ -111,7 +140,29 @@
                                                        nil)]}
                         (apt-repo
                           "http://us.archive.ubuntu.com/ubuntu/"
-                          "Package: a11y-profile-manager
+                          "Package: foo:any
+Priority: optional
+Section: misc
+Installed-Size: 27
+Maintainer: Luke Yelavich <themuso@ubuntu.com>
+Architecture: amd64
+Version: 0.1.11-0ubuntu3
+Depends: liba11y-profile-manager-0.1-0 (>= 0.1.11), libc6:any (>= 2.4), libglib2.0-0 (>= 2.26.0)
+Filename: pool/main/f/foo/foo_0.1.11-0ubuntu3_amd64.deb
+Size: 6310
+MD5sum: 88048849b5897f17b987c0bfd8f1c899
+SHA1: 3520ea78e489da35a7e71048dd5ff3fe6d99e13e
+SHA256: a14a3bf010d5e5f8a2b46ff94836808cca02ebb1610b9e36558d3a4d8a7296d9
+Description: Accessibility Profile Manager - Command-line utility
+Multi-Arch: foreign
+Homepage: https://launchpad.net/a11y-profile-manager
+Description-md5: ecbac70f8ff00c7dbf5fdc46d7819613
+Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+Origin: Ubuntu
+Supported: 9m
+Task: ubuntu-live, ubuntu-gnome-desktop, ubuntu-mate-live
+
+Package: a11y-profile-manager
 Priority: optional
 Section: misc
 Installed-Size: 27

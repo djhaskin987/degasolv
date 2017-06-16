@@ -1,13 +1,12 @@
 (in-ns 'degasolv.resolver)
 
 (defn priority-repo [rs]
-  (t/spy "I seeping" rs)
   (fn [id]
     (or
       (first
         (filter
           #(not (empty? %))
-          (map #((t/spy "map this" %) (t/spy "priority-repo id" id))
+          (map #(% id)
                rs)))
       [])))
 
@@ -20,9 +19,6 @@
      [])))
 
 (defn map-query [m]
-  (pretty-spit
-    "./foo.edn"
-    m)
   (fn [nm]
     (let [result (find m nm)]
       (if (nil? result)

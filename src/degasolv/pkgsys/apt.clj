@@ -19,6 +19,7 @@
   (if (empty? s)
     nil
     (t/it-> s
+          (string/replace it #":(any|i386|amd64)" "")
           (string/replace it #"[ ()]" "")
           (string/replace it #"<<" "<")
           (string/replace it #">>" ">")
@@ -146,29 +147,30 @@
   [repospec]
   (let [[pkgtype url dist & pools]
         (string/split repospec #" +")]
-    (mapv
-       (fn each-pool
-         [pool]
-         (map-query
+     (mapv
+      (fn each-loc
+           [loc]
            (t/it->
-             pool
-               (string/join
-                 "/"
-                 (if
-                   (.contains pool "/")
-                   [url
-                    pool
-                    "Packages.gz"]
-                   [url
-                    "dists"
-                    dist
-                    it
-                    pkgtype
-                    "Packages.gz"]))
-               (with-open
-                 [in
-                  (->zip-input-stream
-                    (io/input-stream it))]
-                 (slurp in))
-               (apt-repo url it))))
-       pools)))
+            loc
+            (string/join "/" it)
+            (with-open
+              [in
+               (->zip-input-stream
+                (io/input-stream it))]
+              (slurp in))
+            (apt-repo url it)
+            (map-query it)))
+           (if (.contains dist "/")
+             [[url
+               dist
+               "Packages.gz"]]
+             (mapv
+              (fn each-pool
+                [pool]
+                [url
+                 "dists"
+                 dist
+                 pool
+                 pkgtype
+                 "Packages.gz"])
+              pools)))))
