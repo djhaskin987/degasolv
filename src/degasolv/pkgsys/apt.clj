@@ -53,7 +53,7 @@
                 (string/lower-case k))
               v]))
           it)
-        (into {} it)))
+        (into (transient {}) it)))
 
 (defn convert-pkg-requirements
   [pkg]
