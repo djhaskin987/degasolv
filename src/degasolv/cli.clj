@@ -309,7 +309,8 @@
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
-          ["-p" "--present-package <pkgname>==<pkgversion>"
+          ["-p" "--present-package PKG"
+           "Hard present package. **"
            :id :present-packages
            :validate
            [#(re-matches r/str-frozen-package-regex %)
@@ -317,7 +318,7 @@
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-r" "--requirement REQ"
-           "Resolve req. May be used more than once."
+           "Resolve req. **"
            :id :requirements
            :validate
            [#(re-matches r/str-requirement-regex %)
@@ -326,7 +327,7 @@
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-R" "--repository INDEX"
-           "Search INDEX for packages. May be used more than once."
+           "Search INDEX for packages. **"
            :id :repositories
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
@@ -335,23 +336,23 @@
            :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
                       "Resolve strategy must either be 'thorough' or 'fast'."]]
-          ["-t" "--package-system SYS"
-           "Package system to use. May be 'degasolv' or 'apt'."
-           :default "degasolv"
-           :validate [#(or (= "degasolv" %) (= "apt" %))
-                      "Package system must be either 'degasolv' or 'apt'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
-                      "Strategy must either be 'priority' or 'global'."]]]}
+                      "Strategy must either be 'priority' or 'global'."]]
+          ["-t" "--package-system SYS"
+           "May be 'degasolv' or 'apt'."
+           :default "degasolv"
+           :validate [#(or (= "degasolv" %) (= "apt" %))
+                      "Package system must be either 'degasolv' or 'apt'."]]]}
    "query-repo"
    {:description "Query repository for a particular package"
     :function query-repo!
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
     :cli [["-R" "--repository INDEX"
-           "Search INDEX for packages. May be used more than once."
+           "Search INDEX for packages. **"
            :id :repositories
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
@@ -404,7 +405,8 @@
                "-options>")
           ""
           "Options are shown below, with their default values and"
-          "  descriptions:"
+          "  descriptions. Options marked with `**` may be"
+          "  used more than once."
           ""
           options-summary
           ]
