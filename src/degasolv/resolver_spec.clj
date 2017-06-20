@@ -112,18 +112,20 @@
    str-requirement-pattern
    "$")))
 
-(def str-frozen-pattern
+(def str-frozen-package-pattern
   (str
     str-id-pattern
     "=="
     str-version-pattern))
 
-(def str-frozen-regex
+(def str-frozen-package-regex
   (re-pattern
     (str
       "^"
-      str-frozen-pattern
+      str-frozen-package-pattern
       "$")))
+(s/def ::frozen-package-string
+       #(re-matches str-frozen-package-regex %))
 
 (s/def ::requirement-string
        #(re-matches str-requirement-regex %))
