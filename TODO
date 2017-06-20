@@ -5,3 +5,4 @@
 - [ ] Docs for `--package-system`
 - [ ] Add tree returned value when `fast` is used.
 - [ ] Add option to print said tree when fast is used.
+- [ ] package systems for query repo.
