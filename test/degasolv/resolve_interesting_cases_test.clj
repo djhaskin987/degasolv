@@ -2,8 +2,8 @@
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
-            [version-clj.core :refer [version-compare]
-             :rename {version-compare cmp}])
+            [serovers.core :refer [maven-vercmp]
+             :rename {maven-vercmp cmp}])
   (:import [degasolv.resolver
             PackageInfo
             Requirement]))

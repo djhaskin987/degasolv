@@ -1,3 +1,9 @@
-- [ ] add tests to grill for different repo merge strategies for both resolve-locations and query-repo
+- [ ] Add docs URL to help page.
+- [ ] Term hoisting tests both for found packages and present packages
+- [ ] Add test for validation checking of present packages in config files
+- [ ] Do something about `:any` in APT pkgsystem
+- [ ] Docs for `--present-package`
+- [ ] Docs for `--package-system`
 - [ ] Add tree returned value when `fast` is used.
 - [ ] Add option to print said tree when fast is used.
+- [ ] package systems for query repo.

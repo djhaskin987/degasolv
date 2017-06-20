@@ -2,8 +2,9 @@
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
-            [version-clj.core :refer [version-compare]
-             :rename {version-compare cmp}])
+            [serovers.core :as vers
+             :refer [maven-vercmp]
+             :rename {maven-vercmp cmp}])
   (:import [degasolv.resolver
             PackageInfo
             Requirement]))
@@ -91,11 +92,11 @@
                  "http://example.com/repo/c-0.2.3.zip"
                }
           (match
-           (dbg2 (resolve-dependencies
+           (resolve-dependencies
                            [[{:status :present :id "a"}]]
                            query
                            :compare cmp
-                           :conflict-strat :prioritized))
+                           :conflict-strat :prioritized)
                     [:successful s]
                     (set (map :location s))
                     [:unsuccessful u]

@@ -73,6 +73,7 @@
            ::package
            :into [])))
 
+(def str-equals-pattern "==")
 (def str-relation-pattern "(>=|==|!=|<=|<|>)")
 (def str-id-pattern "[^>=<!;,|]+")
 (def str-version-predicate-pattern
@@ -89,6 +90,7 @@
     "(;"
     str-version-conj-predicate-pattern
     ")*"))
+
 (def str-alternative-pattern
   (str
     "!?"
@@ -110,5 +112,21 @@
    str-requirement-pattern
    "$")))
 
+(def str-frozen-package-pattern
+  (str
+    str-id-pattern
+    "=="
+    str-version-pattern))
+
+(def str-frozen-package-regex
+  (re-pattern
+    (str
+      "^"
+      str-frozen-package-pattern
+      "$")))
+(s/def ::frozen-package-string
+       #(re-matches str-frozen-package-regex %))
+
 (s/def ::requirement-string
        #(re-matches str-requirement-regex %))
+

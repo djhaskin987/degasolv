@@ -3,12 +3,12 @@
 (defn priority-repo [rs]
   (fn [id]
     (or
-     (first
-      (filter
-      #(not (empty? %))
-     (map #(% id)
-          rs)))
-     [])))
+      (first
+        (filter
+          #(not (empty? %))
+          (map #(% id)
+               rs)))
+      [])))
 
 (defn global-repo [rs & {:keys [cmp]
                          :or {cmp #(- (compare (:version %1) (:version %2)))}}]

@@ -46,6 +46,24 @@ x#))
 (def ->package ->PackageInfo)
 (def ->version-predicate ->VersionPredicate)
 
+(defmethod
+  print-method
+  degasolv.resolver.PackageInfo
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+(defmethod
+  print-method
+  degasolv.resolver.VersionPredicate
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+(defmethod
+  print-method
+  degasolv.resolver.Requirement
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
 (defn present
   ([id] (present id nil))
   ([id spec] (->Requirement :present id spec)))
@@ -291,9 +309,13 @@ x#))
                                            absent-specs
                                            id)
                                           :absent
-                                          (get
-                                           present-packages
-                                           id)
+                                          (or
+                                            (get
+                                              found-packages
+                                              id)
+                                            (get
+                                              present-packages
+                                              id))
                                           :present
                                           :else
                                           :unspecified)))
