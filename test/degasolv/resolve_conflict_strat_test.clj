@@ -92,11 +92,11 @@
                  "http://example.com/repo/c-0.2.3.zip"
                }
           (match
-           (dbg2 (resolve-dependencies
+           (resolve-dependencies
                            [[{:status :present :id "a"}]]
                            query
                            :compare cmp
-                           :conflict-strat :prioritized))
+                           :conflict-strat :prioritized)
                     [:successful s]
                     (set (map :location s))
                     [:unsuccessful u]

@@ -37,12 +37,6 @@
       #"^Package:.*$"
       (first lines))))
 
-(defn group-pkg-lines
-  [lines]
-  (t/partition-using
-    start-pkg-segment?
-    lines))
-
 (defn lines-to-map
   [lines]
   (t/it-> lines
@@ -53,13 +47,13 @@
                 (string/lower-case k))
               v]))
           it)
-        (into (transient {}) it)))
+        (transient (into {} it))))
 
 (defn convert-pkg-requirements
   [pkg]
   (let [deps (:depends pkg)]
     (if deps
-      (assoc
+      (assoc!
         pkg
         :depends
         (deb-to-degasolv-requirements
@@ -68,7 +62,7 @@
 
 (defn add-pkg-location
   [pkg url]
-  (assoc pkg
+  (assoc! pkg
          :location
          (t/it-> url
                (str it "/" (:filename pkg))
@@ -116,32 +110,38 @@
 
 (defn apt-repo
   [url info]
-  (t/it-> info
-        (string/split-lines it)
-        (filter
-          #(re-matches #"^(Provides|Version|Package|Depends|Filename):.*" %)
-          it)
-        (group-pkg-lines it)
-        (map lines-to-map it)
-        (map
-          (fn each-package
-            [pkg]
-            (as->
-              pkg each
-              (convert-pkg-requirements each)
-              (add-pkg-location each url)
-              (expand-provides each)))
-          it)
-        (apply concat it)
-        (reduce
-          (fn [c v]
-            (if (not (get c (:id v)))
-              (assoc c (:id v) [v])
-              (update-in
-                c
-                [(:id v)] conj v)))
-          {}
-          it)))
+  (t/it->
+    info
+    (string/split it #"\n\n")
+    (map
+      (fn each-package
+        [pkg]
+        (as->
+          pkg each
+          (string/split-lines each)
+          (filter
+            #(re-matches #"^(Provides|Version|Package|Depends|Filename):.*" %)
+            each)
+          (lines-to-map each)
+          (convert-pkg-requirements each)
+          (add-pkg-location each url)
+          (expand-provides each)))
+      it)
+    (apply concat it)
+    (fn query [id]
+      (filter
+        #(= id (:id %))
+        it))))
+;;    (reduce
+;;      (fn conjv
+;;        [c v]
+;;        (update-in c
+;;                   [(:id v)]
+;;                   #(conj (vec %1) %2)
+;;                   v))
+;;      {}
+;;      it)
+;;  (map-query it)))
 
 (defn slurp-apt-repo
   [repospec]
@@ -158,8 +158,7 @@
                (->zip-input-stream
                 (io/input-stream it))]
               (slurp in))
-            (apt-repo url it)
-            (map-query it)))
+            (apt-repo url it)))
            (if (.contains dist "/")
              [[url
                dist

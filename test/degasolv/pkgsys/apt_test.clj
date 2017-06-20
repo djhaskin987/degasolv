@@ -48,97 +48,9 @@
                (deb-to-degasolv-requirements
                  "a:any")))))
 
-(deftest ^:pkgsys-apt test-group-package-lines
-    (testing "Empty cases"
-      (is (empty?
-            (group-pkg-lines '())))
-      (is (=
-            [[""]]
-            (group-pkg-lines [""]))))
-    (testing "Edge cases" (is (= [["Package: "
-                      "foo"]]
-                    (group-pkg-lines
-                      ["Package: "
-                       "foo"])))
-             (is (= [["Package: foo"]
-                     ["Package: bar" "Version: 1.0.0"]
-                     ["Package: baz"]]
-                    (group-pkg-lines
-                      ["Package: foo"
-                       "Package: bar"
-                       "Version: 1.0.0"
-                       "Package: baz"]))))
-    (testing "Normal Cases"
-             (is (= [["Package: foo"
-                      "Version: 1.0.0"]
-                     ["Package: bar"
-                      "Version: 2.0.0"]
-                     ["Package: baz"
-                      "Version: 3.0.0"]]
-                    (group-pkg-lines
-                      ["Package: foo"
-                       "Version: 1.0.0"
-                       "Package: bar"
-                       "Version: 2.0.0"
-                       "Package: baz"
-                       "Version: 3.0.0"])))))
-
 (deftest ^:pkgsys-apt test-apt-repo
          (testing "A basic, sanity-check test on apt-repo"
-                  (is (=
-                        {
-                         "foo"
-                         [(->PackageInfo
-                            "foo"
-                            "0.1.11-0ubuntu3"
-                            "http://us.archive.ubuntu.com/ubuntu/pool/main/f/foo/foo_0.1.11-0ubuntu3_amd64.deb"
-                            [[(->Requirement
-                                :present
-                                "liba11y-profile-manager-0.1-0"
-                                [[(->VersionPredicate
-                                    :greater-equal
-                                    "0.1.11")]])]
-                             [(->Requirement
-                                :present
-                                "libc6"
-                                [[(->VersionPredicate
-                                    :greater-equal
-                                    "2.4")]])]
-                             [(->Requirement
-                                :present
-                                "libglib2.0-0"
-                                [[(->VersionPredicate
-                                    :greater-equal
-                                    "2.26.0")]])]])]
-                         "a11y-profile-manager"
-                         [(->PackageInfo
-                            "a11y-profile-manager"
-                            "0.1.11-0ubuntu3"
-                            "http://us.archive.ubuntu.com/ubuntu/pool/main/a/a11y-profile-manager/a11y-profile-manager_0.1.11-0ubuntu3_amd64.deb"
-                            [[(->Requirement
-                                :present
-                                "liba11y-profile-manager-0.1-0"
-                                [[(->VersionPredicate
-                                    :greater-equal
-                                    "0.1.11")]])]
-                             [(->Requirement
-                                :present
-                                "libc6"
-                                [[(->VersionPredicate
-                                    :greater-equal
-                                    "2.4")]])]
-                             [(->Requirement
-                                :present
-                                "libglib2.0-0"
-                                [[(->VersionPredicate
-                                    :greater-equal
-                                    "2.26.0")]])]])]
-                         "a11y-profile-manager-doc" [(->PackageInfo
-                                                       "a11y-profile-manager-doc"
-                                                       "0.1.11-0ubuntu3"
-                                                       "http://us.archive.ubuntu.com/ubuntu/pool/main/a/a11y-profile-manager/a11y-profile-manager-doc_0.1.11-0ubuntu3_all.deb"
-                                                       nil)]}
-                        (apt-repo
+                  (let [repo (apt-repo
                           "http://us.archive.ubuntu.com/ubuntu/"
                           "Package: foo:any
 Priority: optional
@@ -203,4 +115,56 @@ Homepage: https://launchpad.net/a11y-profile-manager
 Description-md5: 1c71821ee46c31ca86e8242f7517c26e
 Bugs: https://bugs.launchpad.net/ubuntu/+filebug
 Origin: Ubuntu
-Supported: 9m")))))
+Supported: 9m")]
+                  (is (= (repo "foo")
+                         [(->PackageInfo
+                            "foo"
+                            "0.1.11-0ubuntu3"
+                            "http://us.archive.ubuntu.com/ubuntu/pool/main/f/foo/foo_0.1.11-0ubuntu3_amd64.deb"
+                            [[(->Requirement
+                                :present
+                                "liba11y-profile-manager-0.1-0"
+                                [[(->VersionPredicate
+                                    :greater-equal
+                                    "0.1.11")]])]
+                             [(->Requirement
+                                :present
+                                "libc6"
+                                [[(->VersionPredicate
+                                    :greater-equal
+                                    "2.4")]])]
+                             [(->Requirement
+                                :present
+                                "libglib2.0-0"
+                                [[(->VersionPredicate
+                                    :greater-equal
+                                    "2.26.0")]])]])]))
+                    (is (= (repo "a11y-profile-manager")
+                           [(->PackageInfo
+                              "a11y-profile-manager"
+                              "0.1.11-0ubuntu3"
+                              "http://us.archive.ubuntu.com/ubuntu/pool/main/a/a11y-profile-manager/a11y-profile-manager_0.1.11-0ubuntu3_amd64.deb"
+                              [[(->Requirement
+                                  :present
+                                  "liba11y-profile-manager-0.1-0"
+                                  [[(->VersionPredicate
+                                      :greater-equal
+                                      "0.1.11")]])]
+                               [(->Requirement
+                                  :present
+                                  "libc6"
+                                  [[(->VersionPredicate
+                                      :greater-equal
+                                      "2.4")]])]
+                               [(->Requirement
+                                  :present
+                                  "libglib2.0-0"
+                                  [[(->VersionPredicate
+                                      :greater-equal
+                                      "2.26.0")]])]])]))
+                    (is (= (repo "a11y-profile-manager-doc")
+                        [(->PackageInfo
+                           "a11y-profile-manager-doc"
+                           "0.1.11-0ubuntu3"
+                           "http://us.archive.ubuntu.com/ubuntu/pool/main/a/a11y-profile-manager/a11y-profile-manager-doc_0.1.11-0ubuntu3_all.deb"
+                           nil)])))))
