@@ -11,24 +11,24 @@ Running ``java -jar degasolv-<version>-standalone.jar -h`` will yield
 a page that looks something like this::
 
   Usage: degasolv <options> <command> <<command>-options>
-  
+
   Options are shown below, with their default values and
     descriptions. Options marked with `**` may be
     used more than once.
-  
+
     -c, --config-file FILE  ./degasolv.edn  config file
     -h, --help                              Print this help page
-  
+
   Commands are:
-  
+
     - display-config
     - generate-card
     - generate-repo-index
     - resolve-locations
     - query-repo
-  
+
   Simply run `degasolv <command> -h` for help information.
-  
+
 Explanation of options:
 
 - ``-c FILE``, ``--config-file FILE``: A config file may be specified
@@ -191,20 +191,20 @@ Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> generate-card <generate-card-options>
-  
+
   Options are shown below, with their default values and
     descriptions. Options marked with `**` may be
     used more than once.
-  
+
     -i, --id true                        ID (name) of the package
     -v, --version true                   Version of the package
     -l, --location true                  URL or filepath of the package
     -r, --requirement REQ                List req, may be used multiple times
     -C, --card-file FILE   ./out.dscard  The name of the card file
     -h, --help                           Print this help page
-  
+
   The following options are required for subcommand `generate-card`:
-  
+
     - `-i`, `--id`, or the config file key `:id`.
     - `-v`, `--version`, or the config file key `:version`.
     - `-l`, `--location`, or the config file key `:location`.
@@ -257,11 +257,11 @@ returns a page that looks something like this::
 
 
   Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
-  
+
   Options are shown below, with their default values and
     descriptions. Options marked with `**` may be
     used more than once.
-  
+
     -d, --search-directory DIR  .             Find degasolv cards here
     -I, --index-file FILE       index.dsrepo  The name of the repo file
     -a, --add-to INDEX                        Add to repo index INDEX
@@ -328,11 +328,11 @@ Running ``java -jar degasolv-<version>-standalone.jar resolve-locations -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> resolve-locations <resolve-locations-options>
-  
+
   Options are shown below, with their default values and
     descriptions. Options marked with `**` may be
     used more than once.
-  
+
     -f, --conflict-strat STRAT          exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
     -p, --present-package PKG                      Hard present package. **
     -r, --requirement REQ                          Resolve req. **
@@ -342,9 +342,9 @@ returns a page that looks something like this::
     -t, --package-system SYS            degasolv   May be 'degasolv' or 'apt'.
 
     -h, --help                                     Print this help page
-  
+
   The following options are required for subcommand `resolve-locations`:
-  
+
     - `-R`, `--repository`, or the config file key `:repositories`.
     - `-r`, `--requirement`, or the config file key `:requirements`.
 
@@ -368,13 +368,15 @@ In the above example out, each line takes the form::
 If the command fails, a non-zero exit code is returned. The output from such
 a run might look like this::
 
-  The resolver encountered the following problems: 
+  The resolver encountered the following problems:
 
   Clause: e>=1.1.0,<2.0.0
   - Packages selected:
     - b==2.3.0 @ https://example.com/repo/b-2.3.0.zip
     - d==0.8.0 @ https://example.com/repo/d-0.8.0.zip
-  - Packages already present: None
+  - Packages already present:
+    - x==0.1.0 @ already present
+    - y==0.2.0 @ already present
   - Alternative being considered: e>=1.1.0,<2.0.0
   - Package in question was found in the repository, but cannot be used.
   - Package ID in question: e
@@ -386,8 +388,9 @@ fulfill or resolve. Each field is explained as follows:
 1. ``Packages selected``: This is a list of packages found in order to
    resolve previous requirements before the "problem" clause was
    encountered.
-2. ``Packages already present``: This is an artifact of the
-   resolver. It will always be ``None`` and can be ignored.
+2. ``Packages already present``: Packages which were given to degasolv
+   using the `--present-package`_ option. If none were specified,
+   this will show as ``None``.
 3. ``Alternative being considered``: This field displays what
    alternative from the requirement was being currently considered
    when the problem was encountered.
@@ -441,10 +444,12 @@ Explanation of options:
     To mimic the behavior of maven, set ``--conflict-strat`` to ``prioritized``
     and ``--resolve-strat`` to ``fast``.
 
+.. _--present-package:
+
 - ``-p PKG``, ``--present-package PKG``, ``:present-packages ["PKG1", ...]``:
   Specify a "hard present package". Specify ``PKG`` as
-  ``<id>==<vers>``, as in this example: ``garfield==1.0``. 
-  
+  ``<id>==<vers>``, as in this example: ``garfield==1.0``.
+
   In doing this, you are telling degasolv that a package "already exists" at a
   particular version in your system or build, whatever that means. This means
   that when degasolv encounters a requirement for this package, it will assume
@@ -452,7 +457,7 @@ Explanation of options:
   the other side, degasolv will not try to change the package. If the version
   of the present package conflicts with requirements encountered, resolution of
   those requirements will fail.
-  
+
   This is another one of those options that is provided and, if needed, is
   meant to benefit the user; however, judicious use is recommended. If you
   don't know what you're doing, you probably don't want to use this option.
@@ -555,23 +560,27 @@ Explanation of options:
 
   .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
 
-- ``-t SYS``, ``--package-system SYS``, ``:package-systems ["SYS1", ...]``:
+- ``-t SYS``, ``--package-system SYS``, ``:package-system "SYS"``:
   **Experimental**. Specify package system to use. By default, this value
-  is ``degasolv``. Using this option allows the user to use degasolv's
-  resolver engine and run it on respositories from other package manager
-  systems. This option was mainly implemented for profiling and debugging
-  purposes, but it is envisioned that this option will expand to include
-  many package manager repositories, so that users can use degasolv to resolve
-  packages from well-known sources, in a reliable and useful manner.
-  
+  is ``degasolv``. Using this option allows the user to run degasolv's
+  resolver engine on respositories from other package manager systems. Though
+  option was mainly implemented for profiling and debugging purposes, it is
+  envisioned that this option will expand to include many package manager
+  repositories. This will allow users to use degasolv to resolve packages
+  from well-known sources, in a reliable and useful manner.
+
   Other available options are:
 
     - ``apt``: resolve using the APT debian package manager. When using this
-      method, `specify repositories`_ using the format
-      ``{binary-amd64|binary-i386} <url> <dist> <pool>``, or in the case of
-      naive apt repositories, 
-      ``{binary-amd64|binary-i386} <url> <relative-path>``. For example,
-      I might use the repository option like this::
+      method, `specify repositories`_ using the format::
+
+        {binary-amd64|binary-i386} <url> <dist> <pool>
+
+      Or, in the case of naive apt repositories::
+
+        {binary-amd64|binary-i386} <url> <relative-path>
+
+      For example, I might use the repository option like this::
 
         java -jar degasolv-<version>-standalone.jar resolve-locations \
             -R "binary-amd64 https://example.com/ubuntu/ /"
@@ -579,14 +588,14 @@ Explanation of options:
             --requirement "ubuntu-desktop"
 
       Or this::
-        
+
         java -jar degasolv-<version>-standalone.jar resolve-locations \
             -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
             -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
             -t "apt" \
             --requirement "ubuntu-desktop"
 
-      .. note:: Degasolv does not currently support APT dependencies between machine architectures, as in ``python:any``. Also, every degasolv repo is currently architecture-specific; each repo has an associated architecture, even if that architecture is `any`.
+      .. note:: Degasolv does not currently support APT dependencies between machine architectures, as in ``python:i386``. Also, every degasolv repo is currently architecture-specific; each repo has an associated architecture, even if that architecture is ``any``.
 
 CLI for ``query-repo``
 ----------------------
