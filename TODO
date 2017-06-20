@@ -1,6 +1,5 @@
-- Remove `:any` or anything after colon in names
-
-
-- [ ] add tests to grill for different repo merge strategies for both resolve-locations and query-repo
+- [ ] Do something about `:any` in APT pkgsystem
+- [ ] Docs for `--present-package`
+- [ ] Docs for `--package-system`
 - [ ] Add tree returned value when `fast` is used.
 - [ ] Add option to print said tree when fast is used.
