@@ -309,9 +309,13 @@ x#))
                                            absent-specs
                                            id)
                                           :absent
-                                          (get
-                                           present-packages
-                                           id)
+                                          (or
+                                            (get
+                                              found-packages
+                                              id)
+                                            (get
+                                              present-packages
+                                              id))
                                           :present
                                           :else
                                           :unspecified)))
