@@ -16,8 +16,6 @@
              :rename {maven-vercmp cmp}])
   (:gen-class))
 
-
-
 (defmethod
   print-method
   degasolv.resolver.VersionPredicate
@@ -131,6 +129,7 @@
                resolve-strat
                conflict-strat
                index-strat
+               present-packages
                requirements
                package-system]}
        options
@@ -150,6 +149,26 @@
                            (s/explain ::r/requirement-string str-req)))))
                    (string-to-requirement vetted-str-req)))
                requirements))
+       present-packages
+       (map
+         (fn [str-pkg]
+           (let [vetted-str-pkg
+                 (s/conform ::r/frozen-package-string str-pkg)]
+             (when (= vetted-str-pkg ::s/invalid)
+               (binding [*out* *err*]
+                 (println
+                   (str
+                     "Present package string `"
+                     str-pkg
+                     "` invalid:"
+                     (s/explain ::r/frozen-package-string str-pkg)))))
+             (let [[id version] (string/split str-pkg #"==")]
+               (->PackageInfo
+                 id
+                 version
+                 "Already present"
+                 nil))))
+         (:present-packages options))
        aggregate-repo
        (aggregate-repositories
          index-strat
@@ -159,6 +178,7 @@
        (resolve-dependencies
         requirement-data
         aggregate-repo
+        :present-packages present-packages
         :strategy (keyword resolve-strat)
         :conflict-strat (keyword conflict-strat)
         :compare cmp)]
@@ -280,7 +300,21 @@
     :function resolve-locations!
     :required-arguments {:repositories ["-R" "--repository"]
                          :requirements ["-r" "--requirement"]}
-    :cli [["-r" "--requirement REQ"
+    :cli [["-f" "--conflict-strat STRAT"
+           "May be 'exclusive', 'inclusive' or 'prioritized'."
+           :default "exclusive"
+           :validate [#(or (= "exclusive" %)
+                           (= "inclusive" %)
+                           (= "prioritized" %))
+                      "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
+          ["-p" "--present-package <pkgname>==<pkgversion>"
+           :id :present-packages
+           :validate
+           [#(re-matches r/str-frozen-package-regex %)
+            "Package must be specified as `<pkgname>==<pkgversion>`"]
+           :assoc-fn
+           (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-r" "--requirement REQ"
            "Resolve req. May be used more than once."
            :id :requirements
            :validate
@@ -304,13 +338,6 @@
            :default "degasolv"
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
-          ["-f" "--conflict-strat STRAT"
-           "May be 'exclusive', 'inclusive' or 'prioritized'."
-           :default "exclusive"
-           :validate [#(or (= "exclusive" %)
-                           (= "inclusive" %)
-                           (= "prioritized" %))
-                      "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
