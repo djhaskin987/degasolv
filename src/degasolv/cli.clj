@@ -369,7 +369,7 @@
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
-           "Package system to use. May be 'degasolv' or 'apt'."
+           "May be 'degasolv' or 'apt'."
            :default "degasolv"
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]]}})

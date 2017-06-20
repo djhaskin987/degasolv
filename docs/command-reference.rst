@@ -615,7 +615,7 @@ page that looks something like this::
     -q, --query QUERY                   Display packages matching query string.
     -R, --repository INDEX              Search INDEX for packages. **
     -S, --index-strat STRAT   priority  May be 'priority' or 'global'.
-    -t, --package-system SYS  degasolv  Package system to use. May be 'degasolv' or 'apt'.
+    -t, --package-system SYS  degasolv  May be 'degasolv' or 'apt'.
     -h, --help                          Print this help page
   
   The following options are required for subcommand `query-repo`:
