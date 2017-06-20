@@ -1,4 +1,5 @@
 - [ ] Term hoisting tests both for found packages and present packages
+- [ ] Add test for validation checking of present packages in config files
 - [ ] Do something about `:any` in APT pkgsystem
 - [ ] Docs for `--present-package`
 - [ ] Docs for `--package-system`
