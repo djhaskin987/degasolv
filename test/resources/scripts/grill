@@ -81,12 +81,39 @@ if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --con
 then
     exit 1
 fi
+
+echo "---- --present-packages tests ----"
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "b" --present-package "b!=1.3.0"
+then
+    exit 1
+fi
+
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "b" --present-package "b=1.3.0" 2>&1 | grep -q -E '<pkgname>==<pkgversion>'
+then
+    exit 1
+fi
+
+# present-package provided message
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "z" --present-package "b==1.3.0"
+then
+    exit 1
+fi
+
+# Explain it, too
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "z" --present-package "b==1.3.0" --present-package "x==0.9.9" 2>&1 | grep -q -E 'b==1\.3\.0'
+then
+    exit 1
+fi
+
+# Make sure the tests succeed.
+echo "These should succeed"
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" -r "b" --present-package "e==1.8.0" --present-package "x==0.9.0"
+echo "-- end --present-package tests"
+
 # Add the package that should make the tests succeed.
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "e" -v "1.8.0" -l "https://example.com/repo/e-1.8.0.zip" -C $PWD/e-1.8.0.zip.dscard
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
 
-# Make sure the tests succeed.
-echo "These should succeed"
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
 
 echo "Test of standard in"
