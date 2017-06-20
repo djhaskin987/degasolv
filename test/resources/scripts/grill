@@ -94,7 +94,7 @@ then
 fi
 
 # present-package provided message
-if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "z" --present-package "b==1.3.0"
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "z" --present-package "b==1.3.0" --present-package "x==0.9.9"
 then
     exit 1
 fi
