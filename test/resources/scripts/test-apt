@@ -14,6 +14,14 @@ version=$(lein print :version | sed 's|"||g')
 time java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
+    query-repo \
+    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
+    --package-system apt \
+    --query "libc6"
+
+time java \
+    -Xss16m \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
     --resolve-strat "fast" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \

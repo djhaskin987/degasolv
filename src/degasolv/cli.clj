@@ -168,7 +168,7 @@
                       (->PackageInfo
                         id
                         version
-                        "Already present"
+                        "already present"
                         nil)]))))
          (:present-packages options))
        aggregate-repo
@@ -351,28 +351,28 @@
     :function query-repo!
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
-    :cli [["-R" "--repository INDEX"
-           "Search INDEX for packages. **"
-           :id :repositories
-           :assoc-fn
-           (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-t" "--package-system SYS"
-           "Package system to use. May be 'degasolv' or 'apt'."
-           :default "degasolv"
-           :validate [#(or (= "degasolv" %) (= "apt" %))
-                      "Package system must be either 'degasolv' or 'apt'."]]
-          ["-q" "--query QUERY"
+    :cli [["-q" "--query QUERY"
            "Display packages matching query string."
            :validate [#(and (re-matches r/str-requirement-regex %)
                             (let [strreq (string-to-requirement %)]
                               (and (= (count strreq) 1)
                                    (= (:status (get strreq 0)) :present))))
                       "Query must look like one of these: `a`, `a`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]]
+          ["-R" "--repository INDEX"
+           "Search INDEX for packages. **"
+           :id :repositories
+           :assoc-fn
+           (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
            :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
-                      "Strategy must either be 'priority' or 'global'."]]]}})
+                      "Strategy must either be 'priority' or 'global'."]]
+          ["-t" "--package-system SYS"
+           "Package system to use. May be 'degasolv' or 'apt'."
+           :default "degasolv"
+           :validate [#(or (= "degasolv" %) (= "apt" %))
+                      "Package system must be either 'degasolv' or 'apt'."]]]}})
 
 (defn command-list [commands]
   (->> ["Commands are:"

@@ -54,14 +54,14 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       generate-repo-index [...]
 
-  A few notable exceptions to this rule is the ``--repository`` option of the
-  ``resolve-locations`` and ``query-repo`` commands, the ``--present-package``
-  option of the ``resolve-locations`` command, and the ``--requirement`` option
-  of the ``generate-card`` and ``resolve-locations`` commands. This is because
-  these options can be specified multiple times, and so their configuration
-  file key equivalents are named ``:repositories``, ``:present-packages`` and
-  ``:requirements`` respectively, and they show up in the configuration file as
-  a list of strings. So, instead of using this command::
+  A few notable exceptions to this rule is the ``--repository`` and
+  ``--present-package`` options of the ``resolve-locations`` and ``query-repo``
+  commands, and the ``--requirement`` option of the ``generate-card`` and
+  ``resolve-locations`` commands. This is because these options can be
+  specified multiple times, and so their configuration file key equivalents are
+  named ``:repositories``, ``:present-packages`` and ``:requirements``
+  respectively, and they show up in the configuration file as a list of
+  strings. So, instead of using this command::
 
     java -jar degasolv-<version>-standalone.jar \
       resolve-locations \
@@ -89,6 +89,7 @@ Explanation of options:
 
     java -jar degasolv-<version>-standalone.jar \
       --config-file "$PWD/config.edn" \
+      resolve-locations \
       [...]
 
   The config file may be a URL or a filepath. Both HTTP and HTTPS URLs are
@@ -271,7 +272,7 @@ This subcommand is used to generate a repository index file. A
 repository index file lists all versions of all packages in a
 particular degasolv repository, together with their locations. This
 file's location, whether by file path or URL, would then be given to
-``resolve-locations`` and ``query-repo`` commnds as degasolv
+``resolve-locations`` and ``query-repo`` commands as degasolv
 repositories.
 
 Explanation of options:
@@ -389,7 +390,7 @@ fulfill or resolve. Each field is explained as follows:
    resolve previous requirements before the "problem" clause was
    encountered.
 2. ``Packages already present``: Packages which were given to degasolv
-   using the `--present-package`_ option. If none were specified,
+   using the `present package`_ option. If none were specified,
    this will show as ``None``.
 3. ``Alternative being considered``: This field displays what
    alternative from the requirement was being currently considered
@@ -444,19 +445,19 @@ Explanation of options:
     To mimic the behavior of maven, set ``--conflict-strat`` to ``prioritized``
     and ``--resolve-strat`` to ``fast``.
 
-.. _--present-package:
+.. _present package:
 
 - ``-p PKG``, ``--present-package PKG``, ``:present-packages ["PKG1", ...]``:
   Specify a "hard present package". Specify ``PKG`` as
   ``<id>==<vers>``, as in this example: ``garfield==1.0``.
 
-  In doing this, you are telling degasolv that a package "already exists" at a
-  particular version in your system or build, whatever that means. This means
-  that when degasolv encounters a requirement for this package, it will assume
-  the package is already found and it will mark the dependency as resolved. On
-  the other side, degasolv will not try to change the package. If the version
-  of the present package conflicts with requirements encountered, resolution of
-  those requirements will fail.
+  Doing this tells degasolv that a package "already exists" at a particular
+  version in the system or build, whatever that means. This means that when
+  degasolv encounters a requirement for this package, it will assume the
+  package is already found and it will mark the dependency as resolved. On the
+  other hand, degasolv will not try to change or update the found package. If
+  the version of the present package conflicts with requirements encountered,
+  resolution of those requirements may fail.
 
   This is another one of those options that is provided and, if needed, is
   meant to benefit the user; however, judicious use is recommended. If you
@@ -465,10 +466,10 @@ Explanation of options:
   For example, if this option is used to tell degasolv that, as part of a
   build, some packages have already been downloaded, degasolv will not
   recommend that those packages be upgraded. This is the "hard" in "hard
-  present package": If the user specifies via `--present-package` that package
-  is already usable, degasolv won't try to find a new version for it; it
-  assumes "you know what you're doing" and that the package(s) in question are
-  not to be touched.
+  present package": If the user specifies via ``--present-package`` that
+  a package is already found and usable, degasolv won't try to find a new
+  version for it; it assumes "you know what you're doing" and that the
+  package(s) in question are not to be touched.
 
 - ``-r REQ``, ``--requirement REQ``, ``:requirements ["REQ1", ...]``:
   **Required**. Resolve this requirement together with all other requirements
@@ -482,7 +483,7 @@ Explanation of options:
   command line and in the configuration file, the requirements in the
   configuration file are ignored.
 
-.. _that option's explanation:
+.. _repository option:
 
 .. _specify repositories:
 
@@ -560,6 +561,8 @@ Explanation of options:
 
   .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
 
+.. _package system:
+
 - ``-t SYS``, ``--package-system SYS``, ``:package-system "SYS"``:
   **Experimental**. Specify package system to use. By default, this value
   is ``degasolv``. Using this option allows the user to run degasolv's
@@ -604,17 +607,19 @@ Running ``java -jar degasolv-<version>-standalone.jar query-repo -h`` returns a
 page that looks something like this::
 
   Usage: degasolv <options> query-repo <query-repo-options>
-
+  
   Options are shown below, with their default values and
-    descriptions:
-
-    -R, --repository INDEX             Search INDEX for packages. May be used more than once.
-    -q, --query QUERY                  Display packages matching query string.
-    -S, --index-strat STRAT  priority  May be 'priority' or 'global'.
-    -h, --help                         Print this help page
-
+    descriptions. Options marked with `**` may be
+    used more than once.
+  
+    -q, --query QUERY                   Display packages matching query string.
+    -R, --repository INDEX              Search INDEX for packages. **
+    -S, --index-strat STRAT   priority  May be 'priority' or 'global'.
+    -t, --package-system SYS  degasolv  Package system to use. May be 'degasolv' or 'apt'.
+    -h, --help                          Print this help page
+  
   The following options are required for subcommand `query-repo`:
-
+  
     - `-R`, `--repository`, or the config file key `:repositories`.
     - `-q`, `--query`, or the config file key `:query`.
 
@@ -641,10 +646,20 @@ Explanation of options:
     - ``"!a"``
 
 - ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``: **Required**.
-  This option works exactly the same as the repository option for the
+  This option works exactly the same as the `repository option`_ for the
   ``resolve-locations`` command, except that instead of using the repositories
-  for resolving requirements, it uses them for simple index queries. See `that
-  option's explanation`_ for more information.
+  for resolving requirements, it uses them for simple index queries. See that
+  option's explanation for more information.
+
+- ``-S STRAT``, ``--index-strat STRAT``, ``:index-strat "STRAT"``:
+  This option works exactly the same as the `index strategy`_ option for the
+  ``resolve-locations`` command, except that it is used for simple index
+  queries. See that option's explanation for more information.
+
+- ``-t SYS``, ``--package-system SYS``, ``:package-system "SYS"``:
+  This option works exactly the same as the `package system`_ option for the
+  ``resolve-locations`` command, except that it is used for simple index
+  queries. See that option's explanation for more information.
 
 .. _Specifying a requirement:
 
