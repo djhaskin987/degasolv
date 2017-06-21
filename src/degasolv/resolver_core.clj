@@ -136,18 +136,50 @@ x#))
 (defn- cull-all-but-first [candidates]
   [(first candidates)])
 
+
+(defn- hoist [alternatives
+              absent-specs
+              found-packages
+              present-packages]
+  (if (= 1 (count alternatives))
+    alternatives
+    (let [partn
+          (group-by
+            (fn [term]
+              (let [id (get term :id)]
+                (cond
+                  (get
+                    absent-specs
+                    id)
+                  :absent
+                  (or
+                    (get
+                      found-packages
+                      id)
+                    (get
+                      present-packages
+                      id))
+                  :present
+                  :else
+                  :unspecified)))
+            alternatives)]
+      (concat (:absent partn) (:present partn) (:unspecified partn)))))
+
+
 (defn resolve-dependencies
   [requirements
    query & {:keys [present-packages
                    conflicts
                    strategy
                    conflict-strat
-                   compare]
+                   compare
+                   allow-alternatives]
             :or {present-packages {}
                  conflicts {}
                  strategy :thorough
                  conflict-strat :exclusive
-                 compare nil}}]
+                 compare nil
+                 allow-alternatives true}}]
   (let [safe-spec-call (make-spec-call compare)
         cull (case strategy
                  :thorough
@@ -159,7 +191,11 @@ x#))
                             "Invalid strategy `"
                             strategy
                             "`.")
-                           {:strategy strategy})))]
+                           {:strategy strategy})))
+        cull-alternatives
+        (if allow-alternatives
+          cull-nothing
+          cull-all-but-first)]
     (letfn [(resolve-deps
               [repo
                present-packages
@@ -298,29 +334,11 @@ x#))
                                                    :present-packages present-packages
                                                    :absent-specs absent-specs}]}])))
                            ;; Hoisting
-                           (if (= 1 (count fclause))
-                             fclause
-                             (let [partn
-                                   (group-by
-                                    (fn [term]
-                                      (let [id (get term :id)]
-                                        (cond
-                                          (get
-                                           absent-specs
-                                           id)
-                                          :absent
-                                          (or
-                                            (get
-                                              found-packages
-                                              id)
-                                            (get
-                                              present-packages
-                                              id))
-                                          :present
-                                          :else
-                                          :unspecified)))
-                                    fclause)]
-                               (concat (:absent partn) (:present partn) (:unspecified partn)))))]
+                           (hoist (cull-alternatives
+                                    fclause)
+                                  absent-specs
+                                  found-packages
+                                  present-packages))]
                       (or
                        (some
                         first-successful

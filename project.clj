@@ -20,6 +20,7 @@
    :string-to-requirement :string-to-requirement
    :repo-aggregation :repo-aggregation
    :resolve-conflict-strat :resolve-conflict-strat
+   :resolve-disable-alternatives :resolve-disable-alternatives
    }
   :profiles {
              :dev {:dependencies [
