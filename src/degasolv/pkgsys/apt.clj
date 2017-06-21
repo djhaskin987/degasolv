@@ -131,7 +131,8 @@
     (fn query [id]
       (filter
         #(= id (:id %))
-        it))))
+        it))
+    (memoize it)))
 ;;    (reduce
 ;;      (fn conjv
 ;;        [c v]

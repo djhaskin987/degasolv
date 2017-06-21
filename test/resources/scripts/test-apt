@@ -65,6 +65,7 @@ time java \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --present-package "libasound2==1.0.27" \
+    --present-package "libpng12-0==1.2.13-4" \
     --resolve-strat fast \
     --requirement "firefox"
 
@@ -78,6 +79,7 @@ time java \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --present-package "libasound2==1.0.27" \
+    --present-package "libpng12-0==1.2.13-4" \
     --requirement "firefox"
 
 #time java \
