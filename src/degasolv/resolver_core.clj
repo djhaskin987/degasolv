@@ -238,7 +238,6 @@
                           (first-found
                            (fn try-alternative
                              [alternative]
-                             (println alternative)
                              (let [{status :status id :id spec :spec}
                                    alternative
                                    present-package
