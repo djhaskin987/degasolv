@@ -3,7 +3,7 @@
 (defmacro dbg2 [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
-x#))
+     x#))
 
 (def ^:private relation-strings
   {:greater-than ">"
@@ -41,7 +41,7 @@ x#))
 
 (defrecord PackageInfo [id version location requirements])
 
-; deprecated, do not use
+                                        ; deprecated, do not use
 (def ->requirement ->Requirement)
 (def ->package ->PackageInfo)
 (def ->version-predicate ->VersionPredicate)
@@ -78,11 +78,13 @@ x#))
 (def ^:private nil-safe-spec-call
   (fnil spec-call (fn [v] true)))
 
+(defn- successful? [result]
+  (and (sequential? result)
+       (= (first result) :successful)))
+
 (defn- first-successful
   [result]
-  (if (and (sequential? result)
-           (= (first result)
-              :successful))
+  (if (successful? result)
     result
     nil))
 
@@ -108,19 +110,19 @@ x#))
                         cmp-result (cmp pkg-ver chk-ver)]
                     (and conj-cum
                          (case (:relation conj-val)
-                                :greater-than
-                                (pos? cmp-result)
-                                :greater-equal
-                                (not (neg? cmp-result))
-                                :equal-to
-                                (zero? cmp-result)
-                                :not-equal
-                                (not (zero? cmp-result))
-                                :less-equal
-                                (not (pos? cmp-result))
-                                :less-than
-                                (neg? cmp-result)
-                                false)))) true disj-val)))
+                           :greater-than
+                           (pos? cmp-result)
+                           :greater-equal
+                           (not (neg? cmp-result))
+                           :equal-to
+                           (zero? cmp-result)
+                           :not-equal
+                           (not (zero? cmp-result))
+                           :less-equal
+                           (not (pos? cmp-result))
+                           :less-than
+                           (neg? cmp-result)
+                           false)))) true disj-val)))
          false
          spec)))))
 
@@ -145,26 +147,42 @@ x#))
     alternatives
     (let [partn
           (group-by
-            (fn [term]
-              (let [id (get term :id)]
-                (cond
+           (fn [term]
+             (let [id (get term :id)]
+               (cond
+                 (get
+                  absent-specs
+                  id)
+                 :absent
+                 (or
                   (get
-                    absent-specs
-                    id)
-                  :absent
-                  (or
-                    (get
-                      found-packages
-                      id)
-                    (get
-                      present-packages
-                      id))
-                  :present
-                  :else
-                  :unspecified)))
-            alternatives)]
+                   found-packages
+                   id)
+                  (get
+                   present-packages
+                   id))
+                 :present
+                 :else
+                 :unspecified)))
+           alternatives)]
       (concat (:absent partn) (:present partn) (:unspecified partn)))))
 
+                                        ; If transformed value passes test,
+                                        ; return a singleton list of those;
+                                        ; otherwise, return the full list of transformed stuffs.
+                                        ; This is because lazy seqs in clojure aren't exactly lazy;
+                                        ; they're chunked lazy, which is sad.
+(defn- first-found
+  [f pred coll]
+  (reduce
+   (fn find-first
+     [c v]
+     (let [new-v (f v)]
+       (if (pred new-v)
+         (reduced [new-v])
+         (conj c new-v))))
+   []
+   coll))
 
 (defn resolve-dependencies
   [requirements
@@ -182,16 +200,16 @@ x#))
                  allow-alternatives true}}]
   (let [safe-spec-call (make-spec-call compare)
         cull (case strategy
-                 :thorough
-                 cull-nothing
-                 :fast
-                 cull-all-but-first
-                 (throw
-                  (ex-info (str
-                            "Invalid strategy `"
-                            strategy
-                            "`.")
-                           {:strategy strategy})))
+               :thorough
+               cull-nothing
+               :fast
+               cull-all-but-first
+               (throw
+                (ex-info (str
+                          "Invalid strategy `"
+                          strategy
+                          "`.")
+                         {:strategy strategy})))
         cull-alternatives
         (if allow-alternatives
           cull-nothing
@@ -217,9 +235,10 @@ x#))
                         :absent-specs absent-specs
                         :reason :empty-alternative-set}]}]
                     (let [clause-result
-                          (map
+                          (first-found
                            (fn try-alternative
                              [alternative]
+                             (println alternative)
                              (let [{status :status id :id spec :spec}
                                    alternative
                                    present-package
@@ -227,7 +246,7 @@ x#))
                                        (get found-packages id))]
                                (cond
                                  (and (not (= conflict-strat :inclusive))
-                                           (not (nil? present-package)))
+                                      (not (nil? present-package)))
                                  (if (or (= conflict-strat :prioritized)
                                          (and (= status :absent)
                                               (not (safe-spec-call spec present-package)))
@@ -300,7 +319,7 @@ x#))
                                              :reason :package-rejected
                                              :package-id id}]}]
                                          (let [candidate-results
-                                               (map
+                                               (first-found
                                                 #(resolve-deps
                                                   repo
                                                   present-packages
@@ -313,6 +332,7 @@ x#))
                                                   absent-specs
                                                   (into rclauses
                                                         (:requirements %)))
+                                                successful?
                                                 filtered-query-results)]
                                            (or
                                             (some
@@ -333,9 +353,10 @@ x#))
                                                    :found-packages found-packages
                                                    :present-packages present-packages
                                                    :absent-specs absent-specs}]}])))
+                           successful?
                            ;; Hoisting
                            (hoist (cull-alternatives
-                                    fclause)
+                                   fclause)
                                   absent-specs
                                   found-packages
                                   present-packages))]
