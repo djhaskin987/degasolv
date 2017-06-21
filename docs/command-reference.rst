@@ -61,10 +61,14 @@ Explanation of options:
   specified multiple times, and so their configuration file key equivalents are
   named ``:repositories``, ``:present-packages`` and ``:requirements``
   respectively, and they show up in the configuration file as a list of
-  strings. So, instead of using this command::
+  strings. Finally, the ``--enable-alternatives`` and
+  ``--disable-alternatives`` options of the ``resolve-locations`` command map a
+  boolean value to the ``alternatives`` config file key. So, instead of using
+  this command::
 
     java -jar degasolv-<version>-standalone.jar \
       resolve-locations \
+      --disable-alternatives \
       --present-package "x==0.1" \
       --present-package "y==0.2" \
       --repository "https://example.com/repo1/" \
@@ -77,6 +81,7 @@ Explanation of options:
 
     ; filename: config.edn
     {
+        :alternatives false
         :respositories ["https://example.com/repo1/"
                         "https://example.com/repo2/"]
         :requirements ["a"
@@ -140,6 +145,8 @@ Explanation of options:
         :conflict-strat "exclusive",
         :arguments ["display-config"]
     }
+
+  .. _site-wide:
 
   The merging of config files, together with the interesting
   fact that config files may be specified via HTTP/HTTPS URLs,
@@ -334,15 +341,16 @@ returns a page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -f, --conflict-strat STRAT          exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
-    -p, --present-package PKG                      Hard present package. **
-    -r, --requirement REQ                          Resolve req. **
-    -R, --repository INDEX                         Search INDEX for packages. **
-    -s, --resolve-strat STRAT           thorough   May be 'fast' or 'thorough'.
-    -S, --index-strat STRAT             priority   May be 'priority' or 'global'.
-    -t, --package-system SYS            degasolv   May be 'degasolv' or 'apt'.
-
-    -h, --help                                     Print this help page
+    -a, --enable-alternatives              Consider all alternatives
+    -A, --disable-alternatives             Consider only first alternatives
+    -f, --conflict-strat STRAT  exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
+    -p, --present-package PKG              Hard present package. **
+    -r, --requirement REQ                  Resolve req. **
+    -R, --repository INDEX                 Search INDEX for packages. **
+    -s, --resolve-strat STRAT   thorough   May be 'fast' or 'thorough'.
+    -S, --index-strat STRAT     priority   May be 'priority' or 'global'.
+    -t, --package-system SYS    degasolv   May be 'degasolv' or 'apt'.
+    -h, --help                             Print this help page
 
   The following options are required for subcommand `resolve-locations`:
 
@@ -401,6 +409,32 @@ fulfill or resolve. Each field is explained as follows:
 
 Explanation of options:
 
+- ``-a``, ``--enable-alternatives``, ``:alternatives true``:
+  Consider all `alternatives`_ encountered while resolving dependencies.
+  This is the default behavior. It allows the developers and packagers
+  to decide whether or not to use alternatives. As alternatives are generally
+  expensive to resolve, packagers should of course use them with caution.
+  If this option occurs together with the ``--disable-alternatives`` option
+  on a command line, the last argument of the two specified wins.
+
+
+- ``-A``, ``--disable-alternatives``, ``:alternatives false``:
+  Consider only the first of any given set of `alternatives`_ for any
+  particular requirement while resolving dependencies.  It allows the package
+  consumer to debug dependency resolution issues. This is especially useful
+  when alternatives are used frequently in specifying requirements by
+  packagers, thus causing performance issues on the part of the package
+  consumers; or, when trying to figure out why dependencies won't resolve
+  properly.  If this option occurs together with the ``--enable-alternatives``
+  option on a command line, the last argument of the two specified wins.
+
+  .. note::
+
+     Use of this option defeats the purpose of degasolv supporting alternatives
+     in the first place. This option is intended generally for use
+     when debugging a build. If it *is* used routinely, it should be used
+     `site-wide`_.
+
 .. _conflict strategies:
 
 - ``-f STRAT``, ``--conflict-strat STRAT``, ``:conflict-strat "STRAT"``:
@@ -408,7 +442,10 @@ Explanation of options:
   handled.  The default setting is ``exclusive`` and this setting
   should work for most environments.
 
-  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+  .. note:: This option should be used with care, since whatever setting is
+     used will greatly alter behavior. It is therefore recommended that
+     whichever setting is chosen should be used `site-wide`_ within an
+     organization.
 
   - If set to ``exclusive``, all dependencies and their version
     specifications must be satisfied in order for the command to
@@ -521,7 +558,10 @@ Explanation of options:
   considered. The default setting is ``thorough`` and this setting
   should work for most environments.
 
-  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+  .. note:: This option should be used with care, since whatever setting is
+     used will greatly alter behavior. It is therefore recommended that
+     whichever setting is chosen should be used `site-wide`_ within an
+     organization.
 
 .. _index strategy:
 
@@ -559,7 +599,10 @@ Explanation of options:
   The default setting is ``priority`` and this setting should work for most
   environments.
 
-  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+  .. note:: This option should be used with care, since whatever setting is
+     used will greatly alter behavior. It is therefore recommended that
+     whichever setting is chosen should be used `site-wide`_ within an
+     organization.
 
 .. _package system:
 
@@ -598,7 +641,10 @@ Explanation of options:
             -t "apt" \
             --requirement "ubuntu-desktop"
 
-      .. note:: Degasolv does not currently support APT dependencies between machine architectures, as in ``python:i386``. Also, every degasolv repo is currently architecture-specific; each repo has an associated architecture, even if that architecture is ``any``.
+      .. note:: Degasolv does not currently support APT dependencies between
+         machine architectures, as in ``python:i386``. Also, every degasolv
+         repo is currently architecture-specific; each repo has an associated
+         architecture, even if that architecture is ``any``.
 
 CLI for ``query-repo``
 ----------------------
@@ -607,19 +653,19 @@ Running ``java -jar degasolv-<version>-standalone.jar query-repo -h`` returns a
 page that looks something like this::
 
   Usage: degasolv <options> query-repo <query-repo-options>
-  
+
   Options are shown below, with their default values and
     descriptions. Options marked with `**` may be
     used more than once.
-  
+
     -q, --query QUERY                   Display packages matching query string.
     -R, --repository INDEX              Search INDEX for packages. **
     -S, --index-strat STRAT   priority  May be 'priority' or 'global'.
     -t, --package-system SYS  degasolv  May be 'degasolv' or 'apt'.
     -h, --help                          Print this help page
-  
+
   The following options are required for subcommand `query-repo`:
-  
+
     - `-R`, `--repository`, or the config file key `:repositories`.
     - `-q`, `--query`, or the config file key `:query`.
 
@@ -666,6 +712,10 @@ Explanation of options:
 Specifying a requirement
 ------------------------
 
+
+.. _alternative:
+.. _alternatives:
+
 A requirement is given as a string of text. A
 requirement consists of one or more *alternatives*. Any of the alternatives
 will satisfy the requirement. Alternatives are specified by a bar character
@@ -677,11 +727,9 @@ Or, more concretely::
 
   "hickory|maple|oak"
 
-Alternatives will be considered in order of appearance. In general, specifying
-more than one alternative should be mostly unecessary, and generally to be
-avoided. This is because specifying too many alternatives tend to
-impact performance significantly; but they are available and usable if
-needed.
+Alternatives will be considered in order of appearance.
+
+.. caution:: In general, specifying more than one alternative should be mostly unecessary, and should generally be avoided. This is because specifying too many alternatives tends to impact performance significantly; but they are available and usable if needed.
 
 Each alternative is composed of a package id and an optional specification of
 what versions of that package satisfy the alternative, like this::
