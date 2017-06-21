@@ -53,11 +53,13 @@ time java \
     --package-system apt \
     --requirement "bash"
 
+
 time java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
     --resolve-strat fast \
+    --disable-alternatives \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
@@ -70,6 +72,7 @@ time java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
+    --disable-alternatives \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
