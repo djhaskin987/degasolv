@@ -64,7 +64,7 @@ time java \
     --package-system apt \
     --present-package "libasound2==1.0.27" \
     --resolve-strat fast \
-    --requirement "ubuntu-desktop"
+    --requirement "firefox"
 
 time java \
     -Xss16m \
@@ -75,4 +75,28 @@ time java \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --present-package "libasound2==1.0.27" \
-    --requirement "ubuntu-desktop"
+    --requirement "firefox"
+
+#time java \
+#    -Xss16m \
+#    -jar target/uberjar/${name}-${version}-standalone.jar \
+#    resolve-locations \
+#    --resolve-strat fast \
+#    --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
+#    --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
+#    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
+#    --package-system apt \
+#    --present-package "libasound2==1.0.27" \
+#    --resolve-strat fast \
+#    --requirement "ubuntu-desktop"
+#
+#time java \
+#    -Xss16m \
+#    -jar target/uberjar/${name}-${version}-standalone.jar \
+#    resolve-locations \
+#    --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
+#    --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
+#    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
+#    --package-system apt \
+#    --present-package "libasound2==1.0.27" \
+#    --requirement "ubuntu-desktop"
