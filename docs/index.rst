@@ -1,6 +1,13 @@
 Degasolv
 ========
 
+Code
+----
+
+Degasolv lives out on `Github`_.
+
+.. _Github: https://github.com/djhaskin987/degasolv
+
 Download & Run
 --------------
 

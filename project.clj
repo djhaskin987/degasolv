@@ -1,4 +1,4 @@
-(defproject degasolv/degasolv "1.4.0"
+(defproject degasolv/degasolv "1.5.0"
   :description "Dependency tracker with an eye toward building and shipping software."
   :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
@@ -20,6 +20,7 @@
    :string-to-requirement :string-to-requirement
    :repo-aggregation :repo-aggregation
    :resolve-conflict-strat :resolve-conflict-strat
+   :resolve-disable-alternatives :resolve-disable-alternatives
    }
   :profiles {
              :dev {:dependencies [

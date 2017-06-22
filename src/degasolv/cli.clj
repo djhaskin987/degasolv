@@ -125,7 +125,8 @@
   resolve-locations!
   [options arguments]
   (let
-      [{:keys [repositories
+      [{:keys [alternatives
+               repositories
                resolve-strat
                conflict-strat
                index-strat
@@ -183,7 +184,8 @@
         :present-packages present-packages
         :strategy (keyword resolve-strat)
         :conflict-strat (keyword conflict-strat)
-        :compare cmp)]
+        :compare cmp
+        :allow-alternatives alternatives)]
     (case
       (first result)
       :successful
@@ -302,7 +304,15 @@
     :function resolve-locations!
     :required-arguments {:repositories ["-R" "--repository"]
                          :requirements ["-r" "--requirement"]}
-    :cli [["-f" "--conflict-strat STRAT"
+    :cli [
+          ["-a" "--enable-alternatives" "Consider all alternatives"
+           :id :alternatives
+           :default true
+           :assoc-fn (fn [m k v] (assoc m :alternatives v))]
+          ["-A" "--disable-alternatives" "Consider only first alternatives"
+           :parse-fn not
+           :assoc-fn (fn [m k v] (assoc m :alternatives v))]
+          ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
            :default "exclusive"
            :validate [#(or (= "exclusive" %)

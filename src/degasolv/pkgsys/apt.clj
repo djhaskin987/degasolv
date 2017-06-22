@@ -4,7 +4,8 @@
             [clojure.java.io :as io]
             [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]
-            [tupelo.core :as t])
+            [tupelo.core :as t]
+            [serovers.core :as vers])
   (:import (java.util.zip GZIPInputStream)))
 
 ; TODO: Add provides
@@ -129,9 +130,13 @@
       it)
     (apply concat it)
     (fn query [id]
-      (filter
+      (sort-by
+        :version
+        #(- (vers/debian-vercmp %1 %2))
+        (filter
         #(= id (:id %))
-        it))))
+        it)))
+    (memoize it)))
 ;;    (reduce
 ;;      (fn conjv
 ;;        [c v]
