@@ -40,19 +40,9 @@ time java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
-    --resolve-strat "fast" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "bash"
-
-time java \
-    -Xss16m \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
-    --package-system apt \
-    --requirement "bash"
-
 
 time java \
     -Xss16m \
@@ -64,9 +54,21 @@ time java \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
-    --present-package "libasound2==1.0.27" \
+    --present-package "libasound2==1.1.1" \
     --present-package "libpng12-0==1.2.13-4" \
     --resolve-strat fast \
+    --requirement "firefox"
+
+time java \
+    -Xss16m \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
+    --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
+    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
+    --package-system apt \
+    --present-package "libasound2==1.0.27" \
+    --present-package "libpng12-0==1.2.13-4" \
     --requirement "firefox"
 
 time java \
@@ -79,34 +81,7 @@ time java \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
-    --present-package "libasound2==1.0.27" \
-    --present-package "libpng12-0==1.2.13-4" \
-    --requirement "ubuntu-desktop"
-
-time java \
-    -Xss16m \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --disable-alternatives \
-    --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
-    --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
-    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
-    --package-system apt \
-    --present-package "libasound2==1.0.27" \
-    --present-package "libpng12-0==1.2.13-4" \
-    --requirement "firefox"
-
-
-time java \
-    -Xss16m \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --disable-alternatives \
-    --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
-    --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
-    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
-    --package-system apt \
-    --present-package "libasound2==1.0.27" \
+    --present-package "libasound2==1.1.1" \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "ubuntu-desktop"
 
@@ -118,19 +93,6 @@ time java \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
-    --present-package "libasound2==1.0.27" \
-    --present-package "libpng12-0==1.2.13-4" \
-    --requirement "firefox"
-
-
-time java \
-    -Xss16m \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
-    --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
-    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
-    --package-system apt \
-    --present-package "libasound2==1.0.27" \
+    --present-package "libasound2==1.1.1" \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "ubuntu-desktop"
