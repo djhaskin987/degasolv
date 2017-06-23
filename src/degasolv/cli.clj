@@ -11,9 +11,7 @@
             [me.raynes.fs :as fs]
             [miner.tagged :as tag]
             [clojure.pprint :as pprint]
-            [serovers.core :as vers
-             :refer [maven-vercmp]
-             :rename {maven-vercmp cmp}])
+            [serovers.core :as vers])
   (:gen-class))
 
 (defmethod
@@ -63,7 +61,7 @@
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
              :vercmp vers/debian-vercmp}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
-               :vercmp cmp}})
+               :vercmp vers/maven-vercmp}})
 
 (defn- generate-repo-index!
   [options arguments]
@@ -83,7 +81,7 @@
                 (fn [x]
                   [(first x)
                    (into []
-                         (sort #(- (cmp (:version %1)
+                         (sort #(- (vers/maven-vercmp (:version %1)
                                         (:version %2)))
                                (second x)))])
                 (reduce
@@ -184,7 +182,7 @@
         :present-packages present-packages
         :strategy (keyword resolve-strat)
         :conflict-strat (keyword conflict-strat)
-        :compare cmp
+        :compare (get-in package-systems [package-system :vercmp])
         :allow-alternatives alternatives)]
     (case
       (first result)
@@ -226,14 +224,16 @@
 (defn query-repo!
   [options arguments]
   (let [{:keys [repositories query index-strat package-system]} options
-		aggregate-repo
-		(aggregate-repositories
-		  index-strat
-		  package-system
-		  repositories)
-		req (first (string-to-requirement query))
+        aggregate-repo
+        (aggregate-repositories
+          index-strat
+          package-system
+          repositories)
+        req (first (string-to-requirement query))
         {:keys [id spec]} req
-        spec-call (make-spec-call cmp)
+        spec-call (make-spec-call
+                   (get-in package-systems
+                           [package-system :vercmp]))
         results (filter
                  #(spec-call spec %)
                  (aggregate-repo id))]

@@ -136,8 +136,9 @@
   candidates)
 
 (defn- cull-all-but-first [candidates]
-  [(first candidates)])
-
+  (if (empty? candidates)
+    candidates
+    [(first candidates)]))
 
 (defn- hoist [alternatives
               absent-specs
@@ -164,8 +165,10 @@
                  :present
                  :else
                  :unspecified)))
-           alternatives)]
-      (concat (:absent partn) (:present partn) (:unspecified partn)))))
+           alternatives)
+          result
+          (concat (:absent partn) (:present partn) (:unspecified partn))]
+      result)))
 
                                         ; If transformed value passes test,
                                         ; return a singleton list of those;
