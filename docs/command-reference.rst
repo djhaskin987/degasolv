@@ -615,7 +615,7 @@ Explanation of options:
   repositories. This will allow users to use degasolv to resolve packages
   from well-known sources, in a reliable and useful manner.
 
-  Other available options are:
+  Other available values are:
 
     - ``apt``: resolve using the APT debian package manager. When using this
       method, `specify repositories`_ using the format::

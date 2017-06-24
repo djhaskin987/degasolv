@@ -1,3 +1,4 @@
+- [ ] Add ``--remove-from``
 - [ ] Make display-config work with ALL cmdline options.
 - [ ] Disable alternatives option
 - [ ] Add docs URL to help page.
