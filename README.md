@@ -1,5 +1,3 @@
-![Dancer tilting](https://github.com/djhaskin987/degasolv/raw/develop/degasolv.png)
-
 Degasolv
 ========
 
