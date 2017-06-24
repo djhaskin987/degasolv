@@ -1,6 +1,6 @@
 ![Dancer tilting](https://github.com/djhaskin987/degasolv/raw/develop/degasolv.png)
 
-degasolv
+Degasolv
 ========
 
 Degasolv is a generic dependency resolver that will work across
