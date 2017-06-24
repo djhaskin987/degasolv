@@ -115,3 +115,14 @@ offer different costs. Here are some options:
   causes degasolv to behave in a similar way to the java package
   managers maven or ivy.  This ensures performance, but (obviously)
   sacrifices safety.
+
+- **Set ``--disable-alternatives`` and ``--resolve-strat`` to ``"fast"``**:
+  This is the safest of the option combinations, but sacrifices
+  utility. Effectively, if Degasolv ever encounters a dependency
+  conflict, resolution will fail and an error message will be
+  printed. It will be up to the user to list more explicitly defined
+  dependencies, such as listing a particular dependency at a
+  particular version. It will also be necessary often to list
+  dependencies of dependencies as dependencies at particular versions.
+  In short, degasolv will be less useful as a dependency resolver, but
+  safety will not be sacrificed.
