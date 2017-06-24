@@ -1,6 +1,8 @@
 Degasolv
 ========
 
+.. image:: ../Degasolv.png
+
 .. toctree::
 
    Why Degasolv? <why-degasolv>

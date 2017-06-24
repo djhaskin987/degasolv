@@ -75,8 +75,8 @@ that package resolution is done relatively quickly every time. This
 guarantee of performance always comes at a cost. Different alternatives
 offer different costs. Here are some options:
 
-- **Set ``--conflic-strat`` to ``"inclusive"``, ``--resolve-strat`` to
-  ``"fast"`` and setting ``--disable-alternatives``**: this
+- Set ``--conflic-strat`` to ``"inclusive"``, ``--resolve-strat`` to
+  ``"fast"`` and setting ``--disable-alternatives``. This
   combination of options informs degasolv that multiple versions of
   the same package are allowed in resolution. This causes degasolv to
   behave in a similar way to the ruby package manager gem and the
@@ -106,8 +106,8 @@ offer different costs. Here are some options:
   of those packages, are listed, causing an explosion of packages
   needed in any given resolution.
 
-- **Set ``--conflic-strat`` to ``"prioritized"``, ``--resolve-strat`` to
-  ``"fast"`` and setting ``--disable-alternatives``**: this
+- Set ``--conflic-strat`` to ``"prioritized"``, ``--resolve-strat`` to
+  ``"fast"`` and setting ``--disable-alternatives``. This
   combination of options informs degasolv that, given two versions of the
   same package, the later version will always be backwards-compatible
   with the older version. Under this set of options, degasolv may
@@ -116,7 +116,7 @@ offer different costs. Here are some options:
   managers maven or ivy.  This ensures performance, but (obviously)
   sacrifices safety.
 
-- **Set ``--disable-alternatives`` and ``--resolve-strat`` to ``"fast"``**:
+- Set ``--disable-alternatives`` and ``--resolve-strat`` to ``"fast"``.
   This is the safest of the option combinations, but sacrifices
   utility. Effectively, if Degasolv ever encounters a dependency
   conflict, resolution will fail and an error message will be

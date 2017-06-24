@@ -10,6 +10,8 @@
 /presentation/demo/pyfrontend/product/
 /presentation/demo/nas/
 /docs/_build/
+/docs/_static/
+/docs/_template/
 /.nrepl-history
 /test-data/
 /test/resources/data/grill/
