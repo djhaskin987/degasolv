@@ -1,3 +1,5 @@
+![Degasolv Logo](https://github.com/djhaskin987/degasolv/raw/develop/Degasolv.png)
+
 Degasolv
 ========
 
