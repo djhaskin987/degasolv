@@ -9,6 +9,7 @@
 /presentation/demo/pyfrontend/external/
 /presentation/demo/pyfrontend/product/
 /presentation/demo/nas/
+/artifactory-plugin/*.dscard
 /docs/_build/
 /docs/_static/
 /docs/_template/
