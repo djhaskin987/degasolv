@@ -11,6 +11,7 @@
 /presentation/demo/nas/
 /artifactory-plugin/*.dscard
 /artifactory-plugin/*.dsrepo
+/artifactory-plugin/*.jar
 /docs/_build/
 /docs/_static/
 /docs/_template/
