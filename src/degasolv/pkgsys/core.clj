@@ -28,7 +28,6 @@
   [search-directory
    index-file
    add-to]
-  (println "Honey, I'm home")
   (let [output-file index-file
         initial-repository
         (if add-to

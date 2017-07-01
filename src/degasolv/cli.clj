@@ -14,18 +14,6 @@
             [serovers.core :as vers])
   (:gen-class))
 
-(defmethod
-  print-method
-  degasolv.resolver.VersionPredicate
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defmethod
-  print-method
-  degasolv.resolver.Requirement
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
 (defn aggregator
   [index-strat cmp]
   (cond
@@ -516,10 +504,10 @@
                  (reduce
                   merge
                   (map
-                  tag/read-string
-                  (map
-                   default-slurp
-                   (:config-files global-options))))
+                   tag/read-string
+                   (map
+                    default-slurp
+                    (:config-files global-options))))
                  (catch Exception e
                    (binding [*out* *err*]
                      (println "Warning: problem reading config files, they were not used:"
