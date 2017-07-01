@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Formatted docs better on the front page for PDF purposes
 - Add ability to use any (long) option on the command line in display-config
 
-### Changed
+### Improved
 - Memoized core Degasolv package system repository function (should
   speed the resolver up a bit)
+- Changed apt reop function from filtering a list to lookup in a map,
+  increasing its speed
+
+[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/1.5.1...HEAD
