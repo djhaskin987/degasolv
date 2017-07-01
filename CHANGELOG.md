@@ -17,5 +17,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Changed apt reop function from filtering a list to lookup in a map,
   increasing its speed
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/1.6.0...HEAD
-[1.6.0]: https://github.com/olivierlacan/keep-a-changelog/compare/1.5.1...1.6.0
+[Unreleased]: https://github.com/djhaskin987/degasolv/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/djhaskin987/degasolv/compare/1.5.1...1.6.0
