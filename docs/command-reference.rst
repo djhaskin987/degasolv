@@ -207,7 +207,7 @@ returns a page that looks something like this::
     -i, --id true                        ID (name) of the package
     -v, --version true                   Version of the package
     -l, --location true                  URL or filepath of the package
-    -r, --requirement REQ                List req, may be used multiple times
+    -r, --requirement REQ                List requirements **
     -C, --card-file FILE   ./out.dscard  The name of the card file
     -h, --help                           Print this help page
 

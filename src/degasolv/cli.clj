@@ -1,17 +1,20 @@
 (ns degasolv.cli
-  (:require [degasolv.util :refer :all]
-            [degasolv.resolver :as r :refer :all]
-            [degasolv.pkgsys.apt :as apt-pkg]
-            [degasolv.pkgsys.core :as degasolv-pkg]
-            [clojure.tools.cli :refer [parse-opts summarize]]
-            [clojure.string :as string]
-            [clojure.edn :as edn]
-            [clojure.spec :as s]
-            [clojure.set :as st]
-            [me.raynes.fs :as fs]
-            [miner.tagged :as tag]
-            [clojure.pprint :as pprint]
-            [serovers.core :as vers])
+  (:require
+   [clojure.edn :as edn]
+   [clojure.pprint :as pprint]
+   [clojure.set :as st]
+   [clojure.spec :as s]
+   [clojure.string :as string]
+   [clojure.tools.cli :refer [parse-opts summarize]]
+   [degasolv.pkgsys.apt :as apt-pkg]
+   [degasolv.pkgsys.core :as degasolv-pkg]
+   [degasolv.resolver :as r :refer :all]
+   [degasolv.util :refer :all]
+   [me.raynes.fs :as fs]
+   [miner.tagged :as tag]
+   [serovers.core :as vers]
+   [tupelo.core :as t]
+   )
   (:gen-class))
 
 (defmethod
@@ -95,11 +98,11 @@
                             (file-seq (fs/file search-directory))))))))))
 
 
-(defn exit [status msg]
+(defn- exit [status msg]
   (.println *err* msg)
   (System/exit status))
 
-(defn aggregate-repositories
+(defn- aggregate-repositories
   [index-strat
    pkgsys
    repositories]
@@ -273,7 +276,7 @@
                       "Location must be a non-empty string."]
            :required true]
           ["-r" "--requirement REQ"
-           "List req, may be used multiple times"
+           "List requirement **"
            :validate [#(re-matches r/str-requirement-regex %)
                       "Requirement must look like one of these: `!a`, `a`, `a|b`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]
            :id :requirements
@@ -308,10 +311,10 @@
           ["-a" "--enable-alternatives" "Consider all alternatives"
            :id :alternatives
            :default true
-           :assoc-fn (fn [m k v] (assoc m :alternatives v))]
+           :assoc-fn (fn [m k v] (assoc m k true))]
           ["-A" "--disable-alternatives" "Consider only first alternatives"
-           :parse-fn not
-           :assoc-fn (fn [m k v] (assoc m :alternatives v))]
+           :id :alternatives
+           :assoc-fn (fn [m k v] (assoc m k false))]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
            :default "exclusive"
@@ -333,7 +336,6 @@
            :validate
            [#(re-matches r/str-requirement-regex %)
             "Requirement must look like one of these: `!a`, `a`, `a|b`, a>2.0,<=3.0,!=2.5;>4.0,<=5.0`"]
-           :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-R" "--repository INDEX"
@@ -355,7 +357,8 @@
            "May be 'degasolv' or 'apt'."
            :default "degasolv"
            :validate [#(or (= "degasolv" %) (= "apt" %))
-                      "Package system must be either 'degasolv' or 'apt'."]]]}
+                      "Package system must be either 'degasolv' or 'apt'."]]
+          ]}
    "query-repo"
    {:description "Query repository for a particular package"
     :function query-repo!
