@@ -186,11 +186,17 @@ returns a page that looks something like this::
     -h, --help  Print this help page
 
 The ``display-config`` command is used to print all the options
-in the "effective configuration". It allows the user to debug
+in the *effective configuration*. It allows the user to debug
 configuration by printing the actual configuration used by degasolv
 after all the command-line arguments and config files have
 been merged together. An example of this is found in the
 `config files section`_.
+
+As of version 1.6.0, ``display-config`` accepts any valid option
+in long form (``--long-form``) which is accepted by any other
+subcommand. This enables the user to print out the effective
+configuration resulting from multiple config files as well
+as any options that might be given on the CLI.
 
 CLI for ``generate-card``
 -------------------------
@@ -207,7 +213,7 @@ returns a page that looks something like this::
     -i, --id true                        ID (name) of the package
     -v, --version true                   Version of the package
     -l, --location true                  URL or filepath of the package
-    -r, --requirement REQ                List req, may be used multiple times
+    -r, --requirement REQ                List requirements **
     -C, --card-file FILE   ./out.dscard  The name of the card file
     -h, --help                           Print this help page
 
