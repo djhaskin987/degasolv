@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- New docs (incomplete)
+- Formatted docs better on the front page for PDF purposes
 - Add ability to use any (long) option on the command line in display-config
 
 ### Changed

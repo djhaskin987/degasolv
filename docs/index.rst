@@ -9,7 +9,6 @@ Degasolv
    Introduction <introduction>
    A Longer Example <longer-example>
    Command Reference <command-reference>
-   Debugging FAQ <debugging>
 
 Indices and tables
 ******************
