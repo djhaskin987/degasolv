@@ -48,7 +48,7 @@
                 (string/lower-case k))
               v]))
           it)
-        (transient (into {} it))))
+        (transient (into (hash-map) it))))
 
 (defn convert-pkg-requirements
   [pkg]
@@ -129,24 +129,27 @@
           (expand-provides each)))
       it)
     (apply concat it)
-    (fn query [id]
-      (sort-by
-        :version
-        #(- (vers/debian-vercmp %1 %2))
-        (filter
-        #(= id (:id %))
-        it)))
-    (memoize it)))
-;;    (reduce
-;;      (fn conjv
-;;        [c v]
-;;        (update-in c
-;;                   [(:id v)]
-;;                   #(conj (vec %1) %2)
-;;                   v))
-;;      {}
-;;      it)
-;;  (map-query it)))
+
+    ;; (fn query [id]
+    ;;   (sort-by
+    ;;     :version
+    ;;     #(- (vers/debian-vercmp %1 %2))
+    ;;     (filter
+    ;;     #(= id (:id %))
+    ;;     it)))
+    ;; (memoize it)))
+
+   (reduce
+     (fn conjv
+       [c v]
+       (update-in c
+                  [(:id v)]
+                  #(conj (vec %1) %2)
+                  v))
+     (hash-map)
+     it)
+   (map-query it)
+   (memoize it)))
 
 (defn slurp-apt-repo
   [repospec]

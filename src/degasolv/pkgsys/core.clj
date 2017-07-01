@@ -24,4 +24,6 @@
                (s/explain ::r/map-repo repo-data))
               (s/explain-data ::r/map-repo
                               repo-data))))
-    [repo-data]))
+    [(memoize
+      (map-query
+       repo-data))]))
