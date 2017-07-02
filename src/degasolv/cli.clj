@@ -17,35 +17,6 @@
    )
   (:gen-class))
 
-(defmethod
-  print-method
-  degasolv.resolver.VersionPredicate
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defmethod
-  print-method
-  degasolv.resolver.Requirement
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defn- read-card!
-  [card]
-  (let [card-data (tag/read-string (default-slurp card))
-        vetted-card-data
-        (s/conform ::r/package card-data)]
-    (if (= vetted-card-data
-           ::s/invalid)
-      (throw (ex-info (str
-                        "Invalid data in card file `"
-                        card
-                        "`: "
-                        (s/explain ::r/package
-                                   card-data))
-                      (s/explain-data ::r/package
-                                      card-data)))
-      card-data)))
-
 (defn aggregator
   [index-strat cmp]
   (cond
@@ -66,36 +37,17 @@
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :vercmp vers/maven-vercmp}})
 
-(defn- generate-repo-index!
+
+
+(defn- generate-repo-index-cli!
   [options arguments]
   (let [{:keys [search-directory
                 index-file
-                add-to]} options
-        output-file index-file
-        initial-repository
-        (if add-to
-          (tag/read-string
-            (default-slurp add-to))
-          {})]
-    (default-spit
-      output-file
-        (into {}
-              (map
-                (fn [x]
-                  [(first x)
-                   (into []
-                         (sort #(- (vers/maven-vercmp (:version %1)
-                                        (:version %2)))
-                               (second x)))])
-                (reduce
-                  (fn merg [c v]
-                    (update-in c [(:id v)] conj v))
-                  initial-repository
-                  (map
-                    read-card!
-                    (filter #(and (fs/file? %)
-                                  (= ".dscard" (fs/extension %)))
-                            (file-seq (fs/file search-directory))))))))))
+                add-to]} options]
+    (degasolv-pkg/generate-repo-index!
+      search-directory
+      index-file
+      add-to)))
 
 
 (defn- exit [status msg]
@@ -289,7 +241,7 @@
                       "Out file must not be empty."]]]}
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
-    :function generate-repo-index!
+    :function generate-repo-index-cli!
     :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
            :default "."
            :validate [#(and
@@ -570,10 +522,10 @@
                  (reduce
                   merge
                   (map
-                  tag/read-string
-                  (map
-                   default-slurp
-                   (:config-files global-options))))
+                   tag/read-string
+                   (map
+                    default-slurp
+                    (:config-files global-options))))
                  (catch Exception e
                    (binding [*out* *err*]
                      (println "Warning: problem reading config files, they were not used:"
