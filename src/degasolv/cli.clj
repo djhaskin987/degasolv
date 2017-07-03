@@ -469,8 +469,23 @@
            "` key in the config file,")
       (str "  or use `" small-arg "` or `" large-arg "` at the command line.")])))
 
+(def available-option-packs
+  {
+   "debian"
+   {:package-system
+    "apt"}})
+
 (def cli-options
-  [["-c" "--config-file FILE" "config file"
+  [["-k" "--option-pack PACK" "Specify option pack **"
+    :id :option-packs
+    :default []
+    :validate [#(get option-packs %)
+               (str
+                "Must be one of: "
+                (string/join "," (keys option-packs)))]
+    :assoc-fn
+    (fn [m k v] (update-in m [k] #(conj % v)))]
+   ["-c" "--config-file FILE" "config file"
     :id :config-files
     :default []
     :default-desc "./degasolv.edn"
@@ -486,6 +501,24 @@
                       (vector? y) (conj x y)
                       :else y))
               a b))
+
+(defn get-config [configs]
+  (try
+    (reduce
+     merge
+     (map
+      tag/read-string
+      (map
+       default-slurp
+       configs)))
+    (catch Exception e
+      (binding [*out* *err*]
+        (println "Warning: problem reading config files, they were not used:"
+                 (str (string/join
+                       \newline
+                       (map #(str "  - " %)
+                            configs)))))
+      (hash-map))))
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
@@ -561,28 +594,23 @@
                            ""
                            (usage summary :sub-command subcommand)
                            ""])))
-        (let [config-files (if (empty? (:config-files global-options))
-                             [(fs/file (fs/expand-home "./degasolv.edn"))]
-                             (:config-files global-options))
+        (let [config-files
+              (if (empty? (:config-files global-options))
+                [(fs/file (fs/expand-home "./degasolv.edn"))]
+                (:config-files global-options))
+              config
+              (get-config config-files)
+              selected-option-packs
+              (if (empty? option-packs)
+                (into [] (:option-packs config))
+                (:option-packs options))
               effective-options
-              (merge
-               (try
-                 (reduce
-                  merge
-                  (map
-                  tag/read-string
-                  (map
-                   default-slurp
-                   (:config-files global-options))))
-                 (catch Exception e
-                   (binding [*out* *err*]
-                     (println "Warning: problem reading config files, they were not used:"
-                              (str (string/join
-                                    \newline
-                                    (map #(str "  - " %)
-                                         (:config-files global-options))))))
-                   {}))
-               options)
+              (t/it->
+               selected-option-packs
+               (mapv available-option-packs it)
+               (conj it (dissoc config :option-packs))
+               (conj it options)
+               (reduce merge (hash-map) it))
               required-keys (set (keys (:required-arguments subcmd-cli)))
               present-keys (set (keys effective-options))]
           (when (not (st/subset? required-keys present-keys))
