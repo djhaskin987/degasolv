@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -ex
+
+root_path=${PWD}
+test_home=test/resources/data/grill
+
+name=$(lein print :name | sed 's|"||g' )
+version=$(lein print :version | sed 's|"||g')   
+
+cat > ${test_home}/test-option-packs.edn <<EDN
+{
+    :option-packs ["debian"]
+}
+EDN
+
+java -jar target/uberjar/${name}-${version}-standalone.jar \
+    -c ${test_home}/test-option-packs.edn \
+    display-config | grep -q -E ':package-system "apt"'
