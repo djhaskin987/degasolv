@@ -10,10 +10,20 @@ version=$(lein print :version | sed 's|"||g')
 
 cat > ${test_home}/test-option-packs.edn <<EDN
 {
-    :option-packs ["debian"]
+    :option-packs ["firstfound-version-mode"]
 }
 EDN
 
 java -jar target/uberjar/${name}-${version}-standalone.jar \
     -c ${test_home}/test-option-packs.edn \
-    display-config | grep -q -E ':package-system "apt"'
+    display-config | grep -E ':conflict-strat "prioritized"'
+
+
+java -jar target/uberjar/${name}-${version}-standalone.jar \
+     -k "multi-version-mode" \
+    display-config | grep -E ':conflict-strat "inclusive"'
+
+java -jar target/uberjar/${name}-${version}-standalone.jar \
+     -c ${test_home}/test-option-packs.edn \
+     -k "multi-version-mode" \
+    display-config | grep -E ':conflict-strat "inclusive"'

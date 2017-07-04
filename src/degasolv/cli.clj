@@ -473,12 +473,19 @@
 
 (def available-option-packs
   {
-   "debian"
-   {:package-system
-    "apt"
+   "multi-version-mode"
+   {
+    :conflict-strat "inclusive"
+    :resolve-strat "fast"
+    :alternatives false
     }
-   }
-  )
+    "firstfound-version-mode"
+   {
+    :conflict-strat "prioritized"
+    :resolve-strat "fast"
+    :alternatives false
+    }
+  })
 
 (def cli-options
   [["-k" "--option-pack PACK" "Specify option pack **"
@@ -519,7 +526,8 @@
     (catch Exception e
       (binding [*out* *err*]
         (println "Warning: problem reading config files, they were not used:"
-                 (str (string/join
+                 (str "\n"
+                      (string/join
                        \newline
                        (map #(str "  - " %)
                             configs)))))
@@ -617,9 +625,7 @@
                (into [subcommand-option-defaults] it)
                (conj it (dissoc config :option-packs))
                (conj it options)
-               (t/spy :msg "this" it)
                (reduce merge (hash-map) it)
-               (t/spy :msg "now" it)
                )
               required-keys (set (keys (:required-arguments subcmd-cli)))
               present-keys (set (keys effective-options))]
