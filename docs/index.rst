@@ -9,6 +9,7 @@ Degasolv
    Introduction <introduction>
    A Longer Example <longer-example>
    Command Reference <command-reference>
+   Changelog <changelog>
 
 Indices and tables
 ******************
