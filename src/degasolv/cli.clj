@@ -488,22 +488,23 @@
   })
 
 (def cli-options
-  [["-k" "--option-pack PACK" "Specify option pack **"
-    :id :option-packs
-    :default []
-    :validate [#(get available-option-packs %)
-               (str
-                "Must be one of: "
-                (string/join "," (keys available-option-packs)))]
-    :assoc-fn
-    (fn [m k v] (update-in m [k] #(conj % v)))]
-   ["-c" "--config-file FILE" "config file"
+  [["-c" "--config-file FILE" "Config file location **"
     :id :config-files
     :default []
     :default-desc "./degasolv.edn"
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
                "Must be a regular file (which hopefully contains config info."]
+    :assoc-fn
+    (fn [m k v] (update-in m [k] #(conj % v)))]
+   ["-k" "--option-pack PACK" "Specify option pack **"
+    :id :option-packs
+    :default []
+    :default-desc ""
+    :validate [#(get available-option-packs %)
+               (str
+                "Must be one of: "
+                (string/join "," (keys available-option-packs)))]
     :assoc-fn
     (fn [m k v] (update-in m [k] #(conj % v)))]])
 

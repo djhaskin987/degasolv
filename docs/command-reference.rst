@@ -16,7 +16,8 @@ a page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -c, --config-file FILE  ./degasolv.edn  config file
+    -c, --config-file FILE  ./degasolv.edn  Config file location **
+    -k, --option-pack PACK                  Specify option pack **
     -h, --help                              Print this help page
 
   Commands are:
@@ -54,17 +55,14 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       generate-repo-index [...]
 
-  A few notable exceptions to this rule is the ``--repository`` and
-  ``--present-package`` options of the ``resolve-locations`` and ``query-repo``
-  commands, and the ``--requirement`` option of the ``generate-card`` and
-  ``resolve-locations`` commands. This is because these options can be
-  specified multiple times, and so their configuration file key equivalents are
-  named ``:repositories``, ``:present-packages`` and ``:requirements``
-  respectively, and they show up in the configuration file as a list of
-  strings. Finally, the ``--enable-alternatives`` and
-  ``--disable-alternatives`` options of the ``resolve-locations`` command map a
-  boolean value to the ``alternatives`` config file key. So, instead of using
-  this command::
+  Notable exceptions to this rule include options which may be
+  specified multiple times. These options are named using singular
+  nouns (e.g. ``--repository REPO``), but their corresponding
+  configuration file keys are specified using plural nouns (e.g.,
+  ``:repositories ["REPO1",...]``).
+
+  So, instead of using this
+  command::
 
     java -jar degasolv-<version>-standalone.jar \
       resolve-locations \
@@ -103,7 +101,7 @@ Explanation of options:
   URL.
 
   As of version 1.2.0, the ``--config-file`` option may be specified multiple
-  times. Each config file specified will get its configuration
+  times. Each configuration file specified will get its configuration
   merged into the previously specified configuration files. If both
   configuration files contain the same option, the option specified in
   the latter specified configuration file will be used.
@@ -164,6 +162,27 @@ Explanation of options:
         --config-file "https://nas.example.com/degasolv/site.edn" \
         --config-file "./degasolv.edn" \
         generate-card
+
+.. _option pack:
+
+- ``-k PACK``, ``--option-pack PACK``, ``:option-packs ["PACK1",...]``: Specify
+  one or more option packs.
+
+  Degasolv ships with several "option packs", each of which imply several degasolv
+  options at once. When an
+  option pack is specified, degasolv looks up which option pack is used and what
+  options are implied by using it. More than one option pack may be specified.
+  If option packs are specified both on the command line and in the config file,
+  the option packs on the command line are used and the ones in the config file
+  are ignored.
+
+  The following option packs are supported in the current version:
+    - ``multi-version-mode``: Added as of version 1.7.0 . Implies
+      ``--conflict-strat inclusive``,
+      ``--resolve-strat fast``, and ``--disable-alternatives``.
+    - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
+      ``--conflic-strat prioritized``,
+      ``--resolve-strat fast``, and ``--disable-alternatives``.
 
 - ``-h``, ``--help``: Prints the help page. This can be used on every
   sub-command as well.
@@ -468,7 +487,8 @@ Explanation of options:
     of each package are allowed to be part of the solution. To call for
     similar behavior to ruby's gem or node's npm, for example, set
     ``--conflict-strat`` to ``inclusive`` and set ``--resolve-strat``
-    to ``fast``.
+    to ``fast``. This can be easily and cleanly specified done by using the
+    ``multi-version-mode`` `option pack`_.
 
   - If set to ``prioritized``, then the first time a package is required and
     is found at a particular version, it will be considered to fulfill the
@@ -485,8 +505,10 @@ Explanation of options:
     ``1`` and that version was assumed to fulfill all requirements asking
     for package ``b``.
 
-    To mimic the behavior of maven, set ``--conflict-strat`` to ``prioritized``
-    and ``--resolve-strat`` to ``fast``.
+    To mimic the behavior of maven, set ``--conflict-strat`` to
+    ``prioritized`` and ``--resolve-strat`` to ``fast``. This can be
+    easily and cleanly specified done by using the
+    ``firstfound-version-mode`` `option pack`_.
 
 .. _present package:
 
@@ -835,8 +857,6 @@ interpretations.
 |                         | the absence of the ``pine`` package.              |
 +-------------------------+---------------------------------------------------+
 
-
 .. _maven: https://maven.apache.org/
-
 
 .. _managed dependency: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management
