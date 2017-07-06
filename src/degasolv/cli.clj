@@ -201,13 +201,26 @@
          explain-package
          results))))))
 
+(def subcommand-option-defaults
+  {
+   :card-file "./out.dscard"
+   :search-directory "."
+   :index-file "index.dsrepo"
+   :alternatives true
+   :conflict-strat "exclusive"
+   :resolve-strat "thorough"
+   :index-strat "priority"
+   :package-system "degasolv"
+   })
+
 (def subcommand-cli
   {"display-config"
    {:description "Print the effective combined configuration (and arguments) of all the given config files."
     :function display-config!
     }
    "generate-card"
-   {:description "Generate dscard file based on arguments given"
+   {
+    :description "Generate dscard file based on arguments given"
     :function generate-card!
     :required-arguments {:id ["-i" "--id"]
                          :version ["-v" "--version"]
@@ -236,21 +249,19 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-C" "--card-file FILE"
            (str "The name of the card file")
-           :default "./out.dscard"
+
            :validate [#(not (empty? %))
                       "Out file must not be empty."]]]}
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index-cli!
     :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
-           :default "."
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
                       "Must be a directory which exists on the file system."]]
           ["-I" "--index-file FILE"
-           "The name of the repo file"
-           :default "index.dsrepo"]
+           "The name of the repo file"]
           ["-a" "--add-to INDEX"
            "Add to repo index INDEX"]]}
 
@@ -261,15 +272,11 @@
                          :requirements ["-r" "--requirement"]}
     :cli [
           ["-a" "--enable-alternatives" "Consider all alternatives"
-           :id :alternatives
-           :default true
-           :assoc-fn (fn [m k v] (assoc m k true))]
+           :assoc-fn (fn [m k v] (assoc m :alternatives true))]
           ["-A" "--disable-alternatives" "Consider only first alternatives"
-           :id :alternatives
-           :assoc-fn (fn [m k v] (assoc m k false))]
+           :assoc-fn (fn [m k v] (assoc m :alternatives false))]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
-           :default "exclusive"
            :validate [#(or (= "exclusive" %)
                            (= "inclusive" %)
                            (= "prioritized" %))
@@ -297,17 +304,14 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-s" "--resolve-strat STRAT"
            "May be 'fast' or 'thorough'."
-           :default "thorough"
            :validate [#(or (= "thorough" %) (= "fast" %))
                       "Resolve strategy must either be 'thorough' or 'fast'."]]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
-           :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
-           :default "degasolv"
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
           ]}
@@ -330,12 +334,10 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
-           :default "priority"
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
-           :default "degasolv"
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]]}})
 
@@ -421,14 +423,40 @@
            "` key in the config file,")
       (str "  or use `" small-arg "` or `" large-arg "` at the command line.")])))
 
+(def available-option-packs
+  {
+   "multi-version-mode"
+   {
+    :conflict-strat "inclusive"
+    :resolve-strat "fast"
+    :alternatives false
+    }
+    "firstfound-version-mode"
+   {
+    :conflict-strat "prioritized"
+    :resolve-strat "fast"
+    :alternatives false
+    }
+  })
+
 (def cli-options
-  [["-c" "--config-file FILE" "config file"
+  [["-c" "--config-file FILE" "Config file location **"
     :id :config-files
     :default []
     :default-desc "./degasolv.edn"
     :validate [#(and (fs/exists? %)
                      (fs/file? %))
                "Must be a regular file (which hopefully contains config info."]
+    :assoc-fn
+    (fn [m k v] (update-in m [k] #(conj % v)))]
+   ["-k" "--option-pack PACK" "Specify option pack **"
+    :id :option-packs
+    :default []
+    :default-desc ""
+    :validate [#(get available-option-packs %)
+               (str
+                "Must be one of: "
+                (string/join "," (keys available-option-packs)))]
     :assoc-fn
     (fn [m k v] (update-in m [k] #(conj % v)))]])
 
@@ -438,6 +466,25 @@
                       (vector? y) (conj x y)
                       :else y))
               a b))
+
+(defn get-config [configs]
+  (try
+    (reduce
+     merge
+     (map
+      tag/read-string
+      (map
+       default-slurp
+       configs)))
+    (catch Exception e
+      (binding [*out* *err*]
+        (println "Warning: problem reading config files, they were not used:"
+                 (str "\n"
+                      (string/join
+                       \newline
+                       (map #(str "  - " %)
+                            configs)))))
+      (hash-map))))
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
@@ -513,28 +560,26 @@
                            ""
                            (usage summary :sub-command subcommand)
                            ""])))
-        (let [config-files (if (empty? (:config-files global-options))
-                             [(fs/file (fs/expand-home "./degasolv.edn"))]
-                             (:config-files global-options))
+        (let [config-files
+              (if (empty? (:config-files global-options))
+                [(fs/file (fs/expand-home "./degasolv.edn"))]
+                (:config-files global-options))
+              config
+              (get-config config-files)
+              cli-option-packs (:option-packs options)
+              selected-option-packs
+              (if (empty? cli-option-packs)
+                (into [] (:option-packs config))
+                cli-option-packs)
               effective-options
-              (merge
-               (try
-                 (reduce
-                  merge
-                  (map
-                   tag/read-string
-                   (map
-                    default-slurp
-                    (:config-files global-options))))
-                 (catch Exception e
-                   (binding [*out* *err*]
-                     (println "Warning: problem reading config files, they were not used:"
-                              (str (string/join
-                                    \newline
-                                    (map #(str "  - " %)
-                                         (:config-files global-options))))))
-                   {}))
-               options)
+              (t/it->
+               selected-option-packs
+               (mapv available-option-packs it)
+               (into [subcommand-option-defaults] it)
+               (conj it (dissoc config :option-packs))
+               (conj it options)
+               (reduce merge (hash-map) it)
+               )
               required-keys (set (keys (:required-arguments subcmd-cli)))
               present-keys (set (keys effective-options))]
           (when (not (st/subset? required-keys present-keys))

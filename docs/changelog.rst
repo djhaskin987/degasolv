@@ -12,6 +12,16 @@ and this project adheres to `Semantic Versioning`_.
 `Unreleased`_
 -------------
 
+Added
++++++
+- Added ``--option-pack``, the ability to specify multiple options
+
+Fixed
++++++
+- Fixed how default options work, they no longer override stuff
+  found in the config file (ouch)
+- Fixed output of printed warning when configuration file is not used
+
 `1.6.0`_
 --------
 
