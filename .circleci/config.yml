@@ -16,3 +16,8 @@ jobs:
           do
               ./${i}
           done
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
