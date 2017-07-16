@@ -11,7 +11,7 @@ test_home=test/resources/data/apt
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     query-repo \
@@ -19,7 +19,7 @@ time java \
     --package-system apt \
     --query "libc6"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -28,7 +28,7 @@ time java \
     --package-system apt \
     --requirement "libc6"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -36,7 +36,7 @@ time java \
     --package-system apt \
     --requirement "libc6"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -44,7 +44,7 @@ time java \
     --package-system apt \
     --requirement "bash"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -59,7 +59,7 @@ time java \
     --resolve-strat fast \
     --requirement "firefox"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -71,7 +71,7 @@ time java \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "firefox"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -85,7 +85,7 @@ time java \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "ubuntu-desktop"
 
-time java \
+java \
     -Xss16m \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
