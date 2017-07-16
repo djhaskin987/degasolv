@@ -13,6 +13,14 @@
                  [tupelo "0.9.31"]
                  ]
   :plugins [[lein-print "0.1.0"]]
+;;  :source-paths ["src/degasolv"]
+
+              :java-source-paths ["src/java" "test/java"]
+              :junit ["test/java"]
+
+
+
+
   :test-selectors
   {
    :resolve-basic :resolve-basic
@@ -23,11 +31,10 @@
    :resolve-disable-alternatives :resolve-disable-alternatives
    }
   :profiles {
-             :dev {:dependencies [
-                                  [tupelo "0.9.31"]
-                                  [serovers "1.1.0"
-                                   :exclusions [org.clojure/clojure]]
-                                  ]}
+             :dev {
+                   :plugins [[test2junit "1.3.3"]]
+                   :test2junit-output-dir "target/test-results"
+                   }
              :uberjar {:aot [
                              degasolv.pkgsys.core
                              degasolv.pkgsys.apt

@@ -34,6 +34,7 @@ pom.xml.asc
 .hg/
 /.ve/
 foo.edn
+build.xml
 
 *.zip
 cmake/
