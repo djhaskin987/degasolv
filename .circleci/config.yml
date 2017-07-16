@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: clojure:lein
-  	version: 2
+    version: 2
   steps:
     - checkout
     - run:
