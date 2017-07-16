@@ -4,18 +4,18 @@ jobs:
     docker:
       - image: clojure:lein
     version: 2
-  steps:
-    - checkout
-    - run:
-        command: |
-          set -ex
-          lein test2junit
-          lein uberjar
-          # Script tests
-          for i in test/resources/scripts/*
-          do
-              ./${i}
-          done
+    steps:
+      - checkout
+      - run:
+          command: |
+            set -ex
+            lein test2junit
+            lein uberjar
+            # Script tests
+            for i in test/resources/scripts/*
+            do
+                ./${i}
+            done
 workflows:
   version: 2
   build_and_test:
