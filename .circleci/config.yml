@@ -29,6 +29,8 @@ jobs:
             lein test2junit
       - store_artifacts:
           path: target/
+      - store_test_results:
+          path: target/test-results/xml/
 workflows:
   version: 2
   build_and_test:
