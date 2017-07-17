@@ -27,6 +27,7 @@ jobs:
           command: |
             set -ex
             lein test2junit
+            ls target/test-results
       - store_artifacts:
           path: target/
       - store_test_results:
