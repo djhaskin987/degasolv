@@ -1,5 +1,4 @@
 #!/bin/sh
-lein uberjar
 set -ex
 
 if [ ! -f './project.clj' -a ! -f './build.boot' ]
