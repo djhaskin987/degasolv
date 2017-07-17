@@ -566,7 +566,7 @@
                 (:config-files global-options))
               config
               (get-config config-files)
-              cli-option-packs (:option-packs options)
+              cli-option-packs (:option-packs global-options)
               selected-option-packs
               (if (empty? cli-option-packs)
                 (into [] (:option-packs config))
