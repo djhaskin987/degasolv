@@ -28,6 +28,7 @@ jobs:
             set -ex
             lein test2junit
             ls target/test-results
+            ls target/test-results/html
       - store_artifacts:
           path: target/test-results/xml/
           destination: test-results/xml
