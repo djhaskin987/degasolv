@@ -1,6 +1,5 @@
 (ns degasolv.resolve-performance-test
   (:require [clojure.test :refer :all]
-            [clojure.pprint :as pprint]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
             [serovers.core :refer [maven-vercmp]
@@ -16,9 +15,7 @@
   "Resets test data before each test."
   [test-fn]
   (reset! test-data nil)
-  (test-fn)
-  (println "Test data:")
-  (pprint/pprint @test-data))
+  (test-fn))
 
 (use-fixtures :each reset-test-data)
 (deftest ^:resolve-performance pruning-candidates-test
