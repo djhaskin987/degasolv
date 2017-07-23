@@ -104,27 +104,31 @@
                    (string-to-requirement vetted-str-req)))
                requirements))
        present-packages
-       (into {}
-             (map
-               (fn [str-pkg]
-                 (let [vetted-str-pkg
-                       (s/conform ::r/frozen-package-string str-pkg)]
-                   (when (= vetted-str-pkg ::s/invalid)
-                     (binding [*out* *err*]
-                       (println
-                         (str
-                           "Present package string `"
-                           str-pkg
-                           "` invalid:"
-                           (s/explain ::r/frozen-package-string str-pkg)))))
-                   (let [[id version] (string/split str-pkg #"==")]
-                     [id
-                      (->PackageInfo
-                        id
-                        version
-                        "already present"
-                        nil)]))))
-         (:present-packages options))
+       (reduce
+        #(update-in %1 [(:id %2)]
+                    conj
+                    %2)
+        {}
+        (map
+         (fn [str-pkg]
+           (let [vetted-str-pkg
+                 (s/conform ::r/frozen-package-string str-pkg)]
+             (when (= vetted-str-pkg ::s/invalid)
+               (binding [*out* *err*]
+                 (println
+                  (str
+                   "Present package string `"
+                   str-pkg
+                   "` invalid:"
+                   (s/explain ::r/frozen-package-string str-pkg)))))
+             (let [[id version] (string/split str-pkg #"==")]
+               [id
+                (->PackageInfo
+                 id
+                 version
+                 "already present"
+                 nil)])))
+         (:present-packages options)))
        aggregate-repo
        (aggregate-repositories
          index-strat

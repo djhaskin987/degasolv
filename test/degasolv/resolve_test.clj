@@ -131,7 +131,7 @@
                      ]
                     query
                     :present-packages
-                    {"c" package-c10}))))
+                    {"c" [package-c10]}))))
 
     (testing
         (str "Asking to install a package that I have given as already "
@@ -143,7 +143,7 @@
                      ]
                     query
                     :present-packages {"b"
-                                       (->package "b" 10 "b-loc10" nil)}))))
+                                       [(->package "b" 10 "b-loc10" nil)]}))))
     (testing
         (str "Asking to install a package that is already "
              "installed, but the installed version doesn't "
@@ -157,7 +157,7 @@
                    clause
                    ]
                   query
-                  :present-packages {"a" package-a20})))))
+                  :present-packages {"a" [package-a20]})))))
 
     (testing
         (str "Asking to install a package that is already "
@@ -168,7 +168,7 @@
                      [(present "a" #(>= (:version %) 20))]
                      ]
                     query
-                    :present-packages {"a" package-a20}))))))
+                    :present-packages {"a" [package-a20]}))))))
   (deftest ^:resolve-basic conflicts
     (let [dclause [(present "d")]]
       (testing
@@ -233,7 +233,7 @@
                      [(present "a")]
                      ]
                     query
-                    :present-packages {"b" package-b})))))
+                    :present-packages {"b" [package-b]})))))
   (let [package-a
         (->package
          "a"
@@ -352,7 +352,7 @@
                      [(absent "c") (present "b")]
                      ]
                     query
-                    :present-packages {"c" (->package "c" 10 "c_loc10" nil)}))))))
+                    :present-packages {"c" [(->package "c" 10 "c_loc10" nil)]}))))))
 
 (deftest ^:resolve-basic no-locking
   (testing
@@ -715,7 +715,7 @@
         (resolve-dependencies
          [[(present "a")]]
          query
-         :present-packages {"c" package-c}))))
+         :present-packages {"c" [package-c]}))))
     (testing
         "Prefer conflicts over installs"
       (is
@@ -725,7 +725,7 @@
         (resolve-dependencies
          [[(present "d")]]
          query
-         :present-packages {"c" package-c}
+         :present-packages {"c" [package-c]}
          :conflicts {"e" [nil]}))))))
 
 (deftest ^:resolve-basic circular-dependencies

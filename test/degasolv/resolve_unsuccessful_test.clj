@@ -146,9 +146,9 @@
               {:term d-clause
                :alternative d-alternative
                :found-packages {"a"
-                                a1
+                                [a1]
                                 "b"
-                                b2
+                                [b2]
                                 }
                :present-packages {}
                :absent-specs {}
@@ -158,9 +158,9 @@
                :alternative d-alternative
                :found-packages {
                                 "a"
-                                a1
+                                [a1]
                                 "c"
-                                c3}
+                                [c3]}
                :present-packages {}
                :absent-specs {}
                :reason :package-not-found
@@ -178,9 +178,9 @@
               {:term d-clause
                :alternative d-alternative
                :found-packages {"a"
-                                a2
+                                [a2]
                                 "b"
-                                b2}
+                                [b2]}
                :present-packages {}
                :absent-specs {}
                :reason :package-not-found
@@ -188,9 +188,9 @@
               {:term d-clause
                :alternative d-alternative
                :found-packages {"a"
-                                a2
+                                [a2]
                                 "b"
-                                b3}
+                                [b3]}
                :present-packages {}
                :absent-specs {}
                :reason :package-not-found
@@ -205,7 +205,7 @@
             {:problems
              [{:term []
                :found-packages {
-                                "a" a3
+                                "a" [a3]
                                 }
                :present-packages {}
                :absent-specs {}
