@@ -1,4 +1,4 @@
-(ns degasolv.resolve-data-spec-test
+(ns degasolv.resolver.data-spec-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -8,7 +8,7 @@
             PackageInfo
             Requirement]))
 
-(deftest ^:resolve-data-spec tutorial-test
+(deftest ^:unit-tests tutorial-test
   (let [repo-info
         {
          "b"
@@ -112,7 +112,7 @@
                     [:unsuccessful u]
                     :unsuccessful))))))
 
-(deftest ^:resolve-data-spec data-spec-cases
+(deftest ^:unit-tests data-spec-cases
   (let [b1
         {
          :id "b"

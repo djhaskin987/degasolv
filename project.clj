@@ -23,12 +23,7 @@
 
   :test-selectors
   {
-   :resolve-basic :resolve-basic
-   :resolve-harden :resolve-harden
-   :string-to-requirement :string-to-requirement
-   :repo-aggregation :repo-aggregation
-   :resolve-conflict-strat :resolve-conflict-strat
-   :resolve-disable-alternatives :resolve-disable-alternatives
+   :unit-tests :unit-tests
    }
   :profiles {
              :dev {

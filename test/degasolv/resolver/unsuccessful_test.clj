@@ -1,4 +1,4 @@
-(ns degasolv.resolve-unsuccessful-test
+(ns degasolv.resolver.unsuccessful-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -10,7 +10,7 @@
 ;; todo
 ;; - empty fclause
 ;; - present package conflict
-(deftest ^:unit-test unsuccessful-test
+(deftest ^:unit-tests unsuccessful-test
   (let [
         b-alternative
         {:status :present

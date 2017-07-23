@@ -11,6 +11,23 @@ and this project adheres to `Semantic Versioning`_.
 
 `Unreleased`_
 -------------
+Added
++++++
+- Added the ability to specify ``--present-package`` multiple times using the
+  same package name, but different versions. This is useful for when the
+  ``:conflict-strat`` is set to ``inclusive``.
+- Added tests testing to make sure that unsuccessful runs generate the proper
+  error messages.
+
+Changed
++++++++
+- Reorganized the unit tests.
+
+Fixed
++++++
+- Fixed bug wherein if the conflict strategy is set to ``:inclusive``
+  and a package satisfying a requirement is already found or present,
+  it is used instead of finding a new one.
 
 `1.7.0`_
 --------

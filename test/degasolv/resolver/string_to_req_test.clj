@@ -1,8 +1,8 @@
-(ns degasolv.resolve-string-to-req-test
+(ns degasolv.resolver.string-to-req-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]))
 
-(deftest ^:string-to-requirement test-string-to-requirement-basic-cases
+(deftest ^:unit-tests test-string-to-requirement-basic-cases
   (testing "Basic case"
     (is (= [(present "a")]
            (string-to-requirement "a"))))
@@ -43,7 +43,7 @@
                                    "2.3.3")]])]
            (string-to-requirement "x>2.3.3")))))
 
-(deftest ^:string-to-requirement test-string-to-requirement-illustrations
+(deftest ^:unit-tests test-string-to-requirement-illustrations
   (testing "Illustrative example"
     (is (= [(present "a"
                      [[(->VersionPredicate :greater-equal "3.0.0")

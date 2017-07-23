@@ -3,7 +3,7 @@
             [degasolv.resolver :refer :all]
             [degasolv.pkgsys.apt :refer :all]))
 
-(deftest ^:pkgsys-apt deb-to-degasolv-requirements-test
+(deftest ^:unit-tests deb-to-degasolv-requirements-test
     (testing "Empty cases"
       (is (= nil
             (deb-to-degasolv-requirements nil)))

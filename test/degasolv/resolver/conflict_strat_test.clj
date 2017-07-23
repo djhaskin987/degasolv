@@ -1,4 +1,4 @@
-(ns degasolv.resolve-conflict-strat-test
+(ns degasolv.resolver.conflict-strat-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -9,7 +9,7 @@
             PackageInfo
             Requirement]))
 
-(deftest ^:resolve-conflict-strat conflict-strats-simple
+(deftest ^:unit-tests conflict-strats-simple
   (let [repo-info
         {
          "a"

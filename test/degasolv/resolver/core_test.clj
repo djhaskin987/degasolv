@@ -1,4 +1,4 @@
-(ns degasolv.resolve-test
+(ns degasolv.resolver.core-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [serovers.core :refer [maven-vercmp]
@@ -52,7 +52,7 @@
         "d"
         [package-d22]}
        query (map-query repo-info)]
-  (deftest ^:resolve-basic ^:resolve-first-tier retrieval
+  (deftest ^:unit-tests ^:resolve-first-tier retrieval
     (testing
         "Asking for a present package succeeds."
       (is (.equals [:successful #{package-d22}]
@@ -111,7 +111,7 @@
                    (resolve-dependencies
                     [[(present "d" #(>= (:version %1) 20))]]
                     query)))))
-  (deftest ^:resolve-basic present-packages
+  (deftest ^:unit-tests present-packages
     (testing
         "Asking to install a package twice."
       (is (.equals [:successful #{package-c10}]
@@ -169,7 +169,7 @@
                      ]
                     query
                     :present-packages {"a" [package-a20]}))))))
-  (deftest ^:resolve-basic conflicts
+  (deftest ^:unit-tests conflicts
     (let [dclause [(present "d")]]
       (testing
           (str "Find a package which conflicts with another "
@@ -196,7 +196,7 @@
                     query
                     :conflicts {"d" [#(< (:version %) 22)]})))))))
 
-(deftest ^:resolve-basic requires
+(deftest ^:unit-tests requires
   (let [package-a
         (->package
          "a"
@@ -354,7 +354,7 @@
                     query
                     :present-packages {"c" [(->package "c" 10 "c_loc10" nil)]}))))))
 
-(deftest ^:resolve-basic no-locking
+(deftest ^:unit-tests no-locking
   (testing
       (str "Find two packages, even when the preferred version "
            "of one package conflicts with the other")
@@ -728,7 +728,7 @@
          :present-packages {"c" [package-c]}
          :conflicts {"e" [nil]}))))))
 
-(deftest ^:resolve-basic circular-dependencies
+(deftest ^:unit-tests circular-dependencies
   (testing "circular dependencies"
     (let [package-a
           (->package

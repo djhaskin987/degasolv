@@ -1,4 +1,4 @@
-(ns degasolv.resolve-performance-test
+(ns degasolv.resolver.performance-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -18,7 +18,7 @@
   (test-fn))
 
 (use-fixtures :each reset-test-data)
-(deftest ^:resolve-performance pruning-candidates-test
+(deftest ^:unit-tests pruning-candidates-test
   (let [repo-info
         {
          "a"
@@ -86,7 +86,7 @@
                     :unsuccessful)))
       (is (= (:repo-query-count @test-data) 2)))))
 
-(deftest ^:resolve-performance pruning-circular-test
+(deftest ^:unit-tests pruning-circular-test
   (let [repo-info
         {
          "a"
@@ -137,7 +137,7 @@
                     :unsuccessful)))
       (is (= (:repo-query-count @test-data) 2)))))
 
-(deftest ^:resolve-performance pruning-circular-second-test
+(deftest ^:unit-tests pruning-circular-second-test
   (let [repo-info
         {
          "a"
@@ -179,7 +179,7 @@
       (is (= (:repo-query-count @test-data) 1)))))
 
 
-(deftest ^:resolve-performance pruning-alternatives-test
+(deftest ^:unit-tests pruning-alternatives-test
   (let [repo-info
         {
          "a"
@@ -242,7 +242,7 @@
                     :unsuccessful)))
       (is (= (:repo-query-count @test-data) 2)))))
 
-(deftest ^:resolve-performance diamond-pruning-test
+(deftest ^:unit-tests diamond-pruning-test
   (let [repo-info
         {
          "a"
