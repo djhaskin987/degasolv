@@ -9,9 +9,16 @@
 /presentation/demo/pyfrontend/external/
 /presentation/demo/pyfrontend/product/
 /presentation/demo/nas/
+/artifactory-plugin/*.dscard
+/artifactory-plugin/*.dsrepo
+/artifactory-plugin/*.jar
 /docs/_build/
+/docs/_static/
+/docs/_template/
 /.nrepl-history
 /test-data/
+/test/resources/data/grill/
+/test/resources/test-data/
 /buildutils/boot
 /*.dscard
 /*.dsrepo
@@ -26,6 +33,7 @@ pom.xml.asc
 .hgignore
 .hg/
 /.ve/
+build.xml
 
 *.zip
 cmake/

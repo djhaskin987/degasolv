@@ -3,12 +3,12 @@
 (defn priority-repo [rs]
   (fn [id]
     (or
-     (first
-      (filter
-      #(not (empty? %))
-     (map #(% id)
-          rs)))
-     [])))
+      (first
+        (filter
+          #(not (empty? %))
+          (map #(% id)
+               rs)))
+      [])))
 
 (defn global-repo [rs & {:keys [cmp]
                          :or {cmp #(- (compare (:version %1) (:version %2)))}}]
@@ -111,7 +111,7 @@
       "Packages selected")]
     (when (not (nil? (:present-packages problem)))
       [(explain-package-list
-       (vals (:present-packages problem))
+       (flatten (vals (:present-packages problem)))
        "Packages already present")])
     (when (not (nil? (:alternative problem)))
       [(str "  - Alternative being considered: " (:alternative problem))])

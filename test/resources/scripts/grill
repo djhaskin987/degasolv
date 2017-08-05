@@ -1,0 +1,224 @@
+#!/bin/sh
+set -ex
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+root_path=${PWD}
+test_home=test/resources/data/grill
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf "${test_home}"
+mkdir -p "${test_home}"
+cd "${test_home}"
+
+# First, generate *most* of the needed cards for the tests to pass.
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "b" -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "c" -v "2.4.7" -l "https://example.com/repo/c-2.4.7.zip" -C $PWD/c-2.4.7.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "d" -v "0.8.0" -l "https://example.com/repo/d-0.8.0.zip" -r "e>=1.1.0,<2.0.0" -C $PWD/d-0.8.0.zip.dscard
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "e" -v "2.1.0" -l "https://example.com/repo/e-2.1.0.zip" -C $PWD/e-2.1.0.zip.dscard
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "e" -v "2.4.0" -l "https://example.com/repo/e-2.4.0.zip" -C $PWD/e-2.4.0.zip.dscard
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+# Check to see that the tests fail.
+
+echo "These should fail"
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "b" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -v "2.3.0" -l "https://example.com/repo/b-2.3.0.zip" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "b" -v "2.3.0" -r "d" -r "c>=3.5.0" -C $PWD/b-2.3.0.zip.dscard
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations -r "b"
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar query-repo -R $PWD/index.dsrepo --query "e>2.0.0|c<4.0.0"
+then
+    exit 1
+fi
+
+echo '#degasolv.resolver/PackageInfo {:id "c", :version "3.5.0", :location "https://example.com/repo/c-3.5.0.zip", :requirements [#degasolv.resolver/Requirement {:status :present, :id "e", :spec [[#degasolv.resolver/VersionPredicate {:relation :greater-equal, :version "1.8.0"}]]}]]}' > $PWD/c-3.5.0.zip.dscard
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+then
+    exit 1
+fi
+echo '#degasolv.resolver/PackageInfo {:id "c", :version "3.5.0", :location "https://example.com/repo/c-3.5.0.zip", :requirements [#degasolv.resolver/Requirement {:status :present, :id "e", :spec [[#degasolv.resolver/VersionPredicate {:relation :greater-equal, :version "1.8.0"}]]}]}' > $PWD/c-3.5.0.zip.dscard
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+then
+    exit 1
+fi
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "c" -v "3.5.0" -l "https://example.com/repo/c-3.5.0.zip" -r "e>=1.8.0" -C $PWD/c-3.5.0.zip.dscard
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar query-repo -R $PWD/index.dsrepo --query "e>6.0.0"
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file test-data/repo/config.edn query-repo --query "!e"
+then
+    exit 1
+fi
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file test-data/repo/config.edn query-repo --query "!"
+then
+    exit 1
+fi
+
+echo "---- --present-packages tests ----"
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "b" --present-package "b!=1.3.0"
+then
+    exit 1
+fi
+
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "b" --present-package "b=1.3.0" 2>&1 | grep -q -E '<pkgname>==<pkgversion>'
+then
+    exit 1
+fi
+
+# present-package provided message
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "z" --present-package "b==1.3.0" --present-package "x==0.9.9"
+then
+    exit 1
+fi
+
+# Explain it, too
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" --requirement "z" --present-package "b==1.3.0" --present-package "x==0.9.9" 2>&1 | grep -q -E 'b==1\.3\.0'
+then
+    exit 1
+fi
+
+# Make sure the tests succeed.
+echo "These should succeed"
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations --repository "./index.dsrepo" -r "b" --present-package "e==1.8.0" --present-package "x==0.9.0"
+echo "-- end --present-package tests"
+
+# Add the package that should make the tests succeed.
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-card -i "e" -v "1.8.0" -l "https://example.com/repo/e-1.8.0.zip" -C $PWD/e-1.8.0.zip.dscard
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations -R $PWD/index.dsrepo -r "b"
+
+echo "Test of standard in"
+cat ${PWD}/index.dsrepo | \
+    java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+         resolve-locations \
+         -R - -r "b"
+
+cat > $PWD/config.edn <<EOF
+{  :repositories ["$PWD/index.dsrepo"]
+}
+EOF
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b"
+
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file $PWD/config.edn resolve-locations -r "b" -s fast
+then
+    exit 1
+fi
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0"
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file $PWD/config.edn query-repo --query "e>2.0.0,!=2.1.0"
+
+# Test inclusive and prioritized
+cd ../..
+rm -rf test-data/repo
+mkdir -p test-data/repo
+
+cd test-data/repo
+
+# First, generate *most* of the needed cards for the tests to pass.
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "a" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/a-1.0.0.zip" \
+     -r "b>1.2.0" -r "c>=3.5.0" \
+     -C $PWD/a-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "b" \
+     -v "1.2.3" \
+     -l "https://example.com/repo/b-1.2.3.zip" \
+     -r "c<3.4.0" \
+     -C $PWD/b-1.2.3.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "b" \
+     -v "1.2.4" \
+     -l "https://example.com/repo/b-1.2.4.zip" \
+     -r "c<3.4.0" \
+     -C $PWD/b-1.2.4.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations  -R "${PWD}/index.dsrepo" -r "a" --conflict-strat inclusive
+then
+    exit 1
+fi
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations -R "${PWD}/index.dsrepo" -r "a" --conflict-strat prioritized
+then
+    exit 1
+fi
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "c" \
+     -v "3.5.0" \
+     -l "https://example.com/repo/c-3.5.0.zip" \
+     -C $PWD/c-3.5.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "c" \
+     -v "3.2.0" \
+     -l "https://example.com/repo/c-3.2.0.zip" \
+     -C $PWD/c-3.2.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations  -R "${PWD}/index.dsrepo" -r "a" --conflict-strat inclusive
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar resolve-locations  -R "${PWD}/index.dsrepo" -r "a" --conflict-strat prioritized
+
+# Merged config files
+
+cat > a.cfg <<EOF
+{
+    :index-strat "priority"
+    :repositories ["https://example.com/repo1/"]
+    :id "a"
+    :version "1.0.0"
+}
+EOF
+
+cat > b.cfg <<EOF
+{
+    :conflict-strat "exclusive"
+    :repositories ["https://example.com/repo2/"]
+    :id "b"
+    :version "2.0.0"
+}
+EOF
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar --config-file "a.cfg" --config-file "b.cfg" display-config
+rm a.cfg
+rm b.cfg

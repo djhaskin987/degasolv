@@ -1,0 +1,22 @@
+#!/bin/sh
+
+name=$(lein print :name | sed 's/"//g')
+version=$(lein print :version | sed 's/"//g')
+
+java -jar ../target/uberjar/${name}-${version}-standalone.jar \
+    --id "a" \
+    --version "1.0"
+    --location "a"
+    --card-file "a.dscard"
+
+java -jar ../target/uberjar/${name}-${version}-standalone.jar \
+    --id "b" \
+    --version "2.0"
+    --location "b"
+    --card-file "b.dscard"
+
+java -jar ../target/uberjar/${name}-${version}-standalone.jar \
+    --id "c" \
+    --version "3.0"
+    --location "c"
+    --card-file "c.dscard"

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -ex
+
+root_path=${PWD}
+test_home=test/resources/data/grill
+
+name=$(lein print :name | sed 's|"||g' )
+version=$(lein print :version | sed 's|"||g')   
+
+cat > ${test_home}/test-option-packs.edn <<EDN
+{
+    :option-packs ["firstfound-version-mode"]
+}
+EDN
+
+java -jar target/uberjar/${name}-${version}-standalone.jar \
+    -c ${test_home}/test-option-packs.edn \
+    display-config | grep -E ':conflict-strat "prioritized"'
+
+
+java -jar target/uberjar/${name}-${version}-standalone.jar \
+     -k "multi-version-mode" \
+    display-config | grep -E ':conflict-strat "inclusive"'
+
+java -jar target/uberjar/${name}-${version}-standalone.jar \
+     -c ${test_home}/test-option-packs.edn \
+     -k "multi-version-mode" \
+    display-config | grep -E ':conflict-strat "inclusive"'

@@ -13,9 +13,11 @@ a page that looks something like this::
   Usage: degasolv <options> <command> <<command>-options>
 
   Options are shown below, with their default values and
-    descriptions:
+    descriptions. Options marked with `**` may be
+    used more than once.
 
-    -c, --config-file FILE  ./degasolv.edn  config file
+    -c, --config-file FILE  ./degasolv.edn  Config file location **
+    -k, --option-pack PACK                  Specify option pack **
     -h, --help                              Print this help page
 
   Commands are:
@@ -53,17 +55,20 @@ Explanation of options:
       --config-file "$PWD/config.edn" \
       generate-repo-index [...]
 
-  A few notable exceptions to this rule is the ``--repository`` option
-  of the ``resolve-locations`` and ``query-repo`` commands, and the
-  ``--requirement`` option of the ``generate-card`` and
-  ``resolve-locations`` commands. This is because these options can be
-  specified multiple times, and so their configuration file key
-  equivalents are named ``:repositories`` and ``:requirements``
-  respectively, and they show up in the configuration file as a list
-  of strings. So, instead of using this command::
+  Notable exceptions to this rule include options which may be
+  specified multiple times. These options are named using singular
+  nouns (e.g. ``--repository REPO``), but their corresponding
+  configuration file keys are specified using plural nouns (e.g.,
+  ``:repositories ["REPO1",...]``).
+
+  So, instead of using this
+  command::
 
     java -jar degasolv-<version>-standalone.jar \
       resolve-locations \
+      --disable-alternatives \
+      --present-package "x==0.1" \
+      --present-package "y==0.2" \
       --repository "https://example.com/repo1/" \
       --repository "https://example.com/repo2/" \
       --requirement "a" \
@@ -74,20 +79,29 @@ Explanation of options:
 
     ; filename: config.edn
     {
+        :alternatives false
         :respositories ["https://example.com/repo1/"
                         "https://example.com/repo2/"]
         :requirements ["a"
                        "b"]
+        :present-packages ["x==0.1"
+                           "y==0.2"]
     }
 
   With this command::
 
     java -jar degasolv-<version>-standalone.jar \
       --config-file "$PWD/config.edn" \
+      resolve-locations \
       [...]
 
+  The config file may be a URL or a filepath. Both HTTP and HTTPS URLs are
+  supported. If the config file is ``-`` (the hyphen character), degasolv
+  will read standard input instead of any specific file or
+  URL.
+
   As of version 1.2.0, the ``--config-file`` option may be specified multiple
-  times. Each config file specified will get its configuration
+  times. Each configuration file specified will get its configuration
   merged into the previously specified configuration files. If both
   configuration files contain the same option, the option specified in
   the latter specified configuration file will be used.
@@ -130,8 +144,10 @@ Explanation of options:
         :arguments ["display-config"]
     }
 
+  .. _site-wide:
+
   The merging of config files, together with the interesting
-  fact that config files may be specified via HTTP URLs,
+  fact that config files may be specified via HTTP/HTTPS URLs,
   allows the user to specify a *site config file*.
 
   Many options, such as ``--index-strat``, ``--conflict-strat``,
@@ -142,10 +158,31 @@ Explanation of options:
   to point to a site-wide file, together with a build-specific config
   file, as in this example::
 
-    java -jar degasolv-<version>-standalone.jar \
+    java -jar degasolv-<version>-standalone.jar \n
         --config-file "https://nas.example.com/degasolv/site.edn" \
         --config-file "./degasolv.edn" \
         generate-card
+
+.. _option pack:
+
+- ``-k PACK``, ``--option-pack PACK``, ``:option-packs ["PACK1",...]``: Specify
+  one or more option packs.
+
+  Degasolv ships with several "option packs", each of which imply several degasolv
+  options at once. When an
+  option pack is specified, degasolv looks up which option pack is used and what
+  options are implied by using it. More than one option pack may be specified.
+  If option packs are specified both on the command line and in the config file,
+  the option packs on the command line are used and the ones in the config file
+  are ignored.
+
+  The following option packs are supported in the current version:
+    - ``multi-version-mode``: Added as of version 1.7.0 . Implies
+      ``--conflict-strat inclusive``,
+      ``--resolve-strat fast``, and ``--disable-alternatives``.
+    - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
+      ``--conflic-strat prioritized``,
+      ``--resolve-strat fast``, and ``--disable-alternatives``.
 
 - ``-h``, ``--help``: Prints the help page. This can be used on every
   sub-command as well.
@@ -168,11 +205,17 @@ returns a page that looks something like this::
     -h, --help  Print this help page
 
 The ``display-config`` command is used to print all the options
-in the "effective configuration". It allows the user to debug
+in the *effective configuration*. It allows the user to debug
 configuration by printing the actual configuration used by degasolv
 after all the command-line arguments and config files have
 been merged together. An example of this is found in the
 `config files section`_.
+
+As of version 1.6.0, ``display-config`` accepts any valid option
+in long form (``--long-form``) which is accepted by any other
+subcommand. This enables the user to print out the effective
+configuration resulting from multiple config files as well
+as any options that might be given on the CLI.
 
 CLI for ``generate-card``
 -------------------------
@@ -180,18 +223,18 @@ CLI for ``generate-card``
 Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
 returns a page that looks something like this::
 
-  java -jar target/uberjar/degasolv-1.0.2-SNAPSHOT-standalone.jar generate-card -h
   Usage: degasolv <options> generate-card <generate-card-options>
 
   Options are shown below, with their default values and
-    descriptions:
+    descriptions. Options marked with `**` may be
+    used more than once.
 
-    -i, --id true                         ID (name) of the package
-    -v, --version true                    Version of the package
-    -l, --location true                   URL or filepath of the package
-    -r, --requirement REQ                 List req, may be used multiple times
-    -C, --card-file FILE  ./out.dscard    The name of the card file
-    -h, --help                            Print this help page
+    -i, --id true                        ID (name) of the package
+    -v, --version true                   Version of the package
+    -l, --location true                  URL or filepath of the package
+    -r, --requirement REQ                List requirements **
+    -C, --card-file FILE   ./out.dscard  The name of the card file
+    -h, --help                           Print this help page
 
   The following options are required for subcommand `generate-card`:
 
@@ -242,13 +285,15 @@ Explanation of options:
 CLI for ``generate-repo-index``
 -------------------------------
 
-Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
+Running ``java -jar degasolv-<version>-standalone.jar generate-repo-index -h``
 returns a page that looks something like this::
+
 
   Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
 
   Options are shown below, with their default values and
-    descriptions:
+    descriptions. Options marked with `**` may be
+    used more than once.
 
     -d, --search-directory DIR  .             Find degasolv cards here
     -I, --index-file FILE       index.dsrepo  The name of the repo file
@@ -259,7 +304,7 @@ This subcommand is used to generate a repository index file. A
 repository index file lists all versions of all packages in a
 particular degasolv repository, together with their locations. This
 file's location, whether by file path or URL, would then be given to
-``resolve-locations`` and ``query-repo`` commnds as degasolv
+``resolve-locations`` and ``query-repo`` commands as degasolv
 repositories.
 
 Explanation of options:
@@ -304,6 +349,11 @@ Explanation of options:
   repository index could be generated on the server in the usual way
   later.
 
+  ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
+  supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv
+  will read standard input instead of any specific file or
+  URL.
+
 CLI for ``resolve-locations``
 -----------------------------
 
@@ -313,13 +363,18 @@ returns a page that looks something like this::
   Usage: degasolv <options> resolve-locations <resolve-locations-options>
 
   Options are shown below, with their default values and
-    descriptions:
+    descriptions. Options marked with `**` may be
+    used more than once.
 
-    -r, --requirement REQ                  Resolve req. May be used more than once.
-    -R, --repository INDEX                 Use INDEX. May be used more than once.
-    -s, --resolve-strat STRAT   thorough   May be 'fast' or 'thorough'.
+    -a, --enable-alternatives              Consider all alternatives
+    -A, --disable-alternatives             Consider only first alternatives
     -f, --conflict-strat STRAT  exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
+    -p, --present-package PKG              Hard present package. **
+    -r, --requirement REQ                  Resolve req. **
+    -R, --repository INDEX                 Search INDEX for packages. **
+    -s, --resolve-strat STRAT   thorough   May be 'fast' or 'thorough'.
     -S, --index-strat STRAT     priority   May be 'priority' or 'global'.
+    -t, --package-system SYS    degasolv   May be 'degasolv' or 'apt'.
     -h, --help                             Print this help page
 
   The following options are required for subcommand `resolve-locations`:
@@ -347,76 +402,75 @@ In the above example out, each line takes the form::
 If the command fails, a non-zero exit code is returned. The output from such
 a run might look like this::
 
-  The resolver encountered the following problems: 
+  The resolver encountered the following problems:
 
   Clause: e>=1.1.0,<2.0.0
   - Packages selected:
     - b==2.3.0 @ https://example.com/repo/b-2.3.0.zip
     - d==0.8.0 @ https://example.com/repo/d-0.8.0.zip
-  - Packages already present: None
+  - Packages already present:
+    - x==0.1.0 @ already present
+    - y==0.2.0 @ already present
   - Alternative being considered: e>=1.1.0,<2.0.0
   - Package in question was found in the repository, but cannot be used.
   - Package ID in question: e
 
-As shown above, a list of clauses is printed. Each clause is an alternative (part of a requirement)
-that the resolver could not fulfill or resolve. Each field is explained as follows:
+As shown above, a list of clauses is printed. Each clause is an
+alternative (part of a requirement) that the resolver could not
+fulfill or resolve. Each field is explained as follows:
 
-1. ``Packages selected``: This is a list of packages found in order to resolve previous requirements
-   before the "problem" clause was encountered.
-2. ``Packages already present``: This is an artifact of the resolver. It will always be ``None`` and can
-   be ignored.
-3. ``Alternative being considered``: This field displays what alternative from the requirement
-   was being currently considered when the problem was encountered.
+1. ``Packages selected``: This is a list of packages found in order to
+   resolve previous requirements before the "problem" clause was
+   encountered.
+2. ``Packages already present``: Packages which were given to degasolv
+   using the `present package`_ option. If none were specified,
+   this will show as ``None``.
+3. ``Alternative being considered``: This field displays what
+   alternative from the requirement was being currently considered
+   when the problem was encountered.
 4. The next field gives a reason for the problem.
 5. ``Package ID in question``: This field displays the package searched for
    when the problem was encountered.
 
 Explanation of options:
 
-- ``-r REQ``, ``--requirement REQ``, ``:requirements ["REQ1", ...]``:
-  **Required**. Resolve this requirement together with all other requirements
-  given.  May be specified one ore more times as a command line option, or once
-  as a list of strings in a configuration file. See
-  :ref:`Specifying a requirement` for more information.
-
-  The last requirement specified will be the first to be resolved. If the
-  requirements are retrieved from the config file, they are resolved in order
-  from first to last in the list.  If requirements are specified both on the
-  command line and in the configuration file, the requirements in the
-  configuration file are ignored.
-
-.. _that option's explanation:
-
-- ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``:
-  **Required**. Search the repository index given by INDEX for packages when
-  resolving the given requirements.
-
-  When the index strategy is ``priority`` The last repository index specified
-  will be the first to be consulted. If the repository indices are retrieved
-  from the config file, they are consulted in order from first to last in the
-  list.  If indices are specified both on the command line and in the
-  configuration file, the indices in the configuration file are ignored. See
-  `index strategy`_ for more information.
+- ``-a``, ``--enable-alternatives``, ``:alternatives true``:
+  Consider all `alternatives`_ encountered while resolving dependencies.
+  This is the default behavior. It allows the developers and packagers
+  to decide whether or not to use alternatives. As alternatives are generally
+  expensive to resolve, packagers should of course use them with caution.
+  If this option occurs together with the ``--disable-alternatives`` option
+  on a command line, the last argument of the two specified wins.
 
 
-- ``-s STRAT``, ``--resolve-strat STRAT``, ``:resolve-strat "STRAT"``: This
-  option determines which versions of a given package id are considered when
-  resolving the given requirements.  If set to ``fast``, only the first
-  available version matching the first set of requirements on a particular
-  package id is consulted, and it is hoped that this version will match all
-  subsequent requirements constraining the versions of that id. If set to
-  ``thorough``, all available versions matching the requirements will be
-  considered. The default setting is ``thorough`` and this setting
-  should work for most environments.
+- ``-A``, ``--disable-alternatives``, ``:alternatives false``:
+  Consider only the first of any given set of `alternatives`_ for any
+  particular requirement while resolving dependencies.  It allows the package
+  consumer to debug dependency resolution issues. This is especially useful
+  when alternatives are used frequently in specifying requirements by
+  packagers, thus causing performance issues on the part of the package
+  consumers; or, when trying to figure out why dependencies won't resolve
+  properly.  If this option occurs together with the ``--enable-alternatives``
+  option on a command line, the last argument of the two specified wins.
 
-  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+  .. note::
+
+     Use of this option defeats the purpose of degasolv supporting alternatives
+     in the first place. This option is intended generally for use
+     when debugging a build. If it *is* used routinely, it should be used
+     `site-wide`_.
+
+.. _conflict strategies:
 
 - ``-f STRAT``, ``--conflict-strat STRAT``, ``:conflict-strat "STRAT"``:
   This option determines how encountered version conflicts will be
   handled.  The default setting is ``exclusive`` and this setting
   should work for most environments.
 
-  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+  .. note:: This option should be used with care, since whatever setting is
+     used will greatly alter behavior. It is therefore recommended that
+     whichever setting is chosen should be used `site-wide`_ within an
+     organization.
 
   - If set to ``exclusive``, all dependencies and their version
     specifications must be satisfied in order for the command to
@@ -433,7 +487,8 @@ Explanation of options:
     of each package are allowed to be part of the solution. To call for
     similar behavior to ruby's gem or node's npm, for example, set
     ``--conflict-strat`` to ``inclusive`` and set ``--resolve-strat``
-    to ``fast``.
+    to ``fast``. This can be easily and cleanly specified done by using the
+    ``multi-version-mode`` `option pack`_.
 
   - If set to ``prioritized``, then the first time a package is required and
     is found at a particular version, it will be considered to fulfill the
@@ -450,8 +505,91 @@ Explanation of options:
     ``1`` and that version was assumed to fulfill all requirements asking
     for package ``b``.
 
-    To mimic the behavior of maven, set ``--conflict-strat`` to ``prioritized``
-    and ``--resolve-strat`` to ``fast``.
+    To mimic the behavior of maven, set ``--conflict-strat`` to
+    ``prioritized`` and ``--resolve-strat`` to ``fast``. This can be
+    easily and cleanly specified done by using the
+    ``firstfound-version-mode`` `option pack`_.
+
+.. _present package:
+
+- ``-p PKG``, ``--present-package PKG``, ``:present-packages ["PKG1", ...]``:
+  Specify a "hard present package". Specify ``PKG`` as
+  ``<id>==<vers>``, as in this example: ``garfield==1.0``.
+
+  Doing this tells degasolv that a package "already exists" at a particular
+  version in the system or build, whatever that means. This means that when
+  degasolv encounters a requirement for this package, it will assume the
+  package is already found and it will mark the dependency as resolved. On the
+  other hand, degasolv will not try to change or update the found package. If
+  the version of the present package conflicts with requirements encountered,
+  resolution of those requirements may fail.
+
+  This is another one of those options that is provided and, if needed, is
+  meant to benefit the user; however, judicious use is recommended. If you
+  don't know what you're doing, you probably don't want to use this option.
+
+  For example, if this option is used to tell degasolv that, as part of a
+  build, some packages have already been downloaded, degasolv will not
+  recommend that those packages be upgraded. This is the "hard" in "hard
+  present package": If the user specifies via ``--present-package`` that
+  a package is already found and usable, degasolv won't try to find a new
+  version for it; it assumes "you know what you're doing" and that the
+  package(s) in question are not to be touched.
+
+- ``-r REQ``, ``--requirement REQ``, ``:requirements ["REQ1", ...]``:
+  **Required**. Resolve this requirement together with all other requirements
+  given.  May be specified one ore more times as a command line option, or once
+  as a list of strings in a configuration file. See
+  :ref:`Specifying a requirement` for more information.
+
+  The last requirement specified will be the first to be resolved. If the
+  requirements are retrieved from the config file, they are resolved in order
+  from first to last in the list.  If requirements are specified both on the
+  command line and in the configuration file, the requirements in the
+  configuration file are ignored.
+
+.. _repository option:
+
+.. _specify repositories:
+
+- ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``:
+  **Required**. Search the repository index given by INDEX for packages when
+  resolving the given requirements.
+
+  When the index strategy is ``priority`` The last repository index specified
+  will be the first to be consulted. If the repository indices are retrieved
+  from the config file, they are consulted in order from first to last in the
+  list.  If indices are specified both on the command line and in the
+  configuration file, the indices in the configuration file are ignored. See
+  `index strategy`_ for more information.
+
+  ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
+  supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv
+  will read standard input instead of any specific file or
+  URL. Possible use cases for this include downloading the index
+  repository first via some other tool (such as `cURL`_).  One reason
+  users might do this is if authentication is required to download the
+  index, as in this example::
+
+    curl --user username:password https://example.com/degasolv/index.dsrepo | \
+        degasolv resolve-locations -R - "req"
+
+  .. _cURL: https://curl.haxx.se/
+
+- ``-s STRAT``, ``--resolve-strat STRAT``, ``:resolve-strat "STRAT"``: This
+  option determines which versions of a given package id are considered when
+  resolving the given requirements.  If set to ``fast``, only the first
+  available version matching the first set of requirements on a particular
+  package id is consulted, and it is hoped that this version will match all
+  subsequent requirements constraining the versions of that id. If set to
+  ``thorough``, all available versions matching the requirements will be
+  considered. The default setting is ``thorough`` and this setting
+  should work for most environments.
+
+  .. note:: This option should be used with care, since whatever setting is
+     used will greatly alter behavior. It is therefore recommended that
+     whichever setting is chosen should be used `site-wide`_ within an
+     organization.
 
 .. _index strategy:
 
@@ -489,9 +627,52 @@ Explanation of options:
   The default setting is ``priority`` and this setting should work for most
   environments.
 
-  .. warning:: This option should be used with care, since whatever setting is used will greatly alter behavior. It is therefore recommended that whichever setting is chosen should be used site-wide within an organization.
+  .. note:: This option should be used with care, since whatever setting is
+     used will greatly alter behavior. It is therefore recommended that
+     whichever setting is chosen should be used `site-wide`_ within an
+     organization.
 
+.. _package system:
 
+- ``-t SYS``, ``--package-system SYS``, ``:package-system "SYS"``:
+  **Experimental**. Specify package system to use. By default, this value
+  is ``degasolv``. Using this option allows the user to run degasolv's
+  resolver engine on respositories from other package manager systems. Though
+  option was mainly implemented for profiling and debugging purposes, it is
+  envisioned that this option will expand to include many package manager
+  repositories. This will allow users to use degasolv to resolve packages
+  from well-known sources, in a reliable and useful manner.
+
+  Other available values are:
+
+    - ``apt``: resolve using the APT debian package manager. When using this
+      method, `specify repositories`_ using the format::
+
+        {binary-amd64|binary-i386} <url> <dist> <pool>
+
+      Or, in the case of naive apt repositories::
+
+        {binary-amd64|binary-i386} <url> <relative-path>
+
+      For example, I might use the repository option like this::
+
+        java -jar degasolv-<version>-standalone.jar resolve-locations \
+            -R "binary-amd64 https://example.com/ubuntu/ /"
+            -t "apt" \
+            --requirement "ubuntu-desktop"
+
+      Or this::
+
+        java -jar degasolv-<version>-standalone.jar resolve-locations \
+            -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
+            -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
+            -t "apt" \
+            --requirement "ubuntu-desktop"
+
+      .. note:: Degasolv does not currently support APT dependencies between
+         machine architectures, as in ``python:i386``. Also, every degasolv
+         repo is currently architecture-specific; each repo has an associated
+         architecture, even if that architecture is ``any``.
 
 CLI for ``query-repo``
 ----------------------
@@ -502,12 +683,14 @@ page that looks something like this::
   Usage: degasolv <options> query-repo <query-repo-options>
 
   Options are shown below, with their default values and
-    descriptions:
+    descriptions. Options marked with `**` may be
+    used more than once.
 
-    -R, --repository INDEX             Search INDEX for packages. May be used more than once.
-    -q, --query QUERY                  Display packages matching query string.
-    -S, --index-strat STRAT  priority  May be 'priority' or 'global'.
-    -h, --help                         Print this help page
+    -q, --query QUERY                   Display packages matching query string.
+    -R, --repository INDEX              Search INDEX for packages. **
+    -S, --index-strat STRAT   priority  May be 'priority' or 'global'.
+    -t, --package-system SYS  degasolv  May be 'degasolv' or 'apt'.
+    -h, --help                          Print this help page
 
   The following options are required for subcommand `query-repo`:
 
@@ -537,15 +720,29 @@ Explanation of options:
     - ``"!a"``
 
 - ``-R INDEX``, ``--repository INDEX``, ``:repositories ["INDEX1", ...]``: **Required**.
-  This option works exactly the same as the repository option for the
+  This option works exactly the same as the `repository option`_ for the
   ``resolve-locations`` command, except that instead of using the repositories
-  for resolving requirements, it uses them for simple index queries. See `that
-  option's explanation`_ for more information.
+  for resolving requirements, it uses them for simple index queries. See that
+  option's explanation for more information.
+
+- ``-S STRAT``, ``--index-strat STRAT``, ``:index-strat "STRAT"``:
+  This option works exactly the same as the `index strategy`_ option for the
+  ``resolve-locations`` command, except that it is used for simple index
+  queries. See that option's explanation for more information.
+
+- ``-t SYS``, ``--package-system SYS``, ``:package-system "SYS"``:
+  This option works exactly the same as the `package system`_ option for the
+  ``resolve-locations`` command, except that it is used for simple index
+  queries. See that option's explanation for more information.
 
 .. _Specifying a requirement:
 
 Specifying a requirement
 ------------------------
+
+
+.. _alternative:
+.. _alternatives:
 
 A requirement is given as a string of text. A
 requirement consists of one or more *alternatives*. Any of the alternatives
@@ -558,10 +755,9 @@ Or, more concretely::
 
   "hickory|maple|oak"
 
-Alternatives will be considered in order fo appearance. In general, specifying
-more than one alternative should be msotly unecessary, and generally to be
-avoided. THis is because many alternatives tend to impact performance
-significantly; but they are there and usable if needed.
+Alternatives will be considered in order of appearance.
+
+.. caution:: In general, specifying more than one alternative should be mostly unecessary, and should generally be avoided. This is because specifying too many alternatives tends to impact performance significantly; but they are available and usable if needed.
 
 Each alternative is composed of a package id and an optional specification of
 what versions of that package satisfy the alternative, like this::
@@ -613,6 +809,13 @@ interpretations:
 |                              | ``3.5`` but not equal to ``3.8``)            |
 +------------------------------+----------------------------------------------+
 
+.. note:: To make debugging easier, try to keep things as simple as
+   possible. Try not to make requirement strings very long. When using
+   the ``inclusive`` or ``priority`` `conflict strategies`_, it is
+   recommended to specify exact package names and versions, like this:
+   ``pkgname==1.0.0``. The simpler the requirement string, the easier
+   it will be to untangle any untoward dependency problems.
+
 Negative alternatives are requirements that all packages with a particular id
 and matching a particular version spec must be absent from the list of packages
 found when resolving dependencies. To negate an alternative, prepend it with
@@ -654,8 +857,6 @@ interpretations.
 |                         | the absence of the ``pine`` package.              |
 +-------------------------+---------------------------------------------------+
 
-
 .. _maven: https://maven.apache.org/
-
 
 .. _managed dependency: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management

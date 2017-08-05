@@ -1,13 +1,15 @@
-degasolv
+![Degasolv Logo](https://github.com/djhaskin987/degasolv/raw/develop/Degasolv.png)
+
+Degasolv
 ========
 
 Degasolv is a generic dependency resolver that will work across
 programming language boundaries, customizable to fit the needs of
 build engineers who are just trying to get their software built.
 
-## What is a `degasolv`?
+## What is a "Degasolv"?
 
-Named for *Degas* the impressionist, and it's a *Solv*er.
+Named for *Degas* the painter, and it's a *Solv*er.
 
 ## Installation, Quick Start, Tutorials, Reference?
 
