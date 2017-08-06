@@ -64,11 +64,12 @@ jobs:
 
   test_ubuntu_package:
     docker:
-      - image: blacklabelops/java:ubuntu.jre.8
+      - image: ubuntu:rolling
     version: 2
     steps:
       - attach_workspace:
           at: /tmp/workspace
+      - run: sudo apt-get update
       - run: sudo apt-get install -y /tmp/workspace/target/package/*.deb
       - run: dpkg-query -l degasolv
       - run: dpkg-query -L degasolv
@@ -90,7 +91,7 @@ jobs:
 
   test_centos_package:
     docker:
-      - image: blacklabelops/java:centos.jre.8
+      - image: centos:latest
     version: 2
     steps:
       - attach_workspace:
