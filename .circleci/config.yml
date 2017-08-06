@@ -54,9 +54,23 @@ jobs:
       - checkout
       - run: cp -af /tmp/tested-artifacts/target ./
       - run: buildutils/package deb
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package/*.deb
       - store_artifacts:
           path: target/package/
           destination: package/
+
+  test_ubuntu_package:
+    docker:
+      - image: blacklabelops/java:ubuntu.jre.8
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: sudo apt-get install -y /tmp/workspace/target/package/*.deb
+      - run: degasolv --help
 
   package_centos:
     docker:
@@ -72,6 +86,16 @@ jobs:
           path: target/package/
           destination: package/
 
+  test_centos_package:
+    docker:
+      - image: blacklabelops/java:centos.jre.8
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: sudo yum install -y /tmp/workspace/target/package/*.rpm
+      - run: degasolv --help
+
 workflows:
   version: 2
   build_and_test:
@@ -80,7 +104,13 @@ workflows:
       - lein_tests
       - package_ubuntu:
           requires:
-            - lein_tests
+            - lein_test
+      - test_ubuntu_package:
+          requires:
+            - package_ubuntu
       - package_centos:
           requires:
             - lein_tests
+      - test_centos_package:
+          requires:
+            - package_centos
