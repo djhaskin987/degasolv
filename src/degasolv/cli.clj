@@ -104,10 +104,13 @@
                    (string-to-requirement vetted-str-req)))
                requirements))
        present-packages
-       (reduce
-        #(update-in %1 [(:id %2)]
+       (t/spy :msg "present-packages"
+              (reduce
+               (fn package-aggregate
+                 [c [name pkg]]
+                 (update-in c [name]
                     conj
-                    %2)
+                    pkg))
         {}
         (map
          (fn [str-pkg]
@@ -128,7 +131,7 @@
                  version
                  "already present"
                  nil)])))
-         (:present-packages options)))
+         (:present-packages options))))
        aggregate-repo
        (aggregate-repositories
          index-strat
