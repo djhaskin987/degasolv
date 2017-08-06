@@ -49,4 +49,5 @@ fpm \
     -C pkg \
     .
 
-mv *.${type} target
+mkdir -p target/package
+mv *.${type} target/package

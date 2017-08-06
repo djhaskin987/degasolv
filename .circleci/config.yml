@@ -43,6 +43,7 @@ jobs:
           destination: test-results/html
       - store_test_results:
           path: target/test-results/xml/
+
   package_ubuntu:
     docker:
       - image: alanfranz/fpm-within-docker:ubuntu-zesty
@@ -53,6 +54,10 @@ jobs:
       - checkout
       - run: cp -af /tmp/tested-artifacts/target ./
       - run: buildutils/package deb
+      - store_artifacts:
+          path: target/package/
+          destination: package/
+
   package_centos:
     docker:
       - image: alanfranz/fpm-within-docker:centos-7
@@ -63,6 +68,9 @@ jobs:
       - checkout
       - run: cp -af /tmp/tested-artifacts/target ./
       - run: buildutils/package rpm
+      - store_artifacts:
+          path: target/package/
+          destination: package/
 
 workflows:
   version: 2
