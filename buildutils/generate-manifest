@@ -1,0 +1,23 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -ex
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+branch=$(git branch | awk '/^[*] /{print $2}')
+builddate=$(date --utc '+%Y%m%d%H%M%S')
+desc=$(git describe --long --match '[0-9].[0-9].[0-9]')
+previous_version=$(echo "${desc}" | sed 's|-.*$||g')
+iteration="$(echo "${desc}" | sed -e 's|^[^-]*-||g' -e 's|-[^-]*$||g')"
+hash=$(git rev-parse HEAD)
+
+cat > target/manifest << MANIFEST
+name=${name}
+version=${version}
+branch=${branch}
+builddate=${builddate}
+desc=${desc}
+previous_version=${previous_version}
+iteration=${iteration}
+hash=${hash}
+MANIFEST

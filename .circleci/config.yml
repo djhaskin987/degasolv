@@ -15,8 +15,6 @@ jobs:
             do
                 ./${i}
             done
-      - store_artifacts:
-          path: target/
   lein_tests:
     docker:
       - image: clojure:lein
@@ -29,6 +27,15 @@ jobs:
             lein test2junit
             ls target/test-results
             ls target/test-results/html
+            lein uberjar
+            buildutils/generate-manifest
+
+
+      - persist_to_workspace:
+          root: /tmp/tested-artifacts
+          paths:
+            - target/uberjar/degasolv-*-standalone.jar
+            - target/manifest
       - store_artifacts:
           path: target/test-results/xml/
           destination: test-results/xml
@@ -37,9 +44,36 @@ jobs:
           destination: test-results/html
       - store_test_results:
           path: target/test-results/xml/
+  package_ubuntu:
+    docker:
+      - image: alanfranz/fpm-within-docker:ubuntu-zesty
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/tested-artifacts
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/package deb
+  package_centos:
+    docker:
+      - image: alanfranz/fpm-within-docker:centos-7
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/tested-artifacts
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/package rpm
+
 workflows:
   version: 2
   build_and_test:
     jobs:
       - script_tests
       - lein_tests
+      - package_ubuntu:
+          requires:
+            - lein_tests
+      - package_centos:
+          requires:
+            - lein_tests
