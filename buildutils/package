@@ -18,6 +18,7 @@ mkdir -p pkg/
 mkdir -p pkg/usr/bin/
 mkdir -p pkg/usr/lib/${name}/
 mkdir -p pkg/usr/share/doc/${name}/
+
 cat > pkg/usr/share/doc/${name}/manifest.txt << MANIFEST
 Name:               ${name}
 Version:            ${version}
@@ -43,10 +44,9 @@ fpm \
     --architecture "all" \
     --depends "${dep}" \
     --maintainer "djhaskin987@gmail.com" \
-    --description "${desc}" \
-    --url "http://degasolv.readthedocs.io/en/latest/" \
+    --description "${description}" \
+    --url "${url}" \
     -C pkg \
     .
 
-mv *.deb target
-mv *.rpm target
+mv *.${type} target
