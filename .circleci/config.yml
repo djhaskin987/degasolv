@@ -30,9 +30,8 @@ jobs:
             lein uberjar
             buildutils/generate-manifest
 
-
       - persist_to_workspace:
-          root: /tmp/tested-artifacts
+          root: .
           paths:
             - target/uberjar/degasolv-*-standalone.jar
             - target/manifest
