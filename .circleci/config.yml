@@ -70,6 +70,8 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: sudo apt-get install -y /tmp/workspace/target/package/*.deb
+      - run: dpkg-query -l degasolv
+      - run: dpkg-query -L degasolv
       - run: degasolv --help
 
   package_centos:
@@ -94,7 +96,10 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: sudo yum install -y /tmp/workspace/target/package/*.rpm
+      - run: rpm -qi degasolv
+      - run: rpm -q --list degasolv
       - run: degasolv --help
+
 
 workflows:
   version: 2
