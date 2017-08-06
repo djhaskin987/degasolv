@@ -109,7 +109,7 @@ workflows:
       - lein_tests
       - package_ubuntu:
           requires:
-            - lein_test
+            - lein_tests
       - test_ubuntu_package:
           requires:
             - package_ubuntu
