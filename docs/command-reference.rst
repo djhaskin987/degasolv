@@ -737,9 +737,10 @@ Explanation of options:
 
 .. _Specifying a requirement:
 
+
+
 Specifying a requirement
 ------------------------
-
 
 .. _alternative:
 .. _alternatives:
@@ -774,10 +775,15 @@ versions may satisfy the alternative. The character ``;`` represents discution
 
   "<pred1>,<pred2>;<pred3>,<pred4>"
 
-
 This is interpreted as::
 
   "(<pred1> AND <pred2>) OR (<pred3> AND <pred4>)"
+
+.. _matches:
+.. _in-range:
+
+Comparison Operators
+++++++++++++++++++++
 
 Each version predicate is composed of a comparison operator and a valid version
 against which to compare a package's fversion. The character sequences ``<``,
@@ -788,6 +794,7 @@ versions are compared using `version-clj`_ rules.
 
 In addition to the above operators, two other version spec operators are
 provided:
+
 
   * The "matches" operator: ``<>``. This operator is given in a version spec
     as ``<>REGEX``. The version of any package found during the resolution
@@ -829,6 +836,9 @@ provided:
         considered for dependency resolution.
 
 .. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
+
+Examples
+++++++++
 
 The following are examples of valid alternatives, together with their english
 interpretations:

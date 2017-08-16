@@ -13,10 +13,10 @@ and this project adheres to `Semantic Versioning`_.
 -------------
 Added
 +++++
-- Added the "matches" operator (``<>REGEX``) which matches a version against
-  a regex (DOCS NEEDED)
-- Added the "in-range" operator (``=>V``) which matches a version against
-  a certain range of indexes (DOCS NEEDED)
+- Added the :ref:`matches <matches>` operator (``<>REGEX``) which matches a version against
+  a regex
+- Added the :ref:`in-range <in-range>` operator (``=>V``) which matches a version against
+  a certain range of indexes
 
 - Added the ability to specify ``--present-package`` multiple times using the
   same package name, but different versions. This is useful for when the
