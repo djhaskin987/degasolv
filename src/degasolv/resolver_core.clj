@@ -96,8 +96,7 @@
                           (catch Exception e
                             false))]
       (re-matches pattern pkg-ver)
-      (.contains pkg-ver
-                 version))
+      false)
     (let [cmp-result (cmp pkg-ver version)]
       (if (= relation
              :in-range)
