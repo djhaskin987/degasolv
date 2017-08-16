@@ -1,6 +1,5 @@
 (in-ns 'degasolv.resolver)
 
-
 (s/def ::relation #{:less-than
                     :less-equal :equal-to
                     :not-equal

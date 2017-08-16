@@ -181,6 +181,28 @@
                          {:relation :not-equal :version "2.0.0"}]]}]]
               query-desc
               :compare cmp))))
+    (testing "ranges spec case 1"
+      (is (.equals [:successful #{b1}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :in-range :version "01"}]]}]]
+                    query-desc
+                    :compare cmp))))
+    (testing "ranges spec case 2"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :in-range :version "2.003"}]]}]]
+                    query-asc
+                    :compare cmp))))
+    (testing "regex case"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :matches :version "^[0-9][.][0-9][.][0-9]"}]]}]]
+                    query-desc
+                    :compare cmp))))
+
     (testing "dual ranges spec cases"
       (is (.equals [:successful #{b23}]
              (resolve-dependencies

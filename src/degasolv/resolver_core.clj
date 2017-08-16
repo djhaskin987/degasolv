@@ -11,7 +11,9 @@
    :equal-to "=="
    :not-equal "!="
    :less-equal "<="
-   :less-than "<"})
+   :less-than "<"
+   :matches "<>"
+   :in-range "=>"})
 
 (defrecord VersionPredicate [relation version]
   Object
@@ -88,6 +90,36 @@
     result
     nil))
 
+(defn- make-comparison [cmp pkg-ver relation version]
+  (if (= relation :matches)
+    (if-let [pattern (re-pattern version)]
+      (re-matches pattern pkg-ver)
+      false)
+    (let [cmp-result (cmp pkg-ver version)]
+      (if (= relation
+             :in-range)
+        (if-let [[_ rest re-num] (re-find #"^(.*?)(\d+)$" version)]
+          (let [num (java.lang.Integer/parseInt re-num)
+                higher-version (str rest (inc num))
+                higher-result (cmp pkg-ver higher-version)]
+            (and (>= cmp-result 0)
+               (< higher-result 0)))
+          false)
+        (case relation
+          :greater-than
+          (pos? cmp-result)
+          :greater-equal
+          (not (neg? cmp-result))
+          :equal-to
+          (zero? cmp-result)
+          :not-equal
+          (not (zero? cmp-result))
+          :less-equal
+          (not (pos? cmp-result))
+          :less-than
+          (neg? cmp-result)
+          false)))))
+
 (defprotocol ^:private SpecCaller
   (p-safe-spec-call [this spec present-package]))
 
@@ -104,24 +136,14 @@
          (fn [disj-cum disj-val]
            (or disj-cum
                (reduce
-                (fn [conj-cum conj-val]
-                  (let [chk-ver (:version conj-val)
-                        cmp-result (cmp pkg-ver chk-ver)]
-                    (and conj-cum
-                         (case (:relation conj-val)
-                           :greater-than
-                           (pos? cmp-result)
-                           :greater-equal
-                           (not (neg? cmp-result))
-                           :equal-to
-                           (zero? cmp-result)
-                           :not-equal
-                           (not (zero? cmp-result))
-                           :less-equal
-                           (not (pos? cmp-result))
-                           :less-than
-                           (neg? cmp-result)
-                           false)))) true disj-val)))
+                (fn [conj-cum {:keys [relation version]}]
+                  (and conj-cum
+                       (make-comparison
+                        cmp
+                        pkg-ver
+                        relation
+                        version)))
+                 true disj-val)))
          false
          spec)))))
 
