@@ -131,6 +131,14 @@
          :version "2.0.0"
          :location "http://example.com/repo/b-2.0.0.zip"
          }
+        b-wierd
+        {
+         :id "b"
+         :version "^[--"
+         :location "http://example.com/repo/b-wierd.zip"
+         }
+        repo-info-wierd {"b" [b-wierd]}
+        query-wierd (map-query repo-info-wierd)
         repo-info-mixed {"b" [b1 b23 b20]}
         query-mixed (map-query repo-info-mixed)
         repo-info-desc {"b" [b23 b20 b1]}
@@ -195,6 +203,13 @@
                        :id "b" :spec [[{:relation :in-range :version "2.003"}]]}]]
                     query-asc
                     :compare cmp))))
+    (testing "ranges spec case 3"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :in-range :version "2.3.x"}]]}]]
+                    query-asc
+                    :compare cmp))))
     (testing "regex case"
       (is (.equals [:successful #{b23}]
                    (resolve-dependencies
@@ -202,7 +217,21 @@
                        :id "b" :spec [[{:relation :matches :version "^[0-9][.][0-9][.][0-9]"}]]}]]
                     query-desc
                     :compare cmp))))
-
+    (testing "bad regex case"
+      (let [result (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :matches :version "^["}]]}]]
+                    query-desc
+                    :compare cmp)]
+        (is (= :unsuccessful (first result)))))
+    (testing "bad regex fallthrough case"
+      (is (=
+           [:successful #{b-wierd}]
+           (resolve-dependencies
+            [[{:status :present
+               :id "b" :spec [[{:relation :matches :version "[-"}]]}]]
+            query-wierd
+            :compare cmp))))
     (testing "dual ranges spec cases"
       (is (.equals [:successful #{b23}]
              (resolve-dependencies
@@ -220,4 +249,3 @@
                         [{:relation :less-than :version "1.7.0"}]]}]]
               query-asc
               :compare cmp))))))
-

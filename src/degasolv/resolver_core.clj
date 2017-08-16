@@ -92,13 +92,16 @@
 
 (defn- make-comparison [cmp pkg-ver relation version]
   (if (= relation :matches)
-    (if-let [pattern (re-pattern version)]
+    (if-let [pattern (try (re-pattern version)
+                          (catch Exception e
+                            false))]
       (re-matches pattern pkg-ver)
-      false)
+      (.contains pkg-ver
+                 version))
     (let [cmp-result (cmp pkg-ver version)]
       (if (= relation
              :in-range)
-        (if-let [[_ rest re-num] (re-find #"^(.*?)(\d+)$" version)]
+        (if-let [[_ rest re-num _] (re-find #"^(.*?)(\d+)(\D*)$" version)]
           (let [num (java.lang.Integer/parseInt re-num)
                 higher-version (str rest (inc num))
                 higher-result (cmp pkg-ver higher-version)]
