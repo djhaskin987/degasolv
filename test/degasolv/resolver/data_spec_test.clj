@@ -112,6 +112,54 @@
                     [:unsuccessful u]
                     :unsuccessful))))))
 
+(deftest ^:unit-tests range-spec-cases
+  (let [b3
+        {
+         :id "b"
+         :version "3.0.0"
+         :location "http://example.com/repo/b-3.0.0.zip"
+         }
+        b35
+        {
+         :id "b"
+         :version "3.5.0"
+         :location "http://example.com/repo/b-3.5.0.zip"
+         }
+        b4
+        {
+         :id "b"
+         :version "4.0.0"
+         :location "http://example.com/repo/b-4.0.0.zip"
+         }
+        repo-info-asc {"b" [b3 b35 b4]}
+        query-asc (map-query repo-info-asc)
+        repo-info-desc {"b" [b4 b35 b3]}
+        query-desc (map-query repo-info-desc)]
+    (testing "range start inclusive"
+      (is (.equals [:successful #{b3}]
+             (resolve-dependencies
+              [[{:status :present
+                 :id "b"
+                 :spec [[{:relation :in-range :version "3.x"}]]}]]
+              query-asc
+              :compare cmp))))
+    (testing "range end exclusive"
+      (is (.equals [:successful #{b35}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b"
+                       :spec [[{:relation :in-range :version "3.x"}]]}]]
+                    query-desc
+                    :compare cmp))))
+    (testing "sub range"
+      (is (.equals [:successful #{b35}]
+             (resolve-dependencies
+              [[{:status :present
+                 :id "b"
+                 :spec [[{:relation :in-range :version "3.5.x"}]]}]]
+              query-asc
+              :compare cmp))))))
+
 (deftest ^:unit-tests data-spec-cases
   (let [b1
         {
