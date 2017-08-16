@@ -757,7 +757,7 @@ Or, more concretely::
 
 Alternatives will be considered in order of appearance.
 
-.. caution:: In general, specifying more than one alternative should be mostly unecessary, and should generally be avoided. This is because specifying too many alternatives tends to impact performance significantly; but they are available and usable if needed.
+.. caution:: In general, specifying more than one alternative is mostly unecessary, and should generally be avoided. This is because specifying too many alternatives tends to impact performance significantly; but they are available and usable if needed.
 
 Each alternative is composed of a package id and an optional specification of
 what versions of that package satisfy the alternative, like this::
@@ -783,12 +783,54 @@ Each version predicate is composed of a comparison operator and a valid version
 against which to compare a package's fversion. The character sequences ``<``,
 ``<=``, ``!=``, ``==``, ``>=``, and ``>`` represent the comparisons "older
 than", "older than or equal to", "not equal to", "equal to", "newer than or
-equal to", and "newer than", respectively.In the current implementation,
+equal to", and "newer than", respectively. In the current implementation,
 versions are compared using `version-clj`_ rules.
+
+In addition to the above operators, two other version spec operators are
+provided:
+
+  * The "matches" operator: ``<>``. This operator is given in a version spec
+    as ``<>REGEX``. The version of any package found during the resolution
+    process must match the given `java regular expression`_. Examples:
+
+      * The expression ``<>\d+\.\d+\.\d+`` matches any version containing a
+        three-part version in it.
+
+      * The expression ``<>f[ea]{2}ture`` matches any version
+        containing the strings "feature", "faeture", "feeture" or
+        "faature".
+
+    .. _java regular expression: http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+
+  * The "in-range" operator: ``=>``. This operator is given in a version spec
+    as ``=>RANGE``. The version of any package found during the resolution
+    process must be in the given version range. Examples:
+
+      * The expression ``=>3.x`` matches the versions ``3.0.0``, ``3.0.0.0``
+        and ``3.0`` but not ``4.0`` or higher.
+      * The expression ``=>3.3.x`` matches the versions ``3.3.0``, ``3.3.8``
+        and ``3.3.8.99999`` but not ``3.4.0``.
+
+    Ranges are calculated in the following way:
+
+      * Any non-digit characters found on the end of the ``RANGE`` string are
+        removed.
+
+      * All digit characters found on the end of the ``RANGE`` string are
+        converted into a number and incremented. The incremented number
+        is then put back into the version string, replacing any digit
+        characters that were at the end of the string before. So,
+        ``3.x`` becomes ``4``, ``3.`` becomes ``4``, and ``2ormore``
+        becomes ``3``.
+
+      * Finally, any versions comparing greater than or equal to the
+        original ``RANGE`` string, but less than the incremented
+        version string as computed in the previous step, are
+        considered for dependency resolution.
 
 .. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
 
-The follwoing are examples of valid alternatives, together with their english
+The following are examples of valid alternatives, together with their english
 interpretations:
 
 +------------------------------+----------------------------------------------+
@@ -796,8 +838,15 @@ interpretations:
 +==============================+==============================================+
 | ``"oak"``                    | Find package ``oak``                         |
 +------------------------------+----------------------------------------------+
-| ``"pine>1.0"``               | Find pakcage ``pine`` of version newer than  |
+| ``"pine>1.0"``               | Find package ``pine`` of version newer than  |
 |                              | ``1.0``                                      |
++------------------------------+----------------------------------------------+
+| ``"fir<>\\d+\\.8"``          | Find package ``fir`` containing "<digits>.8" |
+|                              | somewhere in the version string              |
++------------------------------+----------------------------------------------+
+| ``"cedar=>3.x"``             | Find package ``cedar`` at version greater    |
+|                              | or equal to major component ``3`` but less   |
+|                              | than ``4``                                   |
 +------------------------------+----------------------------------------------+
 | ``"hickory>1.0,<=2.0"``      | Find package ``hickory`` with version newer  |
 |                              | than``1.0`` and older than or equal to       |
