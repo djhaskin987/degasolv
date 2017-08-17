@@ -43,7 +43,7 @@
 
 (defrecord PackageInfo [id version location requirements])
 
-                                        ; deprecated, do not use
+;; Deprecated, do not use
 (def ->requirement ->Requirement)
 (def ->package ->PackageInfo)
 (def ->version-predicate ->VersionPredicate)
@@ -239,14 +239,20 @@
                    strategy
                    conflict-strat
                    compare
+                   search-strat
                    allow-alternatives]
             :or {present-packages {}
                  conflicts {}
                  strategy :thorough
                  conflict-strat :exclusive
                  compare nil
+                 search-strat :breadth-first
                  allow-alternatives true}}]
-  (let [safe-spec-call (make-spec-call compare)
+  (let [concat-reqs
+        (if (= search-strat :depth-first)
+          #(concat %2 %1)
+          #(concat %1 %2))
+        safe-spec-call (make-spec-call compare)
         cull (case strategy
                :thorough
                cull-nothing
@@ -271,7 +277,7 @@
               (if (empty? clauses)
                 [:successful (set (flatten (vals found-packages)))]
                 (let [fclause (first clauses)
-                      rclauses (subvec clauses 1)]
+                      rclauses (rest clauses)]
                   (if (empty? fclause)
                     [:unsuccessful
                      {:problems
@@ -376,8 +382,9 @@
                                                                conj
                                                                %)
                                                   absent-specs
-                                                  (into rclauses
-                                                        (:requirements %)))
+                                                  (concat-reqs rclauses
+                                                        (:requirements
+                                                         %)))
                                                 successful?
                                                 filtered-query-results)]
                                            (or
@@ -422,4 +429,4 @@
        present-packages
        {}
        conflicts
-       (vec requirements)))))
+       requirements))))
