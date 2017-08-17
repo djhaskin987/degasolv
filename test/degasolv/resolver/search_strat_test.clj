@@ -87,78 +87,78 @@
                      ]
                     query
                     :search-strat :depth-first)))))
-    (let [d
-          {
-           :id "d"
-           :version "4.0.0"
-           :location "http://example.com/repo/d-4.0.0.zip"
-           }
-          c
-          {
-           :id "c"
-           :version "2.7.0"
-           :location "http://example.com/repo/c-2.7.0.zip"
-           }
-          b
-          {
-           :id "b"
-           :version "1.0.0"
-           :location "http://example.com/repo/b-1.0.0.zip"
-           :requirements
-           [
-            [
-             {:status :present
-              :id "d"
-              }
-             {:status :present
-              :id "c"
-              }
-             ]
-            ]
-           }
+  (let [d
+        {
+         :id "d"
+         :version "4.0.0"
+         :location "http://example.com/repo/d-4.0.0.zip"
+         }
+        c
+        {
+         :id "c"
+         :version "2.7.0"
+         :location "http://example.com/repo/c-2.7.0.zip"
+         }
+        b
+        {
+         :id "b"
+         :version "1.0.0"
+         :location "http://example.com/repo/b-1.0.0.zip"
+         :requirements
+         [
+          [
+           {:status :present
+            :id "d"
+            }
+           {:status :present
+            :id "c"
+            }
+           ]
+          ]
+         }
+        a
+        {
+         :id "a"
+         :version "1.0.0"
+         :location "http://example.com/repo/a-1.0.0.zip"
+         :requirements
+         [
+          [
+           {:status :present
+            :id "b"
+            }
+           ]
+          [
+           {:status :present
+            :id "c"
+            }
+           {:status :present
+            :id "d"
+            }
+           ]
+          ]
+         }
+        repo-info
+        {
+         "a"
+         [
           a
-          {
-           :id "a"
-           :version "1.0.0"
-           :location "http://example.com/repo/a-1.0.0.zip"
-           :requirements
-           [
-            [
-             {:status :present
-              :id "b"
-              }
-             ]
-            [
-             {:status :present
-              :id "c"
-              }
-             {:status :present
-              :id "d"
-              }
-             ]
-            ]
-           }
-          repo-info
-          {
-           "a"
-           [
-            a
-            ]
-           "b"
-           [
-            b
-            ]
-           "c"
-           [
-            c
-            ]
-           "d"
-           [
-            d
-            ]
-           }
-          query (map-query repo-info)]
-  (testing "order of resolution depending on search-strat - breadth first"
+          ]
+         "b"
+         [
+          b
+          ]
+         "c"
+         [
+          c
+          ]
+         "d"
+         [
+          d
+          ]
+         }
+        query (map-query repo-info)]
+    (testing "order of resolution depending on search-strat - breadth first"
       (is (= [:successful
               #{c
                 b
@@ -166,10 +166,9 @@
              (resolve-dependencies
               [[{:status :present :id "a"}]]
               query
-              :conflict-strat :prioritized
               :search-strat :breadth-first
               :compare cmp))))
-  (testing "order of resolution depending on search-strat - depth first"
+    (testing "order of resolution depending on search-strat - depth first"
       (is (= [:successful
               #{d
                 b
@@ -177,14 +176,13 @@
              (resolve-dependencies
               [[{:status :present :id "a"}]]
               query
-              :conflict-strat :prioritized
               :search-strat :depth-first
               :compare cmp)))))
   (let [e
         {
          :id "e"
          :version "7.0.0"
-         :location "http://example.com/repo/3-7.0.0.zip"
+         :location "http://example.com/repo/e-7.0.0.zip"
          }
         d
         {
@@ -261,7 +259,7 @@
           ]
          }
         query (map-query repo-info)]
-  (testing "search strat: order of resolution: breadth first: absent"
+    (testing "search strat: order of resolution: breadth first: absent"
       (is (= [:successful
               #{a
                 b
@@ -270,10 +268,9 @@
              (resolve-dependencies
               [[{:status :present :id "a"}]]
               query
-              :conflict-strat :prioritized
               :search-strat :breadth-first
               :compare cmp))))
-  (testing "search strat: order of resolution: depth first: absent"
+    (testing "search strat: order of resolution: depth first: absent"
       (is (= [:successful
               #{a
                 b
@@ -281,7 +278,85 @@
              (resolve-dependencies
               [[{:status :present :id "a"}]]
               query
+              :search-strat :depth-first
+              :compare cmp)))))
+  (let [c40
+        {
+         :id "c"
+         :version "4.0.0"
+         :location "http://example.com/repo/c-4.0.0.zip"
+         }
+        c27
+        {
+         :id "c"
+         :version "2.7.0"
+         :location "http://example.com/repo/c-2.7.0.zip"
+         }
+        b
+        {
+         :id "b"
+         :version "1.0.0"
+         :location "http://example.com/repo/b-1.0.0.zip"
+         :requirements
+         [
+          [
+           {:status :present
+            :id "c"
+            :spec [[{:relation :equal-to :version "2.7.0"}]]
+            }
+           ]
+          ]
+         }
+        a
+        {
+         :id "a"
+         :version "1.0.0"
+         :location "http://example.com/repo/a-1.0.0.zip"
+         :requirements
+         [
+          [
+           {:status :present
+            :id "b"
+            }
+           ]
+          [
+           {:status :present
+            :id "c"
+            :spec [[{:version "4.0.0" :relation :equal-to}]]
+            }
+           ]
+          ]
+         }
+        repo-info
+        {
+         "a"
+         [
+          a
+          ]
+         "b"
+         [
+          b
+          ]
+         "c"
+         [
+          c40
+          c27
+          ]
+         }
+        query (map-query repo-info)]
+    (testing "breadth-first conflict-strat as prioritized"
+      (is (= [:successful #{a b c40}]
+             (resolve-dependencies
+              [[{:status :present :id "a"}]]
+              query
+              :conflict-strat :prioritized
+              :search-strat :breadth-first
+              :compare cmp))))
+    (testing "depth-first conflict-strat as prioritized"
+      (is (= [:successful #{a b c27}]
+             (resolve-dependencies
+              [[{:status :present :id "a"}]]
+              query
               :conflict-strat :prioritized
               :search-strat :depth-first
               :compare cmp))))))
-;; TODO: Add test using conflict strat as prioritized

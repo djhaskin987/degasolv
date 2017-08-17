@@ -294,7 +294,7 @@
                                    alternative
                                    present-id-packages
                                    (or (get present-packages id)
-                                       (get found-packages id))]
+                                              (get found-packages id))]
                                (cond
                                  (and
                                   (not
