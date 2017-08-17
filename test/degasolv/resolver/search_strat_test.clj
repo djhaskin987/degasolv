@@ -284,3 +284,4 @@
               :conflict-strat :prioritized
               :search-strat :depth-first
               :compare cmp))))))
+;; TODO: Add test using conflict strat as prioritized
