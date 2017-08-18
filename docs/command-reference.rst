@@ -354,6 +354,8 @@ Explanation of options:
   will read standard input instead of any specific file or
   URL.
 
+.. _resolve-locations-options:
+
 CLI for ``resolve-locations``
 -----------------------------
 
@@ -366,16 +368,17 @@ returns a page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -a, --enable-alternatives              Consider all alternatives
-    -A, --disable-alternatives             Consider only first alternatives
-    -f, --conflict-strat STRAT  exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
-    -p, --present-package PKG              Hard present package. **
-    -r, --requirement REQ                  Resolve req. **
-    -R, --repository INDEX                 Search INDEX for packages. **
-    -s, --resolve-strat STRAT   thorough   May be 'fast' or 'thorough'.
-    -S, --index-strat STRAT     priority   May be 'priority' or 'global'.
-    -t, --package-system SYS    degasolv   May be 'degasolv' or 'apt'.
-    -h, --help                             Print this help page
+    -a, --enable-alternatives   Consider all alternatives
+    -A, --disable-alternatives  Consider only first alternatives
+    -e, --search-strat STRAT    May be 'breadth-first' or 'depth-first'.
+    -f, --conflict-strat STRAT  May be 'exclusive', 'inclusive' or 'prioritized'.
+    -p, --present-package PKG   Hard present package. **
+    -r, --requirement REQ       Resolve req. **
+    -R, --repository INDEX      Search INDEX for packages. **
+    -s, --resolve-strat STRAT   May be 'fast' or 'thorough'.
+    -S, --index-strat STRAT     May be 'priority' or 'global'.
+    -t, --package-system SYS    May be 'degasolv' or 'apt'.
+    -h, --help                  Print this help page
 
   The following options are required for subcommand `resolve-locations`:
 
@@ -460,11 +463,19 @@ Explanation of options:
      when debugging a build. If it *is* used routinely, it should be used
      `site-wide`_.
 
+- ``-e STRAT``, ``--search-strat STRAT``, ``:search-strat "STRAT"``:
+  This option determines whether breadth first search or depth first
+  search is used during package resolution. Valid values are
+  ``depth-first`` to specify depth-first search or ``breadth-first``
+  to specify breadth-first search. This option is set to
+  ``breadth-first`` by default.
+
 .. _conflict strategies:
 
 - ``-f STRAT``, ``--conflict-strat STRAT``, ``:conflict-strat "STRAT"``:
   This option determines how encountered version conflicts will be
-  handled.  The default setting is ``exclusive`` and this setting
+  handled. Valid values are ``exclusive``, ``inclusive``, and
+  ``prioritized``. The default setting is ``exclusive`` and this setting
   should work for most environments.
 
   .. note:: This option should be used with care, since whatever setting is
@@ -736,8 +747,6 @@ Explanation of options:
   queries. See that option's explanation for more information.
 
 .. _Specifying a requirement:
-
-
 
 Specifying a requirement
 ------------------------

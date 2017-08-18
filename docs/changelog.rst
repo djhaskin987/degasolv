@@ -1,7 +1,7 @@
 Changelog
 =========
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented here.
 
 The format is based on `Keep a Changelog`_
 and this project adheres to `Semantic Versioning`_.
@@ -13,14 +13,20 @@ and this project adheres to `Semantic Versioning`_.
 -------------
 Added
 +++++
-- Added the :ref:`matches <matches>` operator (``<>REGEX``) which matches a version against
-  a regex
-- Added the :ref:`in-range <in-range>` operator (``=>V``) which matches a version against
-  a certain range of indexes
+- Added the ``--search-strat`` option to :ref:`resolve-locations
+  <resolve-locations-options>`, allowing users to select breadth first
+  search or depth first search during resolution
+
+- Added the :ref:`matches <matches>` operator (``<>REGEX``) which
+  matches a version against a regex
+
+- Added the :ref:`in-range <in-range>` operator (``=>V``) which
+  matches a version against a certain range of indexes
 
 - Added the ability to specify ``--present-package`` multiple times using the
   same package name, but different versions. This is useful for when the
   ``:conflict-strat`` is set to ``inclusive``.
+
 - Added tests testing to make sure that unsuccessful runs generate the proper
   error messages.
 

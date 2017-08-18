@@ -285,17 +285,17 @@
            :assoc-fn (fn [m k v] (assoc m :alternatives true))]
           ["-A" "--disable-alternatives" "Consider only first alternatives"
            :assoc-fn (fn [m k v] (assoc m :alternatives false))]
+          ["-e" "--search-strat STRAT"
+           "May be 'breadth-first' or 'depth-first'."
+           :validate [#(or (= "breadth-first" %)
+                           (= "depth-first" %))
+                      "Search strategy must either be 'breadth-first' or 'depth-first'."]]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
            :validate [#(or (= "exclusive" %)
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
-          ["-e" "--search-strat STRAT"
-           "May be 'breadth-first' or 'depth-first'."
-           :validate [#(or (= "breadth-first" %)
-                           (= "depth-first" %))
-                      "Search strategy must either be 'breadth-first' or 'depth-first'."]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
            :id :present-packages
