@@ -1,3 +1,13 @@
-- [ ] Alphabetize generate-card options, reflect in docs
+- [ ] When making more package systems, pass `options` to the thing
+      so that e.g. the helm chart package system can make smart decisions
+      about what repo to present based on conflict strategy.
 - [ ] Docs: package-system implies a *default* version comparison
       algorithm consistent with what package system is used
+- [ ] Docs: generate-repo-index version comparison
+- [ ] Docs: resolve-locations version comparison
+- [ ] Docs: query-repo version comparison
+- [ ] Merge rpm/debian branch into develop, make it work
+- [ ] Create bintray repos for degasolv rpm and deb
+- [ ] Update docs to match for release
+- [ ] Release
+- [ ] With RPM/DEB, set up release
