@@ -54,11 +54,13 @@
   [options arguments]
   (let [{:keys [search-directory
                 index-file
+                version-comparison
                 add-to]} options]
     (degasolv-pkg/generate-repo-index!
       search-directory
       index-file
-      add-to)))
+      add-to
+      (get version-comparators version-comparison))))
 
 (defn- exit [status msg]
   (.println *err* msg)
@@ -288,7 +290,9 @@
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index-cli!
-    :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
+    :cli [["-a" "--add-to INDEX"
+           "Add to repo index INDEX"]
+          ["-d" "--search-directory DIR" "Find degasolv cards here"
            :default nil
            :default-desc (str (:search-directory subcommand-option-defaults))
            :validate [#(and
@@ -299,8 +303,12 @@
            "The name of the repo file"
            :default nil
            :default-desc (str (:index-file subcommand-option-defaults))]
-          ["-a" "--add-to INDEX"
-           "Add to repo index INDEX"]]}
+          ["-V" "--version-comparison CMP"
+           "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :default nil
+           :default-desc "maven"
+           :validate [#(some #{%} (keys version-comparators))
+                      "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]]}
 
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
