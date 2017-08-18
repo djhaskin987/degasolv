@@ -83,6 +83,7 @@
                resolve-strat
                conflict-strat
                index-strat
+               search-strat
                present-packages
                requirements
                package-system]}
@@ -144,6 +145,7 @@
         :present-packages present-packages
         :strategy (keyword resolve-strat)
         :conflict-strat (keyword conflict-strat)
+        :search-strat (keyword search-strat)
         :compare (get-in package-systems [package-system :vercmp])
         :allow-alternatives alternatives)]
     (case
@@ -215,6 +217,7 @@
    :index-file "index.dsrepo"
    :alternatives true
    :conflict-strat "exclusive"
+   :search-strat "breadth-first"
    :resolve-strat "thorough"
    :index-strat "priority"
    :package-system "degasolv"
@@ -288,6 +291,11 @@
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
+          ["-e" "--search-strat STRAT"
+           "May be 'breadth-first' or 'depth-first'."
+           :validate [#(or (= "breadth-first" %)
+                           (= "depth-first" %))
+                      "Search strategy must either be 'breadth-first' or 'depth-first'."]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
            :id :present-packages
