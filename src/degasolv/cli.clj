@@ -577,13 +577,14 @@
                                (filter #(not (nil? %)) it)
                                (apply concat it)
                                (map #(concat [nil] (subvec % 1)) it)
-                               (map #(do [(first %) %]) it)
+                               (map #(do [(second %) %]) it)
                                (into {} it)
                                (vals it)
                                (assoc
                                 (get subcommand-cli subcommand)
                                 :cli
-                                it)))]
+                                it)
+                               it))]
       (when (nil? subcmd-cli)
         (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments errors summary]}

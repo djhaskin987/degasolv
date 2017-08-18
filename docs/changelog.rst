@@ -44,6 +44,8 @@ Fixed
 - Fixed bug wherein if the conflict strategy is set to ``:inclusive``
   and a package satisfying a requirement is already found or present,
   it is used instead of finding a new one.
+- Fixed CLI of :ref:`display-config <display-config-cli>` so that
+  it actually works as advertised, LOLZ
 
 `1.7.0`_
 --------

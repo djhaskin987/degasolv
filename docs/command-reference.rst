@@ -190,6 +190,7 @@ Explanation of options:
 .. _EDN format: https://github.com/edn-format/edn
 
 .. _display-config command:
+.. _display-config-cli:
 
 CLI for ``display-config``
 --------------------------
@@ -200,9 +201,37 @@ returns a page that looks something like this::
   Usage: degasolv <options> display-config <display-config-options>
 
   Options are shown below, with their default values and
-    descriptions:
+    descriptions. Options marked with `**` may be
+    used more than once.
 
-    -h, --help  Print this help page
+        --search-directory DIR    Find degasolv cards here
+        --index-file FILE         The name of the repo file
+        --index-strat STRAT       May be 'priority' or 'global'.
+        --requirement REQ         Resolve req. **
+        --search-strat STRAT      May be 'breadth-first' or 'depth-first'.
+        --conflict-strat STRAT    May be 'exclusive', 'inclusive' or 'prioritized'.
+        --repository INDEX        Search INDEX for packages. **
+        --enable-alternatives     Consider all alternatives
+        --id true                 ID (name) of the package
+        --query QUERY             Display packages matching query string.
+        --disable-alternatives    Consider only first alternatives
+        --add-to INDEX            Add to repo index INDEX
+        --card-file FILE          The name of the card file
+        --present-package PKG     Hard present package. **
+        --resolve-strat STRAT     May be 'fast' or 'thorough'.
+        --location true           URL or filepath of the package
+        --package-system SYS      May be 'degasolv' or 'apt'.
+        --version-comparison CMP  May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+        --version true            Version of the package
+    -h, --help                    Print this help page
+
+
+    Usage: degasolv <options> display-config <display-config-options>
+
+    Options are shown below, with their default values and
+      descriptions:
+
+      -h, --help  Print this help page
 
 The ``display-config`` command is used to print all the options
 in the *effective configuration*. It allows the user to debug
