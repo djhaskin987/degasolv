@@ -315,10 +315,11 @@ returns a page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -d, --search-directory DIR  .             Find degasolv cards here
-    -I, --index-file FILE       index.dsrepo  The name of the repo file
-    -a, --add-to INDEX                        Add to repo index INDEX
-    -h, --help                                Print this help page
+    -a, --add-to INDEX                          Add to repo index INDEX
+    -d, --search-directory DIR    .             Find degasolv cards here
+    -I, --index-file FILE         index.dsrepo  The name of the repo file
+    -V, --version-comparison CMP  maven         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+    -h, --help                                  Print this help page
 
 This subcommand is used to generate a repository index file. A
 repository index file lists all versions of all packages in a
