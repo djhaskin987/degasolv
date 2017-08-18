@@ -258,6 +258,7 @@
     :cli [
           ["-C" "--card-file FILE"
            "The name of the card file"
+           :default nil
            :default-desc (str (:card-file subcommand-option-defaults))
            :validate [#(not (empty? %))
                       "Out file must not be empty."]]
@@ -288,13 +289,16 @@
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index-cli!
     :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
+           :default nil
            :default-desc (str (:search-directory subcommand-option-defaults))
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
                       "Must be a directory which exists on the file system."]]
           ["-I" "--index-file FILE"
-           "The name of the repo file"]
+           "The name of the repo file"
+           :default nil
+           :default-desc (str (:index-file subcommand-option-defaults))]
           ["-a" "--add-to INDEX"
            "Add to repo index INDEX"]]}
 
@@ -304,17 +308,21 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :requirements ["-r" "--requirement"]}
     :cli [
-          ["-a" "--enable-alternatives" "Consider all alternatives"
+          ["-a" "--enable-alternatives" "Consider all alternatives (default)"
            :assoc-fn (fn [m k v] (assoc m :alternatives true))]
           ["-A" "--disable-alternatives" "Consider only first alternatives"
            :assoc-fn (fn [m k v] (assoc m :alternatives false))]
           ["-e" "--search-strat STRAT"
            "May be 'breadth-first' or 'depth-first'."
+           :default nil
+           :default-desc (str (:search-strat subcommand-option-defaults))
            :validate [#(or (= "breadth-first" %)
                            (= "depth-first" %))
                       "Search strategy must either be 'breadth-first' or 'depth-first'."]]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
+           :default nil
+           :default-desc (str (:conflict-strat subcommand-option-defaults))
            :validate [#(or (= "exclusive" %)
                            (= "inclusive" %)
                            (= "prioritized" %))
@@ -342,18 +350,27 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-s" "--resolve-strat STRAT"
            "May be 'fast' or 'thorough'."
+           :default nil
+           :default-desc (str (:resolve-strat subcommand-option-defaults))
            :validate [#(or (= "thorough" %) (= "fast" %))
                       "Resolve strategy must either be 'thorough' or 'fast'."]]
+
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
+           :default nil
+           :default-desc (str (:index-strat subcommand-option-defaults))
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
+           :default nil
+           :default-desc (str (:package-system subcommand-option-defaults))
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
           ["-V" "--version-comparison CMP"
            "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :default nil
+           :default-desc "maven"
            :validate [#(some #{%} (keys version-comparators))
                       "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
           ]}
@@ -377,14 +394,20 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
+           :default nil
+           :default-desc (str (:index-strat subcommand-option-defaults))
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
+           :default nil
+           :default-desc (str (:package-system subcommand-option-defaults))
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
           ["-V" "--version-comparison CMP"
            "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :default nil
+           :default-desc "maven"
            :validate [#(some #{%} (keys version-comparators))
                       "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
           ]
@@ -422,7 +445,7 @@
                display-command
                "-options>")
           ""
-          "Options are shown below, with their default values and"
+          "Options are shown below. Default values are marked as <DEFAULT> and"
           "  descriptions. Options marked with `**` may be"
           "  used more than once."
           ""
@@ -629,7 +652,10 @@
                (mapv available-option-packs it)
                (into [subcommand-option-defaults] it)
                (conj it (dissoc config :option-packs))
-               (conj it options)
+               (conj it (into {}
+                              (filter
+                               #(not (nil? (second %)))
+                               (seq options))))
                (reduce merge (hash-map) it)
                (if (not (:version-comparison it))
                  (assoc

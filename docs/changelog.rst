@@ -46,6 +46,10 @@ Fixed
   it is used instead of finding a new one.
 - Fixed CLI of :ref:`display-config <display-config-cli>` so that
   it actually works as advertised, LOLZ
+- Fixed the CLI output of ``--help`` so that default values
+  of options are shown again :)
+- Refreshed the CLI output of ``--help`` for all the subcommands
+  as posted in the docs
 
 `1.7.0`_
 --------

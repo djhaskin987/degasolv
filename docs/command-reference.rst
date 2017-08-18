@@ -200,38 +200,30 @@ returns a page that looks something like this::
 
   Usage: degasolv <options> display-config <display-config-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-        --search-directory DIR    Find degasolv cards here
-        --index-file FILE         The name of the repo file
-        --index-strat STRAT       May be 'priority' or 'global'.
-        --requirement REQ         Resolve req. **
-        --search-strat STRAT      May be 'breadth-first' or 'depth-first'.
-        --conflict-strat STRAT    May be 'exclusive', 'inclusive' or 'prioritized'.
-        --repository INDEX        Search INDEX for packages. **
-        --enable-alternatives     Consider all alternatives
-        --id true                 ID (name) of the package
-        --query QUERY             Display packages matching query string.
-        --disable-alternatives    Consider only first alternatives
-        --add-to INDEX            Add to repo index INDEX
-        --card-file FILE          The name of the card file
-        --present-package PKG     Hard present package. **
-        --resolve-strat STRAT     May be 'fast' or 'thorough'.
-        --location true           URL or filepath of the package
-        --package-system SYS      May be 'degasolv' or 'apt'.
-        --version-comparison CMP  May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
-        --version true            Version of the package
-    -h, --help                    Print this help page
-
-
-    Usage: degasolv <options> display-config <display-config-options>
-
-    Options are shown below, with their default values and
-      descriptions:
-
-      -h, --help  Print this help page
+        --search-directory DIR    .              Find degasolv cards here
+        --index-file FILE         index.dsrepo   The name of the repo file
+        --index-strat STRAT       priority       May be 'priority' or 'global'.
+        --requirement REQ                        Resolve req. **
+        --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
+        --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+        --repository INDEX                       Search INDEX for packages. **
+        --enable-alternatives                    Consider all alternatives (default)
+        --id true                                ID (name) of the package
+        --query QUERY                            Display packages matching query string.
+        --disable-alternatives                   Consider only first alternatives
+        --add-to INDEX                           Add to repo index INDEX
+        --card-file FILE          ./out.dscard   The name of the card file
+        --present-package PKG                    Hard present package. **
+        --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
+        --location true                          URL or filepath of the package
+        --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
+        --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+        --version true                           Version of the package
+    -h, --help                                   Print this help page
 
 The ``display-config`` command is used to print all the options
 in the *effective configuration*. It allows the user to debug
@@ -254,15 +246,15 @@ returns a page that looks something like this::
 
   Usage: degasolv <options> generate-card <generate-card-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -i, --id true                        ID (name) of the package
-    -v, --version true                   Version of the package
-    -l, --location true                  URL or filepath of the package
-    -r, --requirement REQ                List requirements **
     -C, --card-file FILE   ./out.dscard  The name of the card file
+    -i, --id true                        ID (name) of the package
+    -l, --location true                  URL or filepath of the package
+    -r, --requirement REQ                List requirement **
+    -v, --version true                   Version of the package
     -h, --help                           Print this help page
 
   The following options are required for subcommand `generate-card`:
@@ -317,10 +309,9 @@ CLI for ``generate-repo-index``
 Running ``java -jar degasolv-<version>-standalone.jar generate-repo-index -h``
 returns a page that looks something like this::
 
-
   Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
@@ -393,21 +384,22 @@ returns a page that looks something like this::
 
   Usage: degasolv <options> resolve-locations <resolve-locations-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -a, --enable-alternatives   Consider all alternatives
-    -A, --disable-alternatives  Consider only first alternatives
-    -e, --search-strat STRAT    May be 'breadth-first' or 'depth-first'.
-    -f, --conflict-strat STRAT  May be 'exclusive', 'inclusive' or 'prioritized'.
-    -p, --present-package PKG   Hard present package. **
-    -r, --requirement REQ       Resolve req. **
-    -R, --repository INDEX      Search INDEX for packages. **
-    -s, --resolve-strat STRAT   May be 'fast' or 'thorough'.
-    -S, --index-strat STRAT     May be 'priority' or 'global'.
-    -t, --package-system SYS    May be 'degasolv' or 'apt'.
-    -h, --help                  Print this help page
+    -a, --enable-alternatives                    Consider all alternatives (default)
+    -A, --disable-alternatives                   Consider only first alternatives
+    -e, --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
+    -f, --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+    -p, --present-package PKG                    Hard present package. **
+    -r, --requirement REQ                        Resolve req. **
+    -R, --repository INDEX                       Search INDEX for packages. **
+    -s, --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
+    -S, --index-strat STRAT       priority       May be 'priority' or 'global'.
+    -t, --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
+    -V, --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+    -h, --help                                   Print this help page
 
   The following options are required for subcommand `resolve-locations`:
 
@@ -725,15 +717,16 @@ page that looks something like this::
 
   Usage: degasolv <options> query-repo <query-repo-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -q, --query QUERY                   Display packages matching query string.
-    -R, --repository INDEX              Search INDEX for packages. **
-    -S, --index-strat STRAT   priority  May be 'priority' or 'global'.
-    -t, --package-system SYS  degasolv  May be 'degasolv' or 'apt'.
-    -h, --help                          Print this help page
+    -q, --query QUERY                       Display packages matching query string.
+    -R, --repository INDEX                  Search INDEX for packages. **
+    -S, --index-strat STRAT       priority  May be 'priority' or 'global'.
+    -t, --package-system SYS      degasolv  May be 'degasolv' or 'apt'.
+    -V, --version-comparison CMP  maven     May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+    -h, --help                              Print this help page
 
   The following options are required for subcommand `query-repo`:
 
