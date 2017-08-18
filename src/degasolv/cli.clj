@@ -31,13 +31,24 @@
 
 (def
   ^:private
+  version-comparators
+  {
+   "debian" vers/debian-vercmp
+   "maven" vers/debian-vercmp
+   "naive" vers/naive-vercmp
+   "python" vers/python-vercmp
+   "rpm" vers/rpm-vercmp
+   "rubygem" vers/rubygem-vercmp
+   "semver" vers/semver-vercmp
+   })
+
+(def
+  ^:private
   package-systems
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
-             :vercmp vers/debian-vercmp}
+             :version-comparison "debian"}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
-               :vercmp vers/maven-vercmp}})
-
-
+               :version-comparison "maven"}})
 
 (defn- generate-repo-index-cli!
   [options arguments]
@@ -56,16 +67,15 @@
 
 (defn- aggregate-repositories
   [index-strat
-   pkgsys
-   repositories]
-
+   repositories
+   genrepo
+   cmp]
   ((aggregator index-strat
-               (get-in package-systems [pkgsys :vercmp]))
+               cmp)
    (flatten
     (map
        (fn [url]
-         ((get-in package-systems [pkgsys :genrepo]) url)
-         )
+         (genrepo url))
        repositories))))
 
 (defn-
@@ -86,8 +96,11 @@
                search-strat
                present-packages
                requirements
-               package-system]}
+               package-system
+               version-comparison]}
        options
+       version-comparator
+       (get version-comparators version-comparison)
        requirement-data
        (into []
              (map
@@ -105,13 +118,12 @@
                    (string-to-requirement vetted-str-req)))
                requirements))
        present-packages
-       (t/spy :msg "present-packages"
-              (reduce
-               (fn package-aggregate
-                 [c [name pkg]]
-                 (update-in c [name]
-                    conj
-                    pkg))
+       (reduce
+        (fn package-aggregate
+          [c [name pkg]]
+          (update-in c [name]
+                     conj
+                     pkg))
         {}
         (map
          (fn [str-pkg]
@@ -136,8 +148,9 @@
        aggregate-repo
        (aggregate-repositories
          index-strat
-         package-system
-         repositories)
+         repositories
+         (get-in package-systems [pkgsys :genrepo])
+         version-comparator)
        result
        (resolve-dependencies
         requirement-data
@@ -146,7 +159,7 @@
         :strategy (keyword resolve-strat)
         :conflict-strat (keyword conflict-strat)
         :search-strat (keyword search-strat)
-        :compare (get-in package-systems [package-system :vercmp])
+        :compare version-comparator
         :allow-alternatives alternatives)]
     (case
       (first result)
@@ -177,7 +190,7 @@
   (default-spit
    card-file
    (->PackageInfo
-    id
+    idt
     version
     location
     (into []
@@ -187,17 +200,24 @@
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories query index-strat package-system]} options
+  (let [{:keys [repositories
+                query
+                index-strat
+                package-system
+                version-comparison]}
+        options
+        version-comparator
+        (get version-comparators version-comparison)
         aggregate-repo
         (aggregate-repositories
-          index-strat
-          package-system
-          repositories)
+         index-strat
+         repositories
+         (get-in package-systems [pkgsys :genrepo])
+         version-comparator)
         req (first (string-to-requirement query))
         {:keys [id spec]} req
         spec-call (make-spec-call
-                   (get-in package-systems
-                           [package-system :vercmp]))
+                   version-comparator)
         results (filter
                  #(spec-call spec %)
                  (aggregate-repo id))]
@@ -235,15 +255,16 @@
     :required-arguments {:id ["-i" "--id"]
                          :version ["-v" "--version"]
                          :location ["-l" "--location"]}
-    :cli [["-i" "--id ID"
+    :cli [
+          ["-C" "--card-file FILE"
+           (str "The name of the card file")
+
+           :validate [#(not (empty? %))
+                      "Out file must not be empty."]]
+          ["-i" "--id ID"
            "ID (name) of the package"
            :validate [#(not (empty? %))
                       "ID must be a non-empty string."]
-           :required true]
-          ["-v" "--version VERSION"
-           "Version of the package"
-           :validate [#(re-matches r/version-regex %)
-                      "Sorry, given argument doesn't look like a version."]
            :required true]
           ["-l" "--location LOCATION"
            "URL or filepath of the package"
@@ -257,11 +278,12 @@
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-C" "--card-file FILE"
-           (str "The name of the card file")
-
-           :validate [#(not (empty? %))
-                      "Out file must not be empty."]]]}
+          ["-v" "--version VERSION"
+           "Version of the package"
+           :validate [#(re-matches r/version-regex %)
+                      "Sorry, given argument doesn't look like a version."]
+           :required true]
+          ]}
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index-cli!
@@ -329,13 +351,18 @@
            "May be 'degasolv' or 'apt'."
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
+          ["-V" "--version-comparison CMP"
+           "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :validate [#(some #{%} (keys version-comparators))
+                      "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
           ]}
    "query-repo"
    {:description "Query repository for a particular package"
     :function query-repo!
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
-    :cli [["-q" "--query QUERY"
+    :cli [
+          ["-q" "--query QUERY"
            "Display packages matching query string."
            :validate [#(and (re-matches r/str-requirement-regex %)
                             (let [strreq (string-to-requirement %)]
@@ -354,7 +381,15 @@
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
            :validate [#(or (= "degasolv" %) (= "apt" %))
-                      "Package system must be either 'degasolv' or 'apt'."]]]}})
+                      "Package system must be either 'degasolv' or 'apt'."]]
+          ["-V" "--version-comparison CMP"
+           "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :validate [#(some #{%} (keys version-comparators))
+                      "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
+          ]
+    }
+   }
+  )
 
 (defn command-list [commands]
   (->> ["Commands are:"
@@ -594,7 +629,14 @@
                (conj it (dissoc config :option-packs))
                (conj it options)
                (reduce merge (hash-map) it)
-               )
+               (if (not (:version-comparison it))
+                 (assoc
+                  it
+                  :version-comparison
+                  (as-> (:package-system it) x
+                    (get package-systems x)
+                    (get x :version-comparison)))
+                 it))
               required-keys (set (keys (:required-arguments subcmd-cli)))
               present-keys (set (keys effective-options))]
           (when (not (st/subset? required-keys present-keys))
