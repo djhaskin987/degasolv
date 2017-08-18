@@ -685,6 +685,9 @@ Explanation of options:
          repo is currently architecture-specific; each repo has an associated
          architecture, even if that architecture is ``any``.
 
+
+.. _query-repo-options:
+
 CLI for ``query-repo``
 ----------------------
 

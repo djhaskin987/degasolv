@@ -1,0 +1,62 @@
+#!/bin/sh
+set -eoux
+
+export POSIXLY_CORRECT=1
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+root_path=${PWD}
+test_home=test/resources/data/test-search-strat
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf "${test_home}"
+mkdir -p "${test_home}"
+cd "${test_home}"
+
+# First, generate *most* of the needed cards for the tests to pass.
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "a" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/a-1.0.0.zip" \
+     -C $PWD/a-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "a" \
+     -v "1.0.0-1" \
+     -l "https://example.com/repo/a-1.0.0-1.zip" \
+     -C $PWD/a-1.0.0-1.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    generate-repo-index \
+    -d $PWD \
+    -I $PWD/index.dsrepo
+
+output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --search-strat depth-first \
+    -R ${PWD}/index.dsrepo \
+    -V maven \
+    --requirement a)
+
+printf '%s\n' "${output}"
+
+echo "${output}" | grep -qE '==1\.0\.0-1 @'
+
+output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --search-strat depth-first \
+    -R ${PWD}/index.dsrepo \
+    -V semver \
+    --requirement a)
+
+printf '%s\n' "${output}"
+
+echo "${output}" | grep -qE '==1\.0\.0 @'

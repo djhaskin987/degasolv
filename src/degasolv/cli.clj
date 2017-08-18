@@ -60,7 +60,6 @@
       index-file
       add-to)))
 
-
 (defn- exit [status msg]
   (.println *err* msg)
   (System/exit status))
@@ -144,12 +143,12 @@
                  version
                  "already present"
                  nil)])))
-         (:present-packages options))))
+         (:present-packages options)))
        aggregate-repo
        (aggregate-repositories
          index-strat
          repositories
-         (get-in package-systems [pkgsys :genrepo])
+         (get-in package-systems [package-system :genrepo])
          version-comparator)
        result
        (resolve-dependencies
@@ -190,7 +189,7 @@
   (default-spit
    card-file
    (->PackageInfo
-    idt
+    id
     version
     location
     (into []
@@ -212,7 +211,7 @@
         (aggregate-repositories
          index-strat
          repositories
-         (get-in package-systems [pkgsys :genrepo])
+         (get-in package-systems [package-system :genrepo])
          version-comparator)
         req (first (string-to-requirement query))
         {:keys [id spec]} req
@@ -245,7 +244,8 @@
 
 (def subcommand-cli
   {"display-config"
-   {:description "Print the effective combined configuration (and arguments) of all the given config files."
+   {
+    :description "Print the effective combined configuration (and arguments) of all the given config files."
     :function display-config!
     }
    "generate-card"
@@ -257,8 +257,8 @@
                          :location ["-l" "--location"]}
     :cli [
           ["-C" "--card-file FILE"
-           (str "The name of the card file")
-
+           "The name of the card file"
+           :default-desc (str (:card-file subcommand-option-defaults))
            :validate [#(not (empty? %))
                       "Out file must not be empty."]]
           ["-i" "--id ID"
@@ -288,6 +288,7 @@
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index-cli!
     :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
+           :default-desc (str (:search-directory subcommand-option-defaults))
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))

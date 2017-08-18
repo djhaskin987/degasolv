@@ -1,13 +1,3 @@
-- [ ] Add ``--remove-from``
-- [ ] Options imply other options, but these can be turned off
-- [ ] Make display-config work with ALL cmdline options.
-- [ ] Disable alternatives option
-- [ ] Add docs URL to help page.
-- [ ] Term hoisting tests both for found packages and present packages
-- [ ] Add test for validation checking of present packages in config files
-- [ ] Do something about `:any` in APT pkgsystem
-- [ ] Docs for `--present-package`
-- [ ] Docs for `--package-system`
-- [ ] Add tree returned value when `fast` is used.
-- [ ] Add option to print said tree when fast is used.
-- [ ] package systems for query repo.
+- [ ] Alphabetize generate-card options, reflect in docs
+- [ ] Docs: package-system implies a *default* version comparison
+      algorithm consistent with what package system is used
