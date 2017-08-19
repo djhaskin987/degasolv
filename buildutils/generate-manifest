@@ -4,6 +4,7 @@ set -ex
 
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
+basic_version=$(echo "${version}" | sed -e 's|-.*$||g')
 branch=$(git branch | awk '/^[*] /{print $2}')
 builddate=$(date --utc '+%Y%m%d%H%M%S')
 git_desc=$(git describe --long --match '[0-9].[0-9].[0-9]')
@@ -12,11 +13,12 @@ iteration="$(echo "${git_desc}" | sed -e 's|^[^-]*-||g' -e 's|-[^-]*$||g')"
 hash=$(git rev-parse HEAD)
 description=$(lein print :description)
 url=$(lein print :url)
-version=$(echo "${version}" | sed -e 's|-SNAPSHOT||g')
+
 
 cat > target/manifest << MANIFEST
 name=${name}
 version=${version}
+basic_version=${basic_version}
 branch=${branch}
 builddate=${builddate}
 git_desc=${git_desc}

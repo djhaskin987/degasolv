@@ -21,7 +21,7 @@ mkdir -p pkg/usr/share/doc/${name}/
 
 cat > pkg/usr/share/doc/${name}/manifest.txt << MANIFEST
 Name:               ${name}
-Version:            ${version}
+Version:            ${basic_version}
 Previous Version:   ${previous_version}
 Iteration:          ${iteration}
 Git hash:           ${hash}
@@ -38,7 +38,7 @@ fpm \
     --input-type dir \
     --output-type ${type} \
     --name "${name}" \
-    --version "${version}" \
+    --version "${basic_version}" \
     --iteration "${iteration}.djh987" \
     --license "Eclipse Public License" \
     --architecture "all" \
