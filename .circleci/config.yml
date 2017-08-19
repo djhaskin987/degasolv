@@ -70,7 +70,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
-      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: cp -af /tmp/workspace/target ./
       - run: buildutils/test-install-package-ubuntu
 
   package_centos:
@@ -95,7 +95,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
-      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: cp -af /tmp/workspace/target ./
       - run: buildutils/test-install-package-centos
 
 
