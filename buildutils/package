@@ -19,6 +19,8 @@ mkdir -p pkg/usr/bin/
 mkdir -p pkg/usr/lib/${name}/
 mkdir -p pkg/usr/share/doc/${name}/
 
+version=$(echo "${version}" | sed -e 's|-SNAPSHOT||g')
+
 cat > pkg/usr/share/doc/${name}/manifest.txt << MANIFEST
 Name:               ${name}
 Version:            ${version}
