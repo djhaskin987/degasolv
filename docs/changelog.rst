@@ -14,7 +14,7 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 - Added the ``--version-comparison`` option :ref:`resolve-locations
-  <resolve-locations-options` and :ref:`query-repo <query-repo-options>`,
+  <resolve-locations-options>` and :ref:`query-repo <query-repo-options>`,
   allowing the user to specify which version comparison algorithm is used.
 
 - Added the ``--search-strat`` option to :ref:`resolve-locations

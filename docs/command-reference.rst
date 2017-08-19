@@ -340,6 +340,30 @@ Explanation of options:
   index file at the location ``FILE``. Default value is ``index.dsrepo``. It is
   good practice to use the default value.
 
+- ``-V CMP``, ``--version-comparison CMP``, ``:version-comparison
+  "CMP"``: Use the specified version comparison algorithm when
+  generating the repository index. When repository indexes are
+  generated, lists of packages representing different versions of each
+  named package are created within the index. These lists are sorted
+  in descending order by version number, so that the latest version of
+  a given package is tried first when resolving dependencies.
+
+  This option allows the operator to change what version comparison
+  algorithm is used. By default, the algorithm is "maven". May be
+  "maven", "debian", "maven", "naive", "python", "rpm", "rubygem", or
+  "semver".
+
+  .. caution:: This is one of those options that should not be used
+             unless the operator has a good reason, but it is
+             available and usable if needed.
+
+  .. note:: This option should be used with care, since whatever setting
+     is used will greatly alter behavior. Similar options are availabe
+     for the ``resolve-locations`` subcommand and the ``query-repo``
+     subcommand. They should all agree when used within the same
+     site. It is therefore recommended that whichever setting is
+     chosen should be used `site-wide`_ within an organization.
+
 - ``-a INDEX``, ``--add-to INDEX``, ``:add-to "INDEX"``: Add to
   the repository index file found at ``INDEX``. In general, it is best
   to simply regenerate a new repository index fresh based on the card files
@@ -708,6 +732,30 @@ Explanation of options:
          architecture, even if that architecture is ``any``.
 
 
+- ``-V CMP``, ``--version-comparison CMP``, ``:version-comparison "CMP"``:
+  Use the specified version comparison algorithm when resolving
+  dependencies.
+
+  This option allows the operator to change what version
+  comparison algorithm is used. By default, the algorithm is
+  "maven". May be "debian", "maven", "naive", "python" (PEP 440),
+  "rpm", "rubygem", or "semver" (2.0.0). Version comparison algorithms
+  are taken from the Serovers library. Descriptions for these
+  algorithms can be found in the `Serovers docs`_.
+
+  .. _Serovers docs: http://djhaskin987.gitlab.io/serovers/serovers.core.html
+
+  .. caution:: This is one of those options that should not be used
+             unless the operator has a good reason, but it is
+             available and usable if needed.
+
+  .. note:: This option should be used with care, since whatever setting
+     is used will greatly alter behavior. Similar options are availabe
+     for the ``generate-repo-index`` subcommand and the ``query-repo``
+     subcommand. They should all agree when used within the same
+     site. It is therefore recommended that whichever setting is
+     chosen should be used `site-wide`_ within an organization.
+
 .. _query-repo-options:
 
 CLI for ``query-repo``
@@ -772,6 +820,29 @@ Explanation of options:
   ``resolve-locations`` command, except that it is used for simple index
   queries. See that option's explanation for more information.
 
+- ``-V CMP``, ``--version-comparison CMP``, ``:version-comparison "CMP"``:
+  Use the specified version comparison algorithm when querying the repository.
+
+  This option allows the operator to change what version
+  comparison algorithm is used. By default, the algorithm is
+  "maven". May be "debian", "maven", "naive", "python" (PEP 440),
+  "rpm", "rubygem", or "semver" (2.0.0). Version comparison algorithms
+  are taken from the Serovers library. Descriptions for these
+  algorithms can be found in the `Serovers docs`_.
+
+  .. _Serovers docs: http://djhaskin987.gitlab.io/serovers/serovers.core.html
+
+  .. caution:: This is one of those options that should not be used
+             unless the operator has a good reason, but it is
+             available and usable if needed.
+
+  .. note:: This option should be used with care, since whatever setting
+     is used will greatly alter behavior. Similar options are availabe
+     for the ``generate-repo-index`` subcommand and the ``resolve-locations``
+     subcommand. They should all agree when used within the same
+     site. It is therefore recommended that whichever setting is
+     chosen should be used `site-wide`_ within an organization.
+
 .. _Specifying a requirement:
 
 Specifying a requirement
@@ -793,7 +864,11 @@ Or, more concretely::
 
 Alternatives will be considered in order of appearance.
 
-.. caution:: In general, specifying more than one alternative is mostly unecessary, and should generally be avoided. This is because specifying too many alternatives tends to impact performance significantly; but they are available and usable if needed.
+.. caution:: In general, specifying more than one alternative is
+             mostly unecessary, and should generally be avoided. This
+             is because specifying too many alternatives tends to
+             impact performance significantly; but they are available
+             and usable if needed.
 
 Each alternative is composed of a package id and an optional specification of
 what versions of that package satisfy the alternative, like this::
@@ -870,7 +945,7 @@ provided:
         version string as computed in the previous step, are
         considered for dependency resolution.
 
-.. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
+.. _version-clj: https://github.com/xsc/version-clj#version-comparison
 
 Examples
 ++++++++
