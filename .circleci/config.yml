@@ -64,7 +64,7 @@ jobs:
 
   test_ubuntu_package:
     docker:
-      - image: pivotaldata/ubuntu:16.04
+      - image: everve/ubuntu-docker-sudo
     version: 2
     steps:
       - attach_workspace:
@@ -91,7 +91,7 @@ jobs:
 
   test_centos_package:
     docker:
-      - image: centos:latest
+      - image: bzohdy/centos-sudo
     version: 2
     steps:
       - attach_workspace:
