@@ -18,6 +18,8 @@
 /.nrepl-history
 /test-data/
 /test/resources/data/grill/
+/test/resources/data/test-search-strat/
+/test/resources/data/test-version-comparison/
 /test/resources/test-data/
 /buildutils/boot
 /*.dscard

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented here.
 
 The format is based on `Keep a Changelog`_
 and this project adheres to `Semantic Versioning`_.
@@ -13,21 +13,43 @@ and this project adheres to `Semantic Versioning`_.
 -------------
 Added
 +++++
+- Added the ``--version-comparison`` option :ref:`resolve-locations
+  <resolve-locations-options>` and :ref:`query-repo <query-repo-options>`,
+  allowing the user to specify which version comparison algorithm is used.
+
+- Added the ``--search-strat`` option to :ref:`resolve-locations
+  <resolve-locations-options>`, allowing users to select breadth first
+  search or depth first search during resolution
+
+- Added the :ref:`matches <matches>` operator (``<>REGEX``) which
+  matches a version against a regex
+
+- Added the :ref:`in-range <in-range>` operator (``=>V``) which
+  matches a version against a certain range of indexes
+
 - Added the ability to specify ``--present-package`` multiple times using the
   same package name, but different versions. This is useful for when the
   ``:conflict-strat`` is set to ``inclusive``.
+
 - Added tests testing to make sure that unsuccessful runs generate the proper
   error messages.
 
 Changed
 +++++++
 - Reorganized the unit tests.
+- Alphabetized the options for ``generate-card``.
 
 Fixed
 +++++
 - Fixed bug wherein if the conflict strategy is set to ``:inclusive``
   and a package satisfying a requirement is already found or present,
   it is used instead of finding a new one.
+- Fixed CLI of :ref:`display-config <display-config-cli>` so that
+  it actually works as advertised, LOLZ
+- Fixed the CLI output of ``--help`` so that default values
+  of options are shown again :)
+- Refreshed the CLI output of ``--help`` for all the subcommands
+  as posted in the docs
 
 `1.7.0`_
 --------

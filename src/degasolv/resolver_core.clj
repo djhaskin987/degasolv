@@ -11,7 +11,9 @@
    :equal-to "=="
    :not-equal "!="
    :less-equal "<="
-   :less-than "<"})
+   :less-than "<"
+   :matches "<>"
+   :in-range "=>"})
 
 (defrecord VersionPredicate [relation version]
   Object
@@ -41,7 +43,7 @@
 
 (defrecord PackageInfo [id version location requirements])
 
-                                        ; deprecated, do not use
+;; Deprecated, do not use
 (def ->requirement ->Requirement)
 (def ->package ->PackageInfo)
 (def ->version-predicate ->VersionPredicate)
@@ -88,6 +90,38 @@
     result
     nil))
 
+(defn- make-comparison [cmp pkg-ver relation version]
+  (if (= relation :matches)
+    (if-let [pattern (try (re-pattern version)
+                          (catch Exception e
+                            false))]
+      (re-matches pattern pkg-ver)
+      false)
+    (let [cmp-result (cmp pkg-ver version)]
+      (if (= relation
+             :in-range)
+        (if-let [[_ rest re-num _] (re-find #"^(.*?)(\d+)(\D*)$" version)]
+          (let [num (java.lang.Integer/parseInt re-num)
+                higher-version (str rest (inc num))
+                higher-result (cmp pkg-ver higher-version)]
+            (and (>= cmp-result 0)
+               (< higher-result 0)))
+          false)
+        (case relation
+          :greater-than
+          (pos? cmp-result)
+          :greater-equal
+          (not (neg? cmp-result))
+          :equal-to
+          (zero? cmp-result)
+          :not-equal
+          (not (zero? cmp-result))
+          :less-equal
+          (not (pos? cmp-result))
+          :less-than
+          (neg? cmp-result)
+          false)))))
+
 (defprotocol ^:private SpecCaller
   (p-safe-spec-call [this spec present-package]))
 
@@ -104,24 +138,14 @@
          (fn [disj-cum disj-val]
            (or disj-cum
                (reduce
-                (fn [conj-cum conj-val]
-                  (let [chk-ver (:version conj-val)
-                        cmp-result (cmp pkg-ver chk-ver)]
-                    (and conj-cum
-                         (case (:relation conj-val)
-                           :greater-than
-                           (pos? cmp-result)
-                           :greater-equal
-                           (not (neg? cmp-result))
-                           :equal-to
-                           (zero? cmp-result)
-                           :not-equal
-                           (not (zero? cmp-result))
-                           :less-equal
-                           (not (pos? cmp-result))
-                           :less-than
-                           (neg? cmp-result)
-                           false)))) true disj-val)))
+                (fn [conj-cum {:keys [relation version]}]
+                  (and conj-cum
+                       (make-comparison
+                        cmp
+                        pkg-ver
+                        relation
+                        version)))
+                 true disj-val)))
          false
          spec)))))
 
@@ -215,14 +239,20 @@
                    strategy
                    conflict-strat
                    compare
+                   search-strat
                    allow-alternatives]
             :or {present-packages {}
                  conflicts {}
                  strategy :thorough
                  conflict-strat :exclusive
                  compare nil
+                 search-strat :breadth-first
                  allow-alternatives true}}]
-  (let [safe-spec-call (make-spec-call compare)
+  (let [concat-reqs
+        (if (= search-strat :depth-first)
+          #(concat %2 %1)
+          #(concat %1 %2))
+        safe-spec-call (make-spec-call compare)
         cull (case strategy
                :thorough
                cull-nothing
@@ -247,7 +277,7 @@
               (if (empty? clauses)
                 [:successful (set (flatten (vals found-packages)))]
                 (let [fclause (first clauses)
-                      rclauses (subvec clauses 1)]
+                      rclauses (rest clauses)]
                   (if (empty? fclause)
                     [:unsuccessful
                      {:problems
@@ -264,7 +294,7 @@
                                    alternative
                                    present-id-packages
                                    (or (get present-packages id)
-                                       (get found-packages id))]
+                                              (get found-packages id))]
                                (cond
                                  (and
                                   (not
@@ -352,8 +382,9 @@
                                                                conj
                                                                %)
                                                   absent-specs
-                                                  (into rclauses
-                                                        (:requirements %)))
+                                                  (concat-reqs rclauses
+                                                        (:requirements
+                                                         %)))
                                                 successful?
                                                 filtered-query-results)]
                                            (or
@@ -398,4 +429,4 @@
        present-packages
        {}
        conflicts
-       (vec requirements)))))
+       requirements))))

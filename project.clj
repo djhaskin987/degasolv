@@ -6,7 +6,7 @@
   :main degasolv.cli
   :dependencies [
                  [org.clojure/clojure "1.9.0-alpha14"]
-                 [serovers "1.1.0"]
+                 [serovers "1.6.0"]
                  [org.clojure/tools.cli "0.3.5"]
                  [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]

@@ -27,7 +27,9 @@
 (defn generate-repo-index!
   [search-directory
    index-file
-   add-to]
+   add-to
+   version-comparator
+   ]
   (let [output-file index-file
         initial-repository
         (if add-to
@@ -41,8 +43,8 @@
                 (fn [x]
                   [(first x)
                    (into []
-                         (sort #(- (vers/maven-vercmp (:version %1)
-                                        (:version %2)))
+                         (sort #(- (version-comparator (:version %1)
+                                                       (:version %2)))
                                (second x)))])
                 (reduce
                   (fn merg [c v]

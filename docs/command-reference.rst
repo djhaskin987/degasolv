@@ -190,6 +190,7 @@ Explanation of options:
 .. _EDN format: https://github.com/edn-format/edn
 
 .. _display-config command:
+.. _display-config-cli:
 
 CLI for ``display-config``
 --------------------------
@@ -199,10 +200,30 @@ returns a page that looks something like this::
 
   Usage: degasolv <options> display-config <display-config-options>
 
-  Options are shown below, with their default values and
-    descriptions:
+  Options are shown below. Default values are marked as <DEFAULT> and
+    descriptions. Options marked with `**` may be
+    used more than once.
 
-    -h, --help  Print this help page
+        --search-directory DIR    .              Find degasolv cards here
+        --index-file FILE         index.dsrepo   The name of the repo file
+        --index-strat STRAT       priority       May be 'priority' or 'global'.
+        --requirement REQ                        Resolve req. **
+        --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
+        --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+        --repository INDEX                       Search INDEX for packages. **
+        --enable-alternatives                    Consider all alternatives (default)
+        --id true                                ID (name) of the package
+        --query QUERY                            Display packages matching query string.
+        --disable-alternatives                   Consider only first alternatives
+        --add-to INDEX                           Add to repo index INDEX
+        --card-file FILE          ./out.dscard   The name of the card file
+        --present-package PKG                    Hard present package. **
+        --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
+        --location true                          URL or filepath of the package
+        --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
+        --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+        --version true                           Version of the package
+    -h, --help                                   Print this help page
 
 The ``display-config`` command is used to print all the options
 in the *effective configuration*. It allows the user to debug
@@ -225,15 +246,15 @@ returns a page that looks something like this::
 
   Usage: degasolv <options> generate-card <generate-card-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -i, --id true                        ID (name) of the package
-    -v, --version true                   Version of the package
-    -l, --location true                  URL or filepath of the package
-    -r, --requirement REQ                List requirements **
     -C, --card-file FILE   ./out.dscard  The name of the card file
+    -i, --id true                        ID (name) of the package
+    -l, --location true                  URL or filepath of the package
+    -r, --requirement REQ                List requirement **
+    -v, --version true                   Version of the package
     -h, --help                           Print this help page
 
   The following options are required for subcommand `generate-card`:
@@ -288,17 +309,17 @@ CLI for ``generate-repo-index``
 Running ``java -jar degasolv-<version>-standalone.jar generate-repo-index -h``
 returns a page that looks something like this::
 
-
   Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -d, --search-directory DIR  .             Find degasolv cards here
-    -I, --index-file FILE       index.dsrepo  The name of the repo file
-    -a, --add-to INDEX                        Add to repo index INDEX
-    -h, --help                                Print this help page
+    -a, --add-to INDEX                          Add to repo index INDEX
+    -d, --search-directory DIR    .             Find degasolv cards here
+    -I, --index-file FILE         index.dsrepo  The name of the repo file
+    -V, --version-comparison CMP  maven         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+    -h, --help                                  Print this help page
 
 This subcommand is used to generate a repository index file. A
 repository index file lists all versions of all packages in a
@@ -318,6 +339,30 @@ Explanation of options:
 - ``-I FILE``, ``--index-file FILE``, ``:index-file "FILE"``: Write the
   index file at the location ``FILE``. Default value is ``index.dsrepo``. It is
   good practice to use the default value.
+
+- ``-V CMP``, ``--version-comparison CMP``, ``:version-comparison
+  "CMP"``: Use the specified version comparison algorithm when
+  generating the repository index. When repository indexes are
+  generated, lists of packages representing different versions of each
+  named package are created within the index. These lists are sorted
+  in descending order by version number, so that the latest version of
+  a given package is tried first when resolving dependencies.
+
+  This option allows the operator to change what version comparison
+  algorithm is used. By default, the algorithm is "maven". May be
+  "maven", "debian", "maven", "naive", "python", "rpm", "rubygem", or
+  "semver".
+
+  .. caution:: This is one of those options that should not be used
+             unless the operator has a good reason, but it is
+             available and usable if needed.
+
+  .. note:: This option should be used with care, since whatever setting
+     is used will greatly alter behavior. Similar options are availabe
+     for the ``resolve-locations`` subcommand and the ``query-repo``
+     subcommand. They should all agree when used within the same
+     site. It is therefore recommended that whichever setting is
+     chosen should be used `site-wide`_ within an organization.
 
 - ``-a INDEX``, ``--add-to INDEX``, ``:add-to "INDEX"``: Add to
   the repository index file found at ``INDEX``. In general, it is best
@@ -354,6 +399,8 @@ Explanation of options:
   will read standard input instead of any specific file or
   URL.
 
+.. _resolve-locations-options:
+
 CLI for ``resolve-locations``
 -----------------------------
 
@@ -362,20 +409,22 @@ returns a page that looks something like this::
 
   Usage: degasolv <options> resolve-locations <resolve-locations-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -a, --enable-alternatives              Consider all alternatives
-    -A, --disable-alternatives             Consider only first alternatives
-    -f, --conflict-strat STRAT  exclusive  May be 'exclusive', 'inclusive' or 'prioritized'.
-    -p, --present-package PKG              Hard present package. **
-    -r, --requirement REQ                  Resolve req. **
-    -R, --repository INDEX                 Search INDEX for packages. **
-    -s, --resolve-strat STRAT   thorough   May be 'fast' or 'thorough'.
-    -S, --index-strat STRAT     priority   May be 'priority' or 'global'.
-    -t, --package-system SYS    degasolv   May be 'degasolv' or 'apt'.
-    -h, --help                             Print this help page
+    -a, --enable-alternatives                    Consider all alternatives (default)
+    -A, --disable-alternatives                   Consider only first alternatives
+    -e, --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
+    -f, --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+    -p, --present-package PKG                    Hard present package. **
+    -r, --requirement REQ                        Resolve req. **
+    -R, --repository INDEX                       Search INDEX for packages. **
+    -s, --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
+    -S, --index-strat STRAT       priority       May be 'priority' or 'global'.
+    -t, --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
+    -V, --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+    -h, --help                                   Print this help page
 
   The following options are required for subcommand `resolve-locations`:
 
@@ -460,11 +509,19 @@ Explanation of options:
      when debugging a build. If it *is* used routinely, it should be used
      `site-wide`_.
 
+- ``-e STRAT``, ``--search-strat STRAT``, ``:search-strat "STRAT"``:
+  This option determines whether breadth first search or depth first
+  search is used during package resolution. Valid values are
+  ``depth-first`` to specify depth-first search or ``breadth-first``
+  to specify breadth-first search. This option is set to
+  ``breadth-first`` by default.
+
 .. _conflict strategies:
 
 - ``-f STRAT``, ``--conflict-strat STRAT``, ``:conflict-strat "STRAT"``:
   This option determines how encountered version conflicts will be
-  handled.  The default setting is ``exclusive`` and this setting
+  handled. Valid values are ``exclusive``, ``inclusive``, and
+  ``prioritized``. The default setting is ``exclusive`` and this setting
   should work for most environments.
 
   .. note:: This option should be used with care, since whatever setting is
@@ -674,6 +731,33 @@ Explanation of options:
          repo is currently architecture-specific; each repo has an associated
          architecture, even if that architecture is ``any``.
 
+
+- ``-V CMP``, ``--version-comparison CMP``, ``:version-comparison "CMP"``:
+  Use the specified version comparison algorithm when resolving
+  dependencies.
+
+  This option allows the operator to change what version
+  comparison algorithm is used. By default, the algorithm is
+  "maven". May be "debian", "maven", "naive", "python" (PEP 440),
+  "rpm", "rubygem", or "semver" (2.0.0). Version comparison algorithms
+  are taken from the Serovers library. Descriptions for these
+  algorithms can be found in the `Serovers docs`_.
+
+  .. _Serovers docs: http://djhaskin987.gitlab.io/serovers/serovers.core.html
+
+  .. caution:: This is one of those options that should not be used
+             unless the operator has a good reason, but it is
+             available and usable if needed.
+
+  .. note:: This option should be used with care, since whatever setting
+     is used will greatly alter behavior. Similar options are availabe
+     for the ``generate-repo-index`` subcommand and the ``query-repo``
+     subcommand. They should all agree when used within the same
+     site. It is therefore recommended that whichever setting is
+     chosen should be used `site-wide`_ within an organization.
+
+.. _query-repo-options:
+
 CLI for ``query-repo``
 ----------------------
 
@@ -682,15 +766,16 @@ page that looks something like this::
 
   Usage: degasolv <options> query-repo <query-repo-options>
 
-  Options are shown below, with their default values and
+  Options are shown below. Default values are marked as <DEFAULT> and
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -q, --query QUERY                   Display packages matching query string.
-    -R, --repository INDEX              Search INDEX for packages. **
-    -S, --index-strat STRAT   priority  May be 'priority' or 'global'.
-    -t, --package-system SYS  degasolv  May be 'degasolv' or 'apt'.
-    -h, --help                          Print this help page
+    -q, --query QUERY                       Display packages matching query string.
+    -R, --repository INDEX                  Search INDEX for packages. **
+    -S, --index-strat STRAT       priority  May be 'priority' or 'global'.
+    -t, --package-system SYS      degasolv  May be 'degasolv' or 'apt'.
+    -V, --version-comparison CMP  maven     May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+    -h, --help                              Print this help page
 
   The following options are required for subcommand `query-repo`:
 
@@ -735,11 +820,33 @@ Explanation of options:
   ``resolve-locations`` command, except that it is used for simple index
   queries. See that option's explanation for more information.
 
+- ``-V CMP``, ``--version-comparison CMP``, ``:version-comparison "CMP"``:
+  Use the specified version comparison algorithm when querying the repository.
+
+  This option allows the operator to change what version
+  comparison algorithm is used. By default, the algorithm is
+  "maven". May be "debian", "maven", "naive", "python" (PEP 440),
+  "rpm", "rubygem", or "semver" (2.0.0). Version comparison algorithms
+  are taken from the Serovers library. Descriptions for these
+  algorithms can be found in the `Serovers docs`_.
+
+  .. _Serovers docs: http://djhaskin987.gitlab.io/serovers/serovers.core.html
+
+  .. caution:: This is one of those options that should not be used
+             unless the operator has a good reason, but it is
+             available and usable if needed.
+
+  .. note:: This option should be used with care, since whatever setting
+     is used will greatly alter behavior. Similar options are availabe
+     for the ``generate-repo-index`` subcommand and the ``resolve-locations``
+     subcommand. They should all agree when used within the same
+     site. It is therefore recommended that whichever setting is
+     chosen should be used `site-wide`_ within an organization.
+
 .. _Specifying a requirement:
 
 Specifying a requirement
 ------------------------
-
 
 .. _alternative:
 .. _alternatives:
@@ -757,7 +864,11 @@ Or, more concretely::
 
 Alternatives will be considered in order of appearance.
 
-.. caution:: In general, specifying more than one alternative should be mostly unecessary, and should generally be avoided. This is because specifying too many alternatives tends to impact performance significantly; but they are available and usable if needed.
+.. caution:: In general, specifying more than one alternative is
+             mostly unecessary, and should generally be avoided. This
+             is because specifying too many alternatives tends to
+             impact performance significantly; but they are available
+             and usable if needed.
 
 Each alternative is composed of a package id and an optional specification of
 what versions of that package satisfy the alternative, like this::
@@ -774,21 +885,72 @@ versions may satisfy the alternative. The character ``;`` represents discution
 
   "<pred1>,<pred2>;<pred3>,<pred4>"
 
-
 This is interpreted as::
 
   "(<pred1> AND <pred2>) OR (<pred3> AND <pred4>)"
+
+.. _matches:
+.. _in-range:
+
+Comparison Operators
+++++++++++++++++++++
 
 Each version predicate is composed of a comparison operator and a valid version
 against which to compare a package's fversion. The character sequences ``<``,
 ``<=``, ``!=``, ``==``, ``>=``, and ``>`` represent the comparisons "older
 than", "older than or equal to", "not equal to", "equal to", "newer than or
-equal to", and "newer than", respectively.In the current implementation,
+equal to", and "newer than", respectively. In the current implementation,
 versions are compared using `version-clj`_ rules.
 
-.. _`version-clj`: https://github.com/xsc/version-clj#version-comparison
+In addition to the above operators, two other version spec operators are
+provided:
 
-The follwoing are examples of valid alternatives, together with their english
+
+  * The "matches" operator: ``<>``. This operator is given in a version spec
+    as ``<>REGEX``. The version of any package found during the resolution
+    process must match the given `java regular expression`_. Examples:
+
+      * The expression ``<>\d+\.\d+\.\d+`` matches any version containing a
+        three-part version in it.
+
+      * The expression ``<>f[ea]{2}ture`` matches any version
+        containing the strings "feature", "faeture", "feeture" or
+        "faature".
+
+    .. _java regular expression: http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+
+  * The "in-range" operator: ``=>``. This operator is given in a version spec
+    as ``=>RANGE``. The version of any package found during the resolution
+    process must be in the given version range. Examples:
+
+      * The expression ``=>3.x`` matches the versions ``3.0.0``, ``3.0.0.0``
+        and ``3.0`` but not ``4.0`` or higher.
+      * The expression ``=>3.3.x`` matches the versions ``3.3.0``, ``3.3.8``
+        and ``3.3.8.99999`` but not ``3.4.0``.
+
+    Ranges are calculated in the following way:
+
+      * Any non-digit characters found on the end of the ``RANGE`` string are
+        removed.
+
+      * All digit characters found on the end of the ``RANGE`` string are
+        converted into a number and incremented. The incremented number
+        is then put back into the version string, replacing any digit
+        characters that were at the end of the string before. So,
+        ``3.x`` becomes ``4``, ``3.`` becomes ``4``, and ``2ormore``
+        becomes ``3``.
+
+      * Finally, any versions comparing greater than or equal to the
+        original ``RANGE`` string, but less than the incremented
+        version string as computed in the previous step, are
+        considered for dependency resolution.
+
+.. _version-clj: https://github.com/xsc/version-clj#version-comparison
+
+Examples
+++++++++
+
+The following are examples of valid alternatives, together with their english
 interpretations:
 
 +------------------------------+----------------------------------------------+
@@ -796,8 +958,15 @@ interpretations:
 +==============================+==============================================+
 | ``"oak"``                    | Find package ``oak``                         |
 +------------------------------+----------------------------------------------+
-| ``"pine>1.0"``               | Find pakcage ``pine`` of version newer than  |
+| ``"pine>1.0"``               | Find package ``pine`` of version newer than  |
 |                              | ``1.0``                                      |
++------------------------------+----------------------------------------------+
+| ``"fir<>\\d+\\.8"``          | Find package ``fir`` containing "<digits>.8" |
+|                              | somewhere in the version string              |
++------------------------------+----------------------------------------------+
+| ``"cedar=>3.x"``             | Find package ``cedar`` at version greater    |
+|                              | or equal to major component ``3`` but less   |
+|                              | than ``4``                                   |
 +------------------------------+----------------------------------------------+
 | ``"hickory>1.0,<=2.0"``      | Find package ``hickory`` with version newer  |
 |                              | than``1.0`` and older than or equal to       |

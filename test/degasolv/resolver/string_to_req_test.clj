@@ -41,7 +41,33 @@
              "x"
              [[(->VersionPredicate :greater-than
                                    "2.3.3")]])]
-           (string-to-requirement "x>2.3.3")))))
+           (string-to-requirement "x>2.3.3"))))
+  (testing "Matches cases"
+    (is (= [(present
+             "a"
+             [[(->VersionPredicate :matches
+                                   "f[ea]{2}ture")]])]
+           (string-to-requirement "a<>f[ea]{2}ture"))))
+  (testing "Matching prints"
+    (is (= "a<>f[ea]{2}ture"
+           (str
+            (present
+             "a"
+             [[(->VersionPredicate :matches
+                                   "f[ea]{2}ture")]])))))
+  (testing "Range cases"
+    (is (= [(present
+             "a"
+             [[(->VersionPredicate :in-range
+                                   "3")]])]
+           (string-to-requirement "a=>3"))))
+  (testing "Range prints"
+    (is (= "a=>3"
+           (str
+            (present
+             "a"
+             [[(->VersionPredicate :in-range
+                                   "3")]]))))))
 
 (deftest ^:unit-tests test-string-to-requirement-illustrations
   (testing "Illustrative example"
