@@ -69,13 +69,9 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run: find /tmp
-      - run: find .
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y /tmp/workspace/target/package/*.deb
-      - run: dpkg-query -l degasolv
-      - run: dpkg-query -L degasolv
-      - run: degasolv --help
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/test-install-package-ubuntu
 
   package_centos:
     docker:
@@ -98,12 +94,10 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run: find /tmp
-      - run: find .
-      - run: sudo yum install -y /tmp/workspace/target/package/*.rpm
-      - run: rpm -qi degasolv
-      - run: rpm -q --list degasolv
-      - run: degasolv --help
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/test-install-package-centos
+
 
 workflows:
   version: 2

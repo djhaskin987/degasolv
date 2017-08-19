@@ -12,6 +12,7 @@ iteration="$(echo "${git_desc}" | sed -e 's|^[^-]*-||g' -e 's|-[^-]*$||g')"
 hash=$(git rev-parse HEAD)
 description=$(lein print :description)
 url=$(lein print :url)
+version=$(echo "${version}" | sed -e 's|-SNAPSHOT||g')
 
 cat > target/manifest << MANIFEST
 name=${name}
