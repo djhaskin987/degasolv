@@ -1,0 +1,53 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -ex
+
+type="${1}"
+shift
+
+if [ "${type}" = "rpm" ]
+then
+    dep="java"
+else
+    dep="java-runtime"
+fi
+
+. target/manifest
+
+mkdir -p pkg/
+mkdir -p pkg/usr/bin/
+mkdir -p pkg/usr/lib/${name}/
+mkdir -p pkg/usr/share/doc/${name}/
+
+cat > pkg/usr/share/doc/${name}/manifest.txt << MANIFEST
+Name:               ${name}
+Version:            ${basic_version}
+Previous Version:   ${previous_version}
+Iteration:          ${iteration}
+Git hash:           ${hash}
+Build date:         ${builddate}
+MANIFEST
+
+cp target/uberjar/${name}-${version}-standalone.jar \
+    pkg/usr/lib/degasolv/degasolv.jar
+
+cp scripts/degasolv pkg/usr/bin
+
+fpm \
+    --verbose \
+    --input-type dir \
+    --output-type ${type} \
+    --name "${name}" \
+    --version "${basic_version}" \
+    --iteration "${iteration}.djh987" \
+    --license "Eclipse Public License" \
+    --architecture "all" \
+    --depends "${dep}" \
+    --maintainer "djhaskin987@gmail.com" \
+    --description "${description}" \
+    --url "${url}" \
+    -C pkg \
+    .
+
+mkdir -p target/package
+mv *.${type} target/package

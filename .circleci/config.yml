@@ -1,0 +1,123 @@
+version: 2
+jobs:
+  script_tests:
+    docker:
+      - image: clojure:lein
+    version: 2
+    steps:
+      - checkout
+      - run:
+          command: |
+            set -ex
+            lein uberjar
+            # Script tests
+            for i in test/resources/scripts/*
+            do
+                ./${i}
+            done
+  lein_tests:
+    docker:
+      - image: clojure:lein
+    version: 2
+    steps:
+      - checkout
+      - run:
+          command: |
+            set -ex
+            lein test2junit
+            ls target/test-results
+            ls target/test-results/html
+            lein uberjar
+            buildutils/generate-manifest
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/uberjar/degasolv-*-standalone.jar
+            - target/manifest
+      - store_artifacts:
+          path: target/test-results/xml/
+          destination: test-results/xml
+      - store_artifacts:
+          path: target/test-results/html/
+          destination: test-results/html
+      - store_test_results:
+          path: target/test-results/xml/
+
+  package_ubuntu:
+    docker:
+      - image: alanfranz/fpm-within-docker:ubuntu-zesty
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/tested-artifacts
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/package deb
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package/*.deb
+      - store_artifacts:
+          path: target/package/
+          destination: package/
+
+  test_ubuntu_package:
+    docker:
+      - image: everve/ubuntu-docker-sudo:v1
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: buildutils/test-install-package-ubuntu
+
+  package_centos:
+    docker:
+      - image: alanfranz/fpm-within-docker:centos-7
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/tested-artifacts
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/package rpm
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package/*.rpm
+      - store_artifacts:
+          path: target/package/
+          destination: package/
+
+  test_centos_package:
+    docker:
+      - image: bzohdy/centos-sudo:latest
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: buildutils/test-install-package-centos
+
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - script_tests
+      - lein_tests
+      - package_ubuntu:
+          requires:
+            - lein_tests
+      - test_ubuntu_package:
+          requires:
+            - package_ubuntu
+      - package_centos:
+          requires:
+            - lein_tests
+      - test_centos_package:
+          requires:
+            - package_centos

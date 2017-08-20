@@ -31,24 +31,36 @@
 
 (def
   ^:private
+  version-comparators
+  {
+   "debian" vers/debian-vercmp
+   "maven" vers/debian-vercmp
+   "naive" vers/naive-vercmp
+   "python" vers/python-vercmp
+   "rpm" vers/rpm-vercmp
+   "rubygem" vers/rubygem-vercmp
+   "semver" vers/semver-vercmp
+   })
+
+(def
+  ^:private
   package-systems
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
-             :vercmp vers/debian-vercmp}
+             :version-comparison "debian"}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
-               :vercmp vers/maven-vercmp}})
-
-
+               :version-comparison "maven"}})
 
 (defn- generate-repo-index-cli!
   [options arguments]
   (let [{:keys [search-directory
                 index-file
+                version-comparison
                 add-to]} options]
     (degasolv-pkg/generate-repo-index!
       search-directory
       index-file
-      add-to)))
-
+      add-to
+      (get version-comparators version-comparison))))
 
 (defn- exit [status msg]
   (.println *err* msg)
@@ -56,16 +68,15 @@
 
 (defn- aggregate-repositories
   [index-strat
-   pkgsys
-   repositories]
-
+   repositories
+   genrepo
+   cmp]
   ((aggregator index-strat
-               (get-in package-systems [pkgsys :vercmp]))
+               cmp)
    (flatten
     (map
        (fn [url]
-         ((get-in package-systems [pkgsys :genrepo]) url)
-         )
+         (genrepo url))
        repositories))))
 
 (defn-
@@ -83,10 +94,14 @@
                resolve-strat
                conflict-strat
                index-strat
+               search-strat
                present-packages
                requirements
-               package-system]}
+               package-system
+               version-comparison]}
        options
+       version-comparator
+       (get version-comparators version-comparison)
        requirement-data
        (into []
              (map
@@ -104,32 +119,39 @@
                    (string-to-requirement vetted-str-req)))
                requirements))
        present-packages
-       (into {}
-             (map
-               (fn [str-pkg]
-                 (let [vetted-str-pkg
-                       (s/conform ::r/frozen-package-string str-pkg)]
-                   (when (= vetted-str-pkg ::s/invalid)
-                     (binding [*out* *err*]
-                       (println
-                         (str
-                           "Present package string `"
-                           str-pkg
-                           "` invalid:"
-                           (s/explain ::r/frozen-package-string str-pkg)))))
-                   (let [[id version] (string/split str-pkg #"==")]
-                     [id
-                      (->PackageInfo
-                        id
-                        version
-                        "already present"
-                        nil)]))))
-         (:present-packages options))
+       (reduce
+        (fn package-aggregate
+          [c [name pkg]]
+          (update-in c [name]
+                     conj
+                     pkg))
+        {}
+        (map
+         (fn [str-pkg]
+           (let [vetted-str-pkg
+                 (s/conform ::r/frozen-package-string str-pkg)]
+             (when (= vetted-str-pkg ::s/invalid)
+               (binding [*out* *err*]
+                 (println
+                  (str
+                   "Present package string `"
+                   str-pkg
+                   "` invalid:"
+                   (s/explain ::r/frozen-package-string str-pkg)))))
+             (let [[id version] (string/split str-pkg #"==")]
+               [id
+                (->PackageInfo
+                 id
+                 version
+                 "already present"
+                 nil)])))
+         (:present-packages options)))
        aggregate-repo
        (aggregate-repositories
          index-strat
-         package-system
-         repositories)
+         repositories
+         (get-in package-systems [package-system :genrepo])
+         version-comparator)
        result
        (resolve-dependencies
         requirement-data
@@ -137,7 +159,8 @@
         :present-packages present-packages
         :strategy (keyword resolve-strat)
         :conflict-strat (keyword conflict-strat)
-        :compare (get-in package-systems [package-system :vercmp])
+        :search-strat (keyword search-strat)
+        :compare version-comparator
         :allow-alternatives alternatives)]
     (case
       (first result)
@@ -178,17 +201,24 @@
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories query index-strat package-system]} options
+  (let [{:keys [repositories
+                query
+                index-strat
+                package-system
+                version-comparison]}
+        options
+        version-comparator
+        (get version-comparators version-comparison)
         aggregate-repo
         (aggregate-repositories
-          index-strat
-          package-system
-          repositories)
+         index-strat
+         repositories
+         (get-in package-systems [package-system :genrepo])
+         version-comparator)
         req (first (string-to-requirement query))
         {:keys [id spec]} req
         spec-call (make-spec-call
-                   (get-in package-systems
-                           [package-system :vercmp]))
+                   version-comparator)
         results (filter
                  #(spec-call spec %)
                  (aggregate-repo id))]
@@ -208,6 +238,7 @@
    :index-file "index.dsrepo"
    :alternatives true
    :conflict-strat "exclusive"
+   :search-strat "breadth-first"
    :resolve-strat "thorough"
    :index-strat "priority"
    :package-system "degasolv"
@@ -215,7 +246,8 @@
 
 (def subcommand-cli
   {"display-config"
-   {:description "Print the effective combined configuration (and arguments) of all the given config files."
+   {
+    :description "Print the effective combined configuration (and arguments) of all the given config files."
     :function display-config!
     }
    "generate-card"
@@ -225,15 +257,17 @@
     :required-arguments {:id ["-i" "--id"]
                          :version ["-v" "--version"]
                          :location ["-l" "--location"]}
-    :cli [["-i" "--id ID"
+    :cli [
+          ["-C" "--card-file FILE"
+           "The name of the card file"
+           :default nil
+           :default-desc (str (:card-file subcommand-option-defaults))
+           :validate [#(not (empty? %))
+                      "Out file must not be empty."]]
+          ["-i" "--id ID"
            "ID (name) of the package"
            :validate [#(not (empty? %))
                       "ID must be a non-empty string."]
-           :required true]
-          ["-v" "--version VERSION"
-           "Version of the package"
-           :validate [#(re-matches r/version-regex %)
-                      "Sorry, given argument doesn't look like a version."]
            :required true]
           ["-l" "--location LOCATION"
            "URL or filepath of the package"
@@ -247,23 +281,34 @@
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-C" "--card-file FILE"
-           (str "The name of the card file")
-
-           :validate [#(not (empty? %))
-                      "Out file must not be empty."]]]}
+          ["-v" "--version VERSION"
+           "Version of the package"
+           :validate [#(re-matches r/version-regex %)
+                      "Sorry, given argument doesn't look like a version."]
+           :required true]
+          ]}
    "generate-repo-index"
    {:description "Generate repository index based on degasolv package cards"
     :function generate-repo-index-cli!
-    :cli [["-d" "--search-directory DIR" "Find degasolv cards here"
+    :cli [["-a" "--add-to INDEX"
+           "Add to repo index INDEX"]
+          ["-d" "--search-directory DIR" "Find degasolv cards here"
+           :default nil
+           :default-desc (str (:search-directory subcommand-option-defaults))
            :validate [#(and
                         (fs/directory? %)
                         (fs/exists? %))
                       "Must be a directory which exists on the file system."]]
           ["-I" "--index-file FILE"
-           "The name of the repo file"]
-          ["-a" "--add-to INDEX"
-           "Add to repo index INDEX"]]}
+           "The name of the repo file"
+           :default nil
+           :default-desc (str (:index-file subcommand-option-defaults))]
+          ["-V" "--version-comparison CMP"
+           "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :default nil
+           :default-desc "maven"
+           :validate [#(some #{%} (keys version-comparators))
+                      "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]]}
 
    "resolve-locations"
    {:description "Print the locations of the packages which will resolve all given dependencies."
@@ -271,12 +316,21 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :requirements ["-r" "--requirement"]}
     :cli [
-          ["-a" "--enable-alternatives" "Consider all alternatives"
+          ["-a" "--enable-alternatives" "Consider all alternatives (default)"
            :assoc-fn (fn [m k v] (assoc m :alternatives true))]
           ["-A" "--disable-alternatives" "Consider only first alternatives"
            :assoc-fn (fn [m k v] (assoc m :alternatives false))]
+          ["-e" "--search-strat STRAT"
+           "May be 'breadth-first' or 'depth-first'."
+           :default nil
+           :default-desc (str (:search-strat subcommand-option-defaults))
+           :validate [#(or (= "breadth-first" %)
+                           (= "depth-first" %))
+                      "Search strategy must either be 'breadth-first' or 'depth-first'."]]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
+           :default nil
+           :default-desc (str (:conflict-strat subcommand-option-defaults))
            :validate [#(or (= "exclusive" %)
                            (= "inclusive" %)
                            (= "prioritized" %))
@@ -304,23 +358,37 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-s" "--resolve-strat STRAT"
            "May be 'fast' or 'thorough'."
+           :default nil
+           :default-desc (str (:resolve-strat subcommand-option-defaults))
            :validate [#(or (= "thorough" %) (= "fast" %))
                       "Resolve strategy must either be 'thorough' or 'fast'."]]
+
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
+           :default nil
+           :default-desc (str (:index-strat subcommand-option-defaults))
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
+           :default nil
+           :default-desc (str (:package-system subcommand-option-defaults))
            :validate [#(or (= "degasolv" %) (= "apt" %))
                       "Package system must be either 'degasolv' or 'apt'."]]
+          ["-V" "--version-comparison CMP"
+           "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :default nil
+           :default-desc "maven"
+           :validate [#(some #{%} (keys version-comparators))
+                      "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
           ]}
    "query-repo"
    {:description "Query repository for a particular package"
     :function query-repo!
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
-    :cli [["-q" "--query QUERY"
+    :cli [
+          ["-q" "--query QUERY"
            "Display packages matching query string."
            :validate [#(and (re-matches r/str-requirement-regex %)
                             (let [strreq (string-to-requirement %)]
@@ -334,12 +402,26 @@
            (fn [m k v] (update-in m [k] #(conj % v)))]
           ["-S" "--index-strat STRAT"
            "May be 'priority' or 'global'."
+           :default nil
+           :default-desc (str (:index-strat subcommand-option-defaults))
            :validate [#(or (= "priority" %) (= "global" %))
                       "Strategy must either be 'priority' or 'global'."]]
           ["-t" "--package-system SYS"
            "May be 'degasolv' or 'apt'."
+           :default nil
+           :default-desc (str (:package-system subcommand-option-defaults))
            :validate [#(or (= "degasolv" %) (= "apt" %))
-                      "Package system must be either 'degasolv' or 'apt'."]]]}})
+                      "Package system must be either 'degasolv' or 'apt'."]]
+          ["-V" "--version-comparison CMP"
+           "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
+           :default nil
+           :default-desc "maven"
+           :validate [#(some #{%} (keys version-comparators))
+                      "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
+          ]
+    }
+   }
+  )
 
 (defn command-list [commands]
   (->> ["Commands are:"
@@ -371,7 +453,7 @@
                display-command
                "-options>")
           ""
-          "Options are shown below, with their default values and"
+          "Options are shown below. Default values are marked as <DEFAULT> and"
           "  descriptions. Options marked with `**` may be"
           "  used more than once."
           ""
@@ -526,13 +608,14 @@
                                (filter #(not (nil? %)) it)
                                (apply concat it)
                                (map #(concat [nil] (subvec % 1)) it)
-                               (map #(do [(first %) %]) it)
+                               (map #(do [(second %) %]) it)
                                (into {} it)
                                (vals it)
                                (assoc
                                 (get subcommand-cli subcommand)
                                 :cli
-                                it)))]
+                                it)
+                               it))]
       (when (nil? subcmd-cli)
         (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments errors summary]}
@@ -566,7 +649,7 @@
                 (:config-files global-options))
               config
               (get-config config-files)
-              cli-option-packs (:option-packs options)
+              cli-option-packs (:option-packs global-options)
               selected-option-packs
               (if (empty? cli-option-packs)
                 (into [] (:option-packs config))
@@ -577,9 +660,19 @@
                (mapv available-option-packs it)
                (into [subcommand-option-defaults] it)
                (conj it (dissoc config :option-packs))
-               (conj it options)
+               (conj it (into {}
+                              (filter
+                               #(not (nil? (second %)))
+                               (seq options))))
                (reduce merge (hash-map) it)
-               )
+               (if (not (:version-comparison it))
+                 (assoc
+                  it
+                  :version-comparison
+                  (as-> (:package-system it) x
+                    (get package-systems x)
+                    (get x :version-comparison)))
+                 it))
               required-keys (set (keys (:required-arguments subcmd-cli)))
               present-keys (set (keys effective-options))]
           (when (not (st/subset? required-keys present-keys))

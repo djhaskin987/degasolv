@@ -1,4 +1,4 @@
-(ns degasolv.resolve-data-spec-test
+(ns degasolv.resolver.data-spec-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -8,7 +8,7 @@
             PackageInfo
             Requirement]))
 
-(deftest ^:resolve-data-spec tutorial-test
+(deftest ^:unit-tests tutorial-test
   (let [repo-info
         {
          "b"
@@ -112,7 +112,55 @@
                     [:unsuccessful u]
                     :unsuccessful))))))
 
-(deftest ^:resolve-data-spec data-spec-cases
+(deftest ^:unit-tests range-spec-cases
+  (let [b3
+        {
+         :id "b"
+         :version "3.0.0"
+         :location "http://example.com/repo/b-3.0.0.zip"
+         }
+        b35
+        {
+         :id "b"
+         :version "3.5.0"
+         :location "http://example.com/repo/b-3.5.0.zip"
+         }
+        b4
+        {
+         :id "b"
+         :version "4.0.0"
+         :location "http://example.com/repo/b-4.0.0.zip"
+         }
+        repo-info-asc {"b" [b3 b35 b4]}
+        query-asc (map-query repo-info-asc)
+        repo-info-desc {"b" [b4 b35 b3]}
+        query-desc (map-query repo-info-desc)]
+    (testing "range start inclusive"
+      (is (.equals [:successful #{b3}]
+             (resolve-dependencies
+              [[{:status :present
+                 :id "b"
+                 :spec [[{:relation :in-range :version "3.x"}]]}]]
+              query-asc
+              :compare cmp))))
+    (testing "range end exclusive"
+      (is (.equals [:successful #{b35}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b"
+                       :spec [[{:relation :in-range :version "3.x"}]]}]]
+                    query-desc
+                    :compare cmp))))
+    (testing "sub range"
+      (is (.equals [:successful #{b35}]
+             (resolve-dependencies
+              [[{:status :present
+                 :id "b"
+                 :spec [[{:relation :in-range :version "3.5.x"}]]}]]
+              query-asc
+              :compare cmp))))))
+
+(deftest ^:unit-tests data-spec-cases
   (let [b1
         {
          :id "b"
@@ -181,6 +229,41 @@
                          {:relation :not-equal :version "2.0.0"}]]}]]
               query-desc
               :compare cmp))))
+    (testing "ranges spec case 1"
+      (is (.equals [:successful #{b1}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :in-range :version "01"}]]}]]
+                    query-desc
+                    :compare cmp))))
+    (testing "ranges spec case 2"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :in-range :version "2.003"}]]}]]
+                    query-asc
+                    :compare cmp))))
+    (testing "ranges spec case 3"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :in-range :version "2.3.x"}]]}]]
+                    query-asc
+                    :compare cmp))))
+    (testing "regex case"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :matches :version "^[0-9][.][0-9][.][0-9]"}]]}]]
+                    query-desc
+                    :compare cmp))))
+    (testing "bad regex case"
+      (let [result (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :matches :version "^["}]]}]]
+                    query-desc
+                    :compare cmp)]
+        (is (= :unsuccessful (first result)))))
     (testing "dual ranges spec cases"
       (is (.equals [:successful #{b23}]
              (resolve-dependencies
@@ -198,4 +281,3 @@
                         [{:relation :less-than :version "1.7.0"}]]}]]
               query-asc
               :compare cmp))))))
-

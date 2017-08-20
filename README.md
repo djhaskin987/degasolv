@@ -1,5 +1,9 @@
 ![Degasolv Logo](https://github.com/djhaskin987/degasolv/raw/develop/Degasolv.png)
 
+[ ![Download for Ubuntu](https://api.bintray.com/packages/degasolv/ubuntu/degasolv/images/download.svg) ](https://bintray.com/degasolv/ubuntu/degasolv/_latestVersion)
+
+[ ![Download for CentOS](https://api.bintray.com/packages/degasolv/centos/degasolv/images/download.svg) ](https://bintray.com/degasolv/centos/degasolv/_latestVersion)
+
 Degasolv
 ========
 

@@ -18,6 +18,8 @@
 /.nrepl-history
 /test-data/
 /test/resources/data/grill/
+/test/resources/data/test-search-strat/
+/test/resources/data/test-version-comparison/
 /test/resources/test-data/
 /buildutils/boot
 /*.dscard
@@ -28,12 +30,14 @@ pom.xml
 pom.xml.asc
 *.jar
 *.class
+*.deb
+*.rpm
 /.lein-*
 /.nrepl-port
 .hgignore
 .hg/
 /.ve/
-foo.edn
+build.xml
 
 *.zip
 cmake/

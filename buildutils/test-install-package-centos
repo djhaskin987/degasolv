@@ -1,0 +1,12 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -exuo
+
+. target/manifest
+
+find /tmp
+java -version
+sudo yum install -y /tmp/workspace/target/package/*.rpm
+rpm -qi degasolv
+rpm -q --list degasolv
+degasolv --help

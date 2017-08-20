@@ -1,4 +1,4 @@
-(ns degasolv.resolve-interesting-cases-test
+(ns degasolv.resolver.interesting-cases-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -8,7 +8,7 @@
             PackageInfo
             Requirement]))
 
-(deftest ^:resolve-interesting-cases managed-dependencies-case
+(deftest ^:unit-tests managed-dependencies-case
   (let [a1
         {
          :id "a"
@@ -59,7 +59,7 @@
               query-asc
               :compare cmp))))))
 
-(deftest ^:resolve-interesting-cases implied-dependencies-case
+(deftest ^:unit-tests implied-dependencies-case
   (let [a1
         {
          :id "a"

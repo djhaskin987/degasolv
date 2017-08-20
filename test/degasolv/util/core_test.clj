@@ -1,8 +1,8 @@
-(ns degasolv.util-test
+(ns degasolv.util.core_test
   (:require [clojure.test :refer :all]
             [degasolv.util :refer :all]))
 
-(deftest ^:util assoc-conj-basic
+(deftest ^:unit-tests assoc-conj-basic
   (testing "Add to a blank map"
     (is (.equals {:a [1]}
            (assoc-conj {} :a 1))))

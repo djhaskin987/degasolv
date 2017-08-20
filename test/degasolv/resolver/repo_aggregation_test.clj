@@ -1,10 +1,10 @@
-(ns degasolv.resolve-repo-aggregation-test
+(ns degasolv.resolver.repo-aggregation-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [serovers.core :refer [maven-vercmp]
              :rename {maven-vercmp cmp}]))
 
-(deftest ^:repo-aggregation priority-repo-test
+(deftest ^:unit-tests priority-repo-test
   "Testing that priority-repo works"
   (testing "Empty case"
     (is (.equals []
@@ -28,7 +28,7 @@
                                              {:id "a" :version 30 :location "loc_a30"}]})])
             "a")))))
 
-(deftest ^:repo-aggregation global-repo-test
+(deftest ^:unit-tests global-repo-test
   "Testing that priority-repo works"
   (testing "Empty case"
     (is (.equals []

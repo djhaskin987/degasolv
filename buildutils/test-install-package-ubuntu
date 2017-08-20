@@ -1,0 +1,14 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -exuo
+
+. target/manifest
+
+find /tmp
+java -version
+sudo apt-get update
+sudo dpkg -i /tmp/workspace/target/package/*.deb || :
+sudo apt-get install -y -f
+dpkg-query -l degasolv
+dpkg-query -L degasolv
+degasolv --help

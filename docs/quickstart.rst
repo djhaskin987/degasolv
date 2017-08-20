@@ -1,26 +1,5 @@
-Introduction
-============
-
-Code
-----
-
-Degasolv lives out on `Github`_.
-
-.. _Github: https://github.com/djhaskin987/degasolv
-
-Download & Run
---------------
-
-Degasolv comes in the form of a ``.jar`` file, `downloadable from GitHub`_.
-
-To use it, you need java installed. Degasolv can be run like this::
-
-  java -jar ./degasolv-<version>-standalone.jar
-
-.. _downloadable from GitHub: https://github.com/djhaskin987/degasolv/releases
-
 Quickstart
-----------
+==========
 
 This quickstart is meant to be illustrative. For ideas on how to use degasolv in real life,
 have a look at :ref:`A Longer Example`.
@@ -76,28 +55,3 @@ have a look at :ref:`A Longer Example`.
 To see the help page, call degasolv or any of its subcommands with the
 ``-h`` option. If this is your first time using degasolv, it's
 recommended that you read :ref:`A Longer Example`.
-
-Support & Problems
-------------------
-
-If you have a hard time using degasolv to resolve dependencies within
-builds, it is a bug! Please do not hesitate to let the authors know
-via `GitHub issue`_ :).
-
-.. _Github issue: https://github.com/djhaskin987/degasolv/issues
-
-You can also talk to us using `Gitter`_ or the `Google Group "degasolv-users"`_.
-
-.. _Gitter: https://gitter.im/degasolv/Lobby
-
-.. _Google Group "degasolv-users": https://groups.google.com/forum/#!forum/degasolv-users
-
-Contributions
--------------
-
-Please contribute to Degasolv! `Pull requests`_ are most welcome.
-
-.. _Pull requests: https://github.com/djhaskin987/degasolv/pulls
-
-
-

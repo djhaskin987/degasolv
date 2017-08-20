@@ -1,4 +1,4 @@
-(ns degasolv.resolve-disable-alternatives-test
+(ns degasolv.resolver.disable-alternatives-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -8,7 +8,7 @@
             PackageInfo
             Requirement]))
 
-(deftest ^:resolve-disable-alternatives tutorial-test
+(deftest ^:unit-tests tutorial-test
          (let [repo-info
                {
                 "a"

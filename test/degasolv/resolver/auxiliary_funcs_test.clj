@@ -1,4 +1,4 @@
-(ns degasolv.resolve-auxiliary-funcs-test
+(ns degasolv.resolver.auxiliary-funcs-test
   (:require [clojure.test :refer :all]
             [degasolv.resolver :refer :all]
             [clojure.core.match :refer [match]]
@@ -8,7 +8,7 @@
             PackageInfo
             Requirement]))
 
-(deftest cull-nothing-test
+(deftest ^:unit-tests cull-nothing-test
   (testing "cull nothing function - empty case"
     (is (= (#'degasolv.resolver/cull-nothing [])
            [])))
@@ -19,7 +19,7 @@
     (is (= (#'degasolv.resolver/cull-nothing [1 2 3])
         [1 2 3]))))
 
-(deftest cull-all-but-first-test
+(deftest ^:unit-tests cull-all-but-first-test
   (testing "cull all but first - empty case"
     (is (= [] (#'degasolv.resolver/cull-all-but-first []))))
   (testing "cull all but first - single case"
