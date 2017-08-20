@@ -17,7 +17,7 @@ jobs:
             done
   lein_tests:
     docker:
-      - image: naartjie/alpine-lein
+      - image: clojure:lein
     version: 2
     steps:
       - checkout
@@ -72,7 +72,6 @@ jobs:
       - checkout
       - run: cp -af /tmp/workspace/target ./
       - run: buildutils/test-install-package-ubuntu
-      - run: degasolv --help
 
   package_centos:
     docker:
