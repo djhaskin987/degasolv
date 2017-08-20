@@ -1,7 +1,0 @@
-{
- :id "b"
- :version "2"
- :requirements [[{:status :present
-                  :id "a"
-                  :spec [[{:relation :greater-than :version "1"}]]}]]
- }
