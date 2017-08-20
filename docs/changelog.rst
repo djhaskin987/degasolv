@@ -9,28 +9,25 @@ and this project adheres to `Semantic Versioning`_.
 .. _Semantic Versioning: http://semver.org/spec/v2.0.0.html
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
-`Unreleased`_
+`1.8.0`_
 -------------
+
 Added
 +++++
+- Distribution is now done via RPM and Debian package as well as JAR file
 - Added the ``--version-comparison`` option :ref:`resolve-locations
   <resolve-locations-options>` and :ref:`query-repo <query-repo-options>`,
   allowing the user to specify which version comparison algorithm is used.
-
 - Added the ``--search-strat`` option to :ref:`resolve-locations
   <resolve-locations-options>`, allowing users to select breadth first
   search or depth first search during resolution
-
 - Added the :ref:`matches <matches>` operator (``<>REGEX``) which
   matches a version against a regex
-
 - Added the :ref:`in-range <in-range>` operator (``=>V``) which
   matches a version against a certain range of indexes
-
 - Added the ability to specify ``--present-package`` multiple times using the
   same package name, but different versions. This is useful for when the
   ``:conflict-strat`` is set to ``inclusive``.
-
 - Added tests testing to make sure that unsuccessful runs generate the proper
   error messages.
 
@@ -38,6 +35,7 @@ Changed
 +++++++
 - Reorganized the unit tests.
 - Alphabetized the options for ``generate-card``.
+- Alphabetized the options for ``generate-repo-index``.
 
 Fixed
 +++++
