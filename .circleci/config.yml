@@ -72,6 +72,7 @@ jobs:
       - checkout
       - run: cp -af /tmp/workspace/target ./
       - run: buildutils/test-install-package-ubuntu
+      - run: degasolv --help
 
   package_centos:
     docker:

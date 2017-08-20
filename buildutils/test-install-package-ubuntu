@@ -11,4 +11,4 @@ sudo dpkg -i /tmp/workspace/target/package/*.deb || :
 sudo apt-get install -y -f
 dpkg-query -l degasolv
 dpkg-query -L degasolv
-degasolv --help
+#degasolv --help
