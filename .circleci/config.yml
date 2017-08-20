@@ -2,7 +2,7 @@ version: 2
 jobs:
   script_tests:
     docker:
-      - image: pandeiro:lein
+      - image: clojure:lein
     version: 2
     steps:
       - checkout
@@ -17,7 +17,7 @@ jobs:
             done
   lein_tests:
     docker:
-      - image: clojure:lein
+      - image: naartjie/alpine-lein
     version: 2
     steps:
       - checkout
