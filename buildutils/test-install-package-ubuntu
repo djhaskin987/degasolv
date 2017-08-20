@@ -7,7 +7,8 @@ set -exuo
 find /tmp
 find .
 sudo apt-get update
-sudo apt install -y /tmp/workspace/target/package/*.deb
+sudo dpkg -i /tmp/workspace/target/package/*.deb || :
+sudo apt-get install -y -f
 dpkg-query -l degasolv
 dpkg-query -L degasolv
 degasolv --help
