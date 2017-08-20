@@ -83,6 +83,10 @@ jobs:
       - checkout
       - run: cp -af /tmp/tested-artifacts/target ./
       - run: buildutils/package rpm
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package/*.rpm
       - store_artifacts:
           path: target/package/
           destination: package/
