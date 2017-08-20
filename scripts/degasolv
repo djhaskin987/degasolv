@@ -1,4 +1,4 @@
 #!/bin/sh
 export POSIXLY_CORRECT=1
 
-java -Xmx1G -jar /usr/lib/degasolv/degasolv.jar "${@}"
+java -jar /usr/lib/degasolv/degasolv.jar "${@}"
