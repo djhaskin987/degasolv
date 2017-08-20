@@ -8,14 +8,14 @@ Degasolv comes in the form of a ``.jar`` file, `downloadable from GitHub`_.
 
 As of version 1.8.0, it also comes in the form of an RPM or Debian package.
 
-To get the RPM, add the CentOS repository::
+To get the RPM, add the `CentOS bintray`_ repository::
 
   wget https://bintray.com/degasolv/centos/rpm -O bintray-degasolv-centos.repo
   sudo mv bintray-degasolv-centos.repo /etc/yum.repos.d/
   yum clean all
   yum makecache
 
-To get the debian package, add the Ubuntu repository::
+To get the debian package, add the `Ubuntu bintray`_ repository::
 
   echo "deb https://dl.bintray.com/degasolv/ubuntu stable main" | \
       sudo tee -a /etc/apt/sources.list.d/bintray-degasolv-ubuntu.list
@@ -29,6 +29,8 @@ Or, if you are using an OS package, it can be run simply like this::
   degasolv
 
 .. _downloadable from GitHub: https://github.com/djhaskin987/degasolv/releases
+.. _CentOS bintray: https://bintray.com/degasolv/centos/degasolv
+.. _Ubuntu bintray: https://bintray.com/degasolv/ubuntu/degasolv
 
 Code
 ----
