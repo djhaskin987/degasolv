@@ -6,7 +6,8 @@ Degasolv
 .. toctree::
 
    Why Degasolv? <why-degasolv>
-   Introduction <introduction>
+   Get Degasolv <get-degasolv>
+   Quickstart <quickstart>
    A Longer Example <longer-example>
    Command Reference <command-reference>
    Changelog <changelog>

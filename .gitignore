@@ -30,6 +30,8 @@ pom.xml
 pom.xml.asc
 *.jar
 *.class
+*.deb
+*.rpm
 /.lein-*
 /.nrepl-port
 .hgignore
