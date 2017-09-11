@@ -13,7 +13,8 @@
    :less-equal "<="
    :less-than "<"
    :matches "<>"
-   :in-range "=>"})
+   :in-range "=>"
+   :pess-greater "><"})
 
 (defrecord VersionPredicate [relation version]
   Object
@@ -98,7 +99,8 @@
       (re-matches pattern pkg-ver)
       false)
     (let [cmp-result (cmp pkg-ver version)]
-      (if (= relation
+      (cond
+        (= relation
              :in-range)
         (if-let [[_ rest re-num _] (re-find #"^(.*?)(\d+)(\D*)$" version)]
           (let [num (java.lang.Integer/parseInt re-num)
@@ -107,6 +109,16 @@
             (and (>= cmp-result 0)
                (< higher-result 0)))
           false)
+        (= relation
+           :pess-greater)
+        (if-let [[_ rest re-num _] (re-find #"^(\D*)(\d+)(.*)$" version)]
+          (let [num (java.lang.Integer/parseInt re-num)
+                higher-version (str rest (inc num))
+                higher-result (cmp pkg-ver higher-version)]
+            (and (>= cmp-result 0)
+               (< higher-result 0)))
+          false)
+        :else
         (case relation
           :greater-than
           (pos? cmp-result)

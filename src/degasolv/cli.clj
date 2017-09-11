@@ -13,8 +13,7 @@
    [me.raynes.fs :as fs]
    [miner.tagged :as tag]
    [serovers.core :as vers]
-   [tupelo.core :as t]
-   )
+   [tupelo.core :as t])
   (:gen-class))
 
 (defn aggregator

@@ -52,7 +52,7 @@
                          (map
                           (fn [rough]
                             (let [[_ cse version]
-                                  (re-find #"(<>|=>|<|<=|!=|==|>=|>)([^<>=!].*)$" rough)]
+                                  (re-find #"(<>|><|=>|<|<=|!=|==|>=|>)([^<>=!].*)$" rough)]
                               (->VersionPredicate
                                 (case cse
                                   "<" :less-than
@@ -62,6 +62,7 @@
                                   ">=" :greater-equal
                                   ">" :greater-than
                                   "=>" :in-range
+                                  "><" :pess-greater
                                   "<>" :matches)
                                 version)))
                           (clj-str/split t #","))))

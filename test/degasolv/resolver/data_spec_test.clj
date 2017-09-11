@@ -179,11 +179,17 @@
          :version "2.0.0"
          :location "http://example.com/repo/b-2.0.0.zip"
          }
-        repo-info-mixed {"b" [b1 b23 b20]}
+        b31
+        {
+         :id "b"
+         :version "3.1.0"
+         :location "http://example.com/repo/b-3.1.0.zip"
+         }
+        repo-info-mixed {"b" [b1 b23 b20 b31]}
         query-mixed (map-query repo-info-mixed)
-        repo-info-desc {"b" [b23 b20 b1]}
+        repo-info-desc {"b" [b31 b23 b20 b1]}
         query-desc (map-query repo-info-desc)
-        repo-info-asc {"b" [b1 b20 b23]}
+        repo-info-asc {"b" [b1 b20 b23 b31]}
         query-asc (map-query repo-info-asc)]
     (testing "greater-than data spec case"
       (is (.equals [:successful #{b23}]
@@ -225,7 +231,8 @@
              (resolve-dependencies
               [[{:status :present
                  :id "b"
-                 :spec [[{:relation :not-equal :version "2.3.0"}
+                 :spec [[{:relation :not-equal :version "3.1.0"}
+                         {:relation :not-equal :version "2.3.0"}
                          {:relation :not-equal :version "2.0.0"}]]}]]
               query-desc
               :compare cmp))))
@@ -250,8 +257,36 @@
                        :id "b" :spec [[{:relation :in-range :version "2.3.x"}]]}]]
                     query-asc
                     :compare cmp))))
-    (testing "regex case"
+    (testing "pessimistic greater spec case 1"
+      (is (.equals [:successful #{b1}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :pess-greater :version "1.0.0"}]]}]]
+                    query-desc
+                    :compare cmp))))
+    (testing "pessimistic greater spec case 2"
+      (is (.equals [:successful #{b20}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :pess-greater :version "2"}]]}]]
+                    query-asc
+                    :compare cmp))))
+    (testing "pessimistic greater spec case 3"
       (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :pess-greater :version "2.3.0"}]]}]]
+                    query-asc
+                    :compare cmp))))
+    (testing "pessimistic greater spec case 4"
+      (is (.equals [:successful #{b31}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :pess-greater :version "3.0.0"}]]}]]
+                    query-asc
+                    :compare cmp))))
+    (testing "regex case"
+      (is (.equals [:successful #{b31}]
                    (resolve-dependencies
                     [[{:status :present
                        :id "b" :spec [[{:relation :matches :version "^[0-9][.][0-9][.][0-9]"}]]}]]
@@ -265,7 +300,7 @@
                     :compare cmp)]
         (is (= :unsuccessful (first result)))))
     (testing "dual ranges spec cases"
-      (is (.equals [:successful #{b23}]
+      (is (.equals [:successful #{b31}]
              (resolve-dependencies
               [[{:status :present
                  :id "b"
