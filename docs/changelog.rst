@@ -14,6 +14,7 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+- Added the :ref:`pessimistic greater-than <pess-greater>` comparison operator ``><``.
 
 Changed
 +++++++

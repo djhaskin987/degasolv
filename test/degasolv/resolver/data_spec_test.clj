@@ -285,6 +285,13 @@
                        :id "b" :spec [[{:relation :pess-greater :version "3.0.0"}]]}]]
                     query-asc
                     :compare cmp))))
+    (testing "pessimistic greater spec case 5"
+      (is (.equals [:successful #{b23}]
+                   (resolve-dependencies
+                    [[{:status :present
+                       :id "b" :spec [[{:relation :pess-greater :version "2.0.1-alpha0"}]]}]]
+                    query-asc
+                    :compare cmp))))
     (testing "regex case"
       (is (.equals [:successful #{b31}]
                    (resolve-dependencies

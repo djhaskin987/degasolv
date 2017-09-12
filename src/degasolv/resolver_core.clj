@@ -118,14 +118,10 @@
                 nums (clj-str/split version #"\D+")
                 strnum (first nums)
                 intnum (java.lang.Integer/parseInt strnum)
-                higher-result (as-> nums it
-                                 (rest it)
-                                 (count it)
-                                 (repeat it "0")
-                                 (conj it (str (inc intnum)))
-                                 (interleave non-nums it)
-                                 (apply str it)
-                                 (cmp pkg-ver it))]
+                higher-result (as-> intnum it
+                                (inc it)
+                                (str (first non-nums) it)
+                                (cmp pkg-ver it))]
             (and (>= cmp-result 0)
                  (< higher-result 0))))
         :else

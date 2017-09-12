@@ -891,6 +891,7 @@ This is interpreted as::
 
 .. _matches:
 .. _in-range:
+.. _pess-greater:
 
 Comparison Operators
 ++++++++++++++++++++
@@ -944,33 +945,26 @@ provided:
         original ``RANGE`` string, but less than the incremented
         version string as computed in the previous step, are
         considered for dependency resolution.
-  
+
   * The "pessimistic greater-than" operator: ``><``. This operator is given in
     a version spec as ``><VERS``. The version of any package found during the
     resolution process must be greater or equal to the given version but less
     than the next major version. Examples:
 
       * The expression ``><3.2.1`` matches the versions ``3.2.1``, ``3.4.3``
-        but not ``4.0`` or higher, nor does it match ``3.2.0``.
+        but not ``4.0.0`` or higher, nor does it match ``3.2.0``.
       * The expression ``><3.3.3`` matches the versions ``3.3.3``, ``3.3.8``
         and ``3.9.8`` but not ``4.0.0``.
 
     "The next major version" is calculated similarly to how ranges are
     calculated:
 
-      * Any non-digit characters found *after the first set of non-digit
-        characters* in the ``VERS`` string are removed.
-
-      * The first found set of digit characters found in the ``VERS`` string
-        are converted into a number and incremented. The incremented number
-        is then put back into the version string, replacing any digit
-        characters that were at the same position in the version string
-        before. So,
-        ``3.3.4`` becomes ``4``, ``3.2`` becomes ``4``, and ``2or4``
-        becomes ``3``.
-
-      * Finally, any versions comparing greater than or equal to the
-        original ``VERS`` string, but less than the incremented
+      * The first found set of digit characters found in the ``VERS``
+        string are converted into a number and incremented. The
+        remainder of the version string after the incremented number
+        is discarded.
+      * Any versions comparing greater than or equal to the
+        original ``VERS`` string, but less this new "incremented"
         version string as computed in the previous step, are
         considered for dependency resolution.
 
@@ -987,6 +981,10 @@ interpretations:
 +------------------------------+----------------------------------------------+
 | ``"pine>1.0"``               | Find package ``pine`` of version newer than  |
 |                              | ``1.0``                                      |
++------------------------------+----------------------------------------------+
+| ``"pine><3.4.1-alpha8"``     | Find package ``pine`` of version newer than  |
+|                              | or equal to ``3.4.1-alpha8`` but less than   |
+|                              | ``4``.                                       |
 +------------------------------+----------------------------------------------+
 | ``"fir<>\\d+\\.8"``          | Find package ``fir`` containing "<digits>.8" |
 |                              | somewhere in the version string              |
