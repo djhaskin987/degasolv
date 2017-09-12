@@ -111,13 +111,23 @@
           false)
         (= relation
            :pess-greater)
-        (if-let [[_ rest re-num _] (re-find #"^(\D*)(\d+)(.*)$" version)]
-          (let [num (java.lang.Integer/parseInt re-num)
-                higher-version (str rest (inc num))
-                higher-result (cmp pkg-ver higher-version)]
+        (if (not (re-find #"\d+" version))
+          false
+          (let [split-on-nums (clj-str/split version #"\d+")
+                non-nums (if (empty? split-on-nums) [""] split-on-nums)
+                nums (clj-str/split version #"\D+")
+                strnum (first nums)
+                intnum (java.lang.Integer/parseInt strnum)
+                higher-result (as-> nums it
+                                 (rest it)
+                                 (count it)
+                                 (repeat it "0")
+                                 (conj it (str (inc intnum)))
+                                 (interleave non-nums it)
+                                 (apply str it)
+                                 (cmp pkg-ver it))]
             (and (>= cmp-result 0)
-               (< higher-result 0)))
-          false)
+                 (< higher-result 0))))
         :else
         (case relation
           :greater-than

@@ -258,7 +258,7 @@
                     query-asc
                     :compare cmp))))
     (testing "pessimistic greater spec case 1"
-      (is (.equals [:successful #{b1}]
+      (is (= [:successful #{b1}]
                    (resolve-dependencies
                     [[{:status :present
                        :id "b" :spec [[{:relation :pess-greater :version "1.0.0"}]]}]]
