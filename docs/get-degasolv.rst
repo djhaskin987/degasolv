@@ -17,6 +17,8 @@ To get the RPM, add the `CentOS bintray`_ repository::
 
 To get the debian package, add the `Ubuntu bintray`_ repository::
 
+  curl -L https://bintray.com/user/downloadSubjectPublicKey?username=degasolv | \
+      apt-key add -
   echo "deb https://dl.bintray.com/degasolv/ubuntu stable main" | \
       sudo tee -a /etc/apt/sources.list.d/bintray-degasolv-ubuntu.list
 

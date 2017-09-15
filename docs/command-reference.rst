@@ -620,13 +620,13 @@ Explanation of options:
   configuration file, the indices in the configuration file are ignored. See
   `index strategy`_ for more information.
 
-  ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
-  supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv
-  will read standard input instead of any specific file or
-  URL. Possible use cases for this include downloading the index
-  repository first via some other tool (such as `cURL`_).  One reason
-  users might do this is if authentication is required to download the
-  index, as in this example::
+  ``INDEX`` may be a URL or a filepath pointing to a `*.dsrepo` file. For
+  example, index might be `http://example.com/repo/index.dsrepo`. Both HTTP and
+  HTTPS URLs are supported. If ``INDEX`` is ``-`` (the hyphen character),
+  degasolv will read standard input instead of any specific file or URL. Possible
+  use cases for this include downloading the index repository first via some
+  other tool (such as `cURL`_).  One reason users might do this is if
+  authentication is required to download the index, as in this example::
 
     curl --user username:password https://example.com/degasolv/index.dsrepo | \
         degasolv resolve-locations -R - "req"
