@@ -14,6 +14,18 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+
+Changed
++++++++
+
+Fixed
++++++
+
+`1.9.0`_
+--------
+
+Added
++++++
 - Added the :ref:`pessimistic greater-than <pess-greater>` comparison operator ``><``.
 
 Changed
@@ -95,6 +107,8 @@ Improved
 - Changed apt reop function from filtering a list to lookup in a map,
   increasing its speed
 
-.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.7.0...HEAD
+.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.9.0...HEAD
+.. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
+.. _1.8.0: https://github.com/djhaskin987/degasolv/compare/1.7.0...1.8.0
 .. _1.7.0: https://github.com/djhaskin987/degasolv/compare/1.6.0...1.7.0
 .. _1.6.0: https://github.com/djhaskin987/degasolv/compare/1.5.1...1.6.0
