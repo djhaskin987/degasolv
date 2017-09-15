@@ -525,9 +525,6 @@
     :id :config-files
     :default []
     :default-desc "./degasolv.edn"
-    :validate [#(and (fs/exists? %)
-                     (fs/file? %))
-               "Must be a regular file (which hopefully contains config info."]
     :assoc-fn
     (fn [m k v] (update-in m [k] #(conj % v)))]
    ["-k" "--option-pack PACK" "Specify option pack **"

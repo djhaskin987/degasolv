@@ -21,6 +21,8 @@ Changed
 
 Fixed
 +++++
+- Removed validation from the config file option, allowing it to be a URL or
+  anything else.
 
 `1.8.0`_
 --------
