@@ -24,6 +24,9 @@ Fixed
 - Removed validation from the config file option, allowing it to be a URL or
   anything else.
 
+- If no arguments are given, the help screen is now printed instead of a wierd
+  error.
+
 `1.8.0`_
 --------
 

@@ -564,6 +564,7 @@
                             configs)))))
       (hash-map))))
 
+
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
         (parse-opts args (concat
@@ -571,15 +572,17 @@
                           [["-h" "--help" "Print this help page"]])
                     :in-order true)]
     (cond
-      (:help options)
+      (or
+        (:help options)
+        (empty? arguments))
       (exit 0
             (str (usage summary)
                  (if (:required-arguments cli-options)
                    (str
-                    "\n\n"
-                    (required-args-msg
-                     (:required-arguments cli-options))
-                    "\n\n")
+                     "\n\n"
+                     (required-args-msg
+                       (:required-arguments cli-options))
+                     "\n\n")
                    "\n\n")
                  (command-list (keys subcommand-cli))
                  "\n\n"))
