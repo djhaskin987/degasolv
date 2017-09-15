@@ -9,8 +9,26 @@ and this project adheres to `Semantic Versioning`_.
 .. _Semantic Versioning: http://semver.org/spec/v2.0.0.html
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
-`1.8.0`_
+`Unreleased`_
 -------------
+
+Added
++++++
+- Added the :ref:`pessimistic greater-than <pess-greater>` comparison operator ``><``.
+
+Changed
++++++++
+
+Fixed
++++++
+- Removed validation from the config file option, allowing it to be a URL or
+  anything else.
+
+- If no arguments are given, the help screen is now printed instead of a wierd
+  error.
+
+`1.8.0`_
+--------
 
 Added
 +++++

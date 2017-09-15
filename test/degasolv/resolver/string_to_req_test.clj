@@ -55,6 +55,12 @@
              "a"
              [[(->VersionPredicate :matches
                                    "f[ea]{2}ture")]])))))
+  (testing "Pessimistically greater cases"
+    (is (= [(present
+             "a"
+             [[(->VersionPredicate :pess-greater
+                                   "3.2.1")]])]
+           (string-to-requirement "a><3.2.1"))))
   (testing "Range cases"
     (is (= [(present
              "a"

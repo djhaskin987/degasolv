@@ -277,7 +277,7 @@ Explanation of options:
 
 - ``-v VERSION``, ``--version VERSION``, ``:version "VERSION"``:
   **Required**. Specify the name of the package described in the card
-  file. Version comparison is done via `version-clj`_.
+  file.
 
 - ``-l LOCATION``, ``--location LOCATION``, ``:location "LOCATION"``:
   **Required**. Specify the location of the file associated with the
@@ -891,6 +891,7 @@ This is interpreted as::
 
 .. _matches:
 .. _in-range:
+.. _pess-greater:
 
 Comparison Operators
 ++++++++++++++++++++
@@ -899,12 +900,12 @@ Each version predicate is composed of a comparison operator and a valid version
 against which to compare a package's fversion. The character sequences ``<``,
 ``<=``, ``!=``, ``==``, ``>=``, and ``>`` represent the comparisons "older
 than", "older than or equal to", "not equal to", "equal to", "newer than or
-equal to", and "newer than", respectively. In the current implementation,
-versions are compared using `version-clj`_ rules.
+equal to", and "newer than", respectively, using whatever version comparison
+algorithm was specified using the CLI, or using the maven version comparison
+algorithm by default.
 
 In addition to the above operators, two other version spec operators are
 provided:
-
 
   * The "matches" operator: ``<>``. This operator is given in a version spec
     as ``<>REGEX``. The version of any package found during the resolution
@@ -945,7 +946,27 @@ provided:
         version string as computed in the previous step, are
         considered for dependency resolution.
 
-.. _version-clj: https://github.com/xsc/version-clj#version-comparison
+  * The "pessimistic greater-than" operator: ``><``. This operator is given in
+    a version spec as ``><VERS``. The version of any package found during the
+    resolution process must be greater or equal to the given version but less
+    than the next major version. Examples:
+
+      * The expression ``><3.2.1`` matches the versions ``3.2.1``, ``3.4.3``
+        but not ``4.0.0`` or higher, nor does it match ``3.2.0``.
+      * The expression ``><3.3.3`` matches the versions ``3.3.3``, ``3.3.8``
+        and ``3.9.8`` but not ``4.0.0``.
+
+    "The next major version" is calculated similarly to how ranges are
+    calculated:
+
+      * The first found set of digit characters found in the ``VERS``
+        string are converted into a number and incremented. The
+        remainder of the version string after the incremented number
+        is discarded.
+      * Any versions comparing greater than or equal to the
+        original ``VERS`` string, but less this new "incremented"
+        version string as computed in the previous step, are
+        considered for dependency resolution.
 
 Examples
 ++++++++
@@ -960,6 +981,10 @@ interpretations:
 +------------------------------+----------------------------------------------+
 | ``"pine>1.0"``               | Find package ``pine`` of version newer than  |
 |                              | ``1.0``                                      |
++------------------------------+----------------------------------------------+
+| ``"pine><3.4.1-alpha8"``     | Find package ``pine`` of version newer than  |
+|                              | or equal to ``3.4.1-alpha8`` but less than   |
+|                              | ``4``.                                       |
 +------------------------------+----------------------------------------------+
 | ``"fir<>\\d+\\.8"``          | Find package ``fir`` containing "<digits>.8" |
 |                              | somewhere in the version string              |
