@@ -897,7 +897,7 @@ Comparison Operators
 ++++++++++++++++++++
 
 Each version predicate is composed of a comparison operator and a valid version
-against which to compare a package's fversion. The character sequences ``<``,
+against which to compare a package's version. The character sequences ``<``,
 ``<=``, ``!=``, ``==``, ``>=``, and ``>`` represent the comparisons "older
 than", "older than or equal to", "not equal to", "equal to", "newer than or
 equal to", and "newer than", respectively, using whatever version comparison
