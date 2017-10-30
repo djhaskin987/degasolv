@@ -41,7 +41,7 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --output-format json \
-    --requirement "a<=1.0.0" | jq .
+    --requirement "a<=1.0.0" 
 if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
