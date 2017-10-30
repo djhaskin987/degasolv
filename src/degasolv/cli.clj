@@ -183,7 +183,7 @@
           "plain"
           (string/join
             \newline
-            (:packages result-info))
+            (map explain-package (:packages result-info)))
           (throw (ex-info "This shouldn't happen"
                           {:subcommand "resolve-locations"
                            :output-format output-format}))))
