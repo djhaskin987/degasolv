@@ -9,19 +9,27 @@ and this project adheres to `Semantic Versioning`_.
 .. _Semantic Versioning: http://semver.org/spec/v2.0.0.html
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
+
 `Unreleased`_
 -------------
 
 Added
 +++++
-- Added the ``--output-format`` option to :ref:`resolve-locations
-  <resolve-locations-options>` 
 
 Changed
 +++++++
 
 Fixed
 +++++
+
+
+`1.10.0`_
+-------------
+
+Added
++++++
+- Added the ``--output-format`` option to :ref:`resolve-locations
+  <resolve-locations-options>` 
 
 `1.9.0`_
 --------
@@ -109,7 +117,8 @@ Improved
 - Changed apt reop function from filtering a list to lookup in a map,
   increasing its speed
 
-.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.9.0...HEAD
+.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.10.0...HEAD
+.. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
 .. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
 .. _1.8.0: https://github.com/djhaskin987/degasolv/compare/1.7.0...1.8.0
 .. _1.7.0: https://github.com/djhaskin987/degasolv/compare/1.6.0...1.7.0
