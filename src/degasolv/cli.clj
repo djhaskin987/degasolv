@@ -331,12 +331,6 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :requirements ["-r" "--requirement"]}
     :cli [
-          ["-o" "--output-format FORMAT" "May be 'plain' or 'json'"
-           :default nil
-           :default-desc (str (:output-format subcommand-option-defaults))
-           :validate [#(or (= "plain" %)
-                           (= "json" %))
-                      "Output format may be either 'plain' or 'json'"]]
           ["-a" "--enable-alternatives" "Consider all alternatives (default)"
            :assoc-fn (fn [m k v] (assoc m :alternatives true))]
           ["-A" "--disable-alternatives" "Consider only first alternatives"
@@ -356,6 +350,12 @@
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
+          ["-o" "--output-format FORMAT" "May be 'plain' or 'json'"
+           :default nil
+           :default-desc (str (:output-format subcommand-option-defaults))
+           :validate [#(or (= "plain" %)
+                           (= "json" %))
+                      "Output format may be either 'plain' or 'json'"]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
            :id :present-packages
