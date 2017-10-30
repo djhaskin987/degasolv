@@ -1,4 +1,4 @@
-(defproject degasolv/degasolv "1.9.0"
+(defproject degasolv/degasolv "1.10.0"
   :description "Dependency tracker with an eye toward building and shipping software."
   :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
@@ -11,6 +11,7 @@
                  [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]
                  [tupelo "0.9.31"]
+                 [org.clojure/data.json "0.2.6"]
                  ]
   :plugins [[lein-print "0.1.0"]]
 ;;  :source-paths ["src/degasolv"]

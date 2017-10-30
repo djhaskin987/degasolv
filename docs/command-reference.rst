@@ -407,46 +407,36 @@ CLI for ``resolve-locations``
 Running ``java -jar degasolv-<version>-standalone.jar resolve-locations -h``
 returns a page that looks something like this::
 
-  Usage: degasolv <options> resolve-locations <resolve-locations-options>
+    Usage: degasolv <options> resolve-locations <resolve-locations-options>
 
-  Options are shown below. Default values are marked as <DEFAULT> and
-    descriptions. Options marked with `**` may be
-    used more than once.
+    Options are shown below. Default values are marked as <DEFAULT> and
+      descriptions. Options marked with `**` may be
+      used more than once.
 
-    -a, --enable-alternatives                    Consider all alternatives (default)
-    -A, --disable-alternatives                   Consider only first alternatives
-    -e, --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
-    -f, --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
-    -p, --present-package PKG                    Hard present package. **
-    -r, --requirement REQ                        Resolve req. **
-    -R, --repository INDEX                       Search INDEX for packages. **
-    -s, --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
-    -S, --index-strat STRAT       priority       May be 'priority' or 'global'.
-    -t, --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
-    -V, --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
-    -h, --help                                   Print this help page
+      -a, --enable-alternatives                    Consider all alternatives (default)
+      -A, --disable-alternatives                   Consider only first alternatives
+      -e, --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
+      -f, --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+      -o, --output-format FORMAT    plain          May be 'plain' or 'json'
+      -p, --present-package PKG                    Hard present package. **
+      -r, --requirement REQ                        Resolve req. **
+      -R, --repository INDEX                       Search INDEX for packages. **
+      -s, --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
+      -S, --index-strat STRAT       priority       May be 'priority' or 'global'.
+      -t, --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
+      -V, --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+      -h, --help                                   Print this help page
 
-  The following options are required for subcommand `resolve-locations`:
+    The following options are required for subcommand `resolve-locations`:
 
-    - `-R`, `--repository`, or the config file key `:repositories`.
-    - `-r`, `--requirement`, or the config file key `:requirements`.
+      1. `-R`, `--repository`, or the config file key `:repositories`.
+      2. `-r`, `--requirement`, or the config file key `:requirements`.
 
 The ``resolve-locations`` command searches one or more repository index files,
 and uses the package information in them to attempt to resolve the requirements
 given at the command line. If successful, it exits with a return code of 0 and
 outputs the name of each package in the solution it has found, together with
 that package's location.
-
-Example output on a successful run::
-
-    c==3.5.0 @ https://example.com/repo/c-3.5.0.zip
-    d==0.8.0 @ https://example.com/repo/d-0.8.0.zip
-    e==1.8.0 @ https://example.com/repo/e-1.8.0.zip
-    b==2.3.0 @ https://example.com/repo/b-2.3.0.zip
-
-In the above example out, each line takes the form::
-
-    <id>==<version> @ <location>
 
 If the command fails, a non-zero exit code is returned. The output from such
 a run might look like this::
@@ -567,6 +557,58 @@ Explanation of options:
     easily and cleanly specified done by using the
     ``firstfound-version-mode`` `option pack`_.
 
+
+- ``-o FORMAT``, ``--output-format FORMAT``, ``:output-format "FORMAT"``:
+  Specify an output format. May be ``plain`` or ``json``. This output format
+  only takes effect when the package resolution was successful.
+
+  The default output format is ``plain``. It is a simple text format
+  that was designed for ease of use within bash scripts while also
+  being somewhat pleasant to look at.
+
+  Example output on a successful run when the format is set to ``plain``::
+
+    c==3.5.0 @ https://example.com/repo/c-3.5.0.zip
+    d==0.8.0 @ https://example.com/repo/d-0.8.0.zip
+    e==1.8.0 @ https://example.com/repo/e-1.8.0.zip
+    b==2.3.0 @ https://example.com/repo/b-2.3.0.zip
+
+  In the above example out, each line takes the form::
+
+    <id>==<version> @ <location>
+  
+  When the output format is JSON, the output would spit out a JSON
+  document containing lots of different keys and values representing
+  some of the internal state degasolv had when it resolved
+  the packages. Among those keys will be a key called "packages", and it will
+  look something like this::
+
+    {
+        ...,
+        "packages": [
+            {
+                "name": "c",
+                "version": "3.5.0",
+                "location": "https://example.com/repo/c-3.5.0.zip"
+            },
+            {
+                "name": "d",
+                "version": "0.8.0",
+                "location": "https://example.com/repo/d-0.8.0.zip"
+            },
+            {
+                "name": "e",
+                "version": "1.8.0",
+                "location:" "https://example.com/repo/e-1.8.0.zip"
+            },
+            {
+                "name": "b",
+                "version": "2.3.0",
+                "location:" "https://example.com/repo/b-2.3.0.zip"
+            }, ...
+        ], ...
+    }
+
 .. _present package:
 
 - ``-p PKG``, ``--present-package PKG``, ``:present-packages ["PKG1", ...]``:
@@ -620,13 +662,13 @@ Explanation of options:
   configuration file, the indices in the configuration file are ignored. See
   `index strategy`_ for more information.
 
-  ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
-  supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv
-  will read standard input instead of any specific file or
-  URL. Possible use cases for this include downloading the index
-  repository first via some other tool (such as `cURL`_).  One reason
-  users might do this is if authentication is required to download the
-  index, as in this example::
+  ``INDEX`` may be a URL or a filepath pointing to a `*.dsrepo` file. For
+  example, index might be `http://example.com/repo/index.dsrepo`. Both HTTP and
+  HTTPS URLs are supported. If ``INDEX`` is ``-`` (the hyphen character),
+  degasolv will read standard input instead of any specific file or URL. Possible
+  use cases for this include downloading the index repository first via some
+  other tool (such as `cURL`_).  One reason users might do this is if
+  authentication is required to download the index, as in this example::
 
     curl --user username:password https://example.com/degasolv/index.dsrepo | \
         degasolv resolve-locations -R - "req"
@@ -897,7 +939,7 @@ Comparison Operators
 ++++++++++++++++++++
 
 Each version predicate is composed of a comparison operator and a valid version
-against which to compare a package's fversion. The character sequences ``<``,
+against which to compare a package's version. The character sequences ``<``,
 ``<=``, ``!=``, ``==``, ``>=``, and ``>`` represent the comparisons "older
 than", "older than or equal to", "not equal to", "equal to", "newer than or
 equal to", and "newer than", respectively, using whatever version comparison

@@ -1,5 +1,6 @@
 (ns degasolv.cli
   (:require
+   [clojure.data.json :as json]
    [clojure.edn :as edn]
    [clojure.pprint :as pprint]
    [clojure.set :as st]
@@ -89,14 +90,15 @@
   [options arguments]
   (let
       [{:keys [alternatives
-               repositories
-               resolve-strat
                conflict-strat
                index-strat
-               search-strat
-               present-packages
-               requirements
+               output-format
                package-system
+               present-packages
+               repositories
+               requirements
+               resolve-strat
+               search-strat
                version-comparison]}
        options
        version-comparator
@@ -160,29 +162,42 @@
         :conflict-strat (keyword conflict-strat)
         :search-strat (keyword search-strat)
         :compare version-comparator
-        :allow-alternatives alternatives)]
-    (case
-      (first result)
-      :successful
-      (let [[_ packages] result]
-        (println (string/join
-                  \newline
-                  (map
-                    explain-package
-                    packages))))
-      :unsuccessful
-      (let [[_ info] result]
-        (exit 1
-              (string/join
-               \newline
-               (into
+        :allow-alternatives alternatives)
+       base-result-info
+       {
+        :command "degasolv"
+        :subcommand "resolve-locations"
+        :options options
+        :result (first result)
+        }
+       result-info
+       (if  (= (first result) :successful)
+         (into base-result-info
+               {:packages (second result)})
+         (into base-result-info (second result)))]
+    (if (= (first result) :successful)
+      (println
+        (case output-format
+          "json"
+          (json/write-str result-info)
+          "plain"
+          (string/join
+            \newline
+            (map explain-package (:packages result-info)))
+          (throw (ex-info "This shouldn't happen"
+                          {:subcommand "resolve-locations"
+                           :output-format output-format}))))
+      (exit 1
+            (string/join
+              \newline
+              (into
                 [""
                  ""
                  "Could not resolve dependencies."
                  ""
                  ""
                  "The resolver encountered the following problems: "]
-                (map r/explain-problem (:problems info)))))))))
+                (map r/explain-problem (:problems result-info))))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file]}
@@ -232,15 +247,16 @@
 
 (def subcommand-option-defaults
   {
-   :card-file "./out.dscard"
-   :search-directory "."
-   :index-file "index.dsrepo"
    :alternatives true
+   :card-file "./out.dscard"
    :conflict-strat "exclusive"
-   :search-strat "breadth-first"
-   :resolve-strat "thorough"
+   :index-file "index.dsrepo"
    :index-strat "priority"
+   :output-format "plain"
    :package-system "degasolv"
+   :resolve-strat "thorough"
+   :search-directory "."
+   :search-strat "breadth-first"
    })
 
 (def subcommand-cli
@@ -334,6 +350,12 @@
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
+          ["-o" "--output-format FORMAT" "May be 'plain' or 'json'"
+           :default nil
+           :default-desc (str (:output-format subcommand-option-defaults))
+           :validate [#(or (= "plain" %)
+                           (= "json" %))
+                      "Output format may be either 'plain' or 'json'"]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
            :id :present-packages

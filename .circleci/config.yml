@@ -64,7 +64,7 @@ jobs:
 
   test_ubuntu_package:
     docker:
-      - image: everve/ubuntu-docker-sudo:v1
+      - image: djhaskin987/test-ubuntu-installer:latest
     version: 2
     steps:
       - attach_workspace:
