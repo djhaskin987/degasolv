@@ -14,6 +14,8 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+- Added the ``--output-format`` option to :ref:`resolve-locations
+  <resolve-locations-options>` 
 
 Changed
 +++++++
