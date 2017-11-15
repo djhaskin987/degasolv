@@ -200,18 +200,20 @@
                 (map r/explain-problem (:problems result-info))))))))
 
 (defn- generate-card!
-  [{:keys [id version location requirements card-file]}
+  [{:keys [id version location requirements card-file meta]}
    arguments]
   (default-spit
    card-file
-   (->PackageInfo
+   (into
+    (->PackageInfo
     id
     version
     location
     (into []
           (map
            #(string-to-requirement %)
-           requirements)))))
+           requirements)))
+    meta)))
 
 (defn query-repo!
   [options arguments]
@@ -296,6 +298,14 @@
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
+          ["-m" "--meta K=V"
+           :validate [#(re-matches #"^[^=]+=[^=].*$" %)
+                      "Metadata must be presented as key=value pair."]
+           :id :meta
+           :assoc-fn
+           (fn [m k v]
+             (let [[_ rk rv] (re-find #"^([^=]+)=([^=].*)$" v)]
+               (update-in m [k] #(assoc % (keyword rk) rv))))]
           ["-v" "--version VERSION"
            "Version of the package"
            :validate [#(re-matches r/version-regex %)
@@ -585,7 +595,6 @@
                        (map #(str "  - " %)
                             configs)))))
       (hash-map))))
-
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
