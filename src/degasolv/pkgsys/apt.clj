@@ -31,13 +31,6 @@
             #(string-to-requirement %)
             it))))
 
-(defn start-pkg-segment?
-  [lines]
-  (t/truthy?
-    (re-matches
-      #"^Package:.*$"
-      (first lines))))
-
 (defn lines-to-map
   [lines]
   (t/it-> lines
@@ -85,24 +78,33 @@
 
 (defn expand-provides
   [pkg]
-  (let [new-package
-        (->PackageInfo
+  (let [restof-package
+        (dissoc
+          pkg
+          :version
+          :location
+          :depends)
+        new-package
+        (into
+         (->PackageInfo
           (string/replace
-            (:package pkg)
-            #"[:]any$"
-            "")
+           (:package pkg)
+           #"[:]any$"
+           "")
           (:version pkg)
           (:location pkg)
-          (:depends pkg))]
+          (:depends pkg))
+         restof-package)]
   (if (:provides pkg)
     (t/it->
       (deb-to-degasolv-provides (:provides pkg))
         (map
-        #(->PackageInfo
-           %
-           "0"
-           (:location pkg)
-           (:depends pkg))
+         #(into (->PackageInfo
+                 %
+                 "0"
+                 (:location pkg)
+                 (:depends pkg))
+                restof-package)
         it)
       (conj
         it
@@ -121,7 +123,7 @@
           pkg each
           (string/split-lines each)
           (filter
-            #(re-matches #"^(Provides|Version|Package|Depends|Filename):.*" %)
+            #(re-matches #"^(\p{Alnum}+):.*" %)
             each)
           (lines-to-map each)
           (convert-pkg-requirements each)
@@ -129,7 +131,6 @@
           (expand-provides each)))
       it)
     (apply concat it)
-
     ;; (fn query [id]
     ;;   (sort-by
     ;;     :version
@@ -138,7 +139,6 @@
     ;;     #(= id (:id %))
     ;;     it)))
     ;; (memoize it)))
-
    (reduce
      (fn conjv
        [c v]
