@@ -2,3 +2,6 @@
 - [ ] Docs: Add new logo
 - [ ] Docs: Add "Star me on GitHub"
 - [ ] Docs: Add "meta"
+- [ ] Add "show-version" command to degasolv, which displays manifest
+- [ ] Docs: "Show-version" command
+- [ ] Changelog: "Show-version" command
