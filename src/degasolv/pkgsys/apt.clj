@@ -128,7 +128,7 @@
           (lines-to-map each)
           (convert-pkg-requirements each)
           (add-pkg-location each url)
-          (expand-provides each)))
+          (expand-provides (persistent! each))))
       it)
     (apply concat it)
     ;; (fn query [id]

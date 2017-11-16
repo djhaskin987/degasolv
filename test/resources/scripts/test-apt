@@ -101,4 +101,5 @@ try_time java \
     --package-system apt \
     --present-package "libasound2==1.1.1" \
     --present-package "libpng12-0==1.2.13-4" \
-    --requirement "ubuntu-desktop"
+    --requirement "ubuntu-desktop" \
+    --output-format "json"

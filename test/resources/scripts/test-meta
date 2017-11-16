@@ -1,0 +1,27 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -x
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+test_home=test/resources/data/meta
+rm -rf ${test_home}
+mkdir -p ${test_home}
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+java \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     --card-file ${test_home}/out.dscard \
+     --id yer \
+     --location yerloc \
+     --requirement foo \
+     --meta sha256sum=goodcodegottaloadagooddealofdata \
+     --meta foo=bar \
+     --version 1.2.3
+
+cat ${test_home}/out.dscard | grep -q goodcode

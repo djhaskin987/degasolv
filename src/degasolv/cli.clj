@@ -179,7 +179,7 @@
       (println
         (case output-format
           "json"
-          (json/write-str result-info)
+          (json/write-str result-info :escape-slash false)
           "plain"
           (string/join
             \newline

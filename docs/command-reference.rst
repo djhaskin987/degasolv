@@ -238,6 +238,8 @@ subcommand. This enables the user to print out the effective
 configuration resulting from multiple config files as well
 as any options that might be given on the CLI.
 
+.. _generate-card-options:
+
 CLI for ``generate-card``
 -------------------------
 

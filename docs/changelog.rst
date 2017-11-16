@@ -15,6 +15,8 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+- Added the ``--meta`` option to :ref:`generate-card <generate-card-options>`
+- Added metadata a la ``--meta`` to the ``apt`` package system (experimental)
 
 Changed
 +++++++
