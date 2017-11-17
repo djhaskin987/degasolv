@@ -291,6 +291,15 @@
            :validate [#(not (empty? %))
                       "Location must be a non-empty string."]
            :required true]
+          ["-m" "--meta K=V"
+           "Add additional metadata"
+           :validate [#(re-matches #"^[^=]+=[^=].*$" %)
+                      "Metadata must be presented as <key>=<value> pair."]
+           :id :meta
+           :assoc-fn
+           (fn [m k v]
+             (let [[_ rk rv] (re-find #"^([^=]+)=([^=].*)$" v)]
+               (update-in m [k] #(assoc % (keyword rk) rv))))]
           ["-r" "--requirement REQ"
            "List requirement **"
            :validate [#(re-matches r/str-requirement-regex %)
@@ -298,14 +307,6 @@
            :id :requirements
            :assoc-fn
            (fn [m k v] (update-in m [k] #(conj % v)))]
-          ["-m" "--meta K=V"
-           :validate [#(re-matches #"^[^=]+=[^=].*$" %)
-                      "Metadata must be presented as key=value pair."]
-           :id :meta
-           :assoc-fn
-           (fn [m k v]
-             (let [[_ rk rv] (re-find #"^([^=]+)=([^=].*)$" v)]
-               (update-in m [k] #(assoc % (keyword rk) rv))))]
           ["-v" "--version VERSION"
            "Version of the package"
            :validate [#(re-matches r/version-regex %)

@@ -1,0 +1,89 @@
+{
+  "command": "degasolv",
+  "subcommand": "resolve-locations",
+  "options": {
+    "requirements": [
+      "b"
+    ],
+    "resolve-strat": "thorough",
+    "index-strat": "priority",
+    "conflict-strat": "exclusive",
+    "search-directory": ".",
+    "package-system": "degasolv",
+    "output-format": "json",
+    "version-comparison": "maven",
+    "index-file": "index.dsrepo",
+    "repositories": [
+      "./index.dsrepo"
+    ],
+    "search-strat": "breadth-first",
+    "alternatives": true,
+    "present-packages": [
+      "x==0.9.0",
+      "e==1.8.0"
+    ],
+    "card-file": "./out.dscard"
+  },
+  "result": "successful",
+  "packages": [
+    {
+      "id": "d",
+      "version": "0.8.0",
+      "location": "https://example.com/repo/d-0.8.0.zip",
+      "requirements": [
+        [
+          {
+            "status": "present",
+            "id": "e",
+            "spec": [
+              [
+                {
+                  "relation": "greater-equal",
+                  "version": "1.1.0"
+                },
+                {
+                  "relation": "less-than",
+                  "version": "2.0.0"
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c",
+      "version": "3.5.0",
+      "location": "https://example.com/repo/c-3.5.0.zip",
+      "requirements": []
+    },
+    {
+      "id": "b",
+      "version": "2.3.0",
+      "location": "https://example.com/repo/b-2.3.0.zip",
+      "requirements": [
+        [
+          {
+            "status": "present",
+            "id": "c",
+            "spec": [
+              [
+                {
+                  "relation": "greater-equal",
+                  "version": "3.5.0"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          {
+            "status": "present",
+            "id": "d",
+            "spec": null
+          }
+        ]
+      ]
+    }
+  ]
+}

@@ -255,6 +255,7 @@ returns a page that looks something like this::
     -C, --card-file FILE   ./out.dscard  The name of the card file
     -i, --id true                        ID (name) of the package
     -l, --location true                  URL or filepath of the package
+    -m, --meta K=V                       Add additional metadata
     -r, --requirement REQ                List requirement **
     -v, --version true                   Version of the package
     -h, --help                           Print this help page
@@ -273,26 +274,6 @@ card files to produce a repository index.
 
 Explanation of options:
 
-- ``-i ID``, ``--id ID``, ``:id "ID"``: **Required**. Specify the name of the
-  package described in the card file. May be composed of any characters
-  other than the following characters: ``<>=!,;|``.
-
-- ``-v VERSION``, ``--version VERSION``, ``:version "VERSION"``:
-  **Required**. Specify the name of the package described in the card
-  file.
-
-- ``-l LOCATION``, ``--location LOCATION``, ``:location "LOCATION"``:
-  **Required**. Specify the location of the file associated with the
-  package to be described in the generated card file. Degasolv does
-  not place any restrictions on this string; it can be anything,
-  including a file location or a URL.
-
-- ``-r REQUIREMENT``, ``--requirement REQUIREMENT``,
-  ``:requirements ["REQ1", ...]``: List a requirement (dependency) of the
-  package in the card file.  May be specified one or more times as a command
-  line option, or once as a list of strings in a configuration file. See
-  :ref:`Specifying a requirement` for more information.
-
 - ``-C FILE``, ``--card-file FILE``, ``:card-file "FILE"``:
   Specify the name of the card file to generate. It is best practice
   to name this file after the name of the file referred to by the package's
@@ -302,8 +283,40 @@ Explanation of options:
   ``--card-file a-1.0.zip.dscard``. By default, the card file is named
   ``out.dscard``.
 
-- ``-h``, ``--help``: Print a help page for the subcommand ``generate-dscard``.
+- ``-i ID``, ``--id ID``, ``:id "ID"``: **Required**. Specify the name of the
+  package described in the card file. May be composed of any characters
+  other than the following characters: ``<>=!,;|``.
 
+- ``-l LOCATION``, ``--location LOCATION``, ``:location "LOCATION"``:
+  **Required**. Specify the location of the file associated with the
+  package to be described in the generated card file. Degasolv does
+  not place any restrictions on this string; it can be anything,
+  including a file location or a URL.
+
+- ``-m K=V``, ``--meta K=V``, ``:meta {:key1 "value1" :key2 ...}``:
+  Specify additional metadata about the package within the card file.
+  This is a powerful feature allowing the operator to build tooling
+  on top of degasolv.
+
+  For example, now the operator may store the sha256 sum of the artifact,
+  the location of its PGP signature, a list of scripts useful in the build
+  contained within the artifact, etc.
+
+  If used from the config fiile, the map's keys and values will be
+  placed directly in to the card file. If keys ``:id``, ``:version``
+  or ``:location`` are specified they will be ignored.
+
+- ``-r REQUIREMENT``, ``--requirement REQUIREMENT``,
+  ``:requirements ["REQ1", ...]``: List a requirement (dependency) of the
+  package in the card file.  May be specified one or more times as a command
+  line option, or once as a list of strings in a configuration file. See
+  :ref:`Specifying a requirement` for more information.
+
+- ``-v VERSION``, ``--version VERSION``, ``:version "VERSION"``:
+  **Required**. Specify the name of the package described in the card
+  file.
+
+- ``-h``, ``--help``: Print a help page for the subcommand ``generate-dscard``.
 
 CLI for ``generate-repo-index``
 -------------------------------

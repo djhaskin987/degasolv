@@ -1,3 +1,7 @@
+- [ ] Test: Test ``:meta`` config file key
+- [ ] Test: Test ``:meta`` ignorance of ``:id``, ``:version``, and ``:location`` keys
+- [ ] Docs: Explain that meta keys are converted to keywords internally?
+- [ ] Docs: Update guide on how to run a shop proper using sha256, etc. other best practices
 - [ ] Docs: more fully document JSON output
 - [ ] Docs: Add new logo
 - [ ] Docs: Add "Star me on GitHub"
@@ -5,3 +9,9 @@
 - [ ] Add "show-version" command to degasolv, which displays manifest
 - [ ] Docs: "Show-version" command
 - [ ] Changelog: "Show-version" command
+- [ ] Add "--output-format edn"
+- [ ] Document "--output-format edn"
+- [ ] Test "--output-format edn"
+- [ ] Add "--output-format yaml"
+- [ ] Document "--output-format yaml"
+- [ ] Test "--output-format yaml"
