@@ -1,4 +1,3 @@
-- [ ] Test: Test ``:meta`` ignorance of ``:id``, ``:version``, and ``:location`` keys
 - [ ] Docs: Explain that meta keys are converted to keywords internally?
 - [ ] Docs: Update guide on how to run a shop proper using sha256, etc. other best practices
 - [ ] Docs: more fully document JSON output
