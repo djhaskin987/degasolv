@@ -4,8 +4,13 @@ Degasolv Command Reference
 This article describes the Degasolv CLI, what subcommands and options
 there are, and what they are for.
 
+.. _top-level-cli:
+
 Top-Level CLI
 -------------
+
+Usage Page
+++++++++++
 
 Running ``java -jar degasolv-<version>-standalone.jar -h`` will yield
 a page that looks something like this::
@@ -30,7 +35,21 @@ a page that looks something like this::
 
   Simply run `degasolv <command> -h` for help information.
 
-Explanation of options:
+Explanation of Options
+++++++++++++++++++++++
+
+Using Configuration Files
+*************************
+
+Basic Configuration Usage
+#########################
+
++-------------------------+---------------------------------------------------+
+| Requirement             | English Explanation                               |
++-------------------------+---------------------------------------------------+
+| ``"oak|pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
+|                         | versions greater than ``5.0``                     |
++-------------------------+---------------------------------------------------+
 
 - ``-c FILE``, ``--config-file FILE``: A config file may be specified
   at the command line. The config file is in the `EDN format`_. As a
@@ -150,13 +169,14 @@ Explanation of options:
   fact that config files may be specified via HTTP/HTTPS URLs,
   allows the user to specify a *site config file*.
 
-  Many options, such as ``--index-strat``, ``--conflict-strat``,
-  and ``--resolve-strat`` fundamentally change how degasolv
-  works, and so it is recommended that they are specified site-wide.
-  Specifying these in a site config file, then serving that config
-  file internally via HTTP(S) would allow all instances of degasolv
-  to point to a site-wide file, together with a build-specific config
-  file, as in this example::
+  The options ending in ``-strat`` are options which fundamentally change
+  how degasolv works. These are ``--conflict-strat``, ``--index-strat``,
+  ``--resolve-strat`` and ``--search-strat``. It is therefore
+  recommended that they are specified site-wide.  Specifying these in
+  a site config file, then serving that config file internally via
+  HTTP(S) would allow all instances of degasolv to point to a
+  site-wide file, together with a build-specific config file, as in
+  this example::
 
     java -jar degasolv-<version>-standalone.jar \n
         --config-file "https://nas.example.com/degasolv/site.edn" \
