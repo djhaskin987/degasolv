@@ -25,3 +25,43 @@ java \
      --version 1.2.3
 
 cat ${test_home}/out.dscard | grep -q goodcode
+
+cat > ${test_home}/degasolv.edn <<EOF
+{
+    :card-file "${test_home}/out2.dscard"
+    :id "yer"
+    :location "yerloc"
+    :requirements ["foo"]
+    :meta {
+          :sha256sum "goodcodegottaloadagooddealofdata"
+          :foo "bar"
+          }
+    :version "1.2.3"
+}
+EOF
+
+java \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+    -c ${test_home}/degasolv.edn \
+    generate-card
+
+cat ${test_home}/out2.dscard | grep -q 'goodcode'
+firstsha=$(sha256sum ${test_home}/out.dscard | awk '{print $1}')
+secondsha=$(sha256sum ${test_home}/out2.dscard | awk '{print $1}')
+
+if [ "${firstsha}" != "${secondsha}" ]
+then
+    exit 1
+fi
+
+java \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     --card-file ${test_home}/out3.dscard \
+     --id yer \
+     --location yerloc \
+     --requirement foo \
+     --meta location=goodcodegottaloadagooddealofdata \
+     --version 1.2.3
+
+cat ${test_home}/out3.dscard | grep -q yerloc

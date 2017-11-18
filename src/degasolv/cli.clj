@@ -213,7 +213,9 @@
           (map
            #(string-to-requirement %)
            requirements)))
-    meta)))
+    (dissoc meta :id :version :location :
+
+            requirements)))
 
 (defn query-repo!
   [options arguments]
