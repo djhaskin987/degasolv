@@ -302,9 +302,30 @@ Explanation of options:
   the location of its PGP signature, a list of scripts useful in the build
   contained within the artifact, etc.
 
-  If used from the config fiile, the map's keys and values will be
+  For key/value pairs specified on the command line, keys are turned
+  into EDN keywords (e.g., ``:K``) internally and values are simply
+  taken as strings. Additional metadata can also be specified from a
+  configuration file as well. When they are specified via config file,
+  they may be any data type allowed by EDN.
+
+  Key/value pairs specified via configuration file must be children of
+  the top-level ``:meta`` key, like this::
+    {
+        ...
+        :meta {
+            :sha256sum "sumsumsum"
+            :otherkey "suchvalue"
+            :key3 ["values", "can", "be", "lists"]
+            :key4 {:key1 "or",
+                   :key2 "maps"}
+        }
+    }
+
+  If used from the config file, the map's keys and values will be
   placed directly in to the card file. If keys ``:id``, ``:version``
-  or ``:location`` are specified they will be ignored.
+  ``:location``, or ``:requirements`` are specified in the config
+  file, or keys ``id=``, ``version=``, ``location=``, or
+  ``requirements=`` on the CLI, they will be ignored.
 
 - ``-r REQUIREMENT``, ``--requirement REQUIREMENT``,
   ``:requirements ["REQ1", ...]``: List a requirement (dependency) of the
