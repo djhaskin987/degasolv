@@ -9,8 +9,8 @@ there are, and what they are for.
 Top-Level CLI
 -------------
 
-Usage Page
-++++++++++
+Top-Level Usage Page
+++++++++++++++++++++
 
 Running ``java -jar degasolv-<version>-standalone.jar -h`` will yield
 a page that looks something like this::
@@ -44,168 +44,189 @@ Using Configuration Files
 Basic Configuration Usage
 #########################
 
-+-------------------------+---------------------------------------------------+
-| Requirement             | English Explanation                               |
-+-------------------------+---------------------------------------------------+
-| ``"oak|pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
-|                         | versions greater than ``5.0``                     |
-+-------------------------+---------------------------------------------------+
++------------------+------------------------+---------------------+
+| Short option     | Long option            | Config File Key     |
++------------------+------------------------+---------------------+
+| ``-c FILE``      | ``--config-file FILE`` | N/A                 |
++------------------+------------------------+---------------------+
 
-- ``-c FILE``, ``--config-file FILE``: A config file may be specified
-  at the command line. The config file is in the `EDN format`_. As a
-  rule, any option for any sub-command may be given a value from this
-  config file, using the keyword form of the argument. For example,
-  instead of running this command::
+A config file may be specified at the command line. The config file is
+in the `EDN format`_. As a rule, any option for any sub-command may be
+given a value from this config file, using the keyword form of the
+argument. For example, instead of running this command::
 
-    java -jar degasolv-<version>-standalone.jar \
-       generate-repo-index --search-directory /some/directory \
-       [...]
+  java -jar degasolv-<version>-standalone.jar \
+     generate-repo-index --search-directory /some/directory \
+     [...]
 
-  A configuration file that looks like this could be used instead::
+A configuration file that looks like this could be used instead::
 
-    ;; filename: config.edn
-    {
-        :search-directory "/some/directory"
-    }
+  ;; filename: config.edn
+  {
+      :search-directory "/some/directory"
+  }
 
-  With this command::
+With this command::
+  java -jar degasolv-<version>-standalone.jar \
+    --config-file "$PWD/config.edn" \
+    generate-repo-index [...]
 
-    java -jar degasolv-<version>-standalone.jar \
-      --config-file "$PWD/config.edn" \
-      generate-repo-index [...]
+Notable exceptions to this rule include options which may be
+specified multiple times. These options are named using singular
+nouns (e.g. ``--repository REPO``), but their corresponding
+configuration file keys are specified using plural nouns (e.g.,
+``:repositories ["REPO1",...]``).
 
-  Notable exceptions to this rule include options which may be
-  specified multiple times. These options are named using singular
-  nouns (e.g. ``--repository REPO``), but their corresponding
-  configuration file keys are specified using plural nouns (e.g.,
-  ``:repositories ["REPO1",...]``).
+So, instead of using this
+command::
 
-  So, instead of using this
-  command::
+  java -jar degasolv-<version>-standalone.jar \
+    resolve-locations \
+    --disable-alternatives \
+    --present-package "x==0.1" \
+    --present-package "y==0.2" \
+    --repository "https://example.com/repo1/" \
+    --repository "https://example.com/repo2/" \
+    --requirement "a" \
+    --requirement "b"
+    [...]
 
-    java -jar degasolv-<version>-standalone.jar \
-      resolve-locations \
-      --disable-alternatives \
-      --present-package "x==0.1" \
-      --present-package "y==0.2" \
-      --repository "https://example.com/repo1/" \
-      --repository "https://example.com/repo2/" \
-      --requirement "a" \
-      --requirement "b"
-      [...]
+This configuration file might be used::
 
-  This configuration file might be used::
+  ; filename: config.edn
+  {
+      :alternatives false
+      :respositories ["https://example.com/repo1/"
+                      "https://example.com/repo2/"]
+      :requirements ["a"
+                     "b"]
+      :present-packages ["x==0.1"
+                         "y==0.2"]
+  }
 
-    ; filename: config.edn
-    {
-        :alternatives false
-        :respositories ["https://example.com/repo1/"
-                        "https://example.com/repo2/"]
-        :requirements ["a"
-                       "b"]
-        :present-packages ["x==0.1"
-                           "y==0.2"]
-    }
+With this command::
 
-  With this command::
+  java -jar degasolv-<version>-standalone.jar \
+    --config-file "$PWD/config.edn" \
+    resolve-locations \
+    [...]
 
-    java -jar degasolv-<version>-standalone.jar \
-      --config-file "$PWD/config.edn" \
-      resolve-locations \
-      [...]
+The config file may be a URL or a filepath. Both HTTP and HTTPS URLs are
+supported. If the config file is ``-`` (the hyphen character), degasolv
+will read standard input instead of any specific file or
+URL.
 
-  The config file may be a URL or a filepath. Both HTTP and HTTPS URLs are
-  supported. If the config file is ``-`` (the hyphen character), degasolv
-  will read standard input instead of any specific file or
-  URL.
+Using Multiple Configuration Files
+##################################
 
-  As of version 1.2.0, the ``--config-file`` option may be specified multiple
-  times. Each configuration file specified will get its configuration
-  merged into the previously specified configuration files. If both
-  configuration files contain the same option, the option specified in
-  the latter specified configuration file will be used.
+As of version 1.2.0, the ``--config-file`` option may be specified multiple
+times. Each configuration file specified will get its configuration
+merged into the previously specified configuration files. If both
+configuration files contain the same option, the option specified in
+the latter specified configuration file will be used.
 
-  .. _config files section:
+.. _config files section:
 
-  As an example, consider the following `display-config command`_::
+As an example, consider the following `display-config command`_::
 
-    java -jar degasolv-<version>-standalone.jar \
-      --config-file "$PWD/a.edn" \
-      --config-file "$PWD/b.edn" \
-      display-config
+  java -jar degasolv-<version>-standalone.jar \
+    --config-file "$PWD/a.edn" \
+    --config-file "$PWD/b.edn" \
+    display-config
 
-  If this is the contents of the file ``a.edn``::
+If this is the contents of the file ``a.edn``::
 
-    {
-        :index-strat "priority"
-        :repositories ["https://example.com/repo1/"]
-        :id "a"
-        :version "1.0.0"
-    }
+  {
+      :index-strat "priority"
+      :repositories ["https://example.com/repo1/"]
+      :id "a"
+      :version "1.0.0"
+  }
 
-  And this were the contents of ``b.edn``::
+And this were the contents of ``b.edn``::
 
-    {
-        :conflict-strat "exclusive"
-        :repositories ["https://example.com/repo2/"]
-        :id "b"
-        :version "2.0.0"
-    }
+  {
+      :conflict-strat "exclusive"
+      :repositories ["https://example.com/repo2/"]
+      :id "b"
+      :version "2.0.0"
+  }
 
-  Then the output of the above command would look like this::
+Then the output of the above command would look like this::
 
-    {
-        :index-strat "priority",
-        :repositories ["https://example.com/repo2/"],
-        :id "b",
-        :version "2.0.0",
-        :conflict-strat "exclusive",
-        :arguments ["display-config"]
-    }
+  {
+      :index-strat "priority",
+      :repositories ["https://example.com/repo2/"],
+      :id "b",
+      :version "2.0.0",
+      :conflict-strat "exclusive",
+      :arguments ["display-config"]
+  }
 
-  .. _site-wide:
+.. _site-wide:
 
-  The merging of config files, together with the interesting
-  fact that config files may be specified via HTTP/HTTPS URLs,
-  allows the user to specify a *site config file*.
+Using Site-Wide Configuration Files
+###################################
 
-  The options ending in ``-strat`` are options which fundamentally change
-  how degasolv works. These are ``--conflict-strat``, ``--index-strat``,
-  ``--resolve-strat`` and ``--search-strat``. It is therefore
-  recommended that they are specified site-wide.  Specifying these in
-  a site config file, then serving that config file internally via
-  HTTP(S) would allow all instances of degasolv to point to a
-  site-wide file, together with a build-specific config file, as in
-  this example::
+The merging of config files, together with the interesting
+fact that config files may be specified via HTTP/HTTPS URLs,
+allows the user to specify a *site config file*.
 
-    java -jar degasolv-<version>-standalone.jar \n
-        --config-file "https://nas.example.com/degasolv/site.edn" \
-        --config-file "./degasolv.edn" \
-        generate-card
+Multiple sub-commands have options ending in ``-strat`` which
+fundamentally change how degasolv works. These are
+``--conflict-strat``, ``--index-strat``, ``--resolve-strat`` and
+``--search-strat``. It is therefore recommended that they are
+specified site-wide.  Specifying these in a site config file, then
+serving that config file internally via HTTP(S) would allow all
+instances of degasolv to point to a site-wide file, together with a
+build-specific config file, as in this example::
 
+  java -jar degasolv-<version>-standalone.jar \
+      --config-file "https://nas.example.com/degasolv/site.edn" \
+      --config-file "./degasolv.edn" \
+      generate-card
+
+.. _option-pack:
 .. _option pack:
 
-- ``-k PACK``, ``--option-pack PACK``, ``:option-packs ["PACK1",...]``: Specify
-  one or more option packs.
+Option Packs
+************
 
-  Degasolv ships with several "option packs", each of which imply several degasolv
-  options at once. When an
-  option pack is specified, degasolv looks up which option pack is used and what
-  options are implied by using it. More than one option pack may be specified.
-  If option packs are specified both on the command line and in the config file,
-  the option packs on the command line are used and the ones in the config file
-  are ignored.
++------------------+------------------------+---------------------------------+
+| Short option     | Long option            | Config File Key                 |
++------------------+------------------------+---------------------------------+
+| ``-k PACK``      | ``--option-pack PACK`` | ``:option-packs ["PACK1",...]`` |
++------------------+------------------------+---------------------------------+
 
-  The following option packs are supported in the current version:
-    - ``multi-version-mode``: Added as of version 1.7.0 . Implies
-      ``--conflict-strat inclusive``,
-      ``--resolve-strat fast``, and ``--disable-alternatives``.
-    - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
-      ``--conflic-strat prioritized``,
-      ``--resolve-strat fast``, and ``--disable-alternatives``.
+Specify one or more option packs.
 
-- ``-h``, ``--help``: Prints the help page. This can be used on every
-  sub-command as well.
+Degasolv ships with several "option packs", each of which imply
+several degasolv options at once. When an option pack is specified,
+degasolv looks up which option pack is used and what options are
+implied by using it. More than one option pack may be specified.  If
+option packs are specified both on the command line and in the config
+file, the option packs on the command line are used and the ones in
+the config file are ignored.
+
+The following option packs are supported in the current version:
+  - ``multi-version-mode``: Added as of version 1.7.0 . Implies
+    ``--conflict-strat inclusive``,
+    ``--resolve-strat fast``, and ``--disable-alternatives``.
+  - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
+    ``--conflic-strat prioritized``,
+    ``--resolve-strat fast``, and ``--disable-alternatives``.
+
+Print the Help Page
+*******************
+
++------------------+------------------------+---------------------------------+
+| Short option     | Long option            | Config File Key                 |
++------------------+------------------------+---------------------------------+
+| ``-h``           | ``--help``             | N/A                             |
++------------------+------------------------+---------------------------------+
+
+``-h``, ``--help``: Prints the help page. This can be used on every
+sub-command as well.
 
 .. _EDN format: https://github.com/edn-format/edn
 
@@ -214,6 +235,9 @@ Basic Configuration Usage
 
 CLI for ``display-config``
 --------------------------
+
+Usage Page for ``display-config``
++++++++++++++++++++++++++++++++++
 
 Running ``java -jar degasolv-<version>-standalone.jar display-config -h``
 returns a page that looks something like this::
@@ -245,6 +269,9 @@ returns a page that looks something like this::
         --version true                           Version of the package
     -h, --help                                   Print this help page
 
+Explanation of the ``display-config`` Subcommand
+++++++++++++++++++++++++++++++++++++++++++++++++
+
 The ``display-config`` command is used to print all the options
 in the *effective configuration*. It allows the user to debug
 configuration by printing the actual configuration used by degasolv
@@ -262,6 +289,9 @@ as any options that might be given on the CLI.
 
 CLI for ``generate-card``
 -------------------------
+
+Usage Page for ``generate-card``
+++++++++++++++++++++++++++++++++
 
 Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
 returns a page that looks something like this::
@@ -286,13 +316,17 @@ returns a page that looks something like this::
     - `-v`, `--version`, or the config file key `:version`.
     - `-l`, `--location`, or the config file key `:location`.
 
+Explanation of the ``generate-card`` Subcommand
++++++++++++++++++++++++++++++++++++++++++++++++
+
 This subcommand is used to generate a card file. This card file is
 used to represent a package within a degasolv repository. It is placed
 in a directory with other card files, and then the
 ``generate-repo-index`` command is used to search that directory for
 card files to produce a repository index.
 
-Explanation of options:
+Explanation of Options for ``generate-card``
+++++++++++++++++++++++++++++++++++++++++++++
 
 - ``-C FILE``, ``--card-file FILE``, ``:card-file "FILE"``:
   Specify the name of the card file to generate. It is best practice

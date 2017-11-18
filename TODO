@@ -1,8 +1,12 @@
-- [ ] Docs: Tutorial
-- [ ] Docs: more fully document JSON output
-- [ ] Docs: Add new logo
-- [ ] Docs: Add "Star me on GitHub"
-- [ ] Docs: Add "meta"
+- [ ] Docs:
+  - [ ] Change format, test to make sure it's god
+  - [ ] Add ``added as of version x``
+  - [ ] After format is changed, point links to better places in changelog
+  - [ ] Set Up Guide
+  - [ ] Star me on GitHub
+  - [ ] Meta: can only see with output format other than plain
+  - [ ] More fully document JSON output
+  - [ ] Add new logo
 - [ ] Add "show-version" command to degasolv, which displays manifest
 - [ ] Docs: "Show-version" command
 - [ ] Changelog: "Show-version" command
