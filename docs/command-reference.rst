@@ -328,26 +328,60 @@ card files to produce a repository index.
 Explanation of Options for ``generate-card``
 ++++++++++++++++++++++++++++++++++++++++++++
 
-- ``-C FILE``, ``--card-file FILE``, ``:card-file "FILE"``:
-  Specify the name of the card file to generate. It is best practice
-  to name this file after the name of the file referred to by the package's
-  location with a ``.dscard`` extension. For example, if I created a card
-  using the option ``--location http://example.com/repo/a-1.0.zip``,
-  I would name the card file ``a-1.0.zip.dscard``, as in
-  ``--card-file a-1.0.zip.dscard``. By default, the card file is named
-  ``out.dscard``.
+Specify Location of the Card File
+*********************************
 
-- ``-i ID``, ``--id ID``, ``:id "ID"``: **Required**. Specify the name of the
-  package described in the card file. May be composed of any characters
-  other than the following characters: ``<>=!,;|``.
++------------------+------------------------+---------------------------------+
+| Short option     | Long option            | Config File Key                 |
++------------------+------------------------+---------------------------------+
+| ``-C FILE``      | ``--card-file FILE``   | ``:card-file "FILE"``           |
++------------------+------------------------+---------------------------------+
 
-- ``-l LOCATION``, ``--location LOCATION``, ``:location "LOCATION"``:
-  **Required**. Specify the location of the file associated with the
-  package to be described in the generated card file. Degasolv does
-  not place any restrictions on this string; it can be anything,
-  including a file location or a URL.
+Specify the name of the card file to generate. It is best practice
+to name this file after the name of the file referred to by the package's
+location with a ``.dscard`` extension. For example, if I created a card
+using the option ``--location http://example.com/repo/a-1.0.zip``,
+I would name the card file ``a-1.0.zip.dscard``, as in
+``--card-file a-1.0.zip.dscard``. By default, the card file is named
+``out.dscard``.
 
-- ``-m K=V``, ``--meta K=V``, ``:meta {:key1 "value1" :key2 ...}``:
+Specify the ID (Name) of the Package
+************************************
+
++------------------+------------------------+---------------------------------+
+| Short option     | Long option            | Config File Key                 |
++------------------+------------------------+---------------------------------+
+| ``-i ID``        | ``--id ID``            | ``:id "ID"``                    |
++------------------+------------------------+---------------------------------+
+
+**Required**. Specify the ID of the
+package described in the card file. The ID serves both as a unique identifier
+for the package and its name. It may be composed of any characters
+other than the following characters: ``<>=!,;|``.
+
+Specify the Location of the Package
+***********************************
+
++------------------+------------------------+---------------------------------+
+| Short option     | Long option            | Config File Key                 |
++------------------+------------------------+---------------------------------+
+| ``-l LOCATION``  | ``--location LOCATION``| ``:location "LOCATION"``        |
++------------------+------------------------+---------------------------------+
+
+**Required**. Specify the location of the file associated with the
+package to be described in the generated card file. Degasolv does
+not place any restrictions on this string; it can be anything,
+including a file location or a URL.
+
+Specify Additional Metadata for a Package
+*****************************************
+
++------------------+------------------------+----------------------------------+
+| Short option     | Long option            | Config File Key                  |
++------------------+------------------------+----------------------------------+
+| ``-m K=V``       | ``--meta K=V``         | ``:meta {:key1 "value1" ...}``   |
++------------------+------------------------+----------------------------------+
+
   Specify additional metadata about the package within the card file.
   This is a powerful feature allowing the operator to build tooling
   on top of degasolv.
