@@ -374,6 +374,8 @@ package to be described in the generated card file. Degasolv does
 not place any restrictions on this string; it can be anything,
 including a file location or a URL.
 
+.. _meta-data:
+
 Specify Additional Metadata for a Package
 *****************************************
 
@@ -383,39 +385,39 @@ Specify Additional Metadata for a Package
 | ``-m K=V``       | ``--meta K=V``         | ``:meta {:key1 "value1" ...}``   |
 +------------------+------------------------+----------------------------------+
 
-  Specify additional metadata about the package within the card file.
-  This is a powerful feature allowing the operator to build tooling
-  on top of degasolv.
+*Introduced as of version 1.11.0.* Specify additional metadata about
+the package within the card file.  This is a powerful feature allowing
+the operator to build tooling on top of degasolv.
 
-  For example, now the operator may store the sha256 sum of the artifact,
-  the location of its PGP signature, a list of scripts useful in the build
-  contained within the artifact, etc.
+For example, now the operator may store the sha256 sum of the artifact,
+the location of its PGP signature, a list of scripts useful in the build
+contained within the artifact, etc.
 
-  For key/value pairs specified on the command line, keys are turned
-  into EDN keywords (e.g., ``:K``) internally and values are simply
-  taken as strings. Additional metadata can also be specified from a
-  configuration file as well. When they are specified via config file,
-  they may be any data type allowed by EDN.
+For key/value pairs specified on the command line, keys are turned
+into EDN keywords (e.g., ``:K``) internally and values are simply
+taken as strings. Additional metadata can also be specified from a
+configuration file as well. When they are specified via config file,
+they may be any data type allowed by EDN.
 
-  Key/value pairs specified via configuration file must be children of
-  the top-level ``:meta`` key, like this::
+Key/value pairs specified via configuration file must be children of
+the top-level ``:meta`` key, like this::
 
-    {
-        ...
-        :meta {
-            :sha256sum "sumsumsum"
-            :otherkey "suchvalue"
-            :key3 ["values", "can", "be", "lists"]
-            :key4 {:key1 "or",
-                   :key2 "maps"}
-        }
-    }
+  {
+      ...
+      :meta {
+          :sha256sum "sumsumsum"
+          :otherkey "suchvalue"
+          :key3 ["values", "can", "be", "lists"]
+          :key4 {:key1 "or",
+                 :key2 "maps"}
+      }
+  }
 
-  If used from the config file, the map's keys and values will be
-  placed directly in to the card file. If keys ``:id``, ``:version``
-  ``:location``, or ``:requirements`` are specified in the config
-  file, or keys ``id=``, ``version=``, ``location=``, or
-  ``requirements=`` on the CLI, they will be ignored.
+If used from the config file, the map's keys and values will be
+placed directly in to the card file. If keys ``:id``, ``:version``
+``:location``, or ``:requirements`` are specified in the config
+file, or keys ``id=``, ``version=``, ``location=``, or
+``requirements=`` on the CLI, they will be ignored.
 
 Specify a Requirement for a Package
 ***********************************
@@ -453,6 +455,8 @@ Print the ``generate-card`` Help Page
 +------------------+------------------------+----------------------------------+
 
 Print a help page for the subcommand ``generate-card``.
+
+.. _generate-repo-index:
 
 CLI for ``generate-repo-index``
 -------------------------------
@@ -513,6 +517,8 @@ Specify the Repo Index File
 
 Write the index file at the location ``FILE``. Default value is
 ``index.dsrepo``. It is good practice to use the default value.
+
+.. _version-comparison-generate:
 
 Specify the Version Comparison Algorithm
 ****************************************
@@ -785,6 +791,8 @@ should work for most environments.
   easily and cleanly specified done by using the
   ``firstfound-version-mode`` `option pack`_.
 
+.. _output-format:
+
 Specify Output Format
 *********************
 
@@ -794,7 +802,7 @@ Specify Output Format
 | ``-o FORMAT``    | ``--output-format FORMAT`` | ``:output-format "FORMAT"``  |
 +------------------+----------------------------+------------------------------+
 
-Specify an output format. May be ``plain`` or ``json``. This output format
+*Introduced as of version 1.11.0.* Specify an output format. May be ``plain`` or ``json``. This output format
 only takes effect when the package resolution was successful.
 
 The default output format is ``plain``. It is a simple text format
@@ -1015,7 +1023,7 @@ most environments.
 
 
 .. _package system:
-
+.. _package-system:
 Specify a Package System (Experimental)
 ***************************************
 
@@ -1340,9 +1348,10 @@ provided:
         version string as computed in the previous step, are
         considered for dependency resolution.
 
-  * The "pessimistic greater-than" operator: ``><``. This operator is given in
-    a version spec as ``><VERS``. The version of any package found during the
-    resolution process must be greater or equal to the given version but less
+  * The "pessimistic greater-than" operator: ``><``. *Introduced as of
+    version 1.9.0.* This operator is given in a version spec as
+    ``><VERS``. The version of any package found during the resolution
+    process must be greater or equal to the given version but less
     than the next major version. Examples:
 
       * The expression ``><3.2.1`` matches the versions ``3.2.1``, ``3.4.3``

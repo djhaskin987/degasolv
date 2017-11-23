@@ -15,8 +15,10 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
-- Added the ``--meta`` option to :ref:`generate-card <generate-card-options>`
-- Added metadata a la ``--meta`` to the ``apt`` package system (experimental)
+- Added the ``--meta`` :ref:`option <meta-data>` to
+  :ref:`generate-card <generate-card-options>`
+- Added metadata a la ``--meta`` to the ``apt`` :ref:`package system
+  <package-system>` (experimental)
 
 Changed
 +++++++
@@ -24,14 +26,13 @@ Changed
 Fixed
 +++++
 
-
 `1.10.0`_
 -------------
 
 Added
 +++++
-- Added the ``--output-format`` option to :ref:`resolve-locations
-  <resolve-locations-options>` 
+- Added the ``--output-format`` :ref:`option <output-format>` to
+  :ref:`resolve-locations <resolve-locations-options>`
 
 `1.9.0`_
 --------
@@ -39,9 +40,6 @@ Added
 Added
 +++++
 - Added the :ref:`pessimistic greater-than <pess-greater>` comparison operator ``><``.
-
-Changed
-+++++++
 
 Fixed
 +++++
@@ -56,10 +54,16 @@ Fixed
 
 Added
 +++++
-- Distribution is now done via RPM and Debian package as well as JAR file
-- Added the ``--version-comparison`` option :ref:`resolve-locations
-  <resolve-locations-options>` and :ref:`query-repo <query-repo-options>`,
-  allowing the user to specify which version comparison algorithm is used.
+- Distribution is now done via RPM and Debian package as well as JAR fil
+TODO -- Add "Introduced as of", Add/fix proper links and test them plz --
+- Added the ``--version-comparison`` option to
+  :ref:`generate-repo-index <generate-repo-index>` (option :ref:`here
+  <version-comparison-generate>`), :ref:`resolve-locations
+  <resolve-locations-options>` (option :ref:`here
+  <version-comparison-resolve>`) and :ref:`query-repo
+  <query-repo-options>` (option :ref:`here <version-comparison-query>`),
+  allowing the user to specify which version comparison algorithm is
+  used.
 - Added the ``--search-strat`` option to :ref:`resolve-locations
   <resolve-locations-options>`, allowing users to select breadth first
   search or depth first search during resolution
@@ -96,7 +100,8 @@ Fixed
 
 Added
 +++++
-- Added ``--option-pack``, the ability to specify multiple options
+- Added ``--option-pack``, the ability to :ref:`specify multiple
+  options at once <option-pack>`
 
 Fixed
 +++++
@@ -110,7 +115,8 @@ Fixed
 Added
 +++++
 - Formatted docs better on the front page for PDF purposes
-- Add ability to use any (long) option on the command line in display-config
+- Add ability to use any (long) option on the command line in
+  :ref:`display-config <display-config-cli>`
 
 Improved
 ++++++++
