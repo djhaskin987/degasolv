@@ -67,6 +67,7 @@ A configuration file that looks like this could be used instead::
   }
 
 With this command::
+
   java -jar degasolv-<version>-standalone.jar \
     --config-file "$PWD/config.edn" \
     generate-repo-index [...]
@@ -727,8 +728,8 @@ to specify breadth-first search. This option is set to
 
 .. _conflict strategies:
 
-Specify a Conflict Strategy
-***************************
+Specify Conflict Strategy
+*************************
 
 +------------------+----------------------------+------------------------------+
 | Short option     | Long option                | Config File Key              |
@@ -845,7 +846,7 @@ look something like this::
 
 .. _present package:
 
-Specify a Package that is Already Present
+Specify that a Package is Already Present
 *****************************************
 
 +--------------+---------------------------+-----------------------------------+
@@ -1015,8 +1016,8 @@ most environments.
 
 .. _package system:
 
-Specify a Package System (Expermental)
-**************************************
+Specify a Package System (Experimental)
+***************************************
 
 +--------------+---------------------------+-----------------------------------+
 | Short option | Long option               | Config File Key                   |
