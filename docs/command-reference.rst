@@ -4,6 +4,22 @@ Degasolv Command Reference
 This article describes the Degasolv CLI, what subcommands and options
 there are, and what they are for.
 
+Some Note on Versions
+---------------------
+
+On a best-effort basis, features have had the version that they first
+appeared associated with them in this guide.
+
+Anything tagged with version 1.0.2 *really* means "1.0.2 or
+earlier". The history gets shaky before that :)
+
+The first version of degasolv (for the purposes of this guide)
+released was 1.0.2 .
+
+**The earliest usable released version of degasolv that can be
+ recommended for use is 1.5.1**. Anything before that wasn't profiled,
+ and had some pretty bad bugs in it.
+
 .. _top-level-cli:
 
 Top-Level CLI
@@ -603,11 +619,15 @@ algorithm is used. By default, the algorithm is ``maven``. May be
 Add to an Existing Repository Index
 ***********************************
 
-+---------------+------------------------------+-------------------------------+
-| Short option  | Long option                  | Config File Key               |
-+---------------+------------------------------+-------------------------------+
-| ``-a INDEX``  | ``--add-to INDEX``           | ``:add-to "INDEX"``           |
-+---------------+------------------------------+-------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-a INDEX``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--add-to INDEX``                    |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:add-to "INDEX"``                   |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 Add to the repository index file found at ``INDEX``. In general, it is
 best to simply regenerate a new repository index fresh based on the
@@ -681,11 +701,12 @@ returns a page that looks something like this::
 Overview of ``resolve-locations``
 +++++++++++++++++++++++++++++++++
 
-The ``resolve-locations`` command searches one or more repository index files,
-and uses the package information in them to attempt to resolve the requirements
-given at the command line. If successful, it exits with a return code of 0 and
-outputs the name of each package in the solution it has found, together with
-that package's location.
+*Introduced as of version 1.0.2 .* The ``resolve-locations`` command
+searches one or more repository index files, and uses the package
+information in them to attempt to resolve the requirements given at
+the command line. If successful, it exits with a return code of 0 and
+outputs the name of each package in the solution it has found,
+together with that package's location.
 
 If the command fails, a non-zero exit code is returned. The output from such
 a run might look like this::
@@ -726,11 +747,15 @@ Explanation of Options for ``resolve-locations``
 Enable the Use of Alternatives
 ******************************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-a``           | ``--enable-alternatives``  | ``:alternatives true``       |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-a``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--enable-alternatives``             |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:alternatives true``                |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.5.0                                 |
++-----------------------------+---------------------------------------+
 
 Consider all `alternatives`_ encountered while resolving dependencies.
 This is the default behavior. It allows the developers and packagers
@@ -743,11 +768,15 @@ of the two specified wins.
 Disable the Use of Alternatives
 *******************************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-A``           | ``--disable-alternatives`` | ``:alternatives false``      |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-A``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--disable-alternatives``            |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:alternatives false``               |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.5.0                                 |
++-----------------------------+---------------------------------------+
 
 Consider only the first of any given set of `alternatives`_ for any
 particular requirement while resolving dependencies.  It allows the package
@@ -768,11 +797,15 @@ option on a command line, the last argument of the two specified wins.
 Specify Solution Search Strategy
 ********************************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-e STRAT``     | ``--search-strat STRAT``   | ``:search-strat "STRAT"``    |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-e STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--search-strat STRAT``              |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:search-strat "STRAT"``             |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.8.0                                 |
++-----------------------------+---------------------------------------+
 
 This option determines whether breadth first search or depth first
 search is used during package resolution. Valid values are
@@ -785,11 +818,15 @@ to specify breadth-first search. This option is set to
 Specify Conflict Strategy
 *************************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-f STRAT``     | ``--conflict-strat STRAT`` | ``:conflict-strat "STRAT"``  |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-f STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--conflict-strat STRAT``            |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:conflict-strat "STRAT"``           |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.3.0                                 |
++-----------------------------+---------------------------------------+
 
 This option determines how encountered version conflicts will be
 handled. Valid values are ``exclusive``, ``inclusive``, and
@@ -844,14 +881,18 @@ should work for most environments.
 Specify Output Format
 *********************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-o FORMAT``    | ``--output-format FORMAT`` | ``:output-format "FORMAT"``  |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-o FORMAT``                         |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--output-format FORMAT``            |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:output-format "FORMAT"``           |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.10.0                                |
++-----------------------------+---------------------------------------+
 
-*Introduced as of version 1.11.0.* Specify an output format. May be ``plain`` or ``json``. This output format
-only takes effect when the package resolution was successful.
+Specify an output format. May be ``plain`` or ``json``. This output
+format only takes effect when the package resolution was successful.
 
 The default output format is ``plain``. It is a simple text format
 that was designed for ease of use within bash scripts while also
@@ -905,13 +946,17 @@ look something like this::
 Specify that a Package is Already Present
 *****************************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-p P``     | ``--present-package P``   | ``:present-packages ["P1", ...]`` |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-p PKG``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--present-package PKG``             |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:present-packages ["PKG1", ...]``   |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.4.0                                 |
++-----------------------------+---------------------------------------+
 
-Specify a "hard present package". Specify ``P`` as ``<id>==<vers>``,
+Specify a "hard present package". Specify ``PKG`` as ``<id>==<vers>``,
 as in this example: ``garfield==1.0``.
 
 Doing this tells degasolv that a package "already exists" at a
@@ -939,11 +984,15 @@ the package(s) in question are not to be touched.
 Specify a Requirement
 *********************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-r REQ``   | ``--requirement REQ``     | ``:requirements ["REQ1", ...]``   |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-r REQ``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--requirement REQ``                 |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:requirements ["REQ1", ...]``       |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 **Required**. Resolve this requirement together with all other
 requirements given.  May be specified one ore more times as a command
@@ -956,7 +1005,6 @@ in order from first to last in the list.  If requirements are
 specified both on the command line and in the configuration file, the
 requirements in the configuration file are ignored.
 
-
 .. _repository option:
 
 .. _specify repositories:
@@ -964,11 +1012,15 @@ requirements in the configuration file are ignored.
 Specify a Repository to Search
 ******************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-R INDEX`` | ``--repository INDEX``    | ``:repositories ["INDEX1", ...]`` |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-R INDEX``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--repository INDEX``                |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:repositories ["INDEX1", ...]``     |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 **Required**. Search the repository index given by INDEX for packages
 when resolving the given requirements.
@@ -998,11 +1050,15 @@ authentication is required to download the index, as in this example::
 Specify a Resolution Strategy
 *****************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-s STRAT`` | ``--resolve-strat STRAT`` | ``:resolve-strat "STRAT"``        |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-s STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--resolve-strat STRAT``             |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:resolve-strat "STRAT"``            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 This option determines which versions of a given package id are
 considered when resolving the given requirements.  If set to ``fast``,
@@ -1024,11 +1080,15 @@ environments.
 Specify an Index Strategy
 *************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-S STRAT`` | ``--index-strat STRAT``   | ``:index-strat "STRAT"``          |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-S STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--index-strat STRAT``               |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:index-strat "STRAT"``              |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 Repositories are queried by package id in order to discover what
 packages are available to fulfill the given requirements. This option
@@ -1068,18 +1128,20 @@ most environments.
    that whichever setting is chosen should be used `site-wide`_ within
    an organization.
 
-
-
 .. _package system:
 .. _package-system:
 Specify a Package System (Experimental)
 ***************************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-t SYS``   | ``--package-system SYS``  | ``:package-system "SYS"``         |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-t SYS``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--package-system SYS``              |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:package-system "SYS"``             |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.4.0                                 |
++-----------------------------+---------------------------------------+
 
 **Experimental**. Specify package system to use. By default, this
 value is ``degasolv``. Using this option allows the user to run
@@ -1125,11 +1187,15 @@ Other available values are:
 Specify the Version Comparison Algorithm
 ****************************************
 
-+--------------+------------------------------+--------------------------------+
-| Short option | Long option                  | Config File Key                |
-+--------------+------------------------------+--------------------------------+
-| ``-V CMP``   | ``--version-comparison CMP`` | ``:version-comparison "CMP"``  |
-+--------------+------------------------------+--------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-V CMP``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--version-comparison CMP``          |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.8.0                                 |
++-----------------------------+---------------------------------------+
 
 Use the specified version comparison algorithm when resolving
 dependencies.
@@ -1186,8 +1252,9 @@ page that looks something like this::
 Overview of ``query-repo``
 ++++++++++++++++++++++++++
 
-This subcommand queries a repository index or indices for packages. This comand
-is intended to be useful or debugging dependency problems.
+*Introduced as of version 1.0.2*. This subcommand queries a repository
+index or indices for packages. This comand is intended to be useful or
+debugging dependency problems.
 
 Explanation of Options for ``query-repo``
 +++++++++++++++++++++++++++++++++++++++++
@@ -1195,11 +1262,15 @@ Explanation of Options for ``query-repo``
 Specify Query
 *************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-q QUERY`` | ``--query QUERY``         | N/A                               |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-q QUERY``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--query QUERY``                     |
++-----------------------------+---------------------------------------+
+| Config file key             | N/A                                   |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 **Required**. Query repository index or indices for a package. Syntax
 is exactly the same as requirements except that only one alternative
@@ -1221,11 +1292,15 @@ Examples if invalid queries:
 Specify a Repository to Search
 ******************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-R INDEX`` | ``--repository INDEX``    | ``:repositories ["INDEX1", ...]`` |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-R INDEX``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--repository INDEX``                |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:repositories ["INDEX1", ...]``     |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 **Required** This option works exactly the same as the `repository
 option`_ for the ``resolve-locations`` command, except that instead of
@@ -1233,22 +1308,25 @@ using the repositories for resolving requirements, it uses them for
 simple index queries. See that option's explanation for more
 information.
 
-
 Specify an Index Strategy
 *************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-S STRAT`` | ``--index-strat STRAT``   | ``:index-strat "STRAT"``          |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-S STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--index-strat STRAT``               |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:index-strat "STRAT"``              |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 This option works exactly the same as the `index strategy`_ option for the
 ``resolve-locations`` command, except that it is used for simple index
 queries. See that option's explanation for more information.
 
-Specify a Package System (Expermental)
-**************************************
+Specify a Package System (Experimental)
+***************************************
 
 +--------------+---------------------------+-----------------------------------+
 | Short option | Long option               | Config File Key                   |
@@ -1263,11 +1341,15 @@ index queries. See that option's explanation for more information.
 Specify the Version Comparison Algorithm
 ****************************************
 
-+--------------+------------------------------+--------------------------------+
-| Short option | Long option                  | Config File Key                |
-+--------------+------------------------------+--------------------------------+
-| ``-V CMP``   | ``--version-comparison CMP`` | ``:version-comparison "CMP"``  |
-+--------------+------------------------------+--------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-V CMP``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--version-comparison CMP``          |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.8.0                                 |
++-----------------------------+---------------------------------------+
 
 Use the specified version comparison algorithm when querying the
 repository.
@@ -1301,10 +1383,11 @@ Specifying a requirement
 .. _alternative:
 .. _alternatives:
 
-A requirement is given as a string of text. A
-requirement consists of one or more *alternatives*. Any of the alternatives
-will satisfy the requirement. Alternatives are specified by a bar character
-(``|``), like this::
+*Unless otherwise noted, features in this section were introduced as
+of version 1.0.2 or earlier*. A requirement is given as a string of
+text. A requirement consists of one or more *alternatives*. Any of the
+alternatives will satisfy the requirement. Alternatives are specified
+by a bar character (``|``), like this::
 
   "<alt1>|<alt2>|<alt3>"
 
@@ -1354,12 +1437,14 @@ equal to", and "newer than", respectively, using whatever version comparison
 algorithm was specified using the CLI, or using the maven version comparison
 algorithm by default.
 
-In addition to the above operators, two other version spec operators are
+In addition to the above operators, three other version spec operators are
 provided:
 
-  * The "matches" operator: ``<>``. This operator is given in a version spec
-    as ``<>REGEX``. The version of any package found during the resolution
-    process must match the given `java regular expression`_. Examples:
+  * The "matches" operator: ``<>``. *Introduced of version
+    1.8.0*. This operator is given in a version spec as
+    ``<>REGEX``. The version of any package found during the
+    resolution process must match the given `java regular
+    expression`_. Examples:
 
       * The expression ``<>\d+\.\d+\.\d+`` matches any version containing a
         three-part version in it.
@@ -1370,7 +1455,8 @@ provided:
 
     .. _java regular expression: http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
 
-  * The "in-range" operator: ``=>``. This operator is given in a version spec
+  * The "in-range" operator: ``=>``. *Introduced as of version
+    1.8.0*. This operator is given in a version spec
     as ``=>RANGE``. The version of any package found during the resolution
     process must be in the given version range. Examples:
 
@@ -1397,7 +1483,7 @@ provided:
         considered for dependency resolution.
 
   * The "pessimistic greater-than" operator: ``><``. *Introduced as of
-    version 1.9.0.* This operator is given in a version spec as
+    version 1.9.0*. This operator is given in a version spec as
     ``><VERS``. The version of any package found during the resolution
     process must be greater or equal to the given version but less
     than the next major version. Examples:

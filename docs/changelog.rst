@@ -125,6 +125,27 @@ Improved
 - Changed apt reop function from filtering a list to lookup in a map,
   increasing its speed
 
+`1.5.0`_
+--------
+
+Added
++++++
+- Added ``--disable-alternatives`` option and ``--enable-alternatives`` options
+
+Fixed
++++++
+
+- Formatted docs better on the front page for PDF purposes
+- Add ability to use any (long) option on the command line in
+  :ref:`display-config <display-config-cli>`
+
+Improved
+++++++++
+- Memoized core Degasolv package system repository function (should
+  speed the resolver up a bit)
+- Changed apt reop function from filtering a list to lookup in a map,
+  increasing its speed
+
 .. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.10.0...HEAD
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
 .. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
