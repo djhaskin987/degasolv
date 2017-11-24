@@ -13,8 +13,7 @@ appeared associated with them in this guide.
 Anything tagged with version 1.0.2 *really* means "1.0.2 or
 earlier". The history gets shaky before that :)
 
-The first version of degasolv (for the purposes of this guide)
-released was 1.0.2 .
+The first version of degasolv (for the purposes of this guide) released was 1.0.2 .
 
 **The earliest usable released version of degasolv that can be
  recommended for use is 1.5.1**. Anything before that wasn't profiled,
@@ -297,7 +296,7 @@ returns a page that looks something like this::
 Overview of ``display-config``
 ++++++++++++++++++++++++++++++
 
-*Introduced as of version 1.6.0 .* The ``display-config`` command is
+*Introduced as of version 1.6.0*. The ``display-config`` command is
 used to print all the options in the *effective configuration*. It
 allows the user to debug configuration by printing the actual
 configuration used by degasolv after all the command-line arguments
@@ -344,7 +343,7 @@ returns a page that looks something like this::
 Overview of ``generate-card``
 +++++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2 .* This subcommand is used to generate
+*Introduced as of version 1.0.2*. This subcommand is used to generate
 a card file. This card file is used to represent a package within a
 degasolv repository. It is placed in a directory with other card
 files, and then the ``generate-repo-index`` command is used to search
@@ -534,7 +533,7 @@ returns a page that looks something like this::
 Overview of ``generate-repo-index``
 +++++++++++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2 .* This subcommand is used to generate
+*Introduced as of version 1.0.2*. This subcommand is used to generate
 a repository index file. A repository index file lists all versions of
 all packages in a particular degasolv repository, together with their
 locations. This file's location, whether by file path or URL, would
@@ -701,7 +700,7 @@ returns a page that looks something like this::
 Overview of ``resolve-locations``
 +++++++++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2 .* The ``resolve-locations`` command
+*Introduced as of version 1.0.2*. The ``resolve-locations`` command
 searches one or more repository index files, and uses the package
 information in them to attempt to resolve the requirements given at
 the command line. If successful, it exits with a return code of 0 and
