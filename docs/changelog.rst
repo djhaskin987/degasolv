@@ -9,8 +9,8 @@ and this project adheres to `Semantic Versioning`_.
 .. _Semantic Versioning: http://semver.org/spec/v2.0.0.html
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
-`Unreleased`_
--------------
+`1.11.0`_
+---------
 
 Added
 +++++
@@ -23,13 +23,6 @@ Added
 - Added the ``--output-format`` :ref:`option
   <output-format-query-repo>` to the :ref:`query-repo <query-repo>`
   command
-
-
-Changed
-+++++++
-
-Fixed
-+++++
 
 `1.10.0`_
 -------------
@@ -201,7 +194,8 @@ Added
 
 - This isn't the first release, but for the purposes of these docs, it is :D
 
-.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.10.0...HEAD
+.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.11.0...HEAD
+.. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.11.0
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
 .. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
 .. _1.8.0: https://github.com/djhaskin987/degasolv/compare/1.7.0...1.8.0
