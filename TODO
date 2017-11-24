@@ -1,15 +1,5 @@
 - [ ] Docs:
   - [ ] Set Up Guide
-  - [x] Star me on GitHub
-  - [X] More fully document JSON output
+  - [ ] Star me on GitHub
   - [ ] Add new logo
-- [ ] Add "show-version" command to degasolv, which displays manifest
-- [ ] Docs: "Show-version" command
-- [ ] Changelog: "Show-version" command
-- [ ] Add "--output-format edn"
-- [ ] Document "--output-format edn"
-- [ ] Test "--output-format edn"
-- [ ] Add "--output-format yaml"
-- [ ] Document "--output-format yaml"
-- [ ] Test "--output-format yaml"
 - [ ] BOOT fix so that most of build is in it
