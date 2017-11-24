@@ -44,11 +44,15 @@ Using Configuration Files
 Basic Configuration Usage
 #########################
 
-+------------------+------------------------+---------------------+
-| Short option     | Long option            | Config File Key     |
-+------------------+------------------------+---------------------+
-| ``-c FILE``      | ``--config-file FILE`` | N/A                 |
-+------------------+------------------------+---------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-c FILE``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--config-file FILE``                |
++-----------------------------+---------------------------------------+
+| Config file key             | N/A                                   |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 A config file may be specified at the command line. The config file is
 in the `EDN format`_. As a rule, any option for any sub-command may be
@@ -193,11 +197,15 @@ build-specific config file, as in this example::
 Option Packs
 ************
 
-+------------------+------------------------+---------------------------------+
-| Short option     | Long option            | Config File Key                 |
-+------------------+------------------------+---------------------------------+
-| ``-k PACK``      | ``--option-pack PACK`` | ``:option-packs ["PACK1",...]`` |
-+------------------+------------------------+---------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-k PACK``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--option-pack PACK``                |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:option-packs ["PACK1",...]``       |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.7.0                                 |
++-----------------------------+---------------------------------------+
 
 Specify one or more option packs.
 
@@ -273,12 +281,12 @@ returns a page that looks something like this::
 Overview of ``display-config``
 ++++++++++++++++++++++++++++++
 
-The ``display-config`` command is used to print all the options
-in the *effective configuration*. It allows the user to debug
-configuration by printing the actual configuration used by degasolv
-after all the command-line arguments and config files have
-been merged together. An example of this is found in the
-`config files section`_.
+*Introduced as of version 1.6.0 .* The ``display-config`` command is
+used to print all the options in the *effective configuration*. It
+allows the user to debug configuration by printing the actual
+configuration used by degasolv after all the command-line arguments
+and config files have been merged together. An example of this is
+found in the `config files section`_.
 
 As of version 1.6.0, ``display-config`` accepts any valid option
 in long form (``--long-form``) which is accepted by any other
@@ -320,11 +328,11 @@ returns a page that looks something like this::
 Overview of ``generate-card``
 +++++++++++++++++++++++++++++
 
-This subcommand is used to generate a card file. This card file is
-used to represent a package within a degasolv repository. It is placed
-in a directory with other card files, and then the
-``generate-repo-index`` command is used to search that directory for
-card files to produce a repository index.
+*Introduced as of version 1.0.2 .* This subcommand is used to generate
+a card file. This card file is used to represent a package within a
+degasolv repository. It is placed in a directory with other card
+files, and then the ``generate-repo-index`` command is used to search
+that directory for card files to produce a repository index.
 
 Explanation of Options for ``generate-card``
 ++++++++++++++++++++++++++++++++++++++++++++
@@ -332,11 +340,15 @@ Explanation of Options for ``generate-card``
 Specify Location of the Card File
 *********************************
 
-+------------------+------------------------+---------------------------------+
-| Short option     | Long option            | Config File Key                 |
-+------------------+------------------------+---------------------------------+
-| ``-C FILE``      | ``--card-file FILE``   | ``:card-file "FILE"``           |
-+------------------+------------------------+---------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-C FILE``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--card-file FILE``                  |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:card-file "FILE"``                 |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 Specify the name of the card file to generate. It is best practice
 to name this file after the name of the file referred to by the package's
@@ -349,25 +361,33 @@ I would name the card file ``a-1.0.zip.dscard``, as in
 Specify the ID (Name) of the Package
 ************************************
 
-+------------------+------------------------+---------------------------------+
-| Short option     | Long option            | Config File Key                 |
-+------------------+------------------------+---------------------------------+
-| ``-i ID``        | ``--id ID``            | ``:id "ID"``                    |
-+------------------+------------------------+---------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-i ID``                             |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--id ID``                           |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:id "ID"``                          |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
-**Required**. Specify the ID of the
-package described in the card file. The ID serves both as a unique identifier
-for the package and its name. It may be composed of any characters
-other than the following characters: ``<>=!,;|``.
+**Required**. Specify the ID of the package described in the card
+file. The ID serves both as a unique identifier for the package and
+its name. It may be composed of any characters other than the
+following characters: ``<>=!,;|``.
 
 Specify the Location of the Package
 ***********************************
 
-+------------------+------------------------+---------------------------------+
-| Short option     | Long option            | Config File Key                 |
-+------------------+------------------------+---------------------------------+
-| ``-l LOCATION``  | ``--location LOCATION``| ``:location "LOCATION"``        |
-+------------------+------------------------+---------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-l LOCATION``                       |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--location LOCATION``               |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:location "LOCATION"``              |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 **Required**. Specify the location of the file associated with the
 package to be described in the generated card file. Degasolv does
@@ -379,15 +399,19 @@ including a file location or a URL.
 Specify Additional Metadata for a Package
 *****************************************
 
-+------------------+------------------------+----------------------------------+
-| Short option     | Long option            | Config File Key                  |
-+------------------+------------------------+----------------------------------+
-| ``-m K=V``       | ``--meta K=V``         | ``:meta {:key1 "value1" ...}``   |
-+------------------+------------------------+----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-m K=V``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--meta K=V``                        |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:meta {:key1 "value1" ...}``        |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.11.0                                |
++-----------------------------+---------------------------------------+
 
-*Introduced as of version 1.11.0.* Specify additional metadata about
-the package within the card file.  This is a powerful feature allowing
-the operator to build tooling on top of degasolv.
+Specify additional metadata about the package within the card file.
+This is a powerful feature allowing the operator to build tooling on
+top of degasolv.
 
 For example, now the operator may store the sha256 sum of the artifact,
 the location of its PGP signature, a list of scripts useful in the build
@@ -422,11 +446,15 @@ file, or keys ``id=``, ``version=``, ``location=``, or
 Specify a Requirement for a Package
 ***********************************
 
-+------------------+------------------------+----------------------------------+
-| Short option     | Long option            | Config File Key                  |
-+------------------+------------------------+----------------------------------+
-| ``-r REQ``       | ``--requirement REQ``  | ``:requirements ["REQ1", ...]``  |
-+------------------+------------------------+----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-r REQ``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--requirement REQ``                 |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:requirements ["REQ1", ...]``       |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 List a requirement (dependency) of the package in the card file.  May
 be specified one or more times as a command line option, or once as a
@@ -436,11 +464,15 @@ requirement` for more information.
 Specify a Version for a Package
 *******************************
 
-+------------------+------------------------+----------------------------------+
-| Short option     | Long option            | Config File Key                  |
-+------------------+------------------------+----------------------------------+
-| ``-v VERSION``   | ``--version VERSION``  | ``:version "VERSION"``           |
-+------------------+------------------------+----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-v VERSION``                        |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--version VERSION``                 |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:version "VERSION"``                |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 **Required**. Specify the name of the package described in the card
 file.
@@ -448,11 +480,15 @@ file.
 Print the ``generate-card`` Help Page
 *************************************
 
-+------------------+------------------------+----------------------------------+
-| Short option     | Long option            | Config File Key                  |
-+------------------+------------------------+----------------------------------+
-| ``-h``           | ``--help``             | N/A                              |
-+------------------+------------------------+----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-h``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--help``                            |
++-----------------------------+---------------------------------------+
+| Config file key             | N/A                                   |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 Print a help page for the subcommand ``generate-card``.
 
@@ -482,12 +518,12 @@ returns a page that looks something like this::
 Overview of ``generate-repo-index``
 +++++++++++++++++++++++++++++++++++
 
-This subcommand is used to generate a repository index file. A
-repository index file lists all versions of all packages in a
-particular degasolv repository, together with their locations. This
-file's location, whether by file path or URL, would then be given to
-``resolve-locations`` and ``query-repo`` commands as degasolv
-repositories.
+*Introduced as of version 1.0.2 .* This subcommand is used to generate
+a repository index file. A repository index file lists all versions of
+all packages in a particular degasolv repository, together with their
+locations. This file's location, whether by file path or URL, would
+then be given to ``resolve-locations`` and ``query-repo`` commands as
+degasolv repositories.
 
 Explanation of Options for ``generate-repo-index``
 ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -495,11 +531,15 @@ Explanation of Options for ``generate-repo-index``
 Specify the Repo Search Directory
 *********************************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-d DIR``       | ``--search-directory DIR`` | ``:search-directory "DIR"``  |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-d DIR``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--search-directory DIR``            |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:search-directory "DIR"``           |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 Look for degasolv card files in this directory. The directory will be
 recursively searched for files with the ``.dscard`` extension and
@@ -509,11 +549,15 @@ present working directory (``.``).
 Specify the Repo Index File
 ***************************
 
-+------------------+----------------------------+------------------------------+
-| Short option     | Long option                | Config File Key              |
-+------------------+----------------------------+------------------------------+
-| ``-I FILE``      | ``--index-file FILE``      | ``:index-file "FILE"``       |
-+------------------+----------------------------+------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-I FILE``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--index-file FILE``                 |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:index-file "FILE"``                |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 Write the index file at the location ``FILE``. Default value is
 ``index.dsrepo``. It is good practice to use the default value.
@@ -523,11 +567,15 @@ Write the index file at the location ``FILE``. Default value is
 Specify the Version Comparison Algorithm
 ****************************************
 
-+---------------+------------------------------+-------------------------------+
-| Short option  | Long option                  | Config File Key               |
-+---------------+------------------------------+-------------------------------+
-| ``-V CMP``    | ``--version-comparison CMP`` | ``:version-comparison "CMP"`` |
-+---------------+------------------------------+-------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-V CMP``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--version-comparison CMP``          |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.8.0                                 |
++-----------------------------+---------------------------------------+
 
 Use the specified version comparison algorithm when generating the
 repository index. When repository indexes are generated, lists of
