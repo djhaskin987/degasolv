@@ -743,6 +743,8 @@ fulfill or resolve. Each field is explained as follows:
 Explanation of Options for ``resolve-locations``
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
+.. _enable-alternatives:
+
 Enable the Use of Alternatives
 ******************************
 
@@ -763,6 +765,8 @@ generally expensive to resolve, packagers should of course use them
 with caution.  If this option occurs together with the
 ``--disable-alternatives`` option on a command line, the last argument
 of the two specified wins.
+
+.. _disable-alternatives:
 
 Disable the Use of Alternatives
 *******************************

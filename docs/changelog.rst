@@ -125,26 +125,38 @@ Improved
 - Changed apt reop function from filtering a list to lookup in a map,
   increasing its speed
 
+`1.5.1`_
+--------
+
+Fixed
++++++
+
+`1.5.1`_
+--------
+
+Added
++++++
+
+- In just ~15 seconds, it slurps in a rather large apt repository
+Packages.gz file.  In another ~45 seconds, it resolves the
+ubuntu-desktop package, spitting out a grand total of 797 packages
+with their locations.
+
+Fixed
++++++
+
+- While using the apt data and package system to profile degasolv, I
+  found some rather nasty bugs. This release fixes them. This tool is
+  now ready for prime time.
+
 `1.5.0`_
 --------
 
 Added
 +++++
-- Added ``--disable-alternatives`` option and ``--enable-alternatives`` options
-
-Fixed
-+++++
-
-- Formatted docs better on the front page for PDF purposes
-- Add ability to use any (long) option on the command line in
-  :ref:`display-config <display-config-cli>`
-
-Improved
-++++++++
-- Memoized core Degasolv package system repository function (should
-  speed the resolver up a bit)
-- Changed apt reop function from filtering a list to lookup in a map,
-  increasing its speed
+- Added the ``--disable-alternatives`` :ref:`option
+  <disable-alternatives>` and ``--enable-alternatives`` :ref:`option
+  <enable-alternatives>` for debugging purposes.
 
 .. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.10.0...HEAD
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
@@ -152,3 +164,5 @@ Improved
 .. _1.8.0: https://github.com/djhaskin987/degasolv/compare/1.7.0...1.8.0
 .. _1.7.0: https://github.com/djhaskin987/degasolv/compare/1.6.0...1.7.0
 .. _1.6.0: https://github.com/djhaskin987/degasolv/compare/1.5.1...1.6.0
+.. _1.5.1: https://github.com/djhaskin987/degasolv/compare/1.5.0...1.5.1
+.. _1.5.0: https://github.com/djhaskin987/degasolv/compare/1.4.0...1.5.0
