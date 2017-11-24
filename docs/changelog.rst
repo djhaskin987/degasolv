@@ -32,7 +32,7 @@ Fixed
 Added
 +++++
 - Added the ``--output-format`` :ref:`option <output-format>` to
-  :ref:`resolve-locations <resolve-locations-options>`
+  :ref:`resolve-locations <resolve-locations>`
 
 `1.9.0`_
 --------
@@ -59,13 +59,13 @@ TODO -- Add "Introduced as of", Add/fix proper links and test them plz --
 - Added the ``--version-comparison`` option to
   :ref:`generate-repo-index <generate-repo-index>` (option :ref:`here
   <version-comparison-generate>`), :ref:`resolve-locations
-  <resolve-locations-options>` (option :ref:`here
+  <resolve-locations>` (option :ref:`here
   <version-comparison-resolve>`) and :ref:`query-repo
   <query-repo-options>` (option :ref:`here <version-comparison-query>`),
   allowing the user to specify which version comparison algorithm is
   used.
 - Added the ``--search-strat`` option to :ref:`resolve-locations
-  <resolve-locations-options>`, allowing users to select breadth first
+  <resolve-locations>`, allowing users to select breadth first
   search or depth first search during resolution
 - Added the :ref:`matches <matches>` operator (``<>REGEX``) which
   matches a version against a regex
@@ -159,7 +159,8 @@ Added
 +++++
 
 - Added the ``--present-package`` :ref:`option <present-package>` and
-  the ``--package-system`` :ref:`option <package-system>`.  This is so
+  the ``--package-system`` :ref:`option <package-system>` to the
+  :ref:`resolve-locations <resolve-locations>` subcommand.  This is so
   that I can start to profile degasolv using apt package repos
   (real-world data) and optimize its performance.
 
@@ -181,6 +182,22 @@ Added
 - Added the ability to specify multiple configuration files,
   thus allowing for site-wide configuration.
 
+`1.1.0`_
+--------
+
+Added
++++++
+
+- Added the ``--conflict-strat`` :ref:`option <conflict-strat>` to the
+  :ref:`resolve-locations <resolve-locations>` subcommand.
+
+- Added docs and tests.
+
+1.0.2
+-----
+
+- This isn't the first release, but for the purposes of these docs, it is :D
+
 .. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.10.0...HEAD
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
 .. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
@@ -192,3 +209,4 @@ Added
 .. _1.4.0: https://github.com/djhaskin987/degasolv/compare/1.3.0...1.4.0
 .. _1.3.0: https://github.com/djhaskin987/degasolv/compare/1.2.0...1.3.0
 .. _1.2.0: https://github.com/djhaskin987/degasolv/compare/1.1.0...1.2.0
+.. _1.1.0: https://github.com/djhaskin987/degasolv/compare/1.0.2...1.1.0

@@ -666,7 +666,7 @@ later.
 supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv will
 read standard input instead of any specific file or URL.
 
-.. _resolve-locations-options:
+.. _resolve-locations:
 
 CLI for ``resolve-locations``
 -----------------------------
