@@ -219,10 +219,11 @@
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories
-                query
-                index-strat
+  (let [{:keys [index-strat
+                output-format
                 package-system
+                repositories
+                query
                 version-comparison]}
         options
         version-comparator
@@ -239,15 +240,31 @@
                    version-comparator)
         results (filter
                  #(spec-call spec %)
-                 (aggregate-repo id))]
+                 (aggregate-repo id))
+        result-info
+        {
+         :command "degasolv"
+         :subcommand "resolve-locations"
+         :options options
+         :response results
+         }]
     (if (empty? results)
       (exit 2 "No results returned from query")
       (println
-       (string/join
-        \newline
-        (map
-         explain-package
-         results))))))
+        (case output-format
+          "json"
+          (json/write-str result-info :escape-slash false)
+          "edn"
+          (pr-str result-info)
+          "plain"
+          (string/join
+           \newline
+           (map
+            explain-package
+            results))
+          (throw (ex-info "This shouldn't happen"
+                          {:subcommand "query-repo"
+                           :output-format output-format})))))))
 
 (def subcommand-option-defaults
   {
@@ -363,13 +380,13 @@
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
-          ["-o" "--output-format FORMAT" "May be 'plain' or 'json'"
+          ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
            :default nil
            :default-desc (str (:output-format subcommand-option-defaults))
            :validate [#(or (= "plain" %)
                            (= "json" %)
                            (= "edn" %))
-                      "Output format may be either 'plain' or 'json'"]]
+                      "Output format may be either be 'plain', 'edn' or 'json'"]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
            :id :present-packages
@@ -423,6 +440,13 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
     :cli [
+          ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
+           :default nil
+           :default-desc (str (:output-format subcommand-option-defaults))
+           :validate [#(or (= "plain" %)
+                           (= "json" %)
+                           (= "edn" %))
+                      "Output format may be either be 'plain', 'edn' or 'json'"]]
           ["-q" "--query QUERY"
            "Display packages matching query string."
            :validate [#(and (re-matches r/str-requirement-regex %)
