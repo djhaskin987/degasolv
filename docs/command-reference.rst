@@ -429,13 +429,17 @@ Specify Additional Metadata for a Package
 | Version introduced          | 1.11.0                                |
 +-----------------------------+---------------------------------------+
 
-Specify additional metadata about the package within the card file.
-This is a powerful feature allowing the operator to build tooling on
-top of degasolv.
+Specify additional metadata about the package within the card
+file. This metadata will stay with the package information in its card
+file. It will also be printed with other package information about the
+package when the package is printed after dependency resolution when
+`resolve-locations`_ subcommand is called, provided that the
+`output-format`_ option is also used in a mode other than ``plain``.
 
-For example, now the operator may store the sha256 sum of the artifact,
-the location of its PGP signature, a list of scripts useful in the build
-contained within the artifact, etc.
+This is a powerful feature allowing the operator to build tooling on
+top of degasolv. For example, now the operator may store the sha256
+sum of the artifact, the location of its PGP signature, a list of
+scripts useful in the build contained within the artifact, etc.
 
 For key/value pairs specified on the command line, keys are turned
 into EDN keywords (e.g., ``:K``) internally and values are simply
