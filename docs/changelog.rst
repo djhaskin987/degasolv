@@ -18,7 +18,8 @@ Added
   :ref:`generate-card <generate-card-options>`
 - Added metadata a la ``--meta`` to the ``apt`` :ref:`package system
   <package-system>` (experimental)
-- Added the ``edn`` :ref:`output format <output-format>`
+- Added the ``edn`` :ref:`output format option <output-format>` for
+  the ``resolve-locations`` :ref:`subcommand <resolve-locations>`
 - Added the ``--output-format`` :ref:`option
   <output-format-query-repo>` to the :ref:`query-repo <query-repo>`
   command
@@ -63,7 +64,7 @@ Added
   :ref:`generate-repo-index <generate-repo-index>` (option :ref:`here
   <version-comparison-generate>`), :ref:`resolve-locations
   <resolve-locations>` (option :ref:`here <version-comparison-resolve>`)
-  and :ref:`query-repo <query-repo-options>` (option :ref:`here
+  and :ref:`query-repo <query-repo>` (option :ref:`here
   <version-comparison-query>`), allowing the user to specify which
   version comparison algorithm is used.
 - Added the ``--search-strat`` option to :ref:`resolve-locations

@@ -1373,7 +1373,7 @@ the `Serovers docs`_.
    site. It is therefore recommended that whichever setting is
    chosen should be used `site-wide`_ within an organization.
 
-.. _query-repo-options:
+.. _query-repo:
 
 CLI for ``query-repo``
 ----------------------
