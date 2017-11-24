@@ -20,9 +20,9 @@ Some Notes on Versions
   ``-`` given as the filename, to specify that standard in should be
   used.
 
-**The earliest usable released version of degasolv that can be
- recommended for use is 1.5.1**. Anything before that wasn't profiled,
- and had some pretty bad bugs in it.
+- The earliest usable released version of degasolv that can be
+  recommended for use is 1.5.1 . Anything before that wasn't profiled,
+  and had some pretty bad bugs in it.
 
 .. _top-level-cli:
 
@@ -301,12 +301,13 @@ returns a page that looks something like this::
 Overview of ``display-config``
 ++++++++++++++++++++++++++++++
 
-*Introduced as of version 1.6.0*. The ``display-config`` command is
-used to print all the options in the *effective configuration*. It
-allows the user to debug configuration by printing the actual
-configuration used by degasolv after all the command-line arguments
-and config files have been merged together. An example of this is
-found in the `config files section`_.
+*This subcommand introduced as of version 1.6.0*.
+
+The ``display-config`` command is used to print all the options in the
+*effective configuration*. It allows the user to debug configuration
+by printing the actual configuration used by degasolv after all the
+command-line arguments and config files have been merged together. An
+example of this is found in the `config files section`_.
 
 As of version 1.6.0, ``display-config`` accepts any valid option
 in long form (``--long-form``) which is accepted by any other
@@ -348,11 +349,13 @@ returns a page that looks something like this::
 Overview of ``generate-card``
 +++++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2*. This subcommand is used to generate
-a card file. This card file is used to represent a package within a
-degasolv repository. It is placed in a directory with other card
-files, and then the ``generate-repo-index`` command is used to search
-that directory for card files to produce a repository index.
+*This subcommand introduced as of version 1.0.2*.
+
+This subcommand is used to generate a card file. This card file is
+used to represent a package within a degasolv repository. It is placed
+in a directory with other card files, and then the
+``generate-repo-index`` command is used to search that directory for
+card files to produce a repository index.
 
 Explanation of Options for ``generate-card``
 ++++++++++++++++++++++++++++++++++++++++++++
@@ -542,12 +545,14 @@ returns a page that looks something like this::
 Overview of ``generate-repo-index``
 +++++++++++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2*. This subcommand is used to generate
-a repository index file. A repository index file lists all versions of
-all packages in a particular degasolv repository, together with their
-locations. This file's location, whether by file path or URL, would
-then be given to ``resolve-locations`` and ``query-repo`` commands as
-degasolv repositories.
+*This subcommand introduced as of version 1.0.2*.
+
+This subcommand is used to generate a repository index file. A
+repository index file lists all versions of all packages in a
+particular degasolv repository, together with their locations. This
+file's location, whether by file path or URL, would then be given to
+``resolve-locations`` and ``query-repo`` commands as degasolv
+repositories.
 
 Explanation of Options for ``generate-repo-index``
 ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -709,12 +714,13 @@ returns a page that looks something like this::
 Overview of ``resolve-locations``
 +++++++++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2*. The ``resolve-locations`` command
-searches one or more repository index files, and uses the package
-information in them to attempt to resolve the requirements given at
-the command line. If successful, it exits with a return code of 0 and
-outputs the name of each package in the solution it has found,
-together with that package's location.
+*This subcommand introduced as of version 1.0.2*.
+
+The ``resolve-locations`` command searches one or more repository
+index files, and uses the package information in them to attempt to
+resolve the requirements given at the command line. If successful, it
+exits with a return code of 0 and outputs the name of each package in
+the solution it has found, together with that package's location.
 
 If the command fails, a non-zero exit code is returned. The output from such
 a run might look like this::
@@ -1198,6 +1204,8 @@ Other available values are:
        repo has an associated architecture, even if that architecture
        is ``any``.
 
+.. _version-comparison-resolve:
+
 Specify the Version Comparison Algorithm
 ****************************************
 
@@ -1266,9 +1274,11 @@ page that looks something like this::
 Overview of ``query-repo``
 ++++++++++++++++++++++++++
 
-*Introduced as of version 1.0.2*. This subcommand queries a repository
-index or indices for packages. This comand is intended to be useful or
-debugging dependency problems.
+*This subcommand introduced as of version 1.0.2*.
+
+This subcommand queries a repository index or indices for
+packages. This comand is intended to be useful or debugging dependency
+problems.
 
 Explanation of Options for ``query-repo``
 +++++++++++++++++++++++++++++++++++++++++
@@ -1352,6 +1362,8 @@ This option works exactly the same as the `package system`_ option for
 the ``resolve-locations`` command, except that it is used for simple
 index queries. See that option's explanation for more information.
 
+.. _version-comparison-query:
+
 Specify the Version Comparison Algorithm
 ****************************************
 
@@ -1398,10 +1410,12 @@ Specifying a requirement
 .. _alternatives:
 
 *Unless otherwise noted, features in this section were introduced as
-of version 1.0.2 or earlier*. A requirement is given as a string of
-text. A requirement consists of one or more *alternatives*. Any of the
-alternatives will satisfy the requirement. Alternatives are specified
-by a bar character (``|``), like this::
+of version 1.0.2 or earlier*.
+
+A requirement is given as a string of text. A requirement consists of
+one or more *alternatives*. Any of the alternatives will satisfy the
+requirement. Alternatives are specified by a bar character (``|``),
+like this::
 
   "<alt1>|<alt2>|<alt3>"
 

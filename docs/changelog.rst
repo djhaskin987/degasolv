@@ -9,7 +9,6 @@ and this project adheres to `Semantic Versioning`_.
 .. _Semantic Versioning: http://semver.org/spec/v2.0.0.html
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
-
 `Unreleased`_
 -------------
 
@@ -55,15 +54,13 @@ Fixed
 Added
 +++++
 - Distribution is now done via RPM and Debian package as well as JAR fil
-TODO -- Add "Introduced as of", Add/fix proper links and test them plz --
 - Added the ``--version-comparison`` option to
   :ref:`generate-repo-index <generate-repo-index>` (option :ref:`here
   <version-comparison-generate>`), :ref:`resolve-locations
-  <resolve-locations>` (option :ref:`here
-  <version-comparison-resolve>`) and :ref:`query-repo
-  <query-repo-options>` (option :ref:`here <version-comparison-query>`),
-  allowing the user to specify which version comparison algorithm is
-  used.
+  <resolve-locations>` (option :ref:`here <version-comparison-resolve>`)
+  and :ref:`query-repo <query-repo-options>` (option :ref:`here
+  <version-comparison-query>`), allowing the user to specify which
+  version comparison algorithm is used.
 - Added the ``--search-strat`` option to :ref:`resolve-locations
   <resolve-locations>`, allowing users to select breadth first
   search or depth first search during resolution
