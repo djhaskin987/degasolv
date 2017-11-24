@@ -157,9 +157,9 @@ Added
 
 - Added the ``--present-package`` :ref:`option <present-package>` and
   the ``--package-system`` :ref:`option <package-system>` to the
-  :ref:`resolve-locations <resolve-locations>` subcommand.  This is so
-  that I can start to profile degasolv using apt package repos
-  (real-world data) and optimize its performance.
+  :ref:`resolve-locations <resolve-locations>` subcommand.  This was so
+  that degasolv could be profiled using apt package repos
+  (real-world data) and thereby have its performance optimized.
 
 `1.3.0`_
 --------

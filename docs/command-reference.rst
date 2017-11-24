@@ -136,10 +136,10 @@ With this command::
     resolve-locations \
     [...]
 
-The config file may be a URL or a filepath. Both HTTP and HTTPS URLs are
-supported. If the config file is ``-`` (the hyphen character), degasolv
-will read standard input instead of any specific file or
-URL.
+As of version 1.3.0, The config file may be a URL or a filepath. Both
+HTTP and HTTPS URLs are supported. If the config file is ``-`` (the
+hyphen character), degasolv will read standard input instead of any
+specific file or URL.
 
 Using Multiple Configuration Files
 ##################################
@@ -672,8 +672,9 @@ repository index could be generated on the server in the usual way
 later.
 
 ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
-supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv will
-read standard input instead of any specific file or URL.
+supported. As of version 1.3.0, an ``INDEX`` may be specified as
+``-``, the hyphen character. If ``INDEX`` is ``-``, degasolv will read
+standard input instead of any specific file or URL.
 
 .. _resolve-locations:
 
@@ -934,30 +935,110 @@ the packages. Among those keys will be a key called "packages", and it will
 look something like this::
 
   {
-      ...,
-      "packages": [
-          {
-              "name": "c",
-              "version": "3.5.0",
-              "location": "https://example.com/repo/c-3.5.0.zip"
-          },
-          {
-              "name": "d",
-              "version": "0.8.0",
-              "location": "https://example.com/repo/d-0.8.0.zip"
-          },
-          {
-              "name": "e",
-              "version": "1.8.0",
-              "location:" "https://example.com/repo/e-1.8.0.zip"
-          },
-          {
-              "name": "b",
-              "version": "2.3.0",
-              "location:" "https://example.com/repo/b-2.3.0.zip"
-          }, ...
-      ], ...
+    "command": "degasolv",
+    "subcommand": "resolve-locations",
+    "options": {
+      "requirements": [
+        "b"
+      ],
+      "resolve-strat": "thorough",
+      "index-strat": "priority",
+      "conflict-strat": "exclusive",
+      "search-directory": ".",
+      "package-system": "degasolv",
+      "output-format": "json",
+      "version-comparison": "maven",
+      "index-file": "index.dsrepo",
+      "repositories": [
+        "./index.dsrepo"
+      ],
+      "search-strat": "breadth-first",
+      "alternatives": true,
+      "present-packages": [
+        "x==0.9.0",
+        "e==1.8.0"
+      ],
+      "card-file": "./out.dscard"
+    },
+    "result": "successful",
+    "packages": [
+      {
+        "id": "d",
+        "version": "0.8.0",
+        "location": "https://example.com/repo/d-0.8.0.zip",
+        "requirements": [
+          [
+            {
+              "status": "present",
+              "id": "e",
+              "spec": [
+                [
+                  {
+                    "relation": "greater-equal",
+                    "version": "1.1.0"
+                  },
+                  {
+                    "relation": "less-than",
+                    "version": "2.0.0"
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "id": "c",
+        "version": "3.5.0",
+        "location": "https://example.com/repo/c-3.5.0.zip",
+        "requirements": []
+      },
+      {
+        "id": "b",
+        "version": "2.3.0",
+        "location": "https://example.com/repo/b-2.3.0.zip",
+        "requirements": [
+          [
+            {
+              "status": "present",
+              "id": "c",
+              "spec": [
+                [
+                  {
+                    "relation": "greater-equal",
+                    "version": "3.5.0"
+                  }
+                ]
+              ]
+            }
+          ],
+          [
+            {
+              "status": "present",
+              "id": "d",
+              "spec": null
+            }
+          ]
+        ]
+      }
+    ]
   }
+
+The output will have the following top-level keys in it;
+
+  - ``command``: This is will be ``degasolv``.
+  - ``subcommand``: This will reflect what subcommand was specified.
+    In the current version, this will always be ``resolve-locations``.
+  - ``options``: This shows what options were given when degasolv was
+    run. Its contents should roughly reflect the output of ``display-config``
+    when run with similar options.
+  - ``result``: This displays whether the run was successful or
+    not. Since unsuccessful runs result in a printed error and not
+    outputted JSON, this will be ``successful``. At present, to
+    determine whether a run was successful, use the return code of
+    degasolv rather than this key.
+  - ``packages``: This displays the list of packages and, if present,
+    any additional `meta-data`_ associated with the package.
 
 .. _present package:
 .. _present-package:
@@ -1055,7 +1136,7 @@ information.
 ``INDEX`` may be a URL or a filepath pointing to a `*.dsrepo`
 file. For example, index might be
 `http://example.com/repo/index.dsrepo`. Both HTTP and HTTPS URLs are
-supported. If ``INDEX`` is ``-`` (the hyphen character), degasolv will
+supported. As of version 1.1.0, If ``INDEX`` is ``-`` (the hyphen character), degasolv will
 read standard input instead of any specific file or URL. Possible use
 cases for this include downloading the index repository first via some
 other tool (such as `cURL`_).  One reason users might do this is if
