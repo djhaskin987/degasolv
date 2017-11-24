@@ -4,16 +4,21 @@ Degasolv Command Reference
 This article describes the Degasolv CLI, what subcommands and options
 there are, and what they are for.
 
-Some Note on Versions
----------------------
+Some Notes on Versions
+----------------------
 
-On a best-effort basis, features have had the version that they first
-appeared associated with them in this guide.
+- On a best-effort basis, features have had the version that they first
+  appeared associated with them in this guide.
 
-Anything tagged with version 1.0.2 *really* means "1.0.2 or
-earlier". The history gets shaky before that :)
+- Anything tagged with version 1.0.2 *really* means "1.0.2 or
+  earlier". The history gets shaky before that :)
 
-The first version of degasolv (for the purposes of this guide) released was 1.0.2 .
+- The first version of degasolv (for the purposes of this guide)
+  released was 1.0.2 .
+
+- As of version 1.3.0, All options which take a file name may now have
+  ``-`` given as the filename, to specify that standard in should be
+  used.
 
 **The earliest usable released version of degasolv that can be
  recommended for use is 1.5.1**. Anything before that wasn't profiled,
@@ -945,6 +950,7 @@ look something like this::
   }
 
 .. _present package:
+.. _present-package:
 
 Specify that a Package is Already Present
 *****************************************
@@ -1133,6 +1139,7 @@ most environments.
 
 .. _package system:
 .. _package-system:
+
 Specify a Package System (Experimental)
 ***************************************
 

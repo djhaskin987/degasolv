@@ -128,12 +128,6 @@ Improved
 `1.5.1`_
 --------
 
-Fixed
-+++++
-
-`1.5.1`_
---------
-
 Added
 +++++
 
@@ -155,8 +149,37 @@ Fixed
 Added
 +++++
 - Added the ``--disable-alternatives`` :ref:`option
-  <disable-alternatives>` and ``--enable-alternatives`` :ref:`option
-  <enable-alternatives>` for debugging purposes.
+  <disable-alternatives>` and the ``--enable-alternatives``
+  :ref:`option <enable-alternatives>` for debugging purposes.
+
+`1.4.0`_
+--------
+
+Added
++++++
+
+- Added the ``--present-package`` :ref:`option <present-package>` and
+  the ``--package-system`` :ref:`option <package-system>`.  This is so
+  that I can start to profile degasolv using apt package repos
+  (real-world data) and optimize its performance.
+
+`1.3.0`_
+--------
+
+Added
++++++
+
+- Add standard input as a file type. All options which take a file name may now
+  have ``-`` given as the filename, to specify that standard in should be used.
+
+`1.2.0`_
+--------
+
+Added
++++++
+
+- Added the ability to specify multiple configuration files,
+  thus allowing for site-wide configuration.
 
 .. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.10.0...HEAD
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
@@ -166,3 +189,6 @@ Added
 .. _1.6.0: https://github.com/djhaskin987/degasolv/compare/1.5.1...1.6.0
 .. _1.5.1: https://github.com/djhaskin987/degasolv/compare/1.5.0...1.5.1
 .. _1.5.0: https://github.com/djhaskin987/degasolv/compare/1.4.0...1.5.0
+.. _1.4.0: https://github.com/djhaskin987/degasolv/compare/1.3.0...1.4.0
+.. _1.3.0: https://github.com/djhaskin987/degasolv/compare/1.2.0...1.3.0
+.. _1.2.0: https://github.com/djhaskin987/degasolv/compare/1.1.0...1.2.0
