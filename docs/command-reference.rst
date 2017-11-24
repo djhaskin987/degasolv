@@ -833,7 +833,7 @@ Specify Conflict Strategy
 +-----------------------------+---------------------------------------+
 | Config file key             | ``:conflict-strat "STRAT"``           |
 +-----------------------------+---------------------------------------+
-| Version introduced          | 1.3.0                                 |
+| Version introduced          | 1.1.0                                 |
 +-----------------------------+---------------------------------------+
 
 This option determines how encountered version conflicts will be
