@@ -1414,6 +1414,28 @@ problems.
 Explanation of Options for ``query-repo``
 +++++++++++++++++++++++++++++++++++++++++
 
+.. _output-format-query-repo:
+
+Specify Output Format
+*********************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-o FORMAT``                         |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--output-format FORMAT``            |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:output-format "FORMAT"``           |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.11.0                                |
++-----------------------------+---------------------------------------+
+
+Specify an output format. May be ``plain``, ``edn`` or ``json``. By
+default the output format is ``plain``. This output format only takes
+effect when the query returns a non-empty set of results. This is
+exactly like the `output-format`_ option for `resolve-locations`_,
+except that the ``subcommand`` field is new returned as
+``query-repo``.
+
 Specify Query
 *************
 

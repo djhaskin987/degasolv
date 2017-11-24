@@ -19,6 +19,10 @@ Added
 - Added metadata a la ``--meta`` to the ``apt`` :ref:`package system
   <package-system>` (experimental)
 - Added the ``edn`` :ref:`output format <output-format>`
+- Added the ``--output-format`` :ref:`option
+  <output-format-query-repo>` to the :ref:`query-repo <query-repo>`
+  command
+
 
 Changed
 +++++++

@@ -246,7 +246,7 @@
          :command "degasolv"
          :subcommand "resolve-locations"
          :options options
-         :response results
+         :packages results
          }]
     (if (empty? results)
       (exit 2 "No results returned from query")
