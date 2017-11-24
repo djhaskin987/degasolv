@@ -1,7 +1,7 @@
 - [ ] Docs:
   - [ ] Set Up Guide
-  - [ ] Star me on GitHub
-  - [ ] More fully document JSON output
+  - [x] Star me on GitHub
+  - [X] More fully document JSON output
   - [ ] Add new logo
 - [ ] Add "show-version" command to degasolv, which displays manifest
 - [ ] Docs: "Show-version" command

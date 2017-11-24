@@ -18,6 +18,7 @@ Added
   :ref:`generate-card <generate-card-options>`
 - Added metadata a la ``--meta`` to the ``apt`` :ref:`package system
   <package-system>` (experimental)
+- Added the ``edn`` :ref:`output format <output-format>`
 
 Changed
 +++++++

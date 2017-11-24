@@ -907,11 +907,12 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Config file key             | ``:output-format "FORMAT"``           |
 +-----------------------------+---------------------------------------+
-| Version introduced          | 1.10.0                                |
+| Version introduced          | 1.10.0; EDN introduced 1.11.0         |
 +-----------------------------+---------------------------------------+
 
-Specify an output format. May be ``plain`` or ``json``. This output
-format only takes effect when the package resolution was successful.
+Specify an output format. May be ``plain``, ``edn`` or ``json``. This
+output format only takes effect when the package resolution was
+successful.
 
 The default output format is ``plain``. It is a simple text format
 that was designed for ease of use within bash scripts while also
@@ -1024,7 +1025,56 @@ look something like this::
     ]
   }
 
-The output will have the following top-level keys in it;
+If the output format is EDN, the output will be similar, except it will use
+the EDN format::
+
+  {
+    :command "degasolv",
+    :subcommand "resolve-locations",
+    :options {
+      :requirements ("a<=1.0.0"),
+      :resolve-strat "thorough",
+      :index-strat "priority",
+      :conflict-strat "exclusive",
+      :search-directory ".",
+      :package-system "degasolv",
+      :output-format "edn",
+      :version-comparison "maven",
+      :index-file "index.dsrepo",
+      :repositories (
+        "./index.dsrepo"
+      ),
+      :search-strat "breadth-first",
+      :alternatives true,
+      :card-file "./out.dscard"
+    },
+    :result :successful,
+    :packages #{
+      #degasolv.resolver/PackageInfo {
+        :id "b",
+        :version "2.3.0",
+        :location "https://example.com/repo/b-2.3.0.zip",
+        :requirements []
+      },
+      #degasolv.resolver/PackageInfo {
+        :id "a",
+        :version "1.0.0",
+        :location "https://example.com/repo/a-1.0.0.zip",
+        :requirements [
+          [
+            #degasolv.resolver/Requirement {
+              :status :present,
+              :id "b",
+              :spec nil
+            }
+          ]
+        ]
+      }
+    }
+  }
+
+The output, if the format is not ``plain``, will have the following
+top-level keys in it:
 
   - ``command``: This is will be ``degasolv``.
   - ``subcommand``: This will reflect what subcommand was specified.

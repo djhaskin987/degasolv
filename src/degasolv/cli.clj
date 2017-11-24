@@ -180,6 +180,8 @@
         (case output-format
           "json"
           (json/write-str result-info :escape-slash false)
+          "edn"
+          (pr-str result-info)
           "plain"
           (string/join
             \newline
@@ -365,7 +367,8 @@
            :default nil
            :default-desc (str (:output-format subcommand-option-defaults))
            :validate [#(or (= "plain" %)
-                           (= "json" %))
+                           (= "json" %)
+                           (= "edn" %))
                       "Output format may be either 'plain' or 'json'"]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
