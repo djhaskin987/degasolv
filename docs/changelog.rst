@@ -24,6 +24,12 @@ Added
   <output-format-query-repo>` to the :ref:`query-repo <query-repo>`
   command
 
+Changed
++++++++
+
+- Overhauled the documentation option look and feel; ensured that
+  options themselves had a linking target (header)
+
 `1.10.0`_
 -------------
 
