@@ -1,0 +1,67 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -x
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+test_home=test/resources/data/meta
+rm -rf ${test_home}
+mkdir -p ${test_home}
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+java \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     --card-file ${test_home}/out.dscard \
+     --id yer \
+     --location yerloc \
+     --requirement foo \
+     --meta sha256sum=goodcodegottaloadagooddealofdata \
+     --meta foo=bar \
+     --version 1.2.3
+
+cat ${test_home}/out.dscard | grep -q goodcode
+
+cat > ${test_home}/degasolv.edn <<EOF
+{
+    :card-file "${test_home}/out2.dscard"
+    :id "yer"
+    :location "yerloc"
+    :requirements ["foo"]
+    :meta {
+          :sha256sum "goodcodegottaloadagooddealofdata"
+          :foo "bar"
+          }
+    :version "1.2.3"
+}
+EOF
+
+java \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+    -c ${test_home}/degasolv.edn \
+    generate-card
+
+cat ${test_home}/out2.dscard | grep -q 'goodcode'
+firstsha=$(sha256sum ${test_home}/out.dscard | awk '{print $1}')
+secondsha=$(sha256sum ${test_home}/out2.dscard | awk '{print $1}')
+
+if [ "${firstsha}" != "${secondsha}" ]
+then
+    exit 1
+fi
+
+java \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     --card-file ${test_home}/out3.dscard \
+     --id yer \
+     --location yerloc \
+     --requirement foo \
+     --meta location=goodcodegottaloadagooddealofdata \
+     --version 1.2.3
+
+cat ${test_home}/out3.dscard | grep -q yerloc

@@ -30,52 +30,55 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
 
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     generate-card \
-    -i "b" \
-    -v "2.3.0" \
-    -l "https://example.com/repo/b-2.3.0.zip" \
-    -C $PWD/b-2.3.0.zip.dscard
-
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+    -i "a" \
+    -v "1.0.1" \
+    -l "https://example.com/repo/a-1.0.1.zip" \
+    -C $PWD/a-1.0.1.zip.dscard
 
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    -R ${PWD}/index.dsrepo \
-    --output-format json \
-    --requirement "a<=1.0.0"
-if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    -R ${PWD}/index.dsrepo \
-    --output-format json \
-    --requirement "z<=1.0.0"
-then
-    exit 1
-fi
-
+     generate-repo-index \
+     -d $PWD \
+     -I $PWD/index.dsrepo
 
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --output-format edn \
+    query-repo \
     -R ${PWD}/index.dsrepo \
-    --requirement "a<=1.0.0"
+    --output-format json \
+    --query "a"
 
 if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --output-format edn \
+    query-repo \
     -R ${PWD}/index.dsrepo \
-    --requirement "z<=1.0.0"
+    --output-format json \
+    --query "a>2.0"
 then
     exit 1
 fi
 
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
+    query-repo \
     -R ${PWD}/index.dsrepo \
-    --requirement "a<=1.0.0"
+    --output-format edn \
+    --query "a"
 
 if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
+    query-repo \
     -R ${PWD}/index.dsrepo \
-    --requirement "z<=1.0.0"
+    --output-format edn \
+    --query "a>2.0"
+then
+    exit 1
+fi
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    query-repo \
+    -R ${PWD}/index.dsrepo \
+    --query "a"
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    query-repo \
+    -R ${PWD}/index.dsrepo \
+    --query "a>2.0"
 then
     exit 1
 fi

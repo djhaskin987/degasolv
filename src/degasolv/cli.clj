@@ -179,7 +179,9 @@
       (println
         (case output-format
           "json"
-          (json/write-str result-info)
+          (json/write-str result-info :escape-slash false)
+          "edn"
+          (pr-str result-info)
           "plain"
           (string/join
             \newline
@@ -200,25 +202,28 @@
                 (map r/explain-problem (:problems result-info))))))))
 
 (defn- generate-card!
-  [{:keys [id version location requirements card-file]}
+  [{:keys [id version location requirements card-file meta]}
    arguments]
   (default-spit
    card-file
-   (->PackageInfo
+   (into
+    (->PackageInfo
     id
     version
     location
     (into []
           (map
            #(string-to-requirement %)
-           requirements)))))
+           requirements)))
+    (dissoc meta :id :version :location :requirements))))
 
 (defn query-repo!
   [options arguments]
-  (let [{:keys [repositories
-                query
-                index-strat
+  (let [{:keys [index-strat
+                output-format
                 package-system
+                repositories
+                query
                 version-comparison]}
         options
         version-comparator
@@ -235,15 +240,31 @@
                    version-comparator)
         results (filter
                  #(spec-call spec %)
-                 (aggregate-repo id))]
+                 (aggregate-repo id))
+        result-info
+        {
+         :command "degasolv"
+         :subcommand "resolve-locations"
+         :options options
+         :packages results
+         }]
     (if (empty? results)
       (exit 2 "No results returned from query")
       (println
-       (string/join
-        \newline
-        (map
-         explain-package
-         results))))))
+        (case output-format
+          "json"
+          (json/write-str result-info :escape-slash false)
+          "edn"
+          (pr-str result-info)
+          "plain"
+          (string/join
+           \newline
+           (map
+            explain-package
+            results))
+          (throw (ex-info "This shouldn't happen"
+                          {:subcommand "query-repo"
+                           :output-format output-format})))))))
 
 (def subcommand-option-defaults
   {
@@ -289,6 +310,15 @@
            :validate [#(not (empty? %))
                       "Location must be a non-empty string."]
            :required true]
+          ["-m" "--meta K=V"
+           "Add additional metadata"
+           :validate [#(re-matches #"^[^=]+=[^=].*$" %)
+                      "Metadata must be presented as <key>=<value> pair."]
+           :id :meta
+           :assoc-fn
+           (fn [m k v]
+             (let [[_ rk rv] (re-find #"^([^=]+)=([^=].*)$" v)]
+               (update-in m [k] #(assoc % (keyword rk) rv))))]
           ["-r" "--requirement REQ"
            "List requirement **"
            :validate [#(re-matches r/str-requirement-regex %)
@@ -350,12 +380,13 @@
                            (= "inclusive" %)
                            (= "prioritized" %))
                       "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
-          ["-o" "--output-format FORMAT" "May be 'plain' or 'json'"
+          ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
            :default nil
            :default-desc (str (:output-format subcommand-option-defaults))
            :validate [#(or (= "plain" %)
-                           (= "json" %))
-                      "Output format may be either 'plain' or 'json'"]]
+                           (= "json" %)
+                           (= "edn" %))
+                      "Output format may be either be 'plain', 'edn' or 'json'"]]
           ["-p" "--present-package PKG"
            "Hard present package. **"
            :id :present-packages
@@ -409,6 +440,13 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
     :cli [
+          ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
+           :default nil
+           :default-desc (str (:output-format subcommand-option-defaults))
+           :validate [#(or (= "plain" %)
+                           (= "json" %)
+                           (= "edn" %))
+                      "Output format may be either be 'plain', 'edn' or 'json'"]]
           ["-q" "--query QUERY"
            "Display packages matching query string."
            :validate [#(and (re-matches r/str-requirement-regex %)
@@ -585,7 +623,6 @@
                        (map #(str "  - " %)
                             configs)))))
       (hash-map))))
-
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
