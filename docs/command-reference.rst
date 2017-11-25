@@ -832,6 +832,7 @@ search is used during package resolution. Valid values are
 to specify breadth-first search. This option is set to
 ``breadth-first`` by default.
 
+.. _conflict-strat:
 .. _conflict strategies:
 
 Specify Conflict Strategy
@@ -1195,7 +1196,7 @@ authentication is required to download the index, as in this example::
   curl --user username:password https://example.com/degasolv/index.dsrepo | \
       degasolv resolve-locations -R - "req"
 
-  .. _cURL: https://curl.haxx.se/
+.. _cURL: https://curl.haxx.se/
 
 Specify a Resolution Strategy
 *****************************
