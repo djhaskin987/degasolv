@@ -3,9 +3,6 @@
 
 # Degasolv
 
-
-========
-
 Degasolv is a generic dependency resolver that will work across
 programming language boundaries, customizable to fit the needs of
 build engineers who are just trying to get their software built.
