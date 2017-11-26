@@ -188,18 +188,29 @@
             (map explain-package (:packages result-info)))
           (throw (ex-info "This shouldn't happen"
                           {:subcommand "resolve-locations"
-                           :output-format output-format}))))
+                           :output-format output-format
+                           :result (first result)}))))
       (exit 1
-            (string/join
-              \newline
-              (into
+            (case output-format
+              "json"
+              (json/write-str result-info :escape-slash false)
+              "edn"
+              (pr-str result-info)
+              "plain"
+              (string/join
+               \newline
+               (into
                 [""
                  ""
                  "Could not resolve dependencies."
                  ""
                  ""
                  "The resolver encountered the following problems: "]
-                (map r/explain-problem (:problems result-info))))))))
+                (map r/explain-problem (:problems result-info))))
+              (throw (ex-info "This shouldn't happen"
+                              {:subcommand "resolve-locations"
+                               :output-format output-format
+                               :result (first result)})))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file meta]}
@@ -249,7 +260,18 @@
          :packages results
          }]
     (if (empty? results)
-      (exit 2 "No results returned from query")
+      (exit 2
+            (case output-format
+              "json"
+              (json/write-str result-info :escape-slash false)
+              "edn"
+              (pr-str result-info)
+              "plain"
+              "No results returned from query"
+              (throw (ex-info "This shouldn't happen"
+                              {:subcommand "query-repo"
+                               :output-format output-format
+                               :result :unsuccessful}))))
       (println
         (case output-format
           "json"
@@ -264,7 +286,8 @@
             results))
           (throw (ex-info "This shouldn't happen"
                           {:subcommand "query-repo"
-                           :output-format output-format})))))))
+                           :output-format output-format
+                           :result :successful})))))))
 
 (def subcommand-option-defaults
   {
