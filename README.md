@@ -31,9 +31,9 @@ degasolv in real life, have a look at
   - `http://example.com/repo/b-3.0.zip`
 
 1. Generate dscard files to represent them in a degasolv respository,
-   like this::
+   like this:
 
-
+```
       $ java -jar degasolv-<version>-standalone.jar generate-card \
           --id "a" \
           --version "1.0" \
@@ -52,6 +52,7 @@ degasolv in real life, have a look at
           --version "3.0" \
           --location "https://example.com/repo/b-3.0.zip" \
           --card-file "$PWD/b-2.0.zip.dscard"
+```
 
 2. Generate a `dsrepo` file from the cards:
 
@@ -60,6 +61,7 @@ degasolv in real life, have a look at
           generate-repo-index \
           --search-directory $PWD \
           --index-file $PWD/index.dsrepo
+```
 
 3. Then use the `dsrepo` file to resolve dependencies:
 
