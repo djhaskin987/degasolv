@@ -1,10 +1,9 @@
 ![Degasolv Logo](https://github.com/djhaskin987/degasolv/raw/develop/Degasolv.png)
 
-Ubuntu: [ ![Download for Ubuntu](https://api.bintray.com/packages/degasolv/ubuntu/degasolv/images/download.svg) ](https://bintray.com/degasolv/ubuntu/degasolv/_latestVersion)
 
-CentOS: [ ![Download for CentOS](https://api.bintray.com/packages/degasolv/centos/degasolv/images/download.svg) ](https://bintray.com/degasolv/centos/degasolv/_latestVersion)
+# Degasolv
 
-Degasolv
+
 ========
 
 Degasolv is a generic dependency resolver that will work across
@@ -15,10 +14,19 @@ build engineers who are just trying to get their software built.
 
 Named for *Degas* the painter, and it's a *Solv*er.
 
-## Quick Start
 
-Quickstart
-==========
+## Download
+
+
+
+Ubuntu: [ ![Download for Ubuntu](https://api.bintray.com/packages/degasolv/ubuntu/degasolv/images/download.svg) ](https://bintray.com/degasolv/ubuntu/degasolv/_latestVersion)
+
+CentOS: [ ![Download for CentOS](https://api.bintray.com/packages/degasolv/centos/degasolv/images/download.svg) ](https://bintray.com/degasolv/centos/degasolv/_latestVersion)
+
+See the [releases](https://github.com/djhaskin987/degasolv/releases)
+tab for more (including the jar file).
+
+## Quick Start
 
 This quickstart is meant to be illustrative. For ideas on how to use
 degasolv in real life, have a look at
