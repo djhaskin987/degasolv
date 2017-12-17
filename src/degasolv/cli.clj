@@ -86,7 +86,7 @@
    (assoc options :arguments arguments)))
 
 
-(defn- resolve-error
+(defn- resolver-error
   [problems]
   (string/join
    \newline
