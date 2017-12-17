@@ -55,7 +55,7 @@ then
     exit 1
 fi
 
-if !java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --enable-error-format \
