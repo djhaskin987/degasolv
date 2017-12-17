@@ -14,6 +14,9 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+- Added the ``--{enable|disable}-error-format`` options to
+  :ref:`resolve-locations <enable-error-format-resolve>` and
+  :ref:`query-repo <enable-error-format-query>`.
 
 Changed
 +++++++
