@@ -66,6 +66,10 @@
   (.println *err* msg)
   (System/exit status))
 
+(defn- out-exit [status msg]
+  (println msg)
+  (System/exit status))
+
 (defn- aggregate-repositories
   [index-strat
    repositories
@@ -205,21 +209,20 @@
                           {:subcommand "resolve-locations"
                            :output-format output-format
                            :result (first result)}))))
-
-      (exit 1
-            (if error-format
-              (case output-format
-                "json"
-                (json/write-str result-info :escape-slash false)
-                "edn"
-                (pr-str result-info)
-                "plain"
-                (resolver-error (:problem result-info))
-                (throw (ex-info "This shouldn't happen"
-                                {:subcommand "resolve-locations"
-                                 :output-format output-format
-                                 :result (first result)})))
-              (resolver-error (:problem result-info)))))))
+      (if error-format
+        (out-exit 1
+         (case output-format
+           "json"
+           (json/write-str result-info :escape-slash false)
+           "edn"
+           (pr-str result-info)
+           "plain"
+           (resolver-error (:problems result-info))
+           (throw (ex-info "This shouldn't happen"
+                           {:subcommand "resolve-locations"
+                            :output-format output-format
+                            :result (first result)}))))
+        (exit 1 (resolver-error (:problems result-info)))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file meta]}
@@ -270,36 +273,36 @@
          :packages results
          }]
     (if (empty? results)
-      (exit 2
-            (if error-format
-            (case output-format
-              "json"
-              (json/write-str result-info :escape-slash false)
-              "edn"
-              (pr-str result-info)
-              "plain"
-              "No results returned from query"
-              (throw (ex-info "This shouldn't happen"
-                              {:subcommand "query-repo"
-                               :output-format output-format
-                               :result :unsuccessful})))
-            "No results returned from query"))
-      (println
-        (case output-format
-          "json"
-          (json/write-str result-info :escape-slash false)
-          "edn"
-          (pr-str result-info)
-          "plain"
-          (string/join
-           \newline
-           (map
-            explain-package
-            results))
-          (throw (ex-info "This shouldn't happen"
-                          {:subcommand "query-repo"
-                           :output-format output-format
-                           :result :successful})))))))
+      (if error-format
+        (out-exit 2
+                  (case output-format
+                    "json"
+                    (json/write-str result-info :escape-slash false)
+                    "edn"
+                    (pr-str result-info)
+                    "plain"
+                    "No results returned from query"
+                    (throw (ex-info "This shouldn't happen"
+                                    {:subcommand "query-repo"
+                                     :output-format output-format
+                                     :result :unsuccessful}))))
+        (exit 2 "No results returned from query"))
+        (println
+         (case output-format
+           "json"
+           (json/write-str result-info :escape-slash false)
+           "edn"
+           (pr-str result-info)
+           "plain"
+           (string/join
+            \newline
+            (map
+             explain-package
+             results))
+           (throw (ex-info "This shouldn't happen"
+                           {:subcommand "query-repo"
+                            :output-format output-format
+                            :result :successful})))))))
 
 (def subcommand-option-defaults
   {
@@ -408,9 +411,9 @@
            :validate [#(or (= "breadth-first" %)
                            (= "depth-first" %))
                       "Search strategy must either be 'breadth-first' or 'depth-first'."]]
-          ["-e" "--enable-error-format" "Enable output format for errors"
+          ["-g" "--enable-error-format" "Enable output format for errors"
            :assoc-fn (fn [m k v] (assoc m :error-format true))]
-          ["-E" "--disable-error-format" "Disable output format for errors (default)"
+          ["-G" "--disable-error-format" "Disable output format for errors (default)"
            :assoc-fn (fn [m k v] (assoc m :error-format false))]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
@@ -480,9 +483,9 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
     :cli [
-          ["-e" "--enable-error-format" "Enable output format for errors"
+          ["-g" "--enable-error-format" "Enable output format for errors"
            :assoc-fn (fn [m k v] (assoc m :error-format true))]
-          ["-E" "--disable-error-format" "Disable output format for errors (default)"
+          ["-G" "--disable-error-format" "Disable output format for errors (default)"
            :assoc-fn (fn [m k v] (assoc m :error-format false))]
           ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
            :default nil

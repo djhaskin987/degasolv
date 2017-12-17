@@ -55,8 +55,9 @@ fi
 if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
+    --enable-error-format \
     --output-format json \
-    --requirement "z<=1.0.0" | json .problems >/dev/nul 2>&1
+    --requirement "z<=1.0.0" | jq .problems >/dev/null 2>&1
 then
     exit 1
 fi
@@ -82,7 +83,7 @@ if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
         --enable-error-format \
         --output-format edn \
         -R ${PWD}/index.dsrepo \
-        --requirement "z<=1.0.0" | grep -q ':problems'
+        --requirement "z<=1.0.0" | grep -q -E ':problems'
 then
     exit 1
 fi
