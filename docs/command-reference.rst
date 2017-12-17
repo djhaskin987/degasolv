@@ -908,7 +908,9 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Config file key             | ``:output-format "FORMAT"``           |
 +-----------------------------+---------------------------------------+
-| Version introduced          | 1.10.0; EDN introduced 1.11.0         |
+| Version introduced          | 1.10.0; EDN introduced 1.11.0;        |
+|                             | Functionality in the presence of      |
+|                             | errors introduced 1.12.0              |
 +-----------------------------+---------------------------------------+
 
 Specify an output format. May be ``plain``, ``edn`` or ``json``. This

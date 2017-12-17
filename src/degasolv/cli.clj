@@ -85,6 +85,20 @@
   (pprint/pprint
    (assoc options :arguments arguments)))
 
+
+(defn- resolve-error
+  [problems]
+  (string/join
+   \newline
+   (into
+    [""
+     ""
+     "Could not resolve dependencies."
+     ""
+     ""
+     "The resolver encountered the following problems: "]
+    (map r/explain-problem problems))))
+
 (defn-
   resolve-locations!
   [options arguments]
@@ -92,6 +106,7 @@
       [{:keys [alternatives
                conflict-strat
                index-strat
+               error-format
                output-format
                package-system
                present-packages
@@ -190,27 +205,21 @@
                           {:subcommand "resolve-locations"
                            :output-format output-format
                            :result (first result)}))))
+
       (exit 1
-            (case output-format
-              "json"
-              (json/write-str result-info :escape-slash false)
-              "edn"
-              (pr-str result-info)
-              "plain"
-              (string/join
-               \newline
-               (into
-                [""
-                 ""
-                 "Could not resolve dependencies."
-                 ""
-                 ""
-                 "The resolver encountered the following problems: "]
-                (map r/explain-problem (:problems result-info))))
-              (throw (ex-info "This shouldn't happen"
-                              {:subcommand "resolve-locations"
-                               :output-format output-format
-                               :result (first result)})))))))
+            (if error-format
+              (case output-format
+                "json"
+                (json/write-str result-info :escape-slash false)
+                "edn"
+                (pr-str result-info)
+                "plain"
+                (resolver-error (:problem result-info))
+                (throw (ex-info "This shouldn't happen"
+                                {:subcommand "resolve-locations"
+                                 :output-format output-format
+                                 :result (first result)})))
+              (resolver-error (:problem result-info)))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file meta]}
@@ -231,6 +240,7 @@
 (defn query-repo!
   [options arguments]
   (let [{:keys [index-strat
+                error-format
                 output-format
                 package-system
                 repositories
@@ -261,6 +271,7 @@
          }]
     (if (empty? results)
       (exit 2
+            (if error-format
             (case output-format
               "json"
               (json/write-str result-info :escape-slash false)
@@ -271,7 +282,8 @@
               (throw (ex-info "This shouldn't happen"
                               {:subcommand "query-repo"
                                :output-format output-format
-                               :result :unsuccessful}))))
+                               :result :unsuccessful})))
+            "No results returned from query"))
       (println
         (case output-format
           "json"
@@ -292,6 +304,7 @@
 (def subcommand-option-defaults
   {
    :alternatives true
+   :error-format false
    :card-file "./out.dscard"
    :conflict-strat "exclusive"
    :index-file "index.dsrepo"
@@ -395,6 +408,10 @@
            :validate [#(or (= "breadth-first" %)
                            (= "depth-first" %))
                       "Search strategy must either be 'breadth-first' or 'depth-first'."]]
+          ["-e" "--enable-error-format" "Enable output format for errors"
+           :assoc-fn (fn [m k v] (assoc m :error-format true))]
+          ["-E" "--disable-error-format" "Disable output format for errors (default)"
+           :assoc-fn (fn [m k v] (assoc m :error-format false))]
           ["-f" "--conflict-strat STRAT"
            "May be 'exclusive', 'inclusive' or 'prioritized'."
            :default nil
@@ -463,6 +480,10 @@
     :required-arguments {:repositories ["-R" "--repository"]
                          :query ["-q" "--query"]}
     :cli [
+          ["-e" "--enable-error-format" "Enable output format for errors"
+           :assoc-fn (fn [m k v] (assoc m :error-format true))]
+          ["-E" "--disable-error-format" "Disable output format for errors (default)"
+           :assoc-fn (fn [m k v] (assoc m :error-format false))]
           ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
            :default nil
            :default-desc (str (:output-format subcommand-option-defaults))
