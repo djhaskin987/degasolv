@@ -896,6 +896,60 @@ should work for most environments.
   easily and cleanly specified done by using the
   ``firstfound-version-mode`` `option pack`_.
 
+
+.. _error-format-resolve:
+
+Enable Error Output Format
+**************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-g``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--enable-error-format``             |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:error-format true``                |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option extends the functionality of `output-format`_ to include
+when errors happen as well.
+
+Normally, when the `output-format`_ key is specified, such as to cause
+degasolv to emit JSON or EDN, this only happens if the command runs
+successfully. If package resolution was unsuccessful, an error message
+is printed to standard error and the program exits with non-zero
+return code. If ``error-format`` is specified, then any error
+information will be printed in the form of whatever `output-format`_
+specifies to standard output, while still maintaining the same exit
+code.
+
+When error information is returned via JSON or EDN, the keys are the same
+in the dictionary, except:
+- The ``result`` key now has the value of ``unsuccessful``.
+- The ``packages`` key is not present.
+- A new key, ``problems``, appears in place of the ``packages`` key containing
+  information describing what went wrong.
+
+The default behavior is to have ``:error-format`` disabled; this
+CLI option enables it.
+
+Disable Error Output Format
+***************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-G``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--disable-error-format``            |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:error-format false``               |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option sets the ``:error-format`` flag back to false, which is the
+default behavior.
+
 .. _output-format:
 
 Specify Output Format
@@ -908,9 +962,7 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Config file key             | ``:output-format "FORMAT"``           |
 +-----------------------------+---------------------------------------+
-| Version introduced          | 1.10.0; EDN introduced 1.11.0;        |
-|                             | Functionality in the presence of      |
-|                             | errors introduced 1.12.0              |
+| Version introduced          | 1.10.0; EDN introduced 1.11.0         |
 +-----------------------------+---------------------------------------+
 
 Specify an output format. May be ``plain``, ``edn`` or ``json``. This
