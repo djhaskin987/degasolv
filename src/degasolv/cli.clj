@@ -51,6 +51,49 @@
    "semver" vers/semver-vercmp
    })
 
+(defn required-args-msg [required-args & {:keys [sub-command]}]
+   (str "The following options are required"
+        (if sub-command
+          (str
+           " for subcommand `" sub-command "`"
+          ""))
+        ":\n\n"
+        (string/join
+         \newline
+         (map
+          (fn format-argument
+            [[k [small-arg large-arg]]]
+            (str "  - `"
+                 small-arg
+                 "`, `"
+                 large-arg
+                 "`, or the config file key `"
+                 k
+                 "`."))
+          required-args))))
+
+(defn usage [command-name options-summary & {:keys [sub-command]}]
+  (let [display-command (if sub-command
+                          sub-command
+                          "<command>")]
+    (->> [(str "Usage: "
+               command-name
+               " <options> "
+               (when sub-command
+                 (str
+                  sub-command
+                  " <"
+                  sub-command
+                  "-options>")))
+          ""
+          "Options are shown below. Default values are listed with the"
+          "  descriptions. Options marked with `**` may be"
+          "  used more than once."
+          ""
+          options-summary
+          ]
+         (string/join \newline))))
+
 (def
   ^:private
   package-systems
@@ -76,6 +119,24 @@
                        "Subproc output format may be either be 'edn' or 'json'"]]
                ]
               }})
+
+(defn command-list [commands]
+  (->> ["Commands are:"
+        ""
+        (string/join \newline (map #(str "  - " %) commands))
+        ""
+        "Simply run `degasolv <command> -h` for help information."
+        ""
+        ]
+       (string/join \newline)))
+
+(defn error-msg [errors & {:keys [sub-command]}]
+  (str "The following errors occurred while parsing commandline options"
+       (if sub-command
+         (str " for subcommand `" sub-command "`")
+         "")
+       ":\n\n"
+       (string/join \newline (map #(str "  - " %) errors))))
 
 (defn- parseplz!
   [command args command-spec]
@@ -644,15 +705,7 @@
    }
   )
 
-(defn command-list [commands]
-  (->> ["Commands are:"
-        ""
-        (string/join \newline (map #(str "  - " %) commands))
-        ""
-        "Simply run `degasolv <command> -h` for help information."
-        ""
-        ]
-       (string/join \newline)))
+
 
 (defn errors [errors usg]
   (string/join \newline
@@ -664,56 +717,7 @@
                ""
                ""))
 
-(defn usage [command-name options-summary & {:keys [sub-command]}]
-  (let [display-command (if sub-command
-                          sub-command
-                          "<command>")]
-    (->> [(str "Usage: "
-               command-name
-               " <options> "
-               (when sub-command
-                 (str
-                  sub-command
-                  " <"
-                  sub-command
-                  "-options>")))
-          ""
-          "Options are shown below. Default values are listed with the"
-          "  descriptions. Options marked with `**` may be"
-          "  used more than once."
-          ""
-          options-summary
-          ]
-         (string/join \newline))))
 
-(defn required-args-msg [required-args & {:keys [sub-command]}]
-   (str "The following options are required"
-        (if sub-command
-          (str
-           " for subcommand `" sub-command "`"
-          ""))
-        ":\n\n"
-        (string/join
-         \newline
-         (map
-          (fn format-argument
-            [[k [small-arg large-arg]]]
-            (str "  - `"
-                 small-arg
-                 "`, `"
-                 large-arg
-                 "`, or the config file key `"
-                 k
-                 "`."))
-          required-args))))
-
-(defn error-msg [errors & {:keys [sub-command]}]
-  (str "The following errors occurred while parsing commandline options"
-       (if sub-command
-         (str " for subcommand `" sub-command "`")
-         "")
-       ":\n\n"
-       (string/join \newline (map #(str "  - " %) errors))))
 
 (defn missing-required-argument
   [required-arguments

@@ -2,18 +2,17 @@
   "Namespace containing functions related to the subprocess package system
    integration point."
   (:require [clojure.string :as string]
-            [clojure.java.io :as io]
             [clojure.java.shell :as sh]
+            [clojure.data.json :as json]
+            [miner.tagged :as tag]
             [degasolv.util :refer :all]
-            [degasolv.resolver :as r :refer :all]
-            [tupelo.core :as t]
-            [serovers.core :as vers])
+            [degasolv.resolver :as r :refer :all])
   (:import (java.util.zip GZIPInputStream)))
 
 (defn make-slurper
   [{:keys [subproc-exe
            subproc-out-format]}]
-  (fn [repo] slurp-subproc-repo
+  (fn slurp-subproc-repo [repo]
     (let [{:keys [exit out]}
           (sh/sh [subproc-exe repo])]
       (when (not (= exit 0))
