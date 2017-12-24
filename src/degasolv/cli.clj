@@ -69,6 +69,11 @@
                              (fs/executable? %))
                            "Must be an executable file which exists on the file system."]
                 :required true]
+               ["-u" "--subproc-out-format"
+               "Whether to read `edn` or `json` from the exe's output"
+               :validate [#(or (= "json" %)
+                               (= "edn" %))
+                       "Subproc output format may be either be 'edn' or 'json'"]]
                ]
               }})
 

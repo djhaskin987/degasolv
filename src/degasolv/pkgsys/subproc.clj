@@ -29,10 +29,22 @@
                   {:slurper subproc-exe
                    :argument repo
                    :exit-status exit})))
-      (let [packages (json/read-str out :key-fn keyword)]
+      (let [packages
+            (cond
+              (= subproc-out-format "json")
+              (json/read-str out :key-fn keyword)
+              (= subproc-out-format "edn")
+              (tag/read-string out)
+              :else
+              (throw (ex-info
+                      (str "Unknown subproc output format: `"
+                          subproc-out-format
+                          "`")
+                      {:subproc-out-format subproc-out-format})))
+            repo-map
         (reduce
          (fn [c v]
-           (update-in c [(:id 
-(defn slurp-subproc-repo
-  [arg]
-  arg)
+           (update-in c [(:id v)] conj))
+         {}
+         packages)]
+        (map-query repo-map)))))
