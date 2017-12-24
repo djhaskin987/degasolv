@@ -8,13 +8,7 @@ jobs:
       - checkout
       - run:
           command: |
-            set -ex
-            lein uberjar
-            # Script tests
-            for i in test/resources/scripts/*
-            do
-                ./${i}
-            done
+            test/resources/scripts/test-all
   lein_tests:
     docker:
       - image: clojure:lein
