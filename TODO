@@ -1,11 +1,8 @@
-- [ ] Finish work on docs for enable-error-output, disable
-- [ ] Update changelog for enable-error-output
-- [ ] Bump to 1.12.0
-- [ ] Deprecate backend in docs
 - [ ] Add plugin or backend / whatever repo thing command option
 - [ ] Fork process, get back information, parse it, use that as a map-repo. That's how
       the plugins work.
   - Do work on this for new plugin architecture
+- [ ] Deprecate backend in docs
 - [ ] Subcommand `search-repo`
 - [ ] Docs:
   - [ ] Set Up Guide

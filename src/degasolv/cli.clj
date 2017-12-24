@@ -18,12 +18,13 @@
    [tupelo.core :as t])
   (:gen-class))
 
-(as-> (all-ns) it
-  (map #(.toString %) it)
-  (filter #(re-find #"^degasolv\.pkgsys\.[A-Za-z0-9-_]+" %) it)
-  (map #(symbol %) it)
-  (map #(do [% (ns-publics %)]) it)
-  (into (hash-map) it))
+(defn- exit [status msg]
+  (.println *err* msg)
+  (System/exit status))
+
+(defn- out-exit [status msg]
+  (println msg)
+  (System/exit status))
 
 (defn aggregator
   [index-strat cmp]
@@ -57,8 +58,8 @@
              :version-comparison "debian"}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :version-comparison "maven"}
-   "subproc" {:genrepo subproc-pkg/slurp-subproc-repo
-              :version-comparison "maven"
+   "subproc" {:constructor subproc-pkg/make-slurper
+              :required-arguments {:subproc-exe ["-x" "--subproc-exe"]}
               :cli
               [
                ["-x" "--subproc-exe PATH"
@@ -71,6 +72,51 @@
                ]
               }})
 
+(defn- parseplz!
+  [command args command-spec]
+  (let [{:keys [options arguments errors summary]}
+        (parse-opts args (concat
+                          (:cli command-spec)
+                          [["-h" "--help" "Print this help page"]])
+                    :in-order true)]
+    (cond
+      (or
+        (:help options)
+        (and
+         (empty? arguments)
+         (:subcommands command-spec)))
+      (exit 0
+            (str (usage command summary)
+                 (if (:required-arguments command-spec)
+                   (str
+                     "\n\n"
+                     (required-args-msg
+                       (:required-arguments command-spec))
+                     "\n\n")
+                   "\n\n")
+                 (if (:subcommands command-spec)
+                   (str
+                    (command-list (keys (:subcommands command-spec)))
+                    "\n\n")
+                   "")))
+      errors
+      (exit 1
+            (string/join
+             \newline
+             [(error-msg errors)
+              ""
+              (usage command summary)
+              (if (:subcommands command-spec)
+                (string/join
+                 \newline
+                 [
+                 ""
+                 (command-list (keys (:subcommands command-spec)))
+                 ""])
+                "")])))
+    {:options options
+     :arguments arguments}))
+
 (defn- generate-repo-index-cli!
   [options arguments]
   (let [{:keys [search-directory
@@ -82,14 +128,6 @@
       index-file
       add-to
       (get version-comparators version-comparison))))
-
-(defn- exit [status msg]
-  (.println *err* msg)
-  (System/exit status))
-
-(defn- out-exit [status msg]
-  (println msg)
-  (System/exit status))
 
 (defn- aggregate-repositories
   [index-strat
@@ -109,7 +147,6 @@
   [options arguments]
   (pprint/pprint
    (assoc options :arguments arguments)))
-
 
 (defn- resolver-error
   [problems]
@@ -141,6 +178,21 @@
                search-strat
                version-comparison]}
        options
+       all-options
+       (if (get-in package-systems [package-system :cli])
+         (let [{:keys [pkgsys-options pkgsys-arguments]}
+                (parseplz!
+                 package-system
+                 arguments
+                 (get package-systems package-system))]
+           (into
+            options {:pkgsys-config pkgsys-options})
+         options))
+       genrepo
+       (if (get-in package-systems [package-system :cli])
+         ((get-in package-systems [:constructor])
+          (:pkgsys-config all-options))
+         (get-in package-systems [package-system :genrepo]))
        version-comparator
        (get version-comparators version-comparison)
        requirement-data
@@ -186,12 +238,12 @@
                  version
                  "already present"
                  nil)])))
-         (:present-packages options)))
+         (:present-packages all-options)))
        aggregate-repo
        (aggregate-repositories
          index-strat
          repositories
-         (get-in package-systems [package-system :genrepo])
+         genrepo
          version-comparator)
        result
        (resolve-dependencies
@@ -207,7 +259,7 @@
        {
         :command "degasolv"
         :subcommand "resolve-locations"
-        :options options
+        :options all-options
         :result (first result)
         }
        result-info
@@ -694,50 +746,7 @@
                             configs)))))
       (hash-map))))
 
-(defn- parseplz!
-  [command args command-spec]
-  (let [{:keys [options arguments errors summary]}
-        (parse-opts args (concat
-                          (:cli command-spec)
-                          [["-h" "--help" "Print this help page"]])
-                    :in-order true)]
-    (cond
-      (or
-        (:help options)
-        (and
-         (empty? arguments)
-         (:subcommands command-spec)))
-      (exit 0
-            (str (usage command summary)
-                 (if (:required-arguments command-spec)
-                   (str
-                     "\n\n"
-                     (required-args-msg
-                       (:required-arguments command-spec))
-                     "\n\n")
-                   "\n\n")
-                 (if (:subcommands command-spec)
-                   (str
-                    (command-list (keys (:subcommands command-spec)))
-                    "\n\n")
-                   "")))
-      errors
-      (exit 1
-            (string/join
-             \newline
-             [(error-msg errors)
-              ""
-              (usage command summary)
-              (if (:subcommands command-spec)
-                (string/join
-                 \newline
-                 [
-                 ""
-                 (command-list (keys (:subcommands command-spec)))
-                 ""])
-                "")])))
-    {:options options
-     :arguments arguments}))
+
 
 (defn -main [& args]
   (let [{:keys [options arguments]}
@@ -792,9 +801,13 @@
                  (assoc
                   it
                   :version-comparison
-                  (as-> (:package-system it) x
-                    (get package-systems x)
-                    (get x :version-comparison)))
+                  (if (get-in package-systems
+                              [(:package-system it) :version-comparison])
+                    (get-in package-systems
+                            [(:package-system it) :version-comparison])
+                    (get-in package-systems
+                            [(:package-system subcommand-option-defaults)
+                             :version-comparison])))
                  it))
               required-keys (set (keys (:required-arguments subcmd-cli)))
               present-keys (set (keys effective-options))]
