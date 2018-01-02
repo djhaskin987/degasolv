@@ -113,10 +113,12 @@
                            "Must be an executable file which exists on the file system."]
                 :required true]
                ["-u" "--subproc-out-format"
-               "Whether to read `edn` or `json` from the exe's output"
-               :validate [#(or (= "json" %)
-                               (= "edn" %))
-                       "Subproc output format may be either be 'edn' or 'json'"]]
+                "Whether to read `edn` or `json` from the exe's output"
+                :default nil
+                :default-desc "json"
+                :validate [#(or (= "json" %)
+                                (= "edn" %))
+                           "Subproc output format may be either be 'edn' or 'json'"]]
                ]
               }})
 
@@ -256,7 +258,7 @@
          options))
        genrepo
        (if (get-in package-systems [package-system :cli])
-         ((get-in package-systems [:constructor])
+         ((get-in package-systems [package-system :constructor])
           (:pkgsys-config all-options))
          (get-in package-systems [package-system :genrepo]))
        version-comparator
@@ -456,6 +458,7 @@
    :resolve-strat "thorough"
    :search-directory "."
    :search-strat "breadth-first"
+   :subproc-out-format "json"
    })
 
 (def available-option-packs
@@ -640,11 +643,13 @@
             :validate [#(or (= "priority" %) (= "global" %))
                        "Strategy must either be 'priority' or 'global'."]]
            ["-t" "--package-system SYS"
-            "May be 'degasolv' or 'apt'."
+            "May be 'degasolv', 'apt', or 'subproc'."
             :default nil
             :default-desc (str (:package-system subcommand-option-defaults))
-            :validate [#(or (= "degasolv" %) (= "apt" %))
-                       "Package system must be either 'degasolv' or 'apt'."]]
+            :validate [#(or (= "degasolv" %)
+                            (= "apt" %)
+                            (= "subproc" %))
+                       "Package system must be either 'degasolv', 'apt', or 'subproc'."]]
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
