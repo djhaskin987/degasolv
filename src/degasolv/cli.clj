@@ -140,6 +140,34 @@
        ":\n\n"
        (string/join \newline (map #(str "  - " %) errors))))
 
+(defn missing-required-argument
+  [required-arguments
+   missing-key]
+  (let [[small-arg large-arg] (missing-key required-arguments)]
+    (string/join
+     \newline
+     [""
+      (str "Missing argument `"
+           (name missing-key)
+           "`.")
+      (str "  To specify it, either use the `"
+           (str missing-key)
+           "` key in the config file,")
+      (str "  or use `" small-arg "` or `" large-arg "` at the command line.")])))
+
+(defn- check-required! [options command-spec]
+  (let [required-args (:required-arguments command-spec)
+        required-keys (set (keys required-args))
+        present-keys (set (keys options))]
+    (when (not (st/subset? required-keys
+                           present-keys))
+               (exit 1
+                     (string/join
+                      \newline
+                      (map (partial missing-required-argument
+                                    required-args)
+                           (st/difference required-keys present-keys)))))))
+
 (defn- parseplz!
   [command args command-spec]
   (let [{:keys [options arguments errors summary]}
@@ -149,15 +177,15 @@
                     :in-order true)]
     (cond
       (or
-        (:help options)
-        (and
+       (:help options)
+       (and
          (empty? arguments)
          (:subcommands command-spec)))
-      (exit 0
+      (exit 1
             (str (usage command summary)
                  (if (:required-arguments command-spec)
                    (str
-                     "\n\n"
+                    "\n\n"
                      (required-args-msg
                        (:required-arguments command-spec))
                      "\n\n")
@@ -248,14 +276,15 @@
        options
        all-options
        (if (get-in package-systems [package-system :cli])
-         (let [{:keys [pkgsys-options pkgsys-arguments]}
-                (parseplz!
-                 package-system
-                 arguments
-                 (get package-systems package-system))]
-           (into
-            options {:pkgsys-config pkgsys-options})
-         options))
+         (let [pkgsys-spec (get package-systems package-system)
+               {:keys [pkgsys-options pkgsys-arguments]}
+               (parseplz!
+                package-system
+                arguments
+                pkgsys-spec)
+               results (into options {:pkgsys-config pkgsys-options})]
+           (check-required! results (get package-systems package-system))
+         results))
        genrepo
        (if (get-in package-systems [package-system :cli])
          ((get-in package-systems [package-system :constructor])
@@ -724,20 +753,7 @@
 
 
 
-(defn missing-required-argument
-  [required-arguments
-   missing-key]
-  (let [[small-arg large-arg] (missing-key required-arguments)]
-    (string/join
-     \newline
-     [""
-      (str "Missing argument `"
-           (name missing-key)
-           "`.")
-      (str "  To specify it, either use the `"
-           (str missing-key)
-           "` key in the config file,")
-      (str "  or use `" small-arg "` or `" large-arg "` at the command line.")])))
+
 
 
 
@@ -822,16 +838,8 @@
                     (get-in package-systems
                             [(:package-system subcommand-option-defaults)
                              :version-comparison])))
-                 it))
-              required-keys (set (keys (:required-arguments subcmd-cli)))
-              present-keys (set (keys effective-options))]
-          (when (not (st/subset? required-keys present-keys))
-            (exit 1
-                  (string/join
-                   \newline
-                   (map (partial missing-required-argument
-                                 (:required-arguments subcmd-cli))
-                        (st/difference required-keys present-keys)))))
+                 it))]
+          (check-required! effective-options subcmd-cli)
           ((:function subcmd-cli)
            effective-options
            arguments))))))

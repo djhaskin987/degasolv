@@ -1,0 +1,11 @@
+#!/bin/sh
+set -ex
+
+set +x
+echo "Testing required argument..."
+set -x
+
+if java -jar ./target/uberjar/degasolv-1.11.1-SNAPSHOT-standalone.jar resolve-locations -r quiles -R farforshire -t subproc
+then
+    exit 1
+fi
