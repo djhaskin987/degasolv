@@ -1,0 +1,17 @@
+#!/bin/sh
+
+cat > <<FOO
+{
+    "a": [{
+        "name": "a",
+        "version": "1.0.0",
+        "location": "https://example.com/repo/a-1.0.0.zip"
+    }],
+    "b": [{
+        "name": "b",
+        "version": "1.0.0",
+        "location": https://example.com/repo/b-1.0.0.zip",
+        "requirements": ["d|c"]
+        }],
+}
+FOO
