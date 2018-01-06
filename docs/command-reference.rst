@@ -1718,6 +1718,14 @@ This is interpreted as::
 
   "(<pred1> AND <pred2>) OR (<pred3> AND <pred4>)"
 
+For example, this expression::
+
+  "spruce>=1.0.0,<2.0.0;>=3.0.0,<4.0.0"
+
+Is interpreted as::
+
+  "spruce at version ((>=1.0.0 AND <2.0.0) OR (>=3.0.0 AND <4.0.0))"
+
 .. _matches:
 .. _in-range:
 .. _pess-greater:
