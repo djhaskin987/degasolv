@@ -1,3 +1,5 @@
+- [ ] Docs: common pitfall of subproc: "name" vs "id" in json or
+  strings vs keywords in EDN
 - [ ] Add plugin or backend / whatever repo thing command option
 - [ ] Fork process, get back information, parse it, use that as a map-repo. That's how
       the plugins work.
