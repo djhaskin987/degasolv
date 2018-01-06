@@ -265,21 +265,20 @@
           version-comparator
           (get version-comparators version-comparison)
           requirement-data
-          (into []
-                (map
-                 (fn [str-req]
-                   (let [vetted-str-req
-                         (s/conform ::r/requirement-string str-req)]
-                     (when (= vetted-str-req ::s/invalid)
-                       (binding [*out* *err*]
-                         (println
-                          (str
-                           "Requirement `"
-                           str-req
-                           "` invalid:"
-                           (s/explain ::r/requirement-string str-req)))))
-                     (string-to-requirement vetted-str-req)))
-                 requirements))
+          (mapv
+           (fn [str-req]
+             (let [vetted-str-req
+                   (s/conform ::r/requirement-string str-req)]
+               (when (= vetted-str-req ::s/invalid)
+                 (binding [*out* *err*]
+                   (println
+                    (str
+                     "Requirement `"
+                     str-req
+                     "` invalid:"
+                     (s/explain ::r/requirement-string str-req)))))
+               (string-to-requirement vetted-str-req)))
+           requirements)
           present-packages
           (reduce
            (fn package-aggregate
