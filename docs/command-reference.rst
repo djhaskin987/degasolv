@@ -1870,7 +1870,7 @@ The following are practical examples of requirements, together with their
 interpretations.
 
 +-------------------------+---------------------------------------------------+
-| Requirement             | English Explanation                               |
+| Requirement             | Explanation                                       |
 +-------------------------+---------------------------------------------------+
 | ``"oak|pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
 |                         | versions greater than ``5.0``                     |
