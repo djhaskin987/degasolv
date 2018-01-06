@@ -1,11 +1,108 @@
 #!/bin/sh
 set -ex
 
+
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+root_path=${PWD}
+test_home=test/resources/data/test-subproc
+
 set +x
 echo "Testing required argument..."
 set -x
 
 if java -jar ./target/uberjar/degasolv-1.11.1-SNAPSHOT-standalone.jar resolve-locations -r quiles -R farforshire -t subproc
+then
+    exit 1
+fi
+
+set +x
+echo "Testing argument order..."
+set -x
+
+if java -jar ./target/uberjar/degasolv-1.11.1-SNAPSHOT-standalone.jar resolve-locations -r quiles -R farforshire -x '/usr/bin/fightme'
+then
+    exit 1
+fi
+
+set +x
+echo "Basic JSON test..."
+set -x
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     resolve-locations \
+     -r "a" \
+     -x "test/resources/scripts/subproc" \
+
+set +x
+echo "Basic EDN test..."
+set -x
+
+
+     
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "b" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/b-1.0.0.zip" \
+     -r "d|c" \
+     -C $PWD/b-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "c" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/c-1.0.0.zip" \
+     -C $PWD/c-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "d" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/d-1.0.0.zip" \
+     -C $PWD/d-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    generate-repo-index \
+    -d $PWD \
+    -I $PWD/index.dsrepo
+
+# should fail
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --search-strat deapth-first \
+    -R ${PWD}/index.dsrepo \
+    --requirement a
+then
+    exit 1
+fi
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --search-strat depth-first \
+    -R ${PWD}/index.dsrepo \
+    --requirement a
+
+output1=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --requirement a)
+
+printf '%s\n' "${output1}"
+
+output2=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --search-strat breadth-first \
+    -R ${PWD}/index.dsrepo \
+    --requirement a)
+
+printf '%s\n' "${output2}"
+
+if [ "${output1}" != "${output2}" ]
 then
     exit 1
 fi

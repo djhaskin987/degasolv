@@ -2,16 +2,31 @@
 
 cat > <<FOO
 {
-    "a": [{
+    "a": [
+{
         "name": "a",
-        "version": "1.0.0",
+        "version": "1.9.0",
         "location": "https://example.com/repo/a-1.0.0.zip"
-    }],
-    "b": [{
-        "name": "b",
-        "version": "1.0.0",
-        "location": https://example.com/repo/b-1.0.0.zip",
-        "requirements": ["d|c"]
-        }],
-}
+        "requirements": ["b"]
+    },
+{
+        "name": "a",
+        "version": "2.1.0",
+        "location": "https://example.com/repo/a-1.0.0.zip",
+        "requirements": ["b>=2.3.0"]
+    }
+],
+    "b": [
+{
+    "name": "b",
+    "version": "1.11.0",
+    "location": "https://example.com/repo/b-1.11.0.zip",
+    "requirements": ["d"]
+},
+{
+    "name": "b",
+    "version": "2.3.1",
+    "location": "https://example.com/repo/b-2.3.1.zip",
+    "requirements": ["c>=3.5.0", "d"]
+}],
 FOO

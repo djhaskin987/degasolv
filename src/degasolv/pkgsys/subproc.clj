@@ -6,6 +6,7 @@
             [clojure.data.json :as json]
             [miner.tagged :as tag]
             [degasolv.util :refer :all]
+            [tupelo.core :as t]
             [degasolv.resolver :as r :refer :all])
   (:import (java.util.zip GZIPInputStream)))
 
@@ -14,7 +15,7 @@
            subproc-out-format]}]
   (fn slurp-subproc-repo [repo]
     (let [{:keys [exit out]}
-          (sh/sh [subproc-exe repo])]
+          (sh/sh [(t/spy subproc-exe) (t/spy repo)])]
       (when (not (= exit 0))
         (throw
          (ex-info (str
