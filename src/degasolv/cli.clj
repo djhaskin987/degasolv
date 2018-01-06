@@ -102,25 +102,7 @@
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :version-comparison "maven"}
    "subproc" {:constructor subproc-pkg/make-slurper
-              :required-arguments {:subproc-exe ["-x" "--subproc-exe"]}
-              :cli
-              [
-               ["-x" "--subproc-exe PATH"
-                "Path to the executable to call to get package data"
-                :validate [#(and
-                             (fs/exists? %)
-                             (fs/executable? %))
-                           "Must be an executable file which exists on the file system."]
-                :required true]
-               ["-u" "--subproc-out-format"
-                "Whether to read `edn` or `json` from the exe's output"
-                :default nil
-                :default-desc "json"
-                :validate [#(or (= "json" %)
-                                (= "edn" %))
-                           "Subproc output format may be either be 'edn' or 'json'"]]
-               ]
-              }})
+              :required-arguments {:subproc-exe ["-x" "--subproc-exe"]}}})
 
 (defn command-list [commands]
   (->> ["Commands are:"
@@ -260,139 +242,129 @@
 (defn-
   resolve-locations!
   [options arguments]
-  (let
-      [{:keys [alternatives
-               conflict-strat
-               index-strat
-               error-format
-               output-format
-               package-system
-               present-packages
-               repositories
-               requirements
-               resolve-strat
-               search-strat
-               version-comparison]}
-       options
-       all-options
-       (if (get-in package-systems [package-system :cli])
-         (let [pkgsys-spec (get package-systems package-system)
-               {:keys [pkgsys-options pkgsys-arguments]}
-               (parseplz!
+  (let [{:keys [alternatives
+                conflict-strat
+                index-strat
+                error-format
+                output-format
                 package-system
-                arguments
-                pkgsys-spec)
-               results (into options {:pkgsys-config pkgsys-options})]
-           (check-required! results (get package-systems package-system))
-         results))
-       genrepo
-       (if (get-in package-systems [package-system :cli])
-         ((get-in package-systems [package-system :constructor])
-          (:pkgsys-config all-options))
-         (get-in package-systems [package-system :genrepo]))
-       version-comparator
-       (get version-comparators version-comparison)
-       requirement-data
-       (into []
-             (map
-               (fn [str-req]
-                 (let [vetted-str-req
-                       (s/conform ::r/requirement-string str-req)]
-                   (when (= vetted-str-req ::s/invalid)
-                     (binding [*out* *err*]
-                       (println
-                         (str
+                present-packages
+                repositories
+                requirements
+                resolve-strat
+                search-strat
+                version-comparison]}
+       options]
+    (when (get-in package-systems [package-system :required-arguments])
+      (check-required! options (get package-systems package-system)))
+    (let [genrepo
+          (if (get-in package-systems [package-system :constructor])
+            ((get-in package-systems [package-system :constructor])
+             options)
+            (get-in package-systems [package-system :genrepo]))
+          version-comparator
+          (get version-comparators version-comparison)
+          requirement-data
+          (into []
+                (map
+                 (fn [str-req]
+                   (let [vetted-str-req
+                         (s/conform ::r/requirement-string str-req)]
+                     (when (= vetted-str-req ::s/invalid)
+                       (binding [*out* *err*]
+                         (println
+                          (str
                            "Requirement `"
                            str-req
                            "` invalid:"
                            (s/explain ::r/requirement-string str-req)))))
-                   (string-to-requirement vetted-str-req)))
-               requirements))
-       present-packages
-       (reduce
-        (fn package-aggregate
-          [c [name pkg]]
-          (update-in c [name]
-                     conj
-                     pkg))
-        {}
-        (map
-         (fn [str-pkg]
-           (let [vetted-str-pkg
-                 (s/conform ::r/frozen-package-string str-pkg)]
-             (when (= vetted-str-pkg ::s/invalid)
-               (binding [*out* *err*]
-                 (println
-                  (str
-                   "Present package string `"
-                   str-pkg
-                   "` invalid:"
-                   (s/explain ::r/frozen-package-string str-pkg)))))
-             (let [[id version] (string/split str-pkg #"==")]
-               [id
-                (->PackageInfo
-                 id
-                 version
-                 "already present"
-                 nil)])))
-         (:present-packages all-options)))
-       aggregate-repo
-       (aggregate-repositories
-         index-strat
-         repositories
-         genrepo
-         version-comparator)
-       result
-       (resolve-dependencies
-        requirement-data
-        aggregate-repo
-        :present-packages present-packages
-        :strategy (keyword resolve-strat)
-        :conflict-strat (keyword conflict-strat)
-        :search-strat (keyword search-strat)
-        :compare version-comparator
-        :allow-alternatives alternatives)
-       base-result-info
-       {
-        :command "degasolv"
-        :subcommand "resolve-locations"
-        :options all-options
-        :result (first result)
-        }
-       result-info
-       (if  (= (first result) :successful)
-         (into base-result-info
-               {:packages (second result)})
-         (into base-result-info (second result)))]
-    (if (= (first result) :successful)
-      (println
-        (case output-format
-          "json"
-          (json/write-str result-info :escape-slash false)
-          "edn"
-          (pr-str result-info)
-          "plain"
-          (string/join
-            \newline
-            (map explain-package (:packages result-info)))
-          (throw (ex-info "This shouldn't happen"
-                          {:subcommand "resolve-locations"
-                           :output-format output-format
-                           :result (first result)}))))
-      (if error-format
-        (out-exit 1
+                     (string-to-requirement vetted-str-req)))
+                 requirements))
+          present-packages
+          (reduce
+           (fn package-aggregate
+             [c [name pkg]]
+             (update-in c [name]
+                        conj
+                        pkg))
+           {}
+           (map
+            (fn [str-pkg]
+              (let [vetted-str-pkg
+                    (s/conform ::r/frozen-package-string str-pkg)]
+                (when (= vetted-str-pkg ::s/invalid)
+                  (binding [*out* *err*]
+                    (println
+                     (str
+                      "Present package string `"
+                      str-pkg
+                      "` invalid:"
+                      (s/explain ::r/frozen-package-string str-pkg)))))
+                (let [[id version] (string/split str-pkg #"==")]
+                  [id
+                   (->PackageInfo
+                    id
+                    version
+                    "already present"
+                    nil)])))
+            (:present-packages options)))
+          aggregate-repo
+          (aggregate-repositories
+           index-strat
+           repositories
+           genrepo
+           version-comparator)
+          result
+          (resolve-dependencies
+           requirement-data
+           aggregate-repo
+           :present-packages present-packages
+           :strategy (keyword resolve-strat)
+           :conflict-strat (keyword conflict-strat)
+           :search-strat (keyword search-strat)
+           :compare version-comparator
+           :allow-alternatives alternatives)
+          base-result-info
+          {
+           :command "degasolv"
+           :subcommand "resolve-locations"
+           :options options
+           :result (first result)
+           }
+          result-info
+          (if  (= (first result) :successful)
+            (into base-result-info
+                  {:packages (second result)})
+            (into base-result-info (second result)))]
+      (if (= (first result) :successful)
+        (println
          (case output-format
            "json"
            (json/write-str result-info :escape-slash false)
            "edn"
            (pr-str result-info)
            "plain"
-           (resolver-error (:problems result-info))
+           (string/join
+            \newline
+            (map explain-package (:packages result-info)))
            (throw (ex-info "This shouldn't happen"
                            {:subcommand "resolve-locations"
                             :output-format output-format
                             :result (first result)}))))
-        (exit 1 (resolver-error (:problems result-info)))))))
+        (if error-format
+          (out-exit 1
+                    (case output-format
+                      "json"
+                      (json/write-str result-info :escape-slash false)
+                      "edn"
+                      (pr-str result-info)
+                      "plain"
+                      (resolver-error (:problems result-info))
+                      (throw (ex-info "This shouldn't happen"
+                                      {:subcommand "resolve-locations"
+                                       :output-format output-format
+                                       :result (first result)}))))
+          (exit 1 (resolver-error (:problems result-info))))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file meta]}
@@ -483,6 +455,7 @@
    :index-file "index.dsrepo"
    :index-strat "priority"
    :output-format "plain"
+   :subproc-output-format "json"
    :package-system "degasolv"
    :resolve-strat "thorough"
    :search-directory "."
@@ -685,6 +658,19 @@
             :default-desc "maven"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
+           ["-x" "--subproc-exe PATH"
+            "Path to the executable to call to get package data"
+            :validate [#(and
+                         (fs/exists? %)
+                         (fs/executable? %))
+                       "Must be an executable file which exists on the file system."]]
+           ["-u" "--subproc-output-format"
+            "Whether to read `edn` or `json` from the exe's output"
+            :default nil
+            :default-desc "json"
+            :validate [#(or (= "json" %)
+                            (= "edn" %))
+                       "Subproc output format may be either be 'edn' or 'json'"]]
            ]}
     "query-repo"
     {:description "Query repository for a particular package"

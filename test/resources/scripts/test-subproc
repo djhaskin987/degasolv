@@ -23,10 +23,10 @@ then
 fi
 
 set +x
-echo "Testing argument order..."
+echo "Testing argument validation..."
 set -x
 
-if java -jar ./target/uberjar/${name}-${version}f-standalone.jar resolve-locations -r quiles -x '/usr/bin/fightme' -R farforshire
+if java -jar ./target/uberjar/${name}-${version}-standalone.jar resolve-locations -r quiles -x '/usr/bin/fightme' -R farforshire
 then
     exit 1
 fi
@@ -37,9 +37,11 @@ set -x
 
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      resolve-locations \
+     -x "test/resources/scripts/subproc" \
      -t subproc \
      -r "a>=2.0.0" \
-     -x "test/resources/scripts/subproc"
+     -R "thisdoesntmatter"
+
 
 set +x
 echo "Basic EDN test..."

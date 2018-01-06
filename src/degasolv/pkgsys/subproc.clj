@@ -12,10 +12,10 @@
 
 (defn make-slurper
   [{:keys [subproc-exe
-           subproc-out-format]}]
+           subproc-output-format]}]
   (fn slurp-subproc-repo [repo]
     (let [{:keys [exit out]}
-          (sh/sh [(t/spy subproc-exe) (t/spy repo)])]
+          (sh/sh subproc-exe repo)]
       (when (not (= exit 0))
         (throw
          (ex-info (str
@@ -31,16 +31,16 @@
                    :exit-status exit})))
       (let [packages
             (cond
-              (= subproc-out-format "json")
+              (= subproc-output-format "json")
               (json/read-str out :key-fn keyword)
-              (= subproc-out-format "edn")
+              (= subproc-output-format "edn")
               (tag/read-string out)
               :else
               (throw (ex-info
                       (str "Unknown subproc output format: `"
-                          subproc-out-format
+                          subproc-output-format
                           "`")
-                      {:subproc-out-format subproc-out-format})))
+                      {:subproc-output-format subproc-output-format})))
             repo-map
         (reduce
          (fn [c v]
