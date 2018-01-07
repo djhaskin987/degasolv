@@ -663,7 +663,7 @@
                          (fs/exists? %)
                          (fs/executable? %))
                        "Must be an executable file which exists on the file system."]]
-           ["-u" "--subproc-output-format"
+           ["-u" "--subproc-output-format FORMAT"
             "Whether to read `edn` or `json` from the exe's output"
             :default nil
             :default-desc "json"

@@ -51,5 +51,6 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      resolve-locations \
      -t subproc \
      -r "a>=2.0.0" \
-     -x "test/resources/scripts/subproc" \
-     -u "edn"
+     -x "test/resources/scripts/subproc-edn" \
+     -u "edn" \
+     -R "thisdoesntmatter"

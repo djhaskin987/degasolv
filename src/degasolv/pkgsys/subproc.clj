@@ -4,6 +4,7 @@
   (:require [clojure.string :as string]
             [clojure.java.shell :as sh]
             [clojure.data.json :as json]
+            [clojure.walk :as walk]
             [miner.tagged :as tag]
             [degasolv.util :refer :all]
             [tupelo.core :as t]
@@ -16,25 +17,26 @@
     (map (fn [[package-name package-list]]
            [package-name
             (mapv (fn [pkg]
-                  (as-> pkg each-pkg
-                    (if (:requirements each-pkg)
-                      (assoc
-                       each-pkg
-                       :requirements
-                       (mapv string-to-requirement (:requirements each-pkg)))
-                      each-pkg)
-                    (into
-                     (->PackageInfo
-                           (:id each-pkg)
-                           (:version each-pkg)
-                           (:location each-pkg)
-                           (:requirements each-pkg))
-                     (dissoc each-pkg
-                             :id
-                             :version
-                             :location
-                             :requirements))))
-                 package-list)])
+                    (as-> pkg each-pkg
+                      (walk/keywordize-keys each-pkg)
+                      (if (:requirements each-pkg)
+                        (assoc
+                         each-pkg
+                         :requirements
+                         (mapv string-to-requirement (:requirements each-pkg)))
+                        each-pkg)
+                      (into
+                       (->PackageInfo
+                        (:id each-pkg)
+                        (:version each-pkg)
+                        (:location each-pkg)
+                        (:requirements each-pkg))
+                       (dissoc each-pkg
+                               :id
+                               :version
+                               :location
+                               :requirements))))
+                  package-list)])
          it)
     (into (hash-map) it)))
 
@@ -60,7 +62,7 @@
       (let [raw-repo-info
             (cond
               (= subproc-output-format "json")
-              (json/read-str out :key-fn keyword)
+              (json/read-str out)
               (= subproc-output-format "edn")
               (tag/read-string out)
               :else
@@ -70,5 +72,6 @@
                           "`")
                       {:subproc-output-format subproc-output-format})))
             repo-map
-            (convert-input raw-repo-info)]
+            (t/spy :msg "converted input"
+                   (convert-input (t/spy :msg "raw-repo-info" raw-repo-info)))]
         (map-query repo-map)))))
