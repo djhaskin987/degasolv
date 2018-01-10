@@ -254,7 +254,7 @@
                 resolve-strat
                 search-strat
                 version-comparison]}
-       options]
+        options]
     (when (get-in package-systems [package-system :required-arguments])
       (check-required! options (get package-systems package-system)))
     (let [genrepo
@@ -827,4 +827,8 @@
           (check-required! effective-options subcmd-cli)
           ((:function subcmd-cli)
            effective-options
-           arguments))))))
+           arguments)))))
+  ;; Subproc package system forks processess,
+  ;; which causes the VM to hang unless this is called
+  ;; https://dev.clojure.org/jira/browse/CLJ-959
+  (System/exit 0))

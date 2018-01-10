@@ -72,6 +72,5 @@
                           "`")
                       {:subproc-output-format subproc-output-format})))
             repo-map
-            (t/spy :msg "converted input"
-                   (convert-input (t/spy :msg "raw-repo-info" raw-repo-info)))]
+            (convert-input raw-repo-info)]
         (map-query repo-map)))))

@@ -33,7 +33,7 @@ set +x
 echo "Basic JSON test..."
 set -x
 
-time java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      resolve-locations \
      -x "test/resources/scripts/subproc" \
      -t subproc \
@@ -45,7 +45,7 @@ set +x
 echo "Basic EDN test..."
 set -x
 
-time java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      resolve-locations \
      -t subproc \
      -r "a>=2.0.0" \
