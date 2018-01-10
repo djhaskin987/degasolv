@@ -687,30 +687,34 @@ Usage Page for ``resolve-locations``
 Running ``java -jar degasolv-<version>-standalone.jar resolve-locations -h``
 returns a page that looks something like this::
 
-    Usage: degasolv <options> resolve-locations <resolve-locations-options>
+    Usage: resolve-locations <options>
 
-    Options are shown below. Default values are marked as <DEFAULT> and
+    Options are shown below. Default values are listed with the
       descriptions. Options marked with `**` may be
       used more than once.
 
-      -a, --enable-alternatives                    Consider all alternatives (default)
-      -A, --disable-alternatives                   Consider only first alternatives
-      -e, --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
-      -f, --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
-      -o, --output-format FORMAT    plain          May be 'plain' or 'json'
-      -p, --present-package PKG                    Hard present package. **
-      -r, --requirement REQ                        Resolve req. **
-      -R, --repository INDEX                       Search INDEX for packages. **
-      -s, --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
-      -S, --index-strat STRAT       priority       May be 'priority' or 'global'.
-      -t, --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
-      -V, --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
-      -h, --help                                   Print this help page
+      -a, --enable-alternatives                          Consider all alternatives (default)
+      -A, --disable-alternatives                         Consider only first alternatives
+      -e, --search-strat STRAT            breadth-first  May be 'breadth-first' or 'depth-first'.
+      -g, --enable-error-format                          Enable output format for errors
+      -G, --disable-error-format                         Disable output format for errors (default)
+      -f, --conflict-strat STRAT          exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+      -o, --output-format FORMAT          plain          May be 'plain', 'edn' or 'json'
+      -p, --present-package PKG                          Hard present package. **
+      -r, --requirement REQ                              Resolve req. **
+      -R, --repository INDEX                             Search INDEX for packages. **
+      -s, --resolve-strat STRAT           thorough       May be 'fast' or 'thorough'.
+      -S, --index-strat STRAT             priority       May be 'priority' or 'global'.
+      -t, --package-system SYS            degasolv       May be 'degasolv', 'apt', or 'subproc'.
+      -u, --subproc-output-format FORMAT  json           Whether to read `edn` or `json` from the exe's output
+      -V, --version-comparison CMP        maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+      -x, --subproc-exe PATH                             Path to the executable to call to get package data
+      -h, --help                                         Print this help page
 
-    The following options are required for subcommand `resolve-locations`:
+    The following options are required:
 
-      1. `-R`, `--repository`, or the config file key `:repositories`.
-      2. `-r`, `--requirement`, or the config file key `:requirements`.
+      - `-R`, `--repository`, or the config file key `:repositories`.
+      - `-r`, `--requirement`, or the config file key `:requirements`.
 
 Overview of ``resolve-locations``
 +++++++++++++++++++++++++++++++++
@@ -1352,19 +1356,15 @@ Specify a Package System (Experimental)
 | Version introduced          | 1.4.0                                 |
 +-----------------------------+---------------------------------------+
 
-**Experimental**. Specify package system to use. By default, this
+Specify package system to use. By default, this
 value is ``degasolv``. Using this option allows the user to run
 degasolv's resolver engine on respositories from other package manager
-systems. Though option was mainly implemented for profiling and
-debugging purposes, it is envisioned that this option will expand to
-include many package manager repositories. This will allow users to
-use degasolv to resolve packages from well-known sources, in a
-reliable and useful manner.
+systems.
 
 Other available values are:
 
-  - ``apt``: resolve using the APT debian package manager. When using
-    this method, `specify repositories`_ using the format::
+  - ``apt``: **Experimental**. resolve using the APT debian package manager.
+    When using this method, `specify repositories`_ using the format::
 
       {binary-amd64|binary-i386} <url> <dist> <pool>
 
@@ -1392,6 +1392,86 @@ Other available values are:
        every degasolv repo is currently architecture-specific; each
        repo has an associated architecture, even if that architecture
        is ``any``.
+
+  - ``degasolv``: This is the default and causes degasolv resolve-locations
+    command to behave normally.
+
+  - ``subproc``: This package system allows the user to give degasolv
+    package information via a subprocess (shell-out) command. A path
+    to an executable on the filesystem is given via the `subproc-exe`_ option.
+    For each repository specified via the `repository option`_, the
+    subproc executable path is executed with the string given for the
+    repository as its only argument. The executable is expected to
+    print out JSON or EDN to standard output, depending on the value
+    of the `subproc-output-format`_ option. This information will then
+    be read into degasolv and used to resolve dependencies.
+
+    If the format is JSON, which is the default, the output should be of the form::
+
+      {
+          "pkgname": [
+              {
+                  "id": "pkgname",
+                  "version": "p.k.g-version",
+                  "location": "pkg-url",
+                  <optional kv-pairs associated with package>
+              }
+          ],
+          "otherpkgname": [...]
+      }
+
+    If the format is EDN, the output should be of the form::
+
+      {
+          "pkgname" [
+              # The following will be referred
+              {
+                  :id "pkgname"
+                  :version: "p.k.g-version"
+                  :location": "pkg-url"
+                  <optional kv-pairs associated with package>
+              }
+          ]
+          "otherpkgname" [...]
+      }
+
+    Any additional kv-pairs specified in a package's record as shown
+    above will appear in the resolution output if the `output-format`_
+    option is set to something other than ``plain``.
+
+    If the executable exits with a non-zero error status code, degasolv
+    will print an error message looking like the following and also exit
+    with a non-zero status code::
+
+      Error while evaluating repositories: Executable
+      `<path-to-exe>` given argument
+      `<repository-string>` exited with non-zero status `1`.
+
+  .. note:: The resolver will search for packages in the order
+            given in the output of the executable. Unless you
+            have a good reason not to, you should list packages
+            under the name of the package in the data structure
+            on standard out in version-descending order.
+
+.. subproc-output-format:
+Specify Subproc Package System Output Format
+********************************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-u FORMAT``                         |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--subproc-output-format FORMAT``    |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:subproc-output-format "FORMAT"``   |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option only takes effect if the ``subproc`` choice was listed for
+the `package-system`_ option. It says whether the executable used by degasolv
+to get information needed to resolve dependencies will come in the form of an EDN
+or a JSON document. This option is set to ``json`` by default. See `package-system`_
+docs for more information.
 
 .. _version-comparison-resolve:
 
@@ -1430,6 +1510,26 @@ the `Serovers docs`_.
    subcommand. They should all agree when used within the same
    site. It is therefore recommended that whichever setting is
    chosen should be used `site-wide`_ within an organization.
+
+.. subproc-exe:
+Specify Subproc Package System Output Format
+********************************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-x PATH``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--subproc-exe PATH``                |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:subproc-exe "PATH"``               |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option only takes effect if the ``subproc`` choice was listed for
+the `package-system`_ option; however, it is required if the
+``subproc`` choice was listed. It lists the path to the executable to
+use to get resolution information. See `package-system`_ docs for more
+information.
 
 .. _query-repo:
 

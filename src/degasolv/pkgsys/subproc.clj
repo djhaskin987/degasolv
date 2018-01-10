@@ -49,7 +49,7 @@
       (when (not (= exit 0))
         (throw
          (ex-info (str
-                   "Slurper `"
+                   "Executable `"
                    subproc-exe
                    "` given argument `"
                    repo

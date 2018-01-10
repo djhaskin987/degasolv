@@ -52,3 +52,18 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      -x "test/resources/scripts/subproc-edn" \
      -u "edn" \
      -R "thisdoesntmatter"
+
+set +x
+echo "Basic bad-exit test..."
+set -x
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     resolve-locations \
+     -t subproc \
+     -r "a>=2.0.0" \
+     -x "test/resources/scripts/bad-subproc" \
+     -u "edn" \
+     -R "thisdoesntmatter"
+then
+    exit 1
+fi

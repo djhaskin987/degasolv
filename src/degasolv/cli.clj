@@ -308,11 +308,15 @@
                     nil)])))
             (:present-packages options)))
           aggregate-repo
-          (aggregate-repositories
-           index-strat
-           repositories
-           genrepo
-           version-comparator)
+          (try
+            (aggregate-repositories
+             index-strat
+             repositories
+             genrepo
+             version-comparator)
+            (catch Exception e (exit 1 (str
+                                        "Error while evaluating repositories: "
+                                        (.getMessage e)))))
           result
           (resolve-dependencies
            requirement-data
@@ -651,6 +655,13 @@
                             (= "apt" %)
                             (= "subproc" %))
                        "Package system must be either 'degasolv', 'apt', or 'subproc'."]]
+           ["-u" "--subproc-output-format FORMAT"
+            "Whether to read `edn` or `json` from the exe's output"
+            :default nil
+            :default-desc "json"
+            :validate [#(or (= "json" %)
+                            (= "edn" %))
+                       "Subproc output format may be either be 'edn' or 'json'"]]
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
@@ -663,13 +674,6 @@
                          (fs/exists? %)
                          (fs/executable? %))
                        "Must be an executable file which exists on the file system."]]
-           ["-u" "--subproc-output-format FORMAT"
-            "Whether to read `edn` or `json` from the exe's output"
-            :default nil
-            :default-desc "json"
-            :validate [#(or (= "json" %)
-                            (= "edn" %))
-                       "Subproc output format may be either be 'edn' or 'json'"]]
            ]}
     "query-repo"
     {:description "Query repository for a particular package"

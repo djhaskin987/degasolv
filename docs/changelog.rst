@@ -18,6 +18,9 @@ Added
   :ref:`resolve-locations <enable-error-format-resolve>` and
   :ref:`query-repo <enable-error-format-query>`.
 
+- Added the ``--package-system subproc`` option, together with its
+  `subproc-exe`_ and `subproc-output-format` options.
+
 Changed
 +++++++
 
