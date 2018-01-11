@@ -12,7 +12,10 @@ test_home=test/resources/data/grill
 lein uberjar
 
 # Script tests
-for i in test/resources/scripts/*
+for i in test/resources/scripts/test-*
 do
-    ./${i}
+    if [ ${i} != test/resources/scripts/test-all ]
+    then
+        ./${i}
+    fi
 done
