@@ -16,6 +16,8 @@
    :in-range "=>"
    :pess-greater "><"})
 
+(defrecord DecoratedRequirement [clause parent])
+
 (defrecord VersionPredicate [relation version]
   Object
   (toString [this]
@@ -250,6 +252,61 @@
           present-id-package)))
     present-id-packages)))
 
+;; root -> a
+;; root -> x
+;; root -> b
+;; a -> c
+;; a -> d
+;; x -> y
+;; x -> z
+;; b -> e
+;; e -> a
+;; b -> a
+(defn list-packages [package-graph search-strat]
+  (letfn [(list-pkgs-rec
+            [already-visited
+             children-of]
+            (let [children (filter
+                             #(not (get already-visited %))
+                             (get package-graph children-of))]
+              (if (empty? children)
+                {:pkg-list []
+                 :visited #{}}
+                (let [{list-from-children :pkg-list
+                       visited-from-children :visited
+                       :as children-results}
+                      (reduce
+                        (fn gather-lists [{:keys [pkg-list visited]} v]
+                          (let [{grandchildren-list :pkg-list
+                                 grandchildren-visited :visited}
+                                (list-pkgs-rec visited v)
+                                base-pkg-list (into
+                                                pkg-list
+                                                grandchildren-list)
+                                base-visited (into
+                                               visited
+                                               grandchildren-visited)]
+                            (if (and (= search-strat :depth-first)
+                                     (not (get grandchildren-visited v)))
+                              {:pkg-list (conj base-pkg-list v)
+                               :visited (conj base-visited v)}
+                              {:pkg-list base-pkg-list
+                               :visited base-visited})))
+                        {:pkg-list []
+                         :visited #{}}
+                        children)]
+                  (if (= search-strat :breadth-first)
+                    {:pkg-list (into list-from-children
+                                     (filter
+                                       #(not (get visited-from-children %))
+                                       children))
+                     :visited (into visited-from-children children)}
+                    children-results)))))]
+    (list-pkgs-rec #{} :root)
+
+  ))
+
+
 (defn resolve-dependencies
   [requirements
    query & {:keys [present-packages
@@ -291,17 +348,19 @@
                present-packages
                found-packages
                absent-specs
-               clauses]
-;;               parent
-;;               package-graph]
+               clauses
+               package-graph]
               (if (empty? clauses)
-                [:successful (set (flatten (vals found-packages)))]
+                [:successful
+                 package-graph]
                 (let [fclause (first clauses)
-                      rclauses (rest clauses)]
-                  (if (empty? fclause)
+                      rclauses (rest clauses)
+                      {:keys [clause parent]}
+                      fclause]
+                  (if (empty? clause)
                     [:unsuccessful
                      {:problems
-                      [{:term fclause
+                      [{:term clause
                         :found-packages found-packages
                         :present-packages present-packages
                         :absent-specs absent-specs
@@ -325,20 +384,25 @@
                                         safe-spec-call
                                         status)))]
                                (cond
-                                  (not
+                                 (not
                                    (nil? present-package))
-                                   (resolve-deps
-                                    repo
-                                    present-packages
-                                    found-packages
-                                    absent-specs
-                                    rclauses)
+                                 (resolve-deps
+                                   repo
+                                   present-packages
+                                   found-packages
+                                   absent-specs
+                                   rclauses
+                                   present-package
+                                   (update-in package-graph
+                                              [parent]
+                                              conj
+                                              present-package))
                                    (and (not (nil? present-id-packages))
                                         (not (= conflict-strat :inclusive)))
                                    [:unsuccessful
                                     {:problems
                                      [
-                                      {:term fclause
+                                      {:term clause
                                        :found-packages found-packages
                                        :present-packages present-packages
                                        :absent-specs absent-specs
@@ -347,20 +411,21 @@
                                        :package-id id}]}]
                                  (= status :absent)
                                  (resolve-deps
-                                  repo
-                                  present-packages
-                                  found-packages
-                                  (update-in
-                                   absent-specs
-                                   [id] conj spec)
-                                  rclauses)
+                                   repo
+                                   present-packages
+                                   found-packages
+                                   (update-in
+                                     absent-specs
+                                     [id] conj spec)
+                                   rclauses
+                                   package-graph)
                                  (= status :present)
                                  (let [query-results (repo id)]
                                    (if (empty? query-results)
                                      [:unsuccessful
                                       {:problems
                                        [
-                                        {:term fclause
+                                        {:term clause
                                          :alternative alternative
                                          :found-packages found-packages
                                          :present-packages present-packages
@@ -388,7 +453,7 @@
                                        (if (empty? filtered-query-results)
                                          [:unsuccessful
                                           {:problems
-                                           [{:term fclause
+                                           [{:term clause
                                              :alternative alternative
                                              :found-packages found-packages
                                              :present-packages present-packages
@@ -397,16 +462,28 @@
                                              :package-id id}]}]
                                          (let [candidate-results
                                                (first-found
-                                                #(resolve-deps
-                                                  repo
-                                                  present-packages
-                                                  (update-in found-packages [id]
-                                                               conj
-                                                               %)
-                                                  absent-specs
-                                                  (concat-reqs rclauses
-                                                        (:requirements
-                                                         %)))
+                                                 (fn
+                                                   try-candidate
+                                                   [candidate]
+                                                   (resolve-deps
+                                                     repo
+                                                     present-packages
+                                                     (update-in found-packages [id]
+                                                                conj
+                                                                candidate)
+                                                     absent-specs
+                                                     (concat-reqs
+                                                       rclauses
+                                                       (map
+                                                         #(->DecoratedRequirement
+                                                            %
+                                                            candidate)
+                                                         (:requirements
+                                                           candidate)))
+                                                     (update-in
+                                                       present-packages
+                                                       [parent]
+                                                       conj candidate)))
                                                 successful?
                                                 filtered-query-results)]
                                            (or
@@ -422,7 +499,7 @@
                                                 candidate-results))}]))))))
                                  :else
                                  [:unsuccessful {:problems
-                                                 [{:term fclause
+                                                 [{:term clause
                                                    :reason :uncovered-case
                                                    :alternative alternative
                                                    :found-packages found-packages
@@ -431,7 +508,7 @@
                            successful?
                            ;; Hoisting
                            (hoist (cull-alternatives
-                                   fclause)
+                                   clause)
                                   absent-specs
                                   found-packages
                                   present-packages))]
@@ -446,9 +523,17 @@
                            #(:problems
                              (get % 1))
                            clause-result))}]))))))]
+(let [result
       (resolve-deps
-       query
-       present-packages
-       {}
-       conflicts
-       requirements))))
+        query
+        present-packages
+        {}
+        conflicts
+        (map #(->DecoratedRequirement % :root))
+        requirements)]
+  (if (= :successful (first result))
+    [:successful
+     (list-packages
+      (second result)
+      search-strat)]
+    result)))))
