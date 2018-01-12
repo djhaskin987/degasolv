@@ -228,8 +228,8 @@
    []
    coll))
 
-;; does one of the present packages already
-;; satisfy criteria?
+;; Does one of the present packages already
+;; satisfy criteria? If so, return it.
 (defn- present-packages-satisfies?
   [present-id-packages
    spec
@@ -292,6 +292,8 @@
                found-packages
                absent-specs
                clauses]
+;;               parent
+;;               package-graph]
               (if (empty? clauses)
                 [:successful (set (flatten (vals found-packages)))]
                 (let [fclause (first clauses)
@@ -312,17 +314,19 @@
                                    alternative
                                    present-id-packages
                                    (or (get present-packages id)
-                                              (get found-packages id))]
+                                                (get found-packages id))
+                                   present-package
+                                   (when (not (nil? present-id-packages))
+                                     (if (= conflict-strat :prioritized)
+                                       (first present-id-packages)
+                                       (present-packages-satisfies?
+                                        present-id-packages
+                                        spec
+                                        safe-spec-call
+                                        status)))]
                                (cond
-                                 (and
                                   (not
-                                   (nil? present-id-packages))
-                                  (or (= conflict-strat :prioritized)
-                                      (present-packages-satisfies?
-                                       present-id-packages
-                                       spec
-                                       safe-spec-call
-                                       status)))
+                                   (nil? present-package))
                                    (resolve-deps
                                     repo
                                     present-packages
