@@ -235,19 +235,19 @@
    spec
    safe-spec-call
    status]
-  (reduce
-   #(or %1 %2)
-   false
+  (some
+   #(when (not (nil? %)) %)
    (map
     (fn [present-id-package]
       (let [present-package-test
             (safe-spec-call
              spec
              present-id-package)]
-        (or (and (= status :absent)
+        (when (or (and (= status :absent)
                        (not present-package-test))
                   (and (= status :present)
-                       present-package-test))))
+                       present-package-test))
+          present-id-package)))
     present-id-packages)))
 
 (defn resolve-dependencies
