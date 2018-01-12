@@ -22,6 +22,7 @@
 /test/resources/data/test-search-strat/
 /test/resources/data/test-version-comparison/
 /test/resources/test-data/
+/test/resources/data/test-option-packs/
 /buildutils/boot
 /*.dscard
 /*.dsrepo

@@ -57,7 +57,7 @@ if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     -R ${PWD}/index.dsrepo \
     --enable-error-format \
     --output-format json \
-    --requirement "z<=1.0.0" | jq .problems >/dev/null 2>&1
+    --requirement "z<=1.0.0" | jq .problems
 then
     exit 1
 fi
