@@ -262,7 +262,7 @@
 ;; b -> e
 ;; e -> a
 ;; b -> a
-(defn list-packages [package-graph search-strat]
+(defn list-packages [package-graph & {:keys [list-strat] :or {list-strat :lazy}}]
   (letfn [(list-pkgs-rec
             [already-visited
              children-of]
@@ -286,7 +286,7 @@
                                 base-visited (into
                                                visited
                                                grandchildren-visited)]
-                            (if (and (= search-strat :depth-first)
+                            (if (and (= list-strat :eager)
                                      (not (get base-visited v)))
                               {:pkg-list (conj base-pkg-list v)
                                :visited (conj base-visited v)}
@@ -295,7 +295,7 @@
                         {:pkg-list []
                          :visited already-visited}
                         children)]
-                  (if (= search-strat :breadth-first)
+                  (if (= list-strat :lazy)
                     {:pkg-list (into list-from-children
                                      (filter
                                        #(not (get visited-from-children %))
@@ -305,7 +305,6 @@
     (let [{:keys [pkg-list visited]} (list-pkgs-rec #{} :root)]
       pkg-list)))
 
-
 (defn resolve-dependencies
   [requirements
    query & {:keys [present-packages
@@ -314,14 +313,16 @@
                    conflict-strat
                    compare
                    search-strat
-                   allow-alternatives]
+                   allow-alternatives
+                   list-strat]
             :or {present-packages {}
                  conflicts {}
                  strategy :thorough
                  conflict-strat :exclusive
                  compare nil
                  search-strat :breadth-first
-                 allow-alternatives true}}]
+                 allow-alternatives true
+                 list-strat :as-set}}]
   (let [concat-reqs
         (if (= search-strat :depth-first)
           #(concat %2 %1)
@@ -541,7 +542,12 @@
              {})]
         (if (= :successful (first result))
           [:successful
-           (list-packages
-            (second result)
-            search-strat)]
+           (if (= :as-set list-strat)
+             (set
+              (list-packages
+               (second result)
+               :list-strat :lazy))
+             (list-packages
+              (second result)
+              :list-strat list-strat))]
           result)))))
