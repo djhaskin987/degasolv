@@ -900,6 +900,71 @@ should work for most environments.
   easily and cleanly specified done by using the
   ``firstfound-version-mode`` `option pack`_.
 
+.. _list-strategy:
+
+Specify List Strategy
+*********************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-L STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--list-strat STRAT``                |
++-----------------------------+---------------------------------------+
+| Config file key             | ``:list-strat "STRAT"``               |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option determines how packages will be listed once they are resolved.
+Valid values are ``as-set``, ``lazy``, and ``eager``. The default value
+is ``as-set``.
+
+
+When the value is ``as-set``, packages are listed in no particular order.
+
+When the value is ``lazy`` or ``eager``, packages are listed according to
+the following rules:
+
+  1. Barring cases of circular dependency, The child dependencies of
+     any package are always listed before the package they depend on.
+  1. Circular dependencies are handled properly, but which dependency comes
+     first is not guaranteed in all cases. In these cases the resolver
+     must choose which dependency to ignore when it sees both. It choses
+     to ignore the "deeper" dependency rather then the "shallower" package
+     in the package resolution graph.
+  1. Otherwise, packages will be listed in the order in which they were found.
+     this means that, all things being equal, a package resolving one requirement of a parent package
+     will be printed before a package resolving a different requirement of a different package listed
+     further down in the requirements list.
+
+     For example, if a degasolv card file called "steel" is made using the below config file::
+
+       {
+           :requirements ["wool", "wood", "sheep"]
+       }
+
+     When resolved, the represented package would be printed (or
+     appear in the ``json`` or ``edn`` output, if `output-format`_ is
+     set) in this order::
+
+       wool==1.0 @ http://example.com/repo/wool-1.0.zip
+       wood==1.0 @ http://example.com/repo/wood-1.0.zip
+       sheep==1.0 @ http://example.com/repo/sheep-1.0.zip
+       steel==1.0 @ http://example.com/repo/steel-1.0.zip
+
+     It is worth noting that commandline arguments are listed in
+     reverse order, that generating a card file with arguments ``-r
+     wool -r wood -r sheep`` would yield a list thus::
+
+       sheep==1.0 @ http://example.com/repo/sheep-1.0.zip
+       wood==1.0 @ http://example.com/repo/wood-1.0.zip
+       wool==1.0 @ http://example.com/repo/wool-1.0.zip
+       steel==1.0 @ http://example.com/repo/steel-1.0.zip
+
+The difference between these options is that ``lazy`` will list dependencies
+as late as possible while following the above rules, while a value of ``eager``
+tells degasolv to list dependencies as early as possible while
+following the above rules.
 
 .. _enable-error-format-resolve:
 
