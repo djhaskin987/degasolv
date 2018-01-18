@@ -233,24 +233,24 @@
 ;; Does one of the present packages already
 ;; satisfy criteria? If so, return it.
 (defn- present-packages-satisfies?
-  [present-id-packages
+  [pkgs
    spec
    safe-spec-call
    status]
   (some
    #(when (not (nil? %)) %)
    (map
-    (fn [present-id-package]
+    (fn [pkg]
       (let [present-package-test
             (safe-spec-call
              spec
-             present-id-package)]
+             pkg)]
         (when (or (and (= status :absent)
                        (not present-package-test))
                   (and (= status :present)
                        present-package-test))
-          present-id-package)))
-    present-id-packages)))
+          pkg)))
+    pkgs)))
 
 ;; root -> a
 ;; root -> x
@@ -375,20 +375,35 @@
                              (let [{status :status id :id spec :spec}
                                    alternative
                                    present-id-packages
-                                   (or (get present-packages id)
-                                       (get found-packages id))
+                                   (get present-packages id)
+                                   found-id-packages
+                                   (get found-packages id)
+                                   get-pkg-exists
+                                   (fn get-pkg-exists [pkgs]
+                                     (when (not (nil? pkgs))
+                                       (if (= conflict-strat :prioritized)
+                                         (first pkgs)
+                                         (present-packages-satisfies?
+                                          pkgs
+                                          spec
+                                          safe-spec-call
+                                          status))))
                                    present-package
-                                   (when (not (nil? present-id-packages))
-                                     (if (= conflict-strat :prioritized)
-                                       (first present-id-packages)
-                                       (present-packages-satisfies?
-                                        present-id-packages
-                                        spec
-                                        safe-spec-call
-                                        status)))]
+                                   (get-pkg-exists present-id-packages)
+                                   found-package
+                                   (get-pkg-exists found-id-packages)]
                                (cond
                                  (not
                                   (nil? present-package))
+                                 (resolve-deps
+                                  repo
+                                  present-packages
+                                  found-packages
+                                  absent-specs
+                                  rclauses
+                                  package-graph)
+                                 (not
+                                  (nil? found-package))
                                  (resolve-deps
                                   repo
                                   present-packages
@@ -401,7 +416,9 @@
                                                 (do [%2])
                                                 (conj %1 %2))
                                              present-package))
-                                 (and (not (nil? present-id-packages))
+                                 (and (or
+                                       (not (nil? found-id-packages))
+                                       (not (nil? present-id-packages)))
                                       (not (= conflict-strat :inclusive)))
                                  [:unsuccessful
                                   {:problems
