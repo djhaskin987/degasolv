@@ -415,7 +415,7 @@
                                              #(if (empty? %1)
                                                 (do [%2])
                                                 (conj %1 %2))
-                                             present-package))
+                                             found-package))
                                  (and (or
                                        (not (nil? found-id-packages))
                                        (not (nil? present-id-packages)))
