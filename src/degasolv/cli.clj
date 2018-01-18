@@ -244,6 +244,7 @@
   [options arguments]
   (let [{:keys [alternatives
                 conflict-strat
+                list-strat
                 index-strat
                 error-format
                 output-format
@@ -324,6 +325,7 @@
            :present-packages present-packages
            :strategy (keyword resolve-strat)
            :conflict-strat (keyword conflict-strat)
+           :list-strat (keyword list-strat)
            :search-strat (keyword search-strat)
            :compare version-comparator
            :allow-alternatives alternatives)
@@ -464,6 +466,7 @@
    :search-directory "."
    :search-strat "breadth-first"
    :subproc-out-format "json"
+   :list-strat "as-set"
    })
 
 (def available-option-packs
@@ -606,6 +609,15 @@
                             (= "inclusive" %)
                             (= "prioritized" %))
                        "Conflict strategy must either be 'exclusive', 'inclusive', or 'prioritized'."]]
+           ["-L" "--list-strat STRAT"
+            "May be 'as-set', 'lazy' or 'eager'."
+            :default nil
+            :default-desc (str (:list-strat subcommand-option-defaults))
+            :validate
+            [#(or (= "as-set" %)
+                  (= "lazy" %)
+                  (= "eager" %))
+             "List strategy must either be 'as-set', 'lazy', or 'eager'. Using the 'lazy' or 'eager' strategy is recommended."]]
            ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
             :default nil
             :default-desc (str (:output-format subcommand-option-defaults))
