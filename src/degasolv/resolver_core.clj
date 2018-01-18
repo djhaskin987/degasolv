@@ -265,9 +265,12 @@
 (defn list-packages [package-graph & {:keys [list-strat] :or {list-strat :lazy}}]
   (letfn [(list-pkgs-rec
             [already-visited
+             parents
              children-of]
             (let [children (filter
-                             #(not (get already-visited %))
+                            #(and
+                              (not (get already-visited %))
+                              (not (get parents %)))
                              (get package-graph children-of))]
               (if (empty? children)
                 {:pkg-list []
@@ -279,13 +282,13 @@
                         (fn gather-lists [{:keys [pkg-list visited]} v]
                           (let [{grandchildren-list :pkg-list
                                  grandchildren-visited :visited}
-                                (list-pkgs-rec visited v)
+                                (list-pkgs-rec visited (conj parents v) v)
                                 base-pkg-list (into
                                                 pkg-list
                                                 grandchildren-list)
                                 base-visited (into
-                                               visited
-                                               grandchildren-visited)]
+                                              visited
+                                              grandchildren-visited)]
                             (if (and (= list-strat :eager)
                                      (not (get base-visited v)))
                               {:pkg-list (conj base-pkg-list v)
@@ -302,7 +305,7 @@
                                        children))
                      :visited (into visited-from-children children)}
                     children-results)))))]
-    (let [{:keys [pkg-list visited]} (list-pkgs-rec #{} :root)]
+    (let [{:keys [pkg-list visited]} (list-pkgs-rec #{} #{:root} :root)]
       pkg-list)))
 
 (defn resolve-dependencies
