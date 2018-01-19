@@ -490,11 +490,22 @@
    :description "Degasolv: You love me."
    :cli
    [["-c" "--config-file FILE" "Config file location **"
-     :id :config-files
+     :id :edn-config-files
      :default []
      :default-desc "./degasolv.edn"
      :assoc-fn
-     (fn [m k v] (update-in m [k] #(conj % v)))]
+     (fn [m k v] (update-in m [:config-files]
+                            #(conj %1 {:file %2
+                                       :read-fn tag/read-string})))]
+    ["-j" "--json-config FILE" "JSON config file location **"
+     :id :json-config-files
+     :default []
+     :default-desc ""
+     :assoc-fn
+     (fn [m k v] (update-in m [:config-files]
+                            (fn add-cfg [coll v]
+                              (conj coll {:file v
+                                          :read-fn #(json/read-str % :key-fn keyword)}))))]
     ["-k" "--option-pack PACK" "Specify option pack **"
      :id :option-packs
      :default []
@@ -752,31 +763,23 @@
                ""
                ""))
 
-
-
-
-
-
-
 (defn get-config [configs]
-  (try
-    (reduce
-     merge
-     (map
-      tag/read-string
-      (map
-       default-slurp
-       configs)))
-    (catch Exception e
-      (binding [*out* *err*]
-        (println "Warning: problem reading config files, they were not used:"
-                 (str "\n"
-                      (string/join
-                       \newline
-                       (map #(str "  - " %)
-                            configs)))))
-      (hash-map))))
-
+  (as-> configs it
+        (map default-slurp it)
+        (map (fn [{:keys [file read-fn]}]
+               (read-fn file))
+             it)
+        (reduce merge it)
+        (try it
+          (catch Exception e
+            (binding [*out* *err*]
+              (println "Warning: problem reading config files, they were not used:"
+                       (str "\n"
+                            (string/join
+                              \newline
+                              (map #(str "  - " %)
+                                   configs)))))
+            (hash-map)))))
 
 
 (defn -main [& args]
@@ -808,7 +811,8 @@
             (parseplz! subcommand (rest arguments) (get subcommand-cli subcommand))]
         (let [config-files
               (if (empty? (:config-files global-options))
-                [(fs/file (fs/expand-home "./degasolv.edn"))]
+                [{:file (fs/file (fs/expand-home "./degasolv.edn"))
+                  :read-fn tag/read-string}]
                 (:config-files global-options))
               config
               (get-config config-files)
