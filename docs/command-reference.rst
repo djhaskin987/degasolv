@@ -699,6 +699,7 @@ returns a page that looks something like this::
       -g, --enable-error-format                          Enable output format for errors
       -G, --disable-error-format                         Disable output format for errors (default)
       -f, --conflict-strat STRAT          exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+      -L, --list-strat STRAT              as-set         May be 'as-set', 'lazy' or 'eager'.
       -o, --output-format FORMAT          plain          May be 'plain', 'edn' or 'json'
       -p, --present-package PKG                          Hard present package. **
       -r, --requirement REQ                              Resolve req. **
@@ -927,7 +928,7 @@ the following rules:
 
   1. Barring cases of circular dependency, The child dependencies of
      any package are always listed before the package they depend on.
-  1. Circular dependencies are handled properly, but which dependency comes
+  2. Circular dependencies are handled properly, but which dependency comes
      first is not guaranteed in all cases. In these cases the resolver
      must choose which dependency to ignore when it sees both. It choses
      to ignore the "deeper" dependency rather then the "shallower" package
@@ -936,12 +937,14 @@ the following rules:
      encountered first, the dependency from ``a`` to ``b`` will be honored but
      the dependency from ``b`` to ``a`` will be ignored when deciding in what
      order to list packages.
-  1. Otherwise, packages will be listed in the order in which they were found.
-     this means that, all things being equal, a package resolving one requirement of a parent package
-     will be printed before a package resolving a different requirement of a different package listed
-     further down in the requirements list.
+  3. Otherwise, packages will be listed in the order in which they were found.
+     this means that, all things being equal, a package resolving one
+     requirement of a parent package will be printed before a package resolving
+     a different requirement of a different package listed further down in the
+     requirements list.
 
-     For example, if a degasolv card file called "steel" is made using the below config file::
+     For example, if a degasolv card file called "steel" is made using the
+     below config file::
 
        {
            :requirements ["wool", "wood", "sheep"]
@@ -1456,11 +1459,11 @@ Other available values are:
           -t "apt" \
           --requirement "ubuntu-desktop"
 
-    .. note:: Degasolv does not currently support APT dependencies
-       between machine architectures, as in ``python:i386``. Also,
-       every degasolv repo is currently architecture-specific; each
-       repo has an associated architecture, even if that architecture
-       is ``any``.
+    Degasolv does not currently support APT dependencies
+    between machine architectures, as in ``python:i386``. Also,
+    every degasolv repo is currently architecture-specific; each
+    repo has an associated architecture, even if that architecture
+    is ``any``.
 
   - ``degasolv``: This is the default and causes degasolv resolve-locations
     command to behave normally.
@@ -1516,13 +1519,14 @@ Other available values are:
       `<path-to-exe>` given argument
       `<repository-string>` exited with non-zero status `1`.
 
-  .. note:: The resolver will search for packages in the order
-            given in the output of the executable. Unless you
-            have a good reason not to, you should list packages
-            under the name of the package in the data structure
-            on standard out in version-descending order.
+    The resolver will search for packages in the order
+    given in the output of the executable. Unless you
+    have a good reason not to, you should list packages
+    under the name of the package in the data structure
+    on standard out in version-descending order.
 
-.. subproc-output-format:
+.. _subproc-output-format:
+
 Specify Subproc Package System Output Format
 ********************************************
 
@@ -1580,7 +1584,8 @@ the `Serovers docs`_.
    site. It is therefore recommended that whichever setting is
    chosen should be used `site-wide`_ within an organization.
 
-.. subproc-exe:
+.. _subproc-exe:
+
 Specify Subproc Package System Output Format
 ********************************************
 
@@ -1672,8 +1677,11 @@ code.
 
 When error information is returned via JSON or EDN, the keys are the same
 in the dictionary, except:
+
 - The ``result`` key now has the value of ``unsuccessful``.
+
 - The ``packages`` key is not present.
+
 - A new key, ``problems``, appears in place of the ``packages`` key containing
   information describing what went wrong.
 

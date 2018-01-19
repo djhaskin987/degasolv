@@ -14,6 +14,10 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+- Added the ``--list-strat`` option to :ref:`resolve-locations
+  <list-strategy>`, allowing users to have their dependencies listed an a sane
+  order.
+
 - Added the ``--{enable|disable}-error-format`` options to
   :ref:`resolve-locations <enable-error-format-resolve>` and
   :ref:`query-repo <enable-error-format-query>`.
@@ -146,9 +150,9 @@ Added
 +++++
 
 - In just ~15 seconds, it slurps in a rather large apt repository
-Packages.gz file.  In another ~45 seconds, it resolves the
-ubuntu-desktop package, spitting out a grand total of 797 packages
-with their locations.
+  Packages.gz file.  In another ~45 seconds, it resolves the
+  ubuntu-desktop package, spitting out a grand total of 797 packages
+  with their locations.
 
 Fixed
 +++++
