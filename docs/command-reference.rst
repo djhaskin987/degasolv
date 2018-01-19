@@ -931,7 +931,11 @@ the following rules:
      first is not guaranteed in all cases. In these cases the resolver
      must choose which dependency to ignore when it sees both. It choses
      to ignore the "deeper" dependency rather then the "shallower" package
-     in the package resolution graph.
+     in the package resolution graph. So, for example, if package ``a`` relies
+     on package ``b`` and package ``b`` relies on package ``a``, but ``a`` is
+     encountered first, the dependency from ``a`` to ``b`` will be honored but
+     the dependency from ``b`` to ``a`` will be ignored when deciding in what
+     order to list packages.
   1. Otherwise, packages will be listed in the order in which they were found.
      this means that, all things being equal, a package resolving one requirement of a parent package
      will be printed before a package resolving a different requirement of a different package listed
