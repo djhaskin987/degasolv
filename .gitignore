@@ -23,6 +23,7 @@
 /test/resources/data/test-version-comparison/
 /test/resources/test-data/
 /test/resources/data/test-option-packs/
+/test/resources/data/test-json-config/
 /buildutils/boot
 /*.dscard
 /*.dsrepo

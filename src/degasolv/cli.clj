@@ -487,7 +487,7 @@
 
 (def cli-spec
   {
-   :description "Degasolv: You love me."
+   :description "Dependency tracker with an eye toward building and shipping software."
    :cli
    [["-c" "--config-file FILE" "Config file location **"
      :id :edn-config-files
@@ -495,15 +495,15 @@
      :default-desc "./degasolv.edn"
      :assoc-fn
      (fn [m k v] (update-in m [:config-files]
-                            #(conj %1 {:file %2
-                                       :read-fn tag/read-string})))]
+                            #(conj % {:file v
+                                      :read-fn tag/read-string})))]
     ["-j" "--json-config FILE" "JSON config file location **"
      :id :json-config-files
      :default []
      :default-desc ""
      :assoc-fn
      (fn [m k v] (update-in m [:config-files]
-                            (fn add-cfg [coll v]
+                            (fn add-cfg [coll]
                               (conj coll {:file v
                                           :read-fn #(json/read-str % :key-fn keyword)}))))]
     ["-k" "--option-pack PACK" "Specify option pack **"
@@ -765,9 +765,11 @@
 
 (defn get-config [configs]
   (as-> configs it
-        (map default-slurp it)
         (map (fn [{:keys [file read-fn]}]
-               (read-fn file))
+               {:string (default-slurp file)
+                :read-fn read-fn}) it)
+        (map (fn [{:keys [string read-fn]}]
+               (read-fn string))
              it)
         (reduce merge it)
         (try it
@@ -811,8 +813,8 @@
             (parseplz! subcommand (rest arguments) (get subcommand-cli subcommand))]
         (let [config-files
               (if (empty? (:config-files global-options))
-                [{:file (fs/file (fs/expand-home "./degasolv.edn"))
-                  :read-fn tag/read-string}]
+                       [{:file (fs/file (fs/expand-home "./degasolv.edn"))
+                         :read-fn tag/read-string}]
                 (:config-files global-options))
               config
               (get-config config-files)

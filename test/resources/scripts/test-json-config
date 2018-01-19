@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eoux
+export POSIXLY_CORRECT=1
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+root_path=${PWD}
+test_home=test/resources/data/test-json-config
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf "${test_home}"
+mkdir -p "${test_home}"
+cd "${test_home}"
+
+
+cat > "degasolv.json" << JSON
+{
+    "id": "a",
+    "version": "1.0.0",
+    "location": "https://example.com/repo/a-1.0.0.zip",
+    "requirements": ["c", "d"]
+}
+JSON
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    -j "degasolv.json" display-config
