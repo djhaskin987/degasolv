@@ -1,3 +1,5 @@
+.. _Command Reference:
+
 Degasolv Command Reference
 ==========================
 
@@ -41,9 +43,10 @@ a page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -c, --config-file FILE  ./degasolv.edn  Config file location **
-    -k, --option-pack PACK                  Specify option pack **
-    -h, --help                              Print this help page
+  -c, --config-file FILE  ./degasolv.edn  Config file location **
+  -j, --json-config FILE                  JSON config file location **
+  -k, --option-pack PACK                  Specify option pack **
+  -h, --help                              Print this help page
 
   Commands are:
 
@@ -58,18 +61,27 @@ a page that looks something like this::
 Explanation of Options
 ++++++++++++++++++++++
 
+Degasolv parses global options before it parses subcommands or the options for
+subcommands; therefore, global options need to be specified first.
+
 Using Configuration Files
 *************************
 
-Basic Configuration Usage
-#########################
+Configuration files may be specified at the command line before specifying any
+subcommands. The config file structure is designed so that any command-line
+option may be set in the config file instead, and vice versa.
+
+In addition, config files may be specified either in the EDN format or JSON
+format. Multiple config files may be specified. "Mixing and matching" of JSON
+and EDN config files is supported.
+
+Basic EDN Configuration Usage
+#############################
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-c FILE``                           |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--config-file FILE``                |
-+-----------------------------+---------------------------------------+
-| Config file key             | N/A                                   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -141,14 +153,76 @@ HTTP and HTTPS URLs are supported. If the config file is ``-`` (the
 hyphen character), degasolv will read standard input instead of any
 specific file or URL.
 
+Basic JSON Configuration Usage
+##############################
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-j FILE``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--config-file FILE``                |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
+
+Any config file option that can be specified using EDN may also be specified
+using the `JSON format`_. The only difference is that a plain string should be
+used as the key for the config option instead of an EDN keyword.
+
+For example, instead of using this config file::
+
+    ; filename: config.edn
+    {
+      :alternatives false
+      :respositories ["https://example.com/repo1/"
+                      "https://example.com/repo2/"]
+      :id "x"
+      :version "1.0.0"
+      :requirements ["a"
+                     "b"]
+      :present-packages ["x==0.1"
+                         "y==0.2"]
+    }
+
+With this command::
+
+  java -jar degasolv-<version>-standalone.jar \
+    --config-file "$PWD/config.edn" \
+    resolve-locations \
+    [...]
+
+This JSON config file may be used instead::
+
+    {
+      "alternatives": false,
+      "repositories": ["https://example.com/repo1/"
+                       "https://example.com/repo2/"],
+      "id": "x",
+      "version": "1.0.0",
+      "requirements": ["a"
+                       "b"],
+      "present-packages": ["x==0.1"
+                           "y==0.2"]
+    }
+
+The command to use the above JSON config file would look like this::
+
+  java -jar degasolv-<version>-standalone.jar \
+    --json-config "$PWD/config.json" \
+    resolve-locations \
+    [...]
+
 Using Multiple Configuration Files
 ##################################
 
 As of version 1.2.0, the ``--config-file`` option may be specified multiple
-times. Each configuration file specified will get its configuration
-merged into the previously specified configuration files. If both
-configuration files contain the same option, the option specified in
-the latter specified configuration file will be used.
+times. As of version 1.12.0, the ``--json-config`` option may also be
+specified, and it too may be multiple times.
+
+Degasolv processes JSON config files together with EDN config
+files. Each configuration file specified will get its configuration
+merged into the previously specified configuration files, whether those
+files be EDN or JSON. If both configuration files contain the same option, the
+option specified in the latter specified configuration file will be used.
 
 .. _config files section:
 
@@ -156,6 +230,7 @@ As an example, consider the following `display-config command`_::
 
   java -jar degasolv-<version>-standalone.jar \
     --config-file "$PWD/a.edn" \
+    --json-config "$PWD/j.json" \
     --config-file "$PWD/b.edn" \
     display-config
 
@@ -168,6 +243,13 @@ If this is the contents of the file ``a.edn``::
       :version "1.0.0"
   }
 
+And this were the contents of ``j.json``::
+
+  {
+      "alternatives": false,
+      "requirements": ["x", "y"]
+  }
+
 And this were the contents of ``b.edn``::
 
   {
@@ -175,18 +257,29 @@ And this were the contents of ``b.edn``::
       :repositories ["https://example.com/repo2/"]
       :id "b"
       :version "2.0.0"
+      :requirements []
   }
 
 Then the output of the above command would look like this::
 
   {
+      :alternatives false,
       :index-strat "priority",
       :repositories ["https://example.com/repo2/"],
       :id "b",
       :version "2.0.0",
       :conflict-strat "exclusive",
-      :arguments ["display-config"]
+      :requirements []
+      :arguments ["display-config"],
   }
+
+.. note:: The JSON config file keys and their formatting will be
+   listed for the options of all the subcommands in this document;
+   however, **JSON config files can only be used with degasolv version 1.12.0
+   or greater.** This point bears special emphasis. Lots of config options say
+   they were released in earlier versions. This is true; however, the only
+   format of config file available for use was the EDN config file type before
+   version 1.12.0 of Degasolv.
 
 .. _site-wide:
 
@@ -197,13 +290,12 @@ The merging of config files, together with the interesting
 fact that config files may be specified via HTTP/HTTPS URLs,
 allows the user to specify a *site config file*.
 
-Multiple sub-commands have options ending in ``-strat`` which
-fundamentally change how degasolv works. These are
-``--conflict-strat``, ``--index-strat``, ``--resolve-strat`` and
-``--search-strat``. It is therefore recommended that they are
-specified site-wide.  Specifying these in a site config file, then
-serving that config file internally via HTTP(S) would allow all
-instances of degasolv to point to a site-wide file, together with a
+Multiple sub-commands have options which fundamentally change how degasolv
+works. These are ``--conflict-strat``, ``--index-strat``, ``--resolve-strat``
+and ``--search-strat``. It is therefore recommended that these specific options
+are specified site-wide, if they are specified at all.  Specifying these in a
+site config file, then serving that config file internally via HTTP(S) would
+allow all instances of degasolv to point to a site-wide file, together with a
 build-specific config file, as in this example::
 
   java -jar degasolv-<version>-standalone.jar \
@@ -222,7 +314,9 @@ Option Packs
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--option-pack PACK``                |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:option-packs ["PACK1",...]``       |
+| EDN Config file key         | ``:option-packs ["PACK1",...]``       |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"option-packs": ["PACK1",...],``    |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.7.0                                 |
 +-----------------------------+---------------------------------------+
@@ -248,16 +342,19 @@ The following option packs are supported in the current version:
 Print the Help Page
 *******************
 
-+------------------+------------------------+---------------------------------+
-| Short option     | Long option            | Config File Key                 |
-+------------------+------------------------+---------------------------------+
-| ``-h``           | ``--help``             | N/A                             |
-+------------------+------------------------+---------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-h``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--help``                            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 ``-h``, ``--help``: Prints the help page. This can be used on every
 sub-command as well.
 
 .. _EDN format: https://github.com/edn-format/edn
+.. _JSON format: https://github.com/clojure/data.json
 
 .. _display-config command:
 .. _display-config-cli:
@@ -368,7 +465,9 @@ Specify Location of the Card File
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--card-file FILE``                  |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:card-file "FILE"``                 |
+| EDN Config file key         | ``:card-file "FILE"``                 |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"card-file": ["FILE",...],``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -389,7 +488,9 @@ Specify the ID (Name) of the Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--id ID``                           |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:id "ID"``                          |
+| EDN Config file key         | ``:id "ID"``                          |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"id": "ID",``                       |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -407,7 +508,9 @@ Specify the Location of the Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--location LOCATION``               |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:location "LOCATION"``              |
+| EDN Config file key         | ``:location "LOCATION"``              |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"location": "LOCATION",``           |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -427,7 +530,9 @@ Specify Additional Metadata for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--meta K=V``                        |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:meta {:key1 "value1" ...}``        |
+| EDN Config file key         | ``:meta {:key1 "value1" ...}``        |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"meta": {"key1": "value1", ...},``  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.11.0                                |
 +-----------------------------+---------------------------------------+
@@ -480,6 +585,8 @@ Specify a Requirement for a Package
 +-----------------------------+---------------------------------------+
 | Config file key             | ``:requirements ["REQ1", ...]``       |
 +-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"requirements": ["REQ1", ...],``    |
++-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
 
@@ -496,7 +603,9 @@ Specify a Version for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version VERSION``                 |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:version "VERSION"``                |
+| EDN Config file key         | ``:version "VERSION"``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"version": "VERSION",``             |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -511,8 +620,6 @@ Print the ``generate-card`` Help Page
 | Short option                | ``-h``                                |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--help``                            |
-+-----------------------------+---------------------------------------+
-| Config file key             | N/A                                   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -565,7 +672,9 @@ Specify the Repo Search Directory
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--search-directory DIR``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:search-directory "DIR"``           |
+| EDN Config file key         | ``:search-directory "DIR"``           |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"search-directory": "DIR",``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -583,7 +692,9 @@ Specify the Repo Index File
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-file FILE``                 |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:index-file "FILE"``                |
+| EDN Config file key         | ``:index-file "FILE"``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"index-file": "FILE",``             |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -601,7 +712,9 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:version-comparison "CMP"``         |
+| EDN Config file key         | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"version-comparison": "CMP",``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -637,7 +750,9 @@ Add to an Existing Repository Index
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--add-to INDEX``                    |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:add-to "INDEX"``                   |
+| EDN Config file key         | ``:add-to "INDEX"``                   |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"add-to": "INDEX",``                |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -774,7 +889,9 @@ Enable the Use of Alternatives
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--enable-alternatives``             |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:alternatives true``                |
+| EDN Config file key         | ``:alternatives true``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"alternatives": true,``             |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.5.0                                 |
 +-----------------------------+---------------------------------------+
@@ -797,7 +914,9 @@ Disable the Use of Alternatives
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--disable-alternatives``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:alternatives false``               |
+| EDN Config file key         | ``:alternatives false``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"alternatives": false,``            |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.5.0                                 |
 +-----------------------------+---------------------------------------+
@@ -826,7 +945,9 @@ Specify Solution Search Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--search-strat STRAT``              |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:search-strat "STRAT"``             |
+| EDN Config file key         | ``:search-strat "STRAT"``             |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"search-strat": "STRAT",``          |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -848,7 +969,9 @@ Specify Conflict Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--conflict-strat STRAT``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:conflict-strat "STRAT"``           |
+| EDN Config file key         | ``:conflict-strat "STRAT"``           |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"conflict-strat": "STRAT",``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.1.0                                 |
 +-----------------------------+---------------------------------------+
@@ -911,7 +1034,9 @@ Specify List Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--list-strat STRAT``                |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:list-strat "STRAT"``               |
+| EDN Config file key         | ``:list-strat "STRAT"``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"list-strat": "STRAT",``            |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+

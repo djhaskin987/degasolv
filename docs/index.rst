@@ -22,8 +22,10 @@ Fork Degasolv on Github:
    Get Degasolv <get-degasolv>
    Quickstart <quickstart>
    A Longer Example <longer-example>
-   Command Reference <command-reference>
    Changelog <changelog>
+   Command Reference <command-reference>
+   Code of Conduct <code-of-conduct>
+   Contributing Guide <contributing>
 
 Indices and tables
 ******************
