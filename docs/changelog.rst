@@ -1,3 +1,5 @@
+.. _Degasolv Changelog:
+
 Changelog
 =========
 
@@ -10,12 +12,12 @@ and this project adheres to `Semantic Versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
 `Unreleased`_
--------------
+---------
 
 Added
 +++++
 - Added the ``--list-strat`` option to :ref:`resolve-locations
-  <list-strategy>`, allowing users to have their dependencies listed an a sane
+  <list-strategy>`, allowing users to have their dependencies listed in a sane
   order.
 
 - Added the ``--{enable|disable}-error-format`` options to
@@ -24,6 +26,9 @@ Added
 
 - Added the ``--package-system subproc`` option, together with its
   `subproc-exe`_ and `subproc-output-format` options.
+
+- Added the ``--json-config`` :ref:`global option <json-config>` allowing users
+  to use JSON config files
 
 Changed
 +++++++
