@@ -16,9 +16,6 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
-- Added the ``--list-strat`` option to :ref:`resolve-locations
-  <list-strategy>`, allowing users to have their dependencies listed in a sane
-  order.
 
 - Added the ``--{enable|disable}-error-format`` options to
   :ref:`resolve-locations <enable-error-format-resolve>` and
@@ -29,6 +26,10 @@ Added
 
 - Added the ``--json-config`` :ref:`global option <json-config>` allowing users
   to use JSON config files
+
+- Added the ``--list-strat`` option to :ref:`resolve-locations
+  <list-strategy>`, allowing users to have their dependencies listed in a sane
+  order.
 
 Changed
 +++++++
