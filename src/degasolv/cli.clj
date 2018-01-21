@@ -764,24 +764,24 @@
                ""))
 
 (defn get-config [configs]
-  (as-> configs it
-        (map (fn [{:keys [file read-fn]}]
-               {:string (default-slurp file)
-                :read-fn read-fn}) it)
-        (map (fn [{:keys [string read-fn]}]
-               (read-fn string))
-             it)
-        (reduce merge it)
-        (try it
-          (catch Exception e
-            (binding [*out* *err*]
-              (println "Warning: problem reading config files, they were not used:"
-                       (str "\n"
-                            (string/join
-                              \newline
-                              (map #(str "  - " %)
-                                   configs)))))
-            (hash-map)))))
+  (try
+    (as-> configs it
+      (map (fn [{:keys [file read-fn]}]
+             {:string (default-slurp file)
+              :read-fn read-fn}) it)
+      (map (fn [{:keys [string read-fn]}]
+             (read-fn string))
+           it)
+      (reduce merge it))
+    (catch Exception e
+      (binding [*out* *err*]
+        (println "Warning: problem reading config files, they were not used:"
+                 (str "\n"
+                      (string/join
+                       \newline
+                       (map #(str "  - " %)
+                            configs)))))
+      (hash-map))))
 
 
 (defn -main [& args]
