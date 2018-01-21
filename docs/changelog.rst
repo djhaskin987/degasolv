@@ -22,7 +22,7 @@ Added
   :ref:`query-repo <enable-error-format-query>`.
 
 - Added the ``--package-system subproc`` option, together with its
-  `subproc-exe`_ and `subproc-output-format` options.
+  :ref:`subproc-exe` and :ref:`subproc-output-format` options.
 
 - Added the ``--json-config`` :ref:`global option <json-config>` allowing users
   to use JSON config files

@@ -15,14 +15,14 @@ Some Notes on Versions
 - Anything tagged with version 1.0.2 *really* means "1.0.2 or
   earlier". The history gets shaky before that :)
 
-- The first version of degasolv (for the purposes of this guide)
+- The first version of Degasolv (for the purposes of this guide)
   released was 1.0.2 .
 
 - As of version 1.3.0, All options which take a file name may now have
   ``-`` given as the filename, to specify that standard in should be
   used.
 
-- The earliest usable released version of degasolv that can be
+- The earliest usable released version of Degasolv that can be
   recommended for use is 1.5.1 . Anything before that wasn't profiled,
   and had some pretty bad bugs in it.
 
@@ -57,6 +57,22 @@ a page that looks something like this::
     - query-repo
 
   Simply run `degasolv <command> -h` for help information.
+
+.. _specifying-files:
+
+A Note on Specifying Files
+++++++++++++++++++++++++++
+
+As of version 1.3.0, The whenever an option takes a file in degasolv,
+the user can actually specify one of three things:
+
+  1. An ``http://`` or ``https://`` URL. No authentication is
+     currently supported.
+  2. A ``file://`` URL.
+  3. A filesystem reference.
+  4. The character ``-``, signifying standard input to the Degasolv process.
+
+This is true for options of Degasolv and options for any of its subcommands.
 
 Explanation of Options
 ++++++++++++++++++++++
@@ -148,10 +164,7 @@ With this command::
     resolve-locations \
     [...]
 
-As of version 1.3.0, The config file may be a URL or a filepath. Both
-HTTP and HTTPS URLs are supported. If the config file is ``-`` (the
-hyphen character), degasolv will read standard input instead of any
-specific file or URL.
+
 
 .. _json-config:
 
@@ -277,7 +290,7 @@ Then the output of the above command would look like this::
 
 .. note:: The JSON config file keys and their formatting will be
    listed for the options of all the subcommands in this document;
-   however, **JSON config files can only be used with degasolv version 1.12.0
+   however, **JSON config files can only be used with Degasolv version 1.12.0
    or greater.** This point bears special emphasis. Lots of config options say
    they were released in earlier versions. This is true; however, the only
    format of config file available for use was the EDN config file type before
@@ -292,12 +305,12 @@ The merging of config files, together with the interesting
 fact that config files may be specified via HTTP/HTTPS URLs,
 allows the user to specify a *site config file*.
 
-Multiple sub-commands have options which fundamentally change how degasolv
+Multiple sub-commands have options which fundamentally change how Degasolv
 works. These are ``--conflict-strat``, ``--index-strat``, ``--resolve-strat``
 and ``--search-strat``. It is therefore recommended that these specific options
 are specified site-wide, if they are specified at all.  Specifying these in a
 site config file, then serving that config file internally via HTTP(S) would
-allow all instances of degasolv to point to a site-wide file, together with a
+allow all instances of Degasolv to point to a site-wide file, together with a
 build-specific config file, as in this example::
 
   java -jar degasolv-<version>-standalone.jar \
@@ -326,8 +339,8 @@ Option Packs
 Specify one or more option packs.
 
 Degasolv ships with several "option packs", each of which imply
-several degasolv options at once. When an option pack is specified,
-degasolv looks up which option pack is used and what options are
+several Degasolv options at once. When an option pack is specified,
+Degasolv looks up which option pack is used and what options are
 implied by using it. More than one option pack may be specified.  If
 option packs are specified both on the command line and in the config
 file, the option packs on the command line are used and the ones in
@@ -404,7 +417,7 @@ Overview of ``display-config``
 
 The ``display-config`` command is used to print all the options in the
 *effective configuration*. It allows the user to debug configuration
-by printing the actual configuration used by degasolv after all the
+by printing the actual configuration used by Degasolv after all the
 command-line arguments and config files have been merged together. An
 example of this is found in the `config files section`_.
 
@@ -451,7 +464,7 @@ Overview of ``generate-card``
 *This subcommand introduced as of version 1.0.2*.
 
 This subcommand is used to generate a card file. This card file is
-used to represent a package within a degasolv repository. It is placed
+used to represent a package within a Degasolv repository. It is placed
 in a directory with other card files, and then the
 ``generate-repo-index`` command is used to search that directory for
 card files to produce a repository index.
@@ -547,7 +560,7 @@ package when the package is printed after dependency resolution when
 `output-format`_ option is also used in a mode other than ``plain``.
 
 This is a powerful feature allowing the operator to build tooling on
-top of degasolv. For example, now the operator may store the sha256
+top of Degasolv. For example, now the operator may store the sha256
 sum of the artifact, the location of its PGP signature, a list of
 scripts useful in the build contained within the artifact, etc.
 
@@ -658,9 +671,9 @@ Overview of ``generate-repo-index``
 
 This subcommand is used to generate a repository index file. A
 repository index file lists all versions of all packages in a
-particular degasolv repository, together with their locations. This
+particular Degasolv repository, together with their locations. This
 file's location, whether by file path or URL, would then be given to
-``resolve-locations`` and ``query-repo`` commands as degasolv
+``resolve-locations`` and ``query-repo`` commands as Degasolv
 repositories.
 
 Explanation of Options for ``generate-repo-index``
@@ -681,7 +694,7 @@ Specify the Repo Search Directory
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
 
-Look for degasolv card files in this directory. The directory will be
+Look for Degasolv card files in this directory. The directory will be
 recursively searched for files with the ``.dscard`` extension and
 their information will be added to the index. Default value is the
 present working directory (``.``).
@@ -790,7 +803,7 @@ later.
 
 ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
 supported. As of version 1.3.0, an ``INDEX`` may be specified as
-``-``, the hyphen character. If ``INDEX`` is ``-``, degasolv will read
+``-``, the hyphen character. If ``INDEX`` is ``-``, Degasolv will read
 standard input instead of any specific file or URL.
 
 .. _resolve-locations:
@@ -868,7 +881,7 @@ fulfill or resolve. Each field is explained as follows:
 1. ``Packages selected``: This is a list of packages found in order to
    resolve previous requirements before the "problem" clause was
    encountered.
-2. ``Packages already present``: Packages which were given to degasolv
+2. ``Packages already present``: Packages which were given to Degasolv
    using the `present package`_ option. If none were specified,
    this will show as ``None``.
 3. ``Alternative being considered``: This field displays what
@@ -934,7 +947,7 @@ option on a command line, the last argument of the two specified wins.
 
 .. note::
 
-   Use of this option defeats the purpose of degasolv supporting alternatives
+   Use of this option defeats the purpose of Degasolv supporting alternatives
    in the first place. This option is intended generally for use
    when debugging a build. If it *is* used routinely, it should be used
    `site-wide`_.
@@ -1070,7 +1083,7 @@ the following rules:
      a different requirement of a different package listed further down in the
      requirements list.
 
-     For example, if a degasolv card file called "steel" is made using the
+     For example, if a Degasolv card file called "steel" is made using the
      below config file::
 
        {
@@ -1097,7 +1110,7 @@ the following rules:
 
 The difference between these options is that ``lazy`` will list dependencies
 as late as possible while following the above rules, while a value of ``eager``
-tells degasolv to list dependencies as early as possible while
+tells Degasolv to list dependencies as early as possible while
 following the above rules.
 
 .. _enable-error-format-resolve:
@@ -1121,7 +1134,7 @@ This option extends the functionality of `output-format`_ to include
 when errors happen as well.
 
 Normally, when the `output-format`_ key is specified, such as to cause
-degasolv to emit JSON or EDN, this only happens if the command runs
+Degasolv to emit JSON or EDN, this only happens if the command runs
 successfully. If package resolution was unsuccessful, an error message
 is printed to standard error and the program exits with non-zero
 return code. If ``error-format`` is specified, then any error
@@ -1198,7 +1211,7 @@ In the above example out, each line takes the form::
 
 When the output format is JSON, the output would spit out a JSON
 document containing lots of different keys and values representing
-some of the internal state degasolv had when it resolved
+some of the internal state Degasolv had when it resolved
 the packages. Among those keys will be a key called "packages", and it will
 look something like this::
 
@@ -1346,14 +1359,14 @@ top-level keys in it:
   - ``command``: This is will be ``degasolv``.
   - ``subcommand``: This will reflect what subcommand was specified.
     In the current version, this will always be ``resolve-locations``.
-  - ``options``: This shows what options were given when degasolv was
+  - ``options``: This shows what options were given when Degasolv was
     run. Its contents should roughly reflect the output of ``display-config``
     when run with similar options.
   - ``result``: This displays whether the run was successful or
     not. Since unsuccessful runs result in a printed error and not
     outputted JSON, this will be ``successful``. At present, to
     determine whether a run was successful, use the return code of
-    degasolv rather than this key.
+    Degasolv rather than this key.
   - ``packages``: This displays the list of packages and, if present,
     any additional `meta-data`_ associated with the package.
 
@@ -1371,18 +1384,18 @@ Specify that a Package is Already Present
 | EDN Config file key         | ``:present-packages ["PKG1", ...]``    |
 +-----------------------------+----------------------------------------+
 | JSON Config file key        | ``"present-packages": ["PKG1", ...],`` |
-+-----------------------------+----------------------------------------+s
++-----------------------------+----------------------------------------+
 | Version introduced          | 1.4.0                                  |
 +-----------------------------+----------------------------------------+
 
 Specify a "hard present package". Specify ``PKG`` as ``<id>==<vers>``,
 as in this example: ``garfield==1.0``.
 
-Doing this tells degasolv that a package "already exists" at a
+Doing this tells Degasolv that a package "already exists" at a
 particular version in the system or build, whatever that means. This
-means that when degasolv encounters a requirement for this package, it
+means that when Degasolv encounters a requirement for this package, it
 will assume the package is already found and it will mark the
-dependency as resolved. On the other hand, degasolv will not try to
+dependency as resolved. On the other hand, Degasolv will not try to
 change or update the found package. If the version of the present
 package conflicts with requirements encountered, resolution of those
 requirements may fail.
@@ -1392,11 +1405,11 @@ is meant to benefit the user; however, judicious use is
 recommended. If you don't know what you're doing, you probably don't
 want to use this option.
 
-For example, if this option is used to tell degasolv that, as part of
-a build, some packages have already been downloaded, degasolv will not
+For example, if this option is used to tell Degasolv that, as part of
+a build, some packages have already been downloaded, Degasolv will not
 recommend that those packages be upgraded. This is the "hard" in "hard
 present package": If the user specifies via ``--present-package`` that
-a package is already found and usable, degasolv won't try to find a
+a package is already found and usable, Degasolv won't try to find a
 new version for it; it assumes "you know what you're doing" and that
 the package(s) in question are not to be touched.
 
@@ -1459,7 +1472,7 @@ information.
 ``INDEX`` may be a URL or a filepath pointing to a `*.dsrepo`
 file. For example, index might be
 `http://example.com/repo/index.dsrepo`. Both HTTP and HTTPS URLs are
-supported. As of version 1.1.0, If ``INDEX`` is ``-`` (the hyphen character), degasolv will
+supported. As of version 1.1.0, If ``INDEX`` is ``-`` (the hyphen character), Degasolv will
 read standard input instead of any specific file or URL. Possible use
 cases for this include downloading the index repository first via some
 other tool (such as `cURL`_).  One reason users might do this is if
@@ -1558,8 +1571,8 @@ most environments.
 .. _package system:
 .. _package-system:
 
-Specify a Package System (Experimental)
-***************************************
+Specify a Package System
+************************
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-t SYS``                            |
@@ -1574,101 +1587,106 @@ Specify a Package System (Experimental)
 +-----------------------------+---------------------------------------+
 
 Specify package system to use. By default, this
-value is ``degasolv``. Using this option allows the user to run
-degasolv's resolver engine on respositories from other package manager
-systems.
+value is ``degasolv``. This causes the Degasolv ``resolve-locations``
+command to behave normally.
 
-Other available values are:
+Other available values are shown below.
 
-  - ``apt``: **Experimental**. resolve using the APT debian package manager.
-    When using this method, `specify repositories`_ using the format::
+The ``apt`` Package System
+__________________________
 
-      {binary-amd64|binary-i386} <url> <dist> <pool>
+**Experimental**. The ``apt`` package system resolves using the APT
+debian package manager.  When using this method, `specify
+repositories`_ using the format::
 
-    Or, in the case of naive apt repositories::
+  {binary-amd64|binary-i386} <url> <dist> <pool>
 
-      {binary-amd64|binary-i386} <url> <relative-path>
+Or, in the case of naive apt repositories::
 
-    For example, I might use the repository option like this::
+  {binary-amd64|binary-i386} <url> <relative-path>
 
-      java -jar degasolv-<version>-standalone.jar resolve-locations \
-          -R "binary-amd64 https://example.com/ubuntu/ /"
-          -t "apt" \
-          --requirement "ubuntu-desktop"
+For example, I might use the repository option like this::
 
-    Or this::
+  java -jar degasolv-<version>-standalone.jar resolve-locations \
+      -R "binary-amd64 https://example.com/ubuntu/ /"
+      -t "apt" \
+      --requirement "ubuntu-desktop"
 
-      java -jar degasolv-<version>-standalone.jar resolve-locations \
-          -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
-          -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
-          -t "apt" \
-          --requirement "ubuntu-desktop"
+Or this::
 
-    Degasolv does not currently support APT dependencies
-    between machine architectures, as in ``python:i386``. Also,
-    every degasolv repo is currently architecture-specific; each
-    repo has an associated architecture, even if that architecture
-    is ``any``.
+  java -jar degasolv-<version>-standalone.jar resolve-locations \
+      -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
+      -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
+      -t "apt" \
+      --requirement "ubuntu-desktop"
 
-  - ``degasolv``: This is the default and causes degasolv resolve-locations
-    command to behave normally.
+Degasolv does not currently support APT dependencies
+between machine architectures, as in ``python:i386``. Also,
+every Degasolv repo is currently architecture-specific; each
+repo has an associated architecture, even if that architecture
+is ``any``.
 
-  - ``subproc``: This package system allows the user to give degasolv
-    package information via a subprocess (shell-out) command. A path
-    to an executable on the filesystem is given via the `subproc-exe`_ option.
-    For each repository specified via the `repository option`_, the
-    subproc executable path is executed with the string given for the
-    repository as its only argument. The executable is expected to
-    print out JSON or EDN to standard output, depending on the value
-    of the `subproc-output-format`_ option. This information will then
-    be read into degasolv and used to resolve dependencies.
+.. _subproc-pkgsys:
 
-    If the format is JSON, which is the default, the output should be of the form::
+The ``subproc`` Package System
+______________________________
 
-      {
-          "pkgname": [
-              {
-                  "id": "pkgname",
-                  "version": "p.k.g-version",
-                  "location": "pkg-url",
-                  <optional kv-pairs associated with package>
-              }
-          ],
-          "otherpkgname": [...]
-      }
+The ``subproc`` package system allows the user to give Degasolv
+package information via a subprocess (shell-out) command. A path
+to an executable on the filesystem is given via the `subproc-exe`_ option.
+For each repository specified via the `repository option`_, the
+subproc executable path is executed with the string given for the
+repository as its only argument. The executable is expected to
+print out JSON or EDN to standard output, depending on the value
+of the `subproc-output-format`_ option. This information will then
+be read into Degasolv and used to resolve dependencies.
 
-    If the format is EDN, the output should be of the form::
+If the format is JSON, which is the default, the output should be of the form::
 
-      {
-          "pkgname" [
-              # The following will be referred
-              {
-                  :id "pkgname"
-                  :version: "p.k.g-version"
-                  :location": "pkg-url"
-                  <optional kv-pairs associated with package>
-              }
-          ]
-          "otherpkgname" [...]
-      }
+  {
+      "pkgname": [
+          {
+              "id": "pkgname",
+              "version": "p.k.g-version",
+              "location": "pkg-url",
+              <optional kv-pairs associated with package>
+          }
+      ],
+      "otherpkgname": [...]
+  }
 
-    Any additional kv-pairs specified in a package's record as shown
-    above will appear in the resolution output if the `output-format`_
-    option is set to something other than ``plain``.
+If the format is EDN, the output should be of the form::
 
-    If the executable exits with a non-zero error status code, degasolv
-    will print an error message looking like the following and also exit
-    with a non-zero status code::
+  {
+      "pkgname" [
+          # The following will be referred
+          {
+              :id "pkgname"
+              :version: "p.k.g-version"
+              :location": "pkg-url"
+              <optional kv-pairs associated with package>
+          }
+      ]
+      "otherpkgname" [...]
+  }
 
-      Error while evaluating repositories: Executable
-      `<path-to-exe>` given argument
-      `<repository-string>` exited with non-zero status `1`.
+Any additional kv-pairs specified in a package's record as shown
+above will appear in the resolution output if the `output-format`_
+option is set to something other than ``plain``.
 
-    The resolver will search for packages in the order
-    given in the output of the executable. Unless you
-    have a good reason not to, you should list packages
-    under the name of the package in the data structure
-    on standard out in version-descending order.
+If the executable exits with a non-zero error status code, Degasolv
+will print an error message looking like the following and also exit
+with a non-zero status code::
+
+  Error while evaluating repositories: Executable
+  `<path-to-exe>` given argument
+  `<repository-string>` exited with non-zero status `1`.
+
+The resolver will search for packages in the order
+given in the output of the executable. Unless you
+have a good reason not to, you should list packages
+under the name of the package in the data structure
+on standard out in version-descending order.
 
 .. _subproc-output-format:
 
@@ -1688,7 +1706,7 @@ Specify Subproc Package System Output Format
 +-----------------------------+----------------------------------------+
 
 This option only takes effect if the ``subproc`` choice was listed for
-the `package-system`_ option. It says whether the executable used by degasolv
+the `package-system`_ option. It says whether the executable used by Degasolv
 to get information needed to resolve dependencies will come in the form of an EDN
 or a JSON document. This option is set to ``json`` by default. See `package-system`_
 docs for more information.
@@ -1820,7 +1838,7 @@ This option extends the functionality of `output-format`_ to include
 when errors happen as well.
 
 Normally, when the `output-format`_ key is specified, such as to cause
-degasolv to emit JSON or EDN, this only happens if the command runs
+Degasolv to emit JSON or EDN, this only happens if the command runs
 successfully. If querying thre repo was unsuccessful, an error message
 is printed to standard error and the program exits with non-zero
 return code. If ``error-format`` is specified, then any error
