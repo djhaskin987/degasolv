@@ -780,7 +780,7 @@
                       (string/join
                        \newline
                        (map #(str "  - " %)
-                            configs)))))
+                            (map :file configs))))))
       (hash-map))))
 
 
