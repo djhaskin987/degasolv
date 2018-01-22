@@ -415,7 +415,7 @@
         result-info
         {
          :command "degasolv"
-         :subcommand "resolve-locations"
+         :subcommand "query-repo"
          :options options
          :packages results
          }]

@@ -37,6 +37,9 @@ Changed
 Fixed
 +++++
 
+- JSON/EDN output for ``query-repo`` erroneously listed the subcommand as
+  ``resolve-locations``. Fixed.
+
 `1.11.0`_
 ---------
 

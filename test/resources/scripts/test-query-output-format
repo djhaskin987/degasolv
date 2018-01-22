@@ -9,7 +9,7 @@ then
 fi
 
 root_path=${PWD}
-test_home=test/resources/data/test-version-comparison
+test_home=test/resources/data/test-query-output-format
 
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
@@ -60,7 +60,7 @@ if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     -R ${PWD}/index.dsrepo \
     --enable-error-format \
     --output-format json \
-    --query "a>2.0" | jq .problems >/dev/null 2>&1
+    --query "a>2.0" | jq .packages >/dev/null 2>&1
 then
     exit 1
 fi
@@ -86,7 +86,7 @@ if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     -R ${PWD}/index.dsrepo \
     --output-format edn \
     --enable-error-format \
-    --query "a>2.0" | grep -q ':problems'
+    --query "a>2.0" | grep -q ':packages'
 then
     exit 1
 fi
