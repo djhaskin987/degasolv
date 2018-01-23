@@ -2,7 +2,7 @@ version: 2
 jobs:
   script_tests:
     docker:
-      - image: clojure:lein
+      - image: djhaskin987/lein-script-tester:latest
     version: 2
     steps:
       - checkout

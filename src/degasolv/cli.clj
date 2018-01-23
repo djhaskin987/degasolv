@@ -154,29 +154,33 @@
   [command args command-spec]
   (let [{:keys [options arguments errors summary]}
         (parse-opts args (concat
-                          (:cli command-spec)
-                          [["-h" "--help" "Print this help page"]])
-                    :in-order true)]
+                           (:cli command-spec)
+                           [["-h" "--help" "Print this help page"]])
+                    :in-order true)
+        print-usage
+        (fn print-usage [code]
+          (exit code
+                (str (usage command summary)
+                     (if (:required-arguments command-spec)
+                       (str
+                         "\n\n"
+                         (required-args-msg
+                           (:required-arguments command-spec))
+                         "\n\n")
+                       "\n\n")
+                     (if (:subcommands command-spec)
+                       (str
+                         (command-list (keys (:subcommands command-spec)))
+                         "\n\n")
+                       ""))))]
+
     (cond
-      (or
-       (:help options)
+      (:help options)
+      (print-usage 0)
        (and
          (empty? arguments)
-         (:subcommands command-spec)))
-      (exit 1
-            (str (usage command summary)
-                 (if (:required-arguments command-spec)
-                   (str
-                    "\n\n"
-                     (required-args-msg
-                       (:required-arguments command-spec))
-                     "\n\n")
-                   "\n\n")
-                 (if (:subcommands command-spec)
-                   (str
-                    (command-list (keys (:subcommands command-spec)))
-                    "\n\n")
-                   "")))
+         (:subcommands command-spec))
+      (print-usage 1)
       errors
       (exit 1
             (string/join
@@ -415,7 +419,7 @@
         result-info
         {
          :command "degasolv"
-         :subcommand "resolve-locations"
+         :subcommand "query-repo"
          :options options
          :packages results
          }]
@@ -764,24 +768,24 @@
                ""))
 
 (defn get-config [configs]
-  (as-> configs it
-        (map (fn [{:keys [file read-fn]}]
-               {:string (default-slurp file)
-                :read-fn read-fn}) it)
-        (map (fn [{:keys [string read-fn]}]
-               (read-fn string))
-             it)
-        (reduce merge it)
-        (try it
-          (catch Exception e
-            (binding [*out* *err*]
-              (println "Warning: problem reading config files, they were not used:"
-                       (str "\n"
-                            (string/join
-                              \newline
-                              (map #(str "  - " %)
-                                   configs)))))
-            (hash-map)))))
+  (try
+    (as-> configs it
+      (map (fn [{:keys [file read-fn]}]
+             {:string (default-slurp file)
+              :read-fn read-fn}) it)
+      (map (fn [{:keys [string read-fn]}]
+             (read-fn string))
+           it)
+      (reduce merge it))
+    (catch Exception e
+      (binding [*out* *err*]
+        (println "Warning: problem reading config files, they were not used:"
+                 (str "\n"
+                      (string/join
+                       \newline
+                       (map #(str "  - " %)
+                            (map :file configs))))))
+      (hash-map))))
 
 
 (defn -main [& args]

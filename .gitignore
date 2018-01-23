@@ -24,6 +24,7 @@
 /test/resources/test-data/
 /test/resources/data/test-option-packs/
 /test/resources/data/test-json-config/
+/test/resources/data/test-query-output-format/
 /buildutils/boot
 /*.dscard
 /*.dsrepo

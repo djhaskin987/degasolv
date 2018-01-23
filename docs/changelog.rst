@@ -37,6 +37,9 @@ Changed
 Fixed
 +++++
 
+- JSON/EDN output for ``query-repo`` erroneously listed the subcommand as
+  ``resolve-locations``. Fixed.
+
 `1.11.0`_
 ---------
 
@@ -51,6 +54,12 @@ Added
 - Added the ``--output-format`` :ref:`option
   <output-format-query-repo>` to the :ref:`query-repo <query-repo>`
   command
+
+Changed
++++++++
+
+- Overhauled the documentation option look and feel; ensured that
+  options themselves had a linking target (header)
 
 `1.10.0`_
 -------------

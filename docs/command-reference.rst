@@ -1066,7 +1066,7 @@ When the value is ``as-set``, packages are listed in no particular order.
 When the value is ``lazy`` or ``eager``, packages are listed according to
 the following rules:
 
-  1. Barring cases of circular dependency, The child dependencies of
+  1. Barring cases of circular dependency, the child dependencies of
      any package are always listed before the package they depend on.
   2. Circular dependencies are handled properly, but which dependency comes
      first is not guaranteed in all cases. In these cases the resolver
@@ -1077,11 +1077,12 @@ the following rules:
      encountered first, the dependency from ``a`` to ``b`` will be honored but
      the dependency from ``b`` to ``a`` will be ignored when deciding in what
      order to list packages.
-  3. Otherwise, packages will be listed in the order in which they were found.
-     this means that, all things being equal, a package resolving one
-     requirement of a parent package will be printed before a package resolving
-     a different requirement of a different package listed further down in the
-     requirements list.
+  3. Otherwise, dependee packages will be listed in the order that the
+     requirements they fulfill are listed. This means that, all things being
+     equal, a package resolving one requirement of a parent package will be
+     printed before a package resolving a different requirement of a
+     different package listed further down in the requirements list for the
+     parent package.
 
      For example, if a Degasolv card file called "steel" is made using the
      below config file::
@@ -1100,8 +1101,8 @@ the following rules:
        steel==1.0 @ http://example.com/repo/steel-1.0.zip
 
      It is worth noting that commandline arguments are listed in
-     reverse order, that generating a card file with arguments ``-r
-     wool -r wood -r sheep`` would yield a list thus::
+     reverse order. Thus, generating a card file with arguments ``-r
+     wool -r wood -r sheep`` would yield a list that looks like this::
 
        sheep==1.0 @ http://example.com/repo/sheep-1.0.zip
        wood==1.0 @ http://example.com/repo/wood-1.0.zip
