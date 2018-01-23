@@ -1,0 +1,82 @@
+#!/bin/sh
+
+cat <<FOO
+{
+    "a": [
+        {
+            "id": "a",
+            "version": "2.1.0",
+            "location": "https://example.com/repo/a-1.0.0.zip",
+            "requirements": [
+                "b>=2.3.0"
+            ]
+        },
+        {
+            "id": "a",
+            "version": "1.9.0",
+            "location": "https://example.com/repo/a-1.0.0.zip",
+            "requirements": [
+                "b"
+            ]
+        }
+    ],
+    "b": [
+        {
+            "id": "b",
+            "version": "1.11.0",
+            "location": "https://example.com/repo/b-1.11.0.zip",
+            "requirements": [
+                "d"
+            ]
+        },
+        {
+            "id": "b",
+            "version": "2.3.1",
+            "location": "https://example.com/repo/b-2.3.1.zip",
+            "requirements": [
+                "c>=3.5.0",
+                "d"
+            ]
+        }
+    ],
+    "c": [
+        {
+            "id": "c",
+            "version": "3.5.0",
+            "location": "https://example.com/repo/c-3.5.0.zip",
+            "requirements": [
+                "e>=1.8.0"
+            ]
+        }
+    ],
+    "d": [
+        {
+            "id": "d",
+            "version": "0.5.0",
+            "location": "https://example.com/repo/d-0.5.0.zip",
+            "requirements": [
+                "e>=1.0.0,<2.0.0"
+            ]
+        }
+    ],
+    "e": [
+
+        {
+            "id": "e",
+            "version": "2.1.0",
+            "location": "https://example.com/repo/e-2.1.0.zip"
+        },
+        {
+            "id": "e",
+            "version": "2.4.0",
+            "location": "https://example.com/repo/e-2.4.0.zip"
+        },
+        {
+            "id": "e",
+            "version": "1.8.0",
+            "location": "https://example.com/repo/e-1.8.0.zip"
+        }
+    ]
+}
+
+FOO

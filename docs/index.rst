@@ -1,17 +1,31 @@
 Degasolv
 ========
 
-.. image:: ../Degasolv.png
+.. image:: ../Degasolv-01.png
+    :scale: 25 %
+
+Star Degasolv on Github:
+
+.. image:: http://githubbadges.com/star.svg?user=djhaskin987&repo=degasolv&style=default
+    :alt: star this repo
+    :target: https://github.com/djhaskin987/degasolv
+
+Fork Degasolv on Github:
+
+.. image:: http://githubbadges.com/fork.svg?user=djhaskin987&repo=degasolv&style=default
+    :alt: fork this repo
+    :target: https://github.com/djhaskin987/degasolv/fork
 
 .. toctree::
 
    Why Degasolv? <why-degasolv>
    Get Degasolv <get-degasolv>
    Quickstart <quickstart>
-   Site Set-Up Guide <set-up-guide>
    A Longer Example <longer-example>
-   Command Reference <command-reference>
    Changelog <changelog>
+   Command Reference <command-reference>
+   Code of Conduct <code-of-conduct>
+   Contributing Guide <contributing>
 
 Indices and tables
 ******************

@@ -1,3 +1,5 @@
+.. _Degasolv Changelog:
+
 Changelog
 =========
 
@@ -8,6 +10,35 @@ and this project adheres to `Semantic Versioning`_.
 
 .. _Semantic Versioning: http://semver.org/spec/v2.0.0.html
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
+
+`Unreleased`_
+---------
+
+Added
++++++
+
+- Added the ``--{enable|disable}-error-format`` options to
+  :ref:`resolve-locations <enable-error-format-resolve>` and
+  :ref:`query-repo <enable-error-format-query>`.
+
+- Added the ``--package-system subproc`` option, together with its
+  :ref:`subproc-exe` and :ref:`subproc-output-format` options.
+
+- Added the ``--json-config`` :ref:`global option <json-config>` allowing users
+  to use JSON config files
+
+- Added the ``--list-strat`` option to :ref:`resolve-locations
+  <list-strategy>`, allowing users to have their dependencies listed in a sane
+  order.
+
+Changed
++++++++
+
+Fixed
++++++
+
+- JSON/EDN output for ``query-repo`` erroneously listed the subcommand as
+  ``resolve-locations``. Fixed.
 
 `1.11.0`_
 ---------
@@ -134,9 +165,9 @@ Added
 +++++
 
 - In just ~15 seconds, it slurps in a rather large apt repository
-Packages.gz file.  In another ~45 seconds, it resolves the
-ubuntu-desktop package, spitting out a grand total of 797 packages
-with their locations.
+  Packages.gz file.  In another ~45 seconds, it resolves the
+  ubuntu-desktop package, spitting out a grand total of 797 packages
+  with their locations.
 
 Fixed
 +++++
@@ -201,7 +232,7 @@ Added
 - This isn't the first release, but for the purposes of these docs, it is :D
 
 .. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.11.0...HEAD
-.. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.11.0
+.. _1.11.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.11.0
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
 .. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
 .. _1.8.0: https://github.com/djhaskin987/degasolv/compare/1.7.0...1.8.0

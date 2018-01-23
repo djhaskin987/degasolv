@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "foo foo"
+exit 1

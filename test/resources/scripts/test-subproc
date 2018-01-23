@@ -1,0 +1,69 @@
+#!/bin/sh
+set -ex
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+root_path=${PWD}
+test_home=test/resources/data/test-subproc
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+set +x
+echo "Testing required argument..."
+set -x
+
+if java -jar ./target/uberjar/${name}-${version}-standalone.jar resolve-locations -r quiles -R farforshire -t subproc
+then
+    exit 1
+fi
+
+set +x
+echo "Testing argument validation..."
+set -x
+
+if java -jar ./target/uberjar/${name}-${version}-standalone.jar resolve-locations -r quiles -x '/usr/bin/fightme' -R farforshire
+then
+    exit 1
+fi
+
+set +x
+echo "Basic JSON test..."
+set -x
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     resolve-locations \
+     -x "test/resources/scripts/subproc" \
+     -t subproc \
+     -r "a>=2.0.0" \
+     -R "thisdoesntmatter"
+
+
+set +x
+echo "Basic EDN test..."
+set -x
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     resolve-locations \
+     -t subproc \
+     -r "a>=2.0.0" \
+     -x "test/resources/scripts/subproc-edn" \
+     -u "edn" \
+     -R "thisdoesntmatter"
+
+set +x
+echo "Basic bad-exit test..."
+set -x
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     resolve-locations \
+     -t subproc \
+     -r "a>=2.0.0" \
+     -x "test/resources/scripts/bad-subproc" \
+     -u "edn" \
+     -R "thisdoesntmatter"
+then
+    exit 1
+fi

@@ -1,4 +1,4 @@
-(defproject degasolv/degasolv "1.11.0"
+(defproject degasolv/degasolv "1.12.0"
   :description "Dependency tracker with an eye toward building and shipping software."
   :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
@@ -34,6 +34,7 @@
              :uberjar {:aot [
                              degasolv.pkgsys.core
                              degasolv.pkgsys.apt
+                             degasolv.pkgsys.subproc
                              degasolv.util
                              degasolv.resolver
                              degasolv.cli

@@ -1,3 +1,5 @@
+.. _Command Reference:
+
 Degasolv Command Reference
 ==========================
 
@@ -13,14 +15,14 @@ Some Notes on Versions
 - Anything tagged with version 1.0.2 *really* means "1.0.2 or
   earlier". The history gets shaky before that :)
 
-- The first version of degasolv (for the purposes of this guide)
+- The first version of Degasolv (for the purposes of this guide)
   released was 1.0.2 .
 
 - As of version 1.3.0, All options which take a file name may now have
   ``-`` given as the filename, to specify that standard in should be
   used.
 
-- The earliest usable released version of degasolv that can be
+- The earliest usable released version of Degasolv that can be
   recommended for use is 1.5.1 . Anything before that wasn't profiled,
   and had some pretty bad bugs in it.
 
@@ -41,9 +43,10 @@ a page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -c, --config-file FILE  ./degasolv.edn  Config file location **
-    -k, --option-pack PACK                  Specify option pack **
-    -h, --help                              Print this help page
+  -c, --config-file FILE  ./degasolv.edn  Config file location **
+  -j, --json-config FILE                  JSON config file location **
+  -k, --option-pack PACK                  Specify option pack **
+  -h, --help                              Print this help page
 
   Commands are:
 
@@ -55,21 +58,46 @@ a page that looks something like this::
 
   Simply run `degasolv <command> -h` for help information.
 
+.. _specifying-files:
+
+A Note on Specifying Files
+++++++++++++++++++++++++++
+
+As of version 1.3.0, The whenever an option takes a file in degasolv,
+the user can actually specify one of three things:
+
+  1. An ``http://`` or ``https://`` URL. No authentication is
+     currently supported.
+  2. A ``file://`` URL.
+  3. A filesystem reference.
+  4. The character ``-``, signifying standard input to the Degasolv process.
+
+This is true for options of Degasolv and options for any of its subcommands.
+
 Explanation of Options
 ++++++++++++++++++++++
+
+Degasolv parses global options before it parses subcommands or the options for
+subcommands; therefore, global options need to be specified first.
 
 Using Configuration Files
 *************************
 
-Basic Configuration Usage
-#########################
+Configuration files may be specified at the command line before specifying any
+subcommands. The config file structure is designed so that any command-line
+option may be set in the config file instead, and vice versa.
+
+In addition, config files may be specified either in the EDN format or JSON
+format. Multiple config files may be specified. "Mixing and matching" of JSON
+and EDN config files is supported.
+
+Basic EDN Configuration Usage
+#############################
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-c FILE``                           |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--config-file FILE``                |
-+-----------------------------+---------------------------------------+
-| Config file key             | N/A                                   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -136,19 +164,80 @@ With this command::
     resolve-locations \
     [...]
 
-As of version 1.3.0, The config file may be a URL or a filepath. Both
-HTTP and HTTPS URLs are supported. If the config file is ``-`` (the
-hyphen character), degasolv will read standard input instead of any
-specific file or URL.
+
+
+.. _json-config:
+
+Basic JSON Configuration Usage
+##############################
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-j FILE``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--json-config FILE``                |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+Any config file option that can be specified using EDN may also be specified
+using the `JSON format`_. The only difference is that a plain string should be
+used as the key for the config option instead of an EDN keyword.
+
+For example, instead of using this config file::
+
+    ; filename: config.edn
+    {
+      :alternatives false
+      :respositories ["https://example.com/repo1/"
+                      "https://example.com/repo2/"]
+      :id "x"
+      :version "1.0.0"
+      :requirements ["a"
+                     "b"]
+      :present-packages ["x==0.1"
+                         "y==0.2"]
+    }
+
+With this command::
+
+  java -jar degasolv-<version>-standalone.jar \
+    --config-file "$PWD/config.edn" \
+    resolve-locations \
+    [...]
+
+This JSON config file may be used instead::
+
+    {
+      "alternatives": false,
+      "repositories": ["https://example.com/repo1/"
+                       "https://example.com/repo2/"],
+      "id": "x",
+      "version": "1.0.0",
+      "requirements": ["a"
+                       "b"],
+      "present-packages": ["x==0.1"
+                           "y==0.2"]
+    }
+
+The command to use the above JSON config file would look like this::
+
+  java -jar degasolv-<version>-standalone.jar \
+    --json-config "$PWD/config.json" \
+    resolve-locations \
+    [...]
 
 Using Multiple Configuration Files
 ##################################
 
 As of version 1.2.0, the ``--config-file`` option may be specified multiple
-times. Each configuration file specified will get its configuration
-merged into the previously specified configuration files. If both
-configuration files contain the same option, the option specified in
-the latter specified configuration file will be used.
+times. As of version 1.12.0, the ``--json-config`` option may also be
+specified, and it too may be multiple times.
+
+Degasolv processes JSON config files together with EDN config
+files. Each configuration file specified will get its configuration
+merged into the previously specified configuration files, whether those
+files be EDN or JSON. If both configuration files contain the same option, the
+option specified in the latter specified configuration file will be used.
 
 .. _config files section:
 
@@ -156,6 +245,7 @@ As an example, consider the following `display-config command`_::
 
   java -jar degasolv-<version>-standalone.jar \
     --config-file "$PWD/a.edn" \
+    --json-config "$PWD/j.json" \
     --config-file "$PWD/b.edn" \
     display-config
 
@@ -168,6 +258,13 @@ If this is the contents of the file ``a.edn``::
       :version "1.0.0"
   }
 
+And this were the contents of ``j.json``::
+
+  {
+      "alternatives": false,
+      "requirements": ["x", "y"]
+  }
+
 And this were the contents of ``b.edn``::
 
   {
@@ -175,18 +272,29 @@ And this were the contents of ``b.edn``::
       :repositories ["https://example.com/repo2/"]
       :id "b"
       :version "2.0.0"
+      :requirements []
   }
 
 Then the output of the above command would look like this::
 
   {
+      :alternatives false,
       :index-strat "priority",
       :repositories ["https://example.com/repo2/"],
       :id "b",
       :version "2.0.0",
       :conflict-strat "exclusive",
-      :arguments ["display-config"]
+      :requirements []
+      :arguments ["display-config"],
   }
+
+.. note:: The JSON config file keys and their formatting will be
+   listed for the options of all the subcommands in this document;
+   however, **JSON config files can only be used with Degasolv version 1.12.0
+   or greater.** This point bears special emphasis. Lots of config options say
+   they were released in earlier versions. This is true; however, the only
+   format of config file available for use was the EDN config file type before
+   version 1.12.0 of Degasolv.
 
 .. _site-wide:
 
@@ -197,13 +305,12 @@ The merging of config files, together with the interesting
 fact that config files may be specified via HTTP/HTTPS URLs,
 allows the user to specify a *site config file*.
 
-Multiple sub-commands have options ending in ``-strat`` which
-fundamentally change how degasolv works. These are
-``--conflict-strat``, ``--index-strat``, ``--resolve-strat`` and
-``--search-strat``. It is therefore recommended that they are
-specified site-wide.  Specifying these in a site config file, then
-serving that config file internally via HTTP(S) would allow all
-instances of degasolv to point to a site-wide file, together with a
+Multiple sub-commands have options which fundamentally change how Degasolv
+works. These are ``--conflict-strat``, ``--index-strat``, ``--resolve-strat``
+and ``--search-strat``. It is therefore recommended that these specific options
+are specified site-wide, if they are specified at all.  Specifying these in a
+site config file, then serving that config file internally via HTTP(S) would
+allow all instances of Degasolv to point to a site-wide file, together with a
 build-specific config file, as in this example::
 
   java -jar degasolv-<version>-standalone.jar \
@@ -222,7 +329,9 @@ Option Packs
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--option-pack PACK``                |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:option-packs ["PACK1",...]``       |
+| EDN Config file key         | ``:option-packs ["PACK1",...]``       |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"option-packs": ["PACK1",...],``    |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.7.0                                 |
 +-----------------------------+---------------------------------------+
@@ -230,8 +339,8 @@ Option Packs
 Specify one or more option packs.
 
 Degasolv ships with several "option packs", each of which imply
-several degasolv options at once. When an option pack is specified,
-degasolv looks up which option pack is used and what options are
+several Degasolv options at once. When an option pack is specified,
+Degasolv looks up which option pack is used and what options are
 implied by using it. More than one option pack may be specified.  If
 option packs are specified both on the command line and in the config
 file, the option packs on the command line are used and the ones in
@@ -248,16 +357,19 @@ The following option packs are supported in the current version:
 Print the Help Page
 *******************
 
-+------------------+------------------------+---------------------------------+
-| Short option     | Long option            | Config File Key                 |
-+------------------+------------------------+---------------------------------+
-| ``-h``           | ``--help``             | N/A                             |
-+------------------+------------------------+---------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-h``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--help``                            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.0.2                                 |
++-----------------------------+---------------------------------------+
 
 ``-h``, ``--help``: Prints the help page. This can be used on every
 sub-command as well.
 
 .. _EDN format: https://github.com/edn-format/edn
+.. _JSON format: https://github.com/clojure/data.json
 
 .. _display-config command:
 .. _display-config-cli:
@@ -305,7 +417,7 @@ Overview of ``display-config``
 
 The ``display-config`` command is used to print all the options in the
 *effective configuration*. It allows the user to debug configuration
-by printing the actual configuration used by degasolv after all the
+by printing the actual configuration used by Degasolv after all the
 command-line arguments and config files have been merged together. An
 example of this is found in the `config files section`_.
 
@@ -352,7 +464,7 @@ Overview of ``generate-card``
 *This subcommand introduced as of version 1.0.2*.
 
 This subcommand is used to generate a card file. This card file is
-used to represent a package within a degasolv repository. It is placed
+used to represent a package within a Degasolv repository. It is placed
 in a directory with other card files, and then the
 ``generate-repo-index`` command is used to search that directory for
 card files to produce a repository index.
@@ -368,7 +480,9 @@ Specify Location of the Card File
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--card-file FILE``                  |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:card-file "FILE"``                 |
+| EDN Config file key         | ``:card-file "FILE"``                 |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"card-file": ["FILE",...],``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -389,7 +503,9 @@ Specify the ID (Name) of the Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--id ID``                           |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:id "ID"``                          |
+| EDN Config file key         | ``:id "ID"``                          |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"id": "ID",``                       |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -407,7 +523,9 @@ Specify the Location of the Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--location LOCATION``               |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:location "LOCATION"``              |
+| EDN Config file key         | ``:location "LOCATION"``              |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"location": "LOCATION",``           |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -427,7 +545,9 @@ Specify Additional Metadata for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--meta K=V``                        |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:meta {:key1 "value1" ...}``        |
+| EDN Config file key         | ``:meta {:key1 "value1" ...}``        |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"meta": {"key1": "value1", ...},``  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.11.0                                |
 +-----------------------------+---------------------------------------+
@@ -440,7 +560,7 @@ package when the package is printed after dependency resolution when
 `output-format`_ option is also used in a mode other than ``plain``.
 
 This is a powerful feature allowing the operator to build tooling on
-top of degasolv. For example, now the operator may store the sha256
+top of Degasolv. For example, now the operator may store the sha256
 sum of the artifact, the location of its PGP signature, a list of
 scripts useful in the build contained within the artifact, etc.
 
@@ -478,7 +598,9 @@ Specify a Requirement for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--requirement REQ``                 |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:requirements ["REQ1", ...]``       |
+| EDN Config file key         | ``:requirements ["REQ1", ...]``       |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"requirements": ["REQ1", ...],``    |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -496,7 +618,9 @@ Specify a Version for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version VERSION``                 |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:version "VERSION"``                |
+| EDN Config file key         | ``:version "VERSION"``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"version": "VERSION",``             |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -511,8 +635,6 @@ Print the ``generate-card`` Help Page
 | Short option                | ``-h``                                |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--help``                            |
-+-----------------------------+---------------------------------------+
-| Config file key             | N/A                                   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -549,9 +671,9 @@ Overview of ``generate-repo-index``
 
 This subcommand is used to generate a repository index file. A
 repository index file lists all versions of all packages in a
-particular degasolv repository, together with their locations. This
+particular Degasolv repository, together with their locations. This
 file's location, whether by file path or URL, would then be given to
-``resolve-locations`` and ``query-repo`` commands as degasolv
+``resolve-locations`` and ``query-repo`` commands as Degasolv
 repositories.
 
 Explanation of Options for ``generate-repo-index``
@@ -565,12 +687,14 @@ Specify the Repo Search Directory
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--search-directory DIR``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:search-directory "DIR"``           |
+| EDN Config file key         | ``:search-directory "DIR"``           |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"search-directory": "DIR",``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
 
-Look for degasolv card files in this directory. The directory will be
+Look for Degasolv card files in this directory. The directory will be
 recursively searched for files with the ``.dscard`` extension and
 their information will be added to the index. Default value is the
 present working directory (``.``).
@@ -583,7 +707,9 @@ Specify the Repo Index File
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-file FILE``                 |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:index-file "FILE"``                |
+| EDN Config file key         | ``:index-file "FILE"``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"index-file": "FILE",``             |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -601,7 +727,9 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:version-comparison "CMP"``         |
+| EDN Config file key         | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"version-comparison": "CMP",``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -637,7 +765,9 @@ Add to an Existing Repository Index
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--add-to INDEX``                    |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:add-to "INDEX"``                   |
+| EDN Config file key         | ``:add-to "INDEX"``                   |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"add-to": "INDEX",``                |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -673,7 +803,7 @@ later.
 
 ``INDEX`` may be a URL or a filepath. Both HTTP and HTTPS URLs are
 supported. As of version 1.3.0, an ``INDEX`` may be specified as
-``-``, the hyphen character. If ``INDEX`` is ``-``, degasolv will read
+``-``, the hyphen character. If ``INDEX`` is ``-``, Degasolv will read
 standard input instead of any specific file or URL.
 
 .. _resolve-locations:
@@ -687,30 +817,35 @@ Usage Page for ``resolve-locations``
 Running ``java -jar degasolv-<version>-standalone.jar resolve-locations -h``
 returns a page that looks something like this::
 
-    Usage: degasolv <options> resolve-locations <resolve-locations-options>
+    Usage: resolve-locations <options>
 
-    Options are shown below. Default values are marked as <DEFAULT> and
+    Options are shown below. Default values are listed with the
       descriptions. Options marked with `**` may be
       used more than once.
 
-      -a, --enable-alternatives                    Consider all alternatives (default)
-      -A, --disable-alternatives                   Consider only first alternatives
-      -e, --search-strat STRAT      breadth-first  May be 'breadth-first' or 'depth-first'.
-      -f, --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
-      -o, --output-format FORMAT    plain          May be 'plain' or 'json'
-      -p, --present-package PKG                    Hard present package. **
-      -r, --requirement REQ                        Resolve req. **
-      -R, --repository INDEX                       Search INDEX for packages. **
-      -s, --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
-      -S, --index-strat STRAT       priority       May be 'priority' or 'global'.
-      -t, --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
-      -V, --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
-      -h, --help                                   Print this help page
+      -a, --enable-alternatives                          Consider all alternatives (default)
+      -A, --disable-alternatives                         Consider only first alternatives
+      -e, --search-strat STRAT            breadth-first  May be 'breadth-first' or 'depth-first'.
+      -g, --enable-error-format                          Enable output format for errors
+      -G, --disable-error-format                         Disable output format for errors (default)
+      -f, --conflict-strat STRAT          exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
+      -L, --list-strat STRAT              as-set         May be 'as-set', 'lazy' or 'eager'.
+      -o, --output-format FORMAT          plain          May be 'plain', 'edn' or 'json'
+      -p, --present-package PKG                          Hard present package. **
+      -r, --requirement REQ                              Resolve req. **
+      -R, --repository INDEX                             Search INDEX for packages. **
+      -s, --resolve-strat STRAT           thorough       May be 'fast' or 'thorough'.
+      -S, --index-strat STRAT             priority       May be 'priority' or 'global'.
+      -t, --package-system SYS            degasolv       May be 'degasolv', 'apt', or 'subproc'.
+      -u, --subproc-output-format FORMAT  json           Whether to read `edn` or `json` from the exe's output
+      -V, --version-comparison CMP        maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+      -x, --subproc-exe PATH                             Path to the executable to call to get package data
+      -h, --help                                         Print this help page
 
-    The following options are required for subcommand `resolve-locations`:
+    The following options are required:
 
-      1. `-R`, `--repository`, or the config file key `:repositories`.
-      2. `-r`, `--requirement`, or the config file key `:requirements`.
+      - `-R`, `--repository`, or the config file key `:repositories`.
+      - `-r`, `--requirement`, or the config file key `:requirements`.
 
 Overview of ``resolve-locations``
 +++++++++++++++++++++++++++++++++
@@ -746,7 +881,7 @@ fulfill or resolve. Each field is explained as follows:
 1. ``Packages selected``: This is a list of packages found in order to
    resolve previous requirements before the "problem" clause was
    encountered.
-2. ``Packages already present``: Packages which were given to degasolv
+2. ``Packages already present``: Packages which were given to Degasolv
    using the `present package`_ option. If none were specified,
    this will show as ``None``.
 3. ``Alternative being considered``: This field displays what
@@ -769,7 +904,9 @@ Enable the Use of Alternatives
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--enable-alternatives``             |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:alternatives true``                |
+| EDN Config file key         | ``:alternatives true``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"alternatives": true,``             |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.5.0                                 |
 +-----------------------------+---------------------------------------+
@@ -792,7 +929,9 @@ Disable the Use of Alternatives
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--disable-alternatives``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:alternatives false``               |
+| EDN Config file key         | ``:alternatives false``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"alternatives": false,``            |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.5.0                                 |
 +-----------------------------+---------------------------------------+
@@ -808,7 +947,7 @@ option on a command line, the last argument of the two specified wins.
 
 .. note::
 
-   Use of this option defeats the purpose of degasolv supporting alternatives
+   Use of this option defeats the purpose of Degasolv supporting alternatives
    in the first place. This option is intended generally for use
    when debugging a build. If it *is* used routinely, it should be used
    `site-wide`_.
@@ -821,7 +960,9 @@ Specify Solution Search Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--search-strat STRAT``              |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:search-strat "STRAT"``             |
+| EDN Config file key         | ``:search-strat "STRAT"``             |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"search-strat": "STRAT",``          |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -832,6 +973,7 @@ search is used during package resolution. Valid values are
 to specify breadth-first search. This option is set to
 ``breadth-first`` by default.
 
+.. _conflict-strat:
 .. _conflict strategies:
 
 Specify Conflict Strategy
@@ -842,7 +984,9 @@ Specify Conflict Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--conflict-strat STRAT``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:conflict-strat "STRAT"``           |
+| EDN Config file key         | ``:conflict-strat "STRAT"``           |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"conflict-strat": "STRAT",``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.1.0                                 |
 +-----------------------------+---------------------------------------+
@@ -895,6 +1039,141 @@ should work for most environments.
   easily and cleanly specified done by using the
   ``firstfound-version-mode`` `option pack`_.
 
+.. _list-strategy:
+
+Specify List Strategy
+*********************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-L STRAT``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--list-strat STRAT``                |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:list-strat "STRAT"``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"list-strat": "STRAT",``            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option determines how packages will be listed once they are resolved.
+Valid values are ``as-set``, ``lazy``, and ``eager``. The default value
+is ``as-set``.
+
+
+When the value is ``as-set``, packages are listed in no particular order.
+
+When the value is ``lazy`` or ``eager``, packages are listed according to
+the following rules:
+
+  1. Barring cases of circular dependency, the child dependencies of
+     any package are always listed before the package they depend on.
+  2. Circular dependencies are handled properly, but which dependency comes
+     first is not guaranteed in all cases. In these cases the resolver
+     must choose which dependency to ignore when it sees both. It choses
+     to ignore the "deeper" dependency rather then the "shallower" package
+     in the package resolution graph. So, for example, if package ``a`` relies
+     on package ``b`` and package ``b`` relies on package ``a``, but ``a`` is
+     encountered first, the dependency from ``a`` to ``b`` will be honored but
+     the dependency from ``b`` to ``a`` will be ignored when deciding in what
+     order to list packages.
+  3. Otherwise, dependee packages will be listed in the order that the
+     requirements they fulfill are listed. This means that, all things being
+     equal, a package resolving one requirement of a parent package will be
+     printed before a package resolving a different requirement of a
+     different package listed further down in the requirements list for the
+     parent package.
+
+     For example, if a Degasolv card file called "steel" is made using the
+     below config file::
+
+       {
+           :requirements ["wool", "wood", "sheep"]
+       }
+
+     When resolved, the represented package would be printed (or
+     appear in the ``json`` or ``edn`` output, if `output-format`_ is
+     set) in this order::
+
+       wool==1.0 @ http://example.com/repo/wool-1.0.zip
+       wood==1.0 @ http://example.com/repo/wood-1.0.zip
+       sheep==1.0 @ http://example.com/repo/sheep-1.0.zip
+       steel==1.0 @ http://example.com/repo/steel-1.0.zip
+
+     It is worth noting that commandline arguments are listed in
+     reverse order. Thus, generating a card file with arguments ``-r
+     wool -r wood -r sheep`` would yield a list that looks like this::
+
+       sheep==1.0 @ http://example.com/repo/sheep-1.0.zip
+       wood==1.0 @ http://example.com/repo/wood-1.0.zip
+       wool==1.0 @ http://example.com/repo/wool-1.0.zip
+       steel==1.0 @ http://example.com/repo/steel-1.0.zip
+
+The difference between these options is that ``lazy`` will list dependencies
+as late as possible while following the above rules, while a value of ``eager``
+tells Degasolv to list dependencies as early as possible while
+following the above rules.
+
+.. _enable-error-format-resolve:
+
+Enable Error Output Format
+**************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-g``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--enable-error-format``             |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:error-format true``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"error-format": true,``             |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option extends the functionality of `output-format`_ to include
+when errors happen as well.
+
+Normally, when the `output-format`_ key is specified, such as to cause
+Degasolv to emit JSON or EDN, this only happens if the command runs
+successfully. If package resolution was unsuccessful, an error message
+is printed to standard error and the program exits with non-zero
+return code. If ``error-format`` is specified, then any error
+information will be printed in the form of whatever `output-format`_
+specifies to standard output, while still maintaining the same exit
+code.
+
+When error information is returned via JSON or EDN, the keys are the same
+in the dictionary, except:
+
+- The ``result`` key now has the value of ``unsuccessful``.
+- The ``packages`` key is not present.
+- A new key, ``problems``, appears in place of the ``packages`` key containing
+  information describing what went wrong.
+
+The default behavior is to have ``:error-format`` disabled; this
+CLI option enables it.
+
+.. _disable-error-format-resolve:
+
+Disable Error Output Format
+***************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-G``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--disable-error-format``            |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:error-format false``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"error-format": false,``            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option sets the ``:error-format`` flag back to ``false``, which is the
+default behavior.
+
 .. _output-format:
 
 Specify Output Format
@@ -905,7 +1184,9 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--output-format FORMAT``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:output-format "FORMAT"``           |
+| EDN Config file key         | ``:output-format "FORMAT"``           |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"output-format": "FORMAT",``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.10.0; EDN introduced 1.11.0         |
 +-----------------------------+---------------------------------------+
@@ -931,7 +1212,7 @@ In the above example out, each line takes the form::
 
 When the output format is JSON, the output would spit out a JSON
 document containing lots of different keys and values representing
-some of the internal state degasolv had when it resolved
+some of the internal state Degasolv had when it resolved
 the packages. Among those keys will be a key called "packages", and it will
 look something like this::
 
@@ -1079,14 +1360,14 @@ top-level keys in it:
   - ``command``: This is will be ``degasolv``.
   - ``subcommand``: This will reflect what subcommand was specified.
     In the current version, this will always be ``resolve-locations``.
-  - ``options``: This shows what options were given when degasolv was
+  - ``options``: This shows what options were given when Degasolv was
     run. Its contents should roughly reflect the output of ``display-config``
     when run with similar options.
   - ``result``: This displays whether the run was successful or
     not. Since unsuccessful runs result in a printed error and not
     outputted JSON, this will be ``successful``. At present, to
     determine whether a run was successful, use the return code of
-    degasolv rather than this key.
+    Degasolv rather than this key.
   - ``packages``: This displays the list of packages and, if present,
     any additional `meta-data`_ associated with the package.
 
@@ -1096,24 +1377,26 @@ top-level keys in it:
 Specify that a Package is Already Present
 *****************************************
 
-+-----------------------------+---------------------------------------+
-| Short option                | ``-p PKG``                            |
-+-----------------------------+---------------------------------------+
-| Long option                 | ``--present-package PKG``             |
-+-----------------------------+---------------------------------------+
-| Config file key             | ``:present-packages ["PKG1", ...]``   |
-+-----------------------------+---------------------------------------+
-| Version introduced          | 1.4.0                                 |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Short option                | ``-p PKG``                             |
++-----------------------------+----------------------------------------+
+| Long option                 | ``--present-package PKG``              |
++-----------------------------+----------------------------------------+
+| EDN Config file key         | ``:present-packages ["PKG1", ...]``    |
++-----------------------------+----------------------------------------+
+| JSON Config file key        | ``"present-packages": ["PKG1", ...],`` |
++-----------------------------+----------------------------------------+
+| Version introduced          | 1.4.0                                  |
++-----------------------------+----------------------------------------+
 
 Specify a "hard present package". Specify ``PKG`` as ``<id>==<vers>``,
 as in this example: ``garfield==1.0``.
 
-Doing this tells degasolv that a package "already exists" at a
+Doing this tells Degasolv that a package "already exists" at a
 particular version in the system or build, whatever that means. This
-means that when degasolv encounters a requirement for this package, it
+means that when Degasolv encounters a requirement for this package, it
 will assume the package is already found and it will mark the
-dependency as resolved. On the other hand, degasolv will not try to
+dependency as resolved. On the other hand, Degasolv will not try to
 change or update the found package. If the version of the present
 package conflicts with requirements encountered, resolution of those
 requirements may fail.
@@ -1123,11 +1406,11 @@ is meant to benefit the user; however, judicious use is
 recommended. If you don't know what you're doing, you probably don't
 want to use this option.
 
-For example, if this option is used to tell degasolv that, as part of
-a build, some packages have already been downloaded, degasolv will not
+For example, if this option is used to tell Degasolv that, as part of
+a build, some packages have already been downloaded, Degasolv will not
 recommend that those packages be upgraded. This is the "hard" in "hard
 present package": If the user specifies via ``--present-package`` that
-a package is already found and usable, degasolv won't try to find a
+a package is already found and usable, Degasolv won't try to find a
 new version for it; it assumes "you know what you're doing" and that
 the package(s) in question are not to be touched.
 
@@ -1139,7 +1422,9 @@ Specify a Requirement
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--requirement REQ``                 |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:requirements ["REQ1", ...]``       |
+| EDN Config file key         | ``:requirements ["REQ1", ...]``       |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"requirements": ["REQ1", ...],``    |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1167,7 +1452,9 @@ Specify a Repository to Search
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--repository INDEX``                |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:repositories ["INDEX1", ...]``     |
+| EDN Config file key         | ``:repositories ["INDEX1", ...]``     |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"repositories": ["INDEX1", ...],``  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1186,7 +1473,7 @@ information.
 ``INDEX`` may be a URL or a filepath pointing to a `*.dsrepo`
 file. For example, index might be
 `http://example.com/repo/index.dsrepo`. Both HTTP and HTTPS URLs are
-supported. As of version 1.1.0, If ``INDEX`` is ``-`` (the hyphen character), degasolv will
+supported. As of version 1.1.0, If ``INDEX`` is ``-`` (the hyphen character), Degasolv will
 read standard input instead of any specific file or URL. Possible use
 cases for this include downloading the index repository first via some
 other tool (such as `cURL`_).  One reason users might do this is if
@@ -1195,7 +1482,7 @@ authentication is required to download the index, as in this example::
   curl --user username:password https://example.com/degasolv/index.dsrepo | \
       degasolv resolve-locations -R - "req"
 
-  .. _cURL: https://curl.haxx.se/
+.. _cURL: https://curl.haxx.se/
 
 Specify a Resolution Strategy
 *****************************
@@ -1205,7 +1492,9 @@ Specify a Resolution Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--resolve-strat STRAT``             |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:resolve-strat "STRAT"``            |
+| EDN Config file key         | ``:resolve-strat "STRAT"``            |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"resolve-strat": "STRAT",``         |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1235,7 +1524,9 @@ Specify an Index Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-strat STRAT``               |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:index-strat "STRAT"``              |
+| EDN Config file key         | ``:index-strat "STRAT"``              |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"index-strat": "STRAT",``           |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1281,59 +1572,145 @@ most environments.
 .. _package system:
 .. _package-system:
 
-Specify a Package System (Experimental)
-***************************************
+Specify a Package System
+************************
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-t SYS``                            |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--package-system SYS``              |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:package-system "SYS"``             |
+| EDN Config file key         | ``:package-system "SYS"``             |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"package-system": "SYS",``          |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.4.0                                 |
 +-----------------------------+---------------------------------------+
 
-**Experimental**. Specify package system to use. By default, this
-value is ``degasolv``. Using this option allows the user to run
-degasolv's resolver engine on respositories from other package manager
-systems. Though option was mainly implemented for profiling and
-debugging purposes, it is envisioned that this option will expand to
-include many package manager repositories. This will allow users to
-use degasolv to resolve packages from well-known sources, in a
-reliable and useful manner.
+Specify package system to use. By default, this
+value is ``degasolv``. This causes the Degasolv ``resolve-locations``
+command to behave normally.
 
-Other available values are:
+Other available values are shown below.
 
-  - ``apt``: resolve using the APT debian package manager. When using
-    this method, `specify repositories`_ using the format::
+The ``apt`` Package System
+__________________________
 
-      {binary-amd64|binary-i386} <url> <dist> <pool>
+**Experimental**. The ``apt`` package system resolves using the APT
+debian package manager.  When using this method, `specify
+repositories`_ using the format::
 
-    Or, in the case of naive apt repositories::
+  {binary-amd64|binary-i386} <url> <dist> <pool>
 
-      {binary-amd64|binary-i386} <url> <relative-path>
+Or, in the case of naive apt repositories::
 
-    For example, I might use the repository option like this::
+  {binary-amd64|binary-i386} <url> <relative-path>
 
-      java -jar degasolv-<version>-standalone.jar resolve-locations \
-          -R "binary-amd64 https://example.com/ubuntu/ /"
-          -t "apt" \
-          --requirement "ubuntu-desktop"
+For example, I might use the repository option like this::
 
-    Or this::
+  java -jar degasolv-<version>-standalone.jar resolve-locations \
+      -R "binary-amd64 https://example.com/ubuntu/ /"
+      -t "apt" \
+      --requirement "ubuntu-desktop"
 
-      java -jar degasolv-<version>-standalone.jar resolve-locations \
-          -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
-          -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
-          -t "apt" \
-          --requirement "ubuntu-desktop"
+Or this::
 
-    .. note:: Degasolv does not currently support APT dependencies
-       between machine architectures, as in ``python:i386``. Also,
-       every degasolv repo is currently architecture-specific; each
-       repo has an associated architecture, even if that architecture
-       is ``any``.
+  java -jar degasolv-<version>-standalone.jar resolve-locations \
+      -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
+      -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
+      -t "apt" \
+      --requirement "ubuntu-desktop"
+
+Degasolv does not currently support APT dependencies
+between machine architectures, as in ``python:i386``. Also,
+every Degasolv repo is currently architecture-specific; each
+repo has an associated architecture, even if that architecture
+is ``any``.
+
+.. _subproc-pkgsys:
+
+The ``subproc`` Package System
+______________________________
+
+The ``subproc`` package system allows the user to give Degasolv
+package information via a subprocess (shell-out) command. A path
+to an executable on the filesystem is given via the `subproc-exe`_ option.
+For each repository specified via the `repository option`_, the
+subproc executable path is executed with the string given for the
+repository as its only argument. The executable is expected to
+print out JSON or EDN to standard output, depending on the value
+of the `subproc-output-format`_ option. This information will then
+be read into Degasolv and used to resolve dependencies.
+
+If the format is JSON, which is the default, the output should be of the form::
+
+  {
+      "pkgname": [
+          {
+              "id": "pkgname",
+              "version": "p.k.g-version",
+              "location": "pkg-url",
+              <optional kv-pairs associated with package>
+          }
+      ],
+      "otherpkgname": [...]
+  }
+
+If the format is EDN, the output should be of the form::
+
+  {
+      "pkgname" [
+          # The following will be referred
+          {
+              :id "pkgname"
+              :version: "p.k.g-version"
+              :location": "pkg-url"
+              <optional kv-pairs associated with package>
+          }
+      ]
+      "otherpkgname" [...]
+  }
+
+Any additional kv-pairs specified in a package's record as shown
+above will appear in the resolution output if the `output-format`_
+option is set to something other than ``plain``.
+
+If the executable exits with a non-zero error status code, Degasolv
+will print an error message looking like the following and also exit
+with a non-zero status code::
+
+  Error while evaluating repositories: Executable
+  `<path-to-exe>` given argument
+  `<repository-string>` exited with non-zero status `1`.
+
+The resolver will search for packages in the order
+given in the output of the executable. Unless you
+have a good reason not to, you should list packages
+under the name of the package in the data structure
+on standard out in version-descending order.
+
+.. _subproc-output-format:
+
+Specify Subproc Package System Output Format
+********************************************
+
++-----------------------------+----------------------------------------+
+| Short option                | ``-u FORMAT``                          |
++-----------------------------+----------------------------------------+
+| Long option                 | ``--subproc-output-format FORMAT``     |
++-----------------------------+----------------------------------------+
+| EDN Config file key         | ``:subproc-output-format "FORMAT"``    |
++-----------------------------+----------------------------------------+
+| JSON Config file key        | ``"subproc-output-format": "FORMAT",`` |
++-----------------------------+----------------------------------------+
+| Version introduced          | 1.12.0                                 |
++-----------------------------+----------------------------------------+
+
+This option only takes effect if the ``subproc`` choice was listed for
+the `package-system`_ option. It says whether the executable used by Degasolv
+to get information needed to resolve dependencies will come in the form of an EDN
+or a JSON document. This option is set to ``json`` by default. See `package-system`_
+docs for more information.
 
 .. _version-comparison-resolve:
 
@@ -1345,7 +1722,9 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:version-comparison "CMP"``         |
+| EDN Config file key         | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"version-comparison": "CMP",``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1373,6 +1752,29 @@ the `Serovers docs`_.
    site. It is therefore recommended that whichever setting is
    chosen should be used `site-wide`_ within an organization.
 
+.. _subproc-exe:
+
+Specify Subproc Package System Output Format
+********************************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-x PATH``                           |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--subproc-exe PATH``                |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:subproc-exe "PATH"``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"subproc-exe": "PATH",``            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option only takes effect if the ``subproc`` choice was listed for
+the `package-system`_ option; however, it is required if the
+``subproc`` choice was listed. It lists the path to the executable to
+use to get resolution information. See `package-system`_ docs for more
+information.
+
 .. _query-repo:
 
 CLI for ``query-repo``
@@ -1390,6 +1792,8 @@ page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
+    -g, --enable-error-format               Enable output format for errors
+    -G, --disable-error-format              Disable output format for errors (default)
     -q, --query QUERY                       Display packages matching query string.
     -R, --repository INDEX                  Search INDEX for packages. **
     -S, --index-strat STRAT       priority  May be 'priority' or 'global'.
@@ -1414,6 +1818,68 @@ problems.
 Explanation of Options for ``query-repo``
 +++++++++++++++++++++++++++++++++++++++++
 
+.. _enable-error-format-query:
+
+Enable Error Output Format
+**************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-g``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--enable-error-format``             |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:error-format true``                |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"error-format": true,``             |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option extends the functionality of `output-format`_ to include
+when errors happen as well.
+
+Normally, when the `output-format`_ key is specified, such as to cause
+Degasolv to emit JSON or EDN, this only happens if the command runs
+successfully. If querying thre repo was unsuccessful, an error message
+is printed to standard error and the program exits with non-zero
+return code. If ``error-format`` is specified, then any error
+information will be printed in the form of whatever `output-format`_
+specifies to standard output, while still maintaining the same exit
+code.
+
+When error information is returned via JSON or EDN, the keys are the same
+in the dictionary, except:
+
+- The ``result`` key now has the value of ``unsuccessful``.
+
+- The ``packages`` key is not present.
+
+- A new key, ``problems``, appears in place of the ``packages`` key containing
+  information describing what went wrong.
+
+The default behavior is to have ``:error-format`` disabled; this
+CLI option enables it.
+
+.. _disable-error-format-query:
+
+Disable Error Output Format
+***************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-G``                                |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--disable-error-format``            |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:error-format false``               |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"error-format": false,``            |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.12.0                                |
++-----------------------------+---------------------------------------+
+
+This option sets the ``:error-format`` flag back to ``false``, which is the
+default behavior.
+
 .. _output-format-query-repo:
 
 Specify Output Format
@@ -1424,7 +1890,9 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--output-format FORMAT``            |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:output-format "FORMAT"``           |
+| EDN Config file key         | ``:output-format "FORMAT"``           |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"output-format": "FORMAT"``         |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.11.0                                |
 +-----------------------------+---------------------------------------+
@@ -1474,7 +1942,9 @@ Specify a Repository to Search
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--repository INDEX``                |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:repositories ["INDEX1", ...]``     |
+| EDN Config file key         | ``:repositories ["INDEX1", ...]``     |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"repositories": ["INDEX1", ...],``  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1493,7 +1963,9 @@ Specify an Index Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-strat STRAT``               |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:index-strat "STRAT"``              |
+| EDN Config file key         | ``:index-strat "STRAT"``              |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"index-strat": "STRAT",``           |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1525,7 +1997,9 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| Config file key             | ``:version-comparison "CMP"``         |
+| EDN Config file key         | ``:version-comparison "CMP"``         |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"version-comparison": "CMP",``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1602,6 +2076,14 @@ versions may satisfy the alternative. The character ``;`` represents discution
 This is interpreted as::
 
   "(<pred1> AND <pred2>) OR (<pred3> AND <pred4>)"
+
+For example, this expression::
+
+  "spruce>=1.0.0,<2.0.0;>=3.0.0,<4.0.0"
+
+Is interpreted as::
+
+  "spruce at version ((>=1.0.0 AND <2.0.0) OR (>=3.0.0 AND <4.0.0))"
 
 .. _matches:
 .. _in-range:
@@ -1747,7 +2229,7 @@ The following are practical examples of requirements, together with their
 interpretations.
 
 +-------------------------+---------------------------------------------------+
-| Requirement             | English Explanation                               |
+| Requirement             | Explanation                                       |
 +-------------------------+---------------------------------------------------+
 | ``"oak|pine>5.0"``      | Require ``oak`` at any version, or ``pine`` at    |
 |                         | versions greater than ``5.0``                     |

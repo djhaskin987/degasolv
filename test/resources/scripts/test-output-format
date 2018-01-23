@@ -42,11 +42,22 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     -R ${PWD}/index.dsrepo \
     --output-format json \
     --requirement "a<=1.0.0"
+
 if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --output-format json \
     --requirement "z<=1.0.0"
+then
+    exit 1
+fi
+
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --enable-error-format \
+    --output-format json \
+    --requirement "z<=1.0.0" | jq .problems
 then
     exit 1
 fi
@@ -63,6 +74,16 @@ if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     --output-format edn \
     -R ${PWD}/index.dsrepo \
     --requirement "z<=1.0.0"
+then
+    exit 1
+fi
+
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+        resolve-locations \
+        --enable-error-format \
+        --output-format edn \
+        -R ${PWD}/index.dsrepo \
+        --requirement "z<=1.0.0" | grep -q -E ':problems'
 then
     exit 1
 fi

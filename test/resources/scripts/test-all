@@ -1,0 +1,21 @@
+#!/bin/sh
+set -ex
+
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+root_path=${PWD}
+test_home=test/resources/data/grill
+
+lein uberjar
+
+# Script tests
+for i in test/resources/scripts/test-*
+do
+    if [ ${i} != test/resources/scripts/test-all ]
+    then
+        ./${i}
+    fi
+done

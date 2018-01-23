@@ -1,8 +1,8 @@
 Quickstart
 ==========
 
-This quickstart is meant to be illustrative. For ideas on how to use degasolv in real life,
-have a look at :ref:`A Longer Example`.
+This quickstart is meant to be illustrative. For ideas on how to use degasolv
+in real life, have a look at :ref:`A Longer Example`.
 
 **Given these artifacts**:
 

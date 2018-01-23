@@ -1,0 +1,163 @@
+#!/bin/sh
+set -eoux
+
+export POSIXLY_CORRECT=1
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+root_path=${PWD}
+test_home=test/resources/data/test-search-strat
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf "${test_home}"
+mkdir -p "${test_home}"
+cd "${test_home}"
+
+# First, generate *most* of the needed cards for the tests to pass.
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "a" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/a-1.0.0.zip" \
+     -r "d" \
+     -r "c" \
+     -C $PWD/a-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "b" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/b-1.0.0.zip" \
+     -r "a" \
+     -r "e" \
+     -C $PWD/b-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "e" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/e-1.0.0.zip" \
+     -r "a" \
+     -C $PWD/e-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "x" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/x-1.0.0.zip" \
+     -r "z" \
+     -r "y" \
+     -C $PWD/x-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "y" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/y-1.0.0.zip" \
+     -C $PWD/y-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "z" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/z-1.0.0.zip" \
+     -C $PWD/z-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "c" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/c-1.0.0.zip" \
+     -C $PWD/c-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "d" \
+     -v "1.0.0" \
+     -l "https://example.com/repo/d-1.0.0.zip" \
+     -C $PWD/d-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    generate-repo-index \
+    -d $PWD \
+    -I $PWD/index.dsrepo
+
+expected=$(cat <<EOF
+c==1.0.0 @ https://example.com/repo/c-1.0.0.zip
+d==1.0.0 @ https://example.com/repo/d-1.0.0.zip
+a==1.0.0 @ https://example.com/repo/a-1.0.0.zip
+y==1.0.0 @ https://example.com/repo/y-1.0.0.zip
+z==1.0.0 @ https://example.com/repo/z-1.0.0.zip
+x==1.0.0 @ https://example.com/repo/x-1.0.0.zip
+e==1.0.0 @ https://example.com/repo/e-1.0.0.zip
+b==1.0.0 @ https://example.com/repo/b-1.0.0.zip
+EOF
+)
+
+
+actual=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    -L eager \
+    --requirement b \
+    --requirement x \
+    --requirement a)
+
+if [ "${expected}" != "${actual}" ]
+then
+    set +x
+    echo "Expected did not meet actual for eager list strat test" >&2
+    echo "" >&2
+    echo "Expected:" >&2
+    echo "---" >&2
+    echo "${expected}" >&2
+    echo "---" >&2
+    echo "Actual:" >&2
+    echo "---" >&2
+    echo "${actual}" >&2
+    echo "---" >&2
+    exit 1
+fi
+
+
+expected=$(cat <<EOF
+c==1.0.0 @ https://example.com/repo/c-1.0.0.zip
+d==1.0.0 @ https://example.com/repo/d-1.0.0.zip
+y==1.0.0 @ https://example.com/repo/y-1.0.0.zip
+z==1.0.0 @ https://example.com/repo/z-1.0.0.zip
+a==1.0.0 @ https://example.com/repo/a-1.0.0.zip
+e==1.0.0 @ https://example.com/repo/e-1.0.0.zip
+x==1.0.0 @ https://example.com/repo/x-1.0.0.zip
+b==1.0.0 @ https://example.com/repo/b-1.0.0.zip
+EOF
+)
+
+actual=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    -L lazy \
+    --requirement b \
+    --requirement x \
+    --requirement a)
+
+if [ "${expected}" != "${actual}" ]
+then
+    set +x
+    echo "Expected did not meet actual for eager list strat test" >&2
+    echo "" >&2
+    echo "Expected:" >&2
+    echo "---" >&2
+    echo "${expected}" >&2
+    echo "---" >&2
+    echo "Actual:" >&2
+    echo "---" >&2
+    echo "${actual}" >&2
+    echo "---" >&2
+    exit 1
+fi

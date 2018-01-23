@@ -2,19 +2,13 @@ version: 2
 jobs:
   script_tests:
     docker:
-      - image: clojure:lein
+      - image: djhaskin987/lein-script-tester:latest
     version: 2
     steps:
       - checkout
       - run:
           command: |
-            set -ex
-            lein uberjar
-            # Script tests
-            for i in test/resources/scripts/*
-            do
-                ./${i}
-            done
+            test/resources/scripts/test-all
   lein_tests:
     docker:
       - image: clojure:lein
