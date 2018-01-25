@@ -1,7 +1,12 @@
+Authors and Contributions
+=========================
+
 We thank everyone that has contributed to Degasolv!
 
-Authors:
+Authors
+-------
   - Daniel Jay Haskin
 
-Contributions:
+Contributions
+-------------
   - Logo contributed to Degasolv by James Toney

@@ -1,12 +1,8 @@
 - [ ] Docs: common pitfall of subproc: "name" vs "id" in json or
   strings vs keywords in EDN
-- [ ] Add plugin or backend / whatever repo thing command option
-- [ ] Fork process, get back information, parse it, use that as a map-repo. That's how
-      the plugins work.
-  - Do work on this for new plugin architecture
-- [ ] Deprecate backend in docs
-- [ ] Subcommand `search-repo`
-- [ ] Docs:
-  - [ ] Set Up Guide
-  - [ ] Use cases section
 - [ ] BOOT fix so that most of build is in it
+- [ ] 1.13 release: the http package system, allowing the query
+      per-package of some process (for e.g. helm purposes)
+- [ ] 1.13 release: remove-packages
+- [ ] 1.13 release: --state-file <save-state-here>
+- [ ] 1.13 release: tree print out

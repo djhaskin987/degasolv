@@ -1594,7 +1594,7 @@ command to behave normally.
 Other available values are shown below.
 
 The ``apt`` Package System
-__________________________
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Experimental**. The ``apt`` package system resolves using the APT
 debian package manager.  When using this method, `specify
@@ -1630,7 +1630,7 @@ is ``any``.
 .. _subproc-pkgsys:
 
 The ``subproc`` Package System
-______________________________
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``subproc`` package system allows the user to give Degasolv
 package information via a subprocess (shell-out) command. A path
