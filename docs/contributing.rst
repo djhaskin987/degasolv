@@ -34,8 +34,8 @@ whether or not it is likely to be accepted:
 4. **Did you add documentation around the feature in your PR?**
    Generally this at least means adding something to the :ref:`Command
    Reference` document.
-5. **Did you add an entry to the :ref:`Degasolv Changelog`?** This
-   project keeps a hand-crafted changelog.
+5. **Did you add an entry to the Changelog?** This project keeps a
+   curated :ref:`changelog <Degasolv Changelog>`.
 
 There are some exceptions to the above rules. If your patch is less than
 two lines' difference from the previous version, your PR may be a "typo" PR,

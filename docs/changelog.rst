@@ -24,7 +24,7 @@ Fixed
 +++++
 
 
-`1.12.1`
+`1.12.1`_
 ---------
 
 *1.12.1 was strictly a docs release. No code changes were made and no runnable
@@ -34,11 +34,6 @@ Added
 +++++
 
 - Added authors file to docs
-
-Changed
-+++++++
-
-(none)
 
 Fixed
 +++++
