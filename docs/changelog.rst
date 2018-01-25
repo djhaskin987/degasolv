@@ -12,7 +12,7 @@ and this project adheres to `Semantic Versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/en/1.0.0/
 
 `Unreleased`_
----------
+-------------
 
 Added
 +++++
@@ -27,7 +27,8 @@ Fixed
 `1.12.1`
 ---------
 
-*1.12.1 was strictly a docs release. No code changes were made.*
+*1.12.1 was strictly a docs release. No code changes were made and no runnable
+artifacts were created.*
 
 Added
 +++++
@@ -43,10 +44,10 @@ Fixed
 +++++
 
 - Fixed changelog so that the 1.12.0 release was present in the document
-- Fixed package system subheaders
+- Fixed package system subheaders in command reference
 
 `1.12.0`_
--------------
+---------
 
 Added
 +++++
@@ -267,8 +268,7 @@ Added
 
 .. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.12.1...HEAD
 .. _1.12.1: https://github.com/djhaskin987/degasolv/compare/1.12.0...1.12.1
-.. _1.12.0: https://github.com/djhaskin987/degasolv/compare/1.12.0...1.12.1
-.. _1.11.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.12.0
+.. _1.12.0: https://github.com/djhaskin987/degasolv/compare/1.11.0...1.12.0
 .. _1.11.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.11.0
 .. _1.10.0: https://github.com/djhaskin987/degasolv/compare/1.9.0...1.10.0
 .. _1.9.0: https://github.com/djhaskin987/degasolv/compare/1.8.0...1.9.0
