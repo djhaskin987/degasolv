@@ -7,15 +7,14 @@
    [clojure.spec :as s]
    [clojure.string :as string]
    [clojure.tools.cli :refer [parse-opts summarize]]
+   [clojure.java.io :as io]
    [degasolv.pkgsys.apt :as apt-pkg]
    [degasolv.pkgsys.core :as degasolv-pkg]
    [degasolv.pkgsys.subproc :as subproc-pkg]
    [degasolv.resolver :as r :refer :all]
    [degasolv.util :refer :all]
-   [me.raynes.fs :as fs]
    [miner.tagged :as tag]
-   [serovers.core :as vers]
-   [tupelo.core :as t])
+   [serovers.core :as vers])
   (:gen-class))
 
 (defn- exit [status msg]
@@ -580,9 +579,9 @@
            ["-d" "--search-directory DIR" "Find degasolv cards here"
             :default nil
             :default-desc (str (:search-directory subcommand-option-defaults))
-            :validate [#(and
-                         (fs/directory? %)
-                         (fs/exists? %))
+            :validate [#(let [f (io/file %)]
+                          (and (.isDirectory f)
+                               (.exists f)))
                        "Must be a directory which exists on the file system."]]
            ["-I" "--index-file FILE"
             "The name of the repo file"
@@ -697,9 +696,9 @@
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
            ["-x" "--subproc-exe PATH"
             "Path to the executable to call to get package data"
-            :validate [#(and
-                         (fs/exists? %)
-                         (fs/executable? %))
+            :validate [#(let [f (io/file %)]
+                          (and (.exists f)
+                               (.canExecute f)))
                        "Must be an executable file which exists on the file system."]]
            ]}
     "query-repo"
@@ -797,7 +796,7 @@
           subcmd-cli (if (not (= subcommand "display-config"))
                        (get subcommand-cli subcommand)
                        ; this grabs all other options as part of display-config
-                       (t/it-> subcommand-cli
+                       (as-> subcommand-cli it
                                (vals it)
                                (map :cli it)
                                (filter #(not (nil? %)) it)
@@ -817,7 +816,7 @@
             (parseplz! subcommand (rest arguments) (get subcommand-cli subcommand))]
         (let [config-files
               (if (empty? (:config-files global-options))
-                       [{:file (fs/file (fs/expand-home "./degasolv.edn"))
+                       [{:file (io/file "./degasolv.edn")
                          :read-fn tag/read-string}]
                 (:config-files global-options))
               config
@@ -828,8 +827,8 @@
                 (into [] (:option-packs config))
                 cli-option-packs)
               effective-options
-              (t/it->
-               selected-option-packs
+              (as->
+               selected-option-packs it
                (mapv available-option-packs it)
                (into [subcommand-option-defaults] it)
                (conj it (dissoc config :option-packs))

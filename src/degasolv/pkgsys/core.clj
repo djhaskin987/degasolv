@@ -4,7 +4,8 @@
     [clojure.spec :as s]
     [degasolv.resolver :as r :refer :all]
     [serovers.core :as vers]
-    [me.raynes.fs :as fs]
+    [clojure.java.io :as io]
+    [clojure.string :as st]
     [miner.tagged :as tag]))
 
 (defn- read-card!
@@ -52,9 +53,9 @@
                   initial-repository
                   (map
                     read-card!
-                    (filter #(and (fs/file? %)
-                                  (= ".dscard" (fs/extension %)))
-                            (file-seq (fs/file search-directory))))))))))
+                    (filter #(and (.isFile (io/file %))
+                                  (= ".dscard" (st/replace % #"[^.]*[.]" "")))
+                            (file-seq (io/file search-directory))))))))))
 
 (defn slurp-degasolv-repo
   [url]
