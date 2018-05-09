@@ -18,7 +18,7 @@
               :junit ["test/java"]
 
 
-
+  :global-vars {*warn-on-reflection* true}
 
   :test-selectors
   {

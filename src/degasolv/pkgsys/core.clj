@@ -53,7 +53,7 @@
                   initial-repository
                   (map
                     read-card!
-                    (filter #(and (.isFile (io/file %))
+                    (filter #(and (.isFile ^java.io.File (io/file %))
                                   (= ".dscard" (st/replace % #"[^.]*[.]" "")))
                             (file-seq (io/file search-directory))))))))))
 

@@ -1,8 +1,8 @@
 (ns degasolv.cli
   (:require
+   [clojure.pprint :as pprint]
    [clojure.data.json :as json]
    [clojure.edn :as edn]
-   [clojure.pprint :as pprint]
    [clojure.set :as st]
    [clojure.spec :as s]
    [clojure.string :as string]
@@ -18,7 +18,7 @@
   (:gen-class))
 
 (defn- exit [status msg]
-  (.println *err* msg)
+  (.println ^java.io.Writer *err* msg)
   (System/exit status))
 
 (defn- out-exit [status msg]
@@ -320,7 +320,7 @@
              version-comparator)
             (catch Exception e (exit 1 (str
                                         "Error while evaluating repositories: "
-                                        (.getMessage e)))))
+                                        (.getMessage ^java.lang.Exception e)))))
           result
           (resolve-dependencies
            requirement-data
@@ -580,8 +580,8 @@
             :default nil
             :default-desc (str (:search-directory subcommand-option-defaults))
             :validate [#(let [f (io/file %)]
-                          (and (.isDirectory f)
-                               (.exists f)))
+                          (and (.isDirectory ^java.io.File f)
+                               (.exists ^java.io.File f)))
                        "Must be a directory which exists on the file system."]]
            ["-I" "--index-file FILE"
             "The name of the repo file"
@@ -697,8 +697,8 @@
            ["-x" "--subproc-exe PATH"
             "Path to the executable to call to get package data"
             :validate [#(let [f (io/file %)]
-                          (and (.exists f)
-                               (.canExecute f)))
+                          (and (.exists ^java.io.File f)
+                               (.canExecute ^java.io.File f)))
                        "Must be an executable file which exists on the file system."]]
            ]}
     "query-repo"

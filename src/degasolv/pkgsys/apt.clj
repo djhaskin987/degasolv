@@ -165,7 +165,7 @@
                 (io/input-stream it))]
               (slurp in))
             (apt-repo url it)))
-           (if (.contains dist "/")
+           (if (.contains ^java.lang.String dist "/")
              [[url
                dist
                "Packages.gz"]]
