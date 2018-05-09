@@ -18,7 +18,7 @@
   (:gen-class))
 
 (defn- exit [status msg]
-  (.println ^java.io.Writer *err* msg)
+  (.println ^java.io.PrintWriter *err* msg)
   (System/exit status))
 
 (defn- out-exit [status msg]

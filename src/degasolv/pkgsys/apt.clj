@@ -159,11 +159,12 @@
            [loc]
            (as-> loc it
             (string/join "/" it)
-            (with-open
+            (let
               [in
                (->zip-input-stream
                 (io/input-stream it))]
-              (slurp in))
+              (try (slurp in)
+                (finally (.close ^java.io.InputStream in))))
             (apt-repo url it)))
            (if (.contains ^java.lang.String dist "/")
              [[url
