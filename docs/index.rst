@@ -1,7 +1,7 @@
 Degasolv
 ========
 
-.. image:: ../Degasolv-01.png
+.. image:: ../Degasolv.png
     :scale: 25 %
 
 Star Degasolv on Github:
