@@ -25,6 +25,7 @@
 /test/resources/data/test-option-packs/
 /test/resources/data/test-json-config/
 /test/resources/data/test-query-output-format/
+/test/resources/data/test-list-strat/
 /buildutils/boot
 /degasolv-*-standalone
 /*.dscard
