@@ -40,12 +40,13 @@ Changed
 
 - Removed less-than-useful warning about absent config files.
 
-
 Fixed
 +++++
 
 - Fixed bug where index.dsrepo didn't generate anything except
   an empty map inside the file. This was *completely* broken.
+
+- Fixed #6, "If one config file fails to load, the rest do as well"
 
 `1.12.1`_
 ---------

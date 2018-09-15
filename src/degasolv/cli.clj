@@ -772,14 +772,14 @@
                ""))
 
 (defn get-config [configs]
-  (try
-    (as-> configs it
-      (map (fn [{:keys [file read-fn]}]
-             (read-fn (default-slurp file)))
-           it)
-      (reduce merge it))
-    (catch Exception e
-      (hash-map))))
+  (as-> configs it
+        (map (fn [{:keys [file read-fn]}]
+               (try
+                 (read-fn (default-slurp file))
+                 (catch Exception e
+                   (hash-map))))
+               it)
+             (reduce merge it)))
 
 
 (defn -main [& args]
