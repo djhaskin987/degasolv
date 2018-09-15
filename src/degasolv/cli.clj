@@ -775,20 +775,10 @@
   (try
     (as-> configs it
       (map (fn [{:keys [file read-fn]}]
-             {:string (default-slurp file)
-              :read-fn read-fn}) it)
-      (map (fn [{:keys [string read-fn]}]
-             (read-fn string))
+             (read-fn (default-slurp file)))
            it)
       (reduce merge it))
     (catch Exception e
-      (binding [*out* *err*]
-        (println "Warning: problem reading config files, they were not used:"
-                 (str "\n"
-                      (string/join
-                       \newline
-                       (map #(str "  - " %)
-                            (map :file configs))))))
       (hash-map))))
 
 
