@@ -54,7 +54,7 @@
                   (map
                     read-card!
                     (filter #(and (.isFile ^java.io.File (io/file %))
-                                  (= ".dscard" (st/replace % #"[^.]*[.]" "")))
+                                  (= "dscard" (st/replace % #"[^.]*[.]" "")))
                             (file-seq (io/file search-directory))))))))))
 
 (defn slurp-degasolv-repo

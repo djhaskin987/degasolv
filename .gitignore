@@ -26,6 +26,7 @@
 /test/resources/data/test-json-config/
 /test/resources/data/test-query-output-format/
 /buildutils/boot
+/degasolv-*-standalone
 /*.dscard
 /*.dsrepo
 /classes

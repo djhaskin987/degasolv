@@ -38,10 +38,14 @@ Changed
   and :ref:`query-repo <query-repo>` (option :ref:`here
   <version-comparison-query>`).
 
+- Removed less-than-useful warning about absent config files.
+
 
 Fixed
 +++++
 
+- Fixed bug where index.dsrepo didn't generate anything except
+  an empty map inside the file. This was *completely* broken.
 
 `1.12.1`_
 ---------

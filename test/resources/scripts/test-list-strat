@@ -9,7 +9,7 @@ then
 fi
 
 root_path=${PWD}
-test_home=test/resources/data/test-search-strat
+test_home=test/resources/data/test-list-strat
 
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
