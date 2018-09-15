@@ -1,4 +1,4 @@
-(defproject degasolv/degasolv "1.12.2-SNAPSHOT"
+(defproject degasolv/degasolv "2.0.0-SNAPSHOT"
   :description "Dependency tracker with an eye toward building and shipping software."
   :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
@@ -26,6 +26,14 @@
    }
   :profiles {
              :dev {
+                   :dependencies [
+                                  [org.clojure/core.match "0.3.0-alpha5"]
+                                  [org.clojure/clojure "1.9.0-alpha14"]
+                                  [serovers "1.6.2"]
+                                  [org.clojure/tools.cli "0.3.5"]
+                                  [com.velisco/tagged "0.5.0"]
+                                  [org.clojure/data.json "0.2.6"]
+                                  ]
                    :plugins [[test2junit "1.3.3"]]
                    :test2junit-output-dir "target/test-results"
                    }

@@ -347,11 +347,19 @@ file, the option packs on the command line are used and the ones in
 the config file are ignored.
 
 The following option packs are supported in the current version:
+  - ``v1``: Added as of version 2.0.0 . Implies
+    ``--list-strat as-set`` and ``--disable-error-format``. This
+    pack was added to help support legacy deployments of degasolv.
+    It should be noted that to achieve full compatibility with degasolv
+    version 1, the argument ``--version-comparison maven`` should be used
+    as well as this option pack. It could not be included in the option
+    pack due to complications with the version comparison option and its
+    relationship to how the ``--package-system`` option is affected by it.
   - ``multi-version-mode``: Added as of version 1.7.0 . Implies
     ``--conflict-strat inclusive``,
     ``--resolve-strat fast``, and ``--disable-alternatives``.
   - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
-    ``--conflic-strat prioritized``,
+    ``--conflict-strat prioritized``,
     ``--resolve-strat fast``, and ``--disable-alternatives``.
 
 Print the Help Page
@@ -406,7 +414,7 @@ returns a page that looks something like this::
         --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
         --location true                          URL or filepath of the package
         --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
-        --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+        --version-comparison CMP  semver         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
         --version true                           Version of the package
     -h, --help                                   Print this help page
 
@@ -741,10 +749,10 @@ created within the index. These lists are sorted in descending order
 by version number, so that the latest version of a given package is
 tried first when resolving dependencies.
 
-This option allows the operator to change what version comparison
-algorithm is used. By default, the algorithm is ``maven``. May be
-``maven``, ``debian``, ``maven``, ``naive``, ``python``, ``npm``,
-``rubygem``, or ``semver``.
+This option allows the operator to change what version comparison algorithm is
+used.  May be ``debian``, ``maven``, ``naive``, ``python``, ``npm``,
+``rubygem``, or ``semver``.  As of version 2.0, the default algorithm is
+``semver``.
 
 .. caution:: This is one of those options that should not be used
            unless the operator has a good reason, but it is available
@@ -826,10 +834,10 @@ returns a page that looks something like this::
       -a, --enable-alternatives                          Consider all alternatives (default)
       -A, --disable-alternatives                         Consider only first alternatives
       -e, --search-strat STRAT            breadth-first  May be 'breadth-first' or 'depth-first'.
-      -g, --enable-error-format                          Enable output format for errors
-      -G, --disable-error-format                         Disable output format for errors (default)
+      -g, --enable-error-format                          Enable output format for errors (default)
+      -G, --disable-error-format                         Disable output format for errors
       -f, --conflict-strat STRAT          exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
-      -L, --list-strat STRAT              as-set         May be 'as-set', 'lazy' or 'eager'.
+      -L, --list-strat STRAT              lazy           May be 'as-set', 'lazy' or 'eager'.
       -o, --output-format FORMAT          plain          May be 'plain', 'edn' or 'json'
       -p, --present-package PKG                          Hard present package. **
       -r, --requirement REQ                              Resolve req. **
@@ -1057,8 +1065,8 @@ Specify List Strategy
 +-----------------------------+---------------------------------------+
 
 This option determines how packages will be listed once they are resolved.
-Valid values are ``as-set``, ``lazy``, and ``eager``. The default value
-is ``as-set``.
+Valid values are ``as-set``, ``lazy``, and ``eager``. As of version 2.0.0,
+the default value is ``lazy``.
 
 
 When the value is ``as-set``, packages are listed in no particular order.
@@ -1151,8 +1159,7 @@ in the dictionary, except:
 - A new key, ``problems``, appears in place of the ``packages`` key containing
   information describing what went wrong.
 
-The default behavior is to have ``:error-format`` disabled; this
-CLI option enables it.
+As of version 2.0, the default behavior is to have ``:error-format`` enabled.
 
 .. _disable-error-format-resolve:
 
@@ -1171,8 +1178,7 @@ Disable Error Output Format
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
 
-This option sets the ``:error-format`` flag back to ``false``, which is the
-default behavior.
+This option sets the ``:error-format`` flag to ``false``.
 
 .. _output-format:
 
@@ -1790,8 +1796,8 @@ page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -g, --enable-error-format               Enable output format for errors
-    -G, --disable-error-format              Disable output format for errors (default)
+    -g, --enable-error-format               Enable output format for errors (default)
+    -G, --disable-error-format              Disable output format for errors
     -q, --query QUERY                       Display packages matching query string.
     -R, --repository INDEX                  Search INDEX for packages. **
     -S, --index-strat STRAT       priority  May be 'priority' or 'global'.
@@ -1838,9 +1844,9 @@ when errors happen as well.
 
 Normally, when the `output-format`_ key is specified, such as to cause
 Degasolv to emit JSON or EDN, this only happens if the command runs
-successfully. If querying thre repo was unsuccessful, an error message
+successfully. If querying the repo was unsuccessful, an error message
 is printed to standard error and the program exits with non-zero
-return code. If ``error-format`` is specified, then any error
+return code. If ``error-format`` is enabled, then any error
 information will be printed in the form of whatever `output-format`_
 specifies to standard output, while still maintaining the same exit
 code.
@@ -1855,8 +1861,7 @@ in the dictionary, except:
 - A new key, ``problems``, appears in place of the ``packages`` key containing
   information describing what went wrong.
 
-The default behavior is to have ``:error-format`` disabled; this
-CLI option enables it.
+As of version 2.0, the default behavior is to have ``:error-format`` enabled.
 
 .. _disable-error-format-query:
 
@@ -1875,8 +1880,7 @@ Disable Error Output Format
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
 
-This option sets the ``:error-format`` flag back to ``false``, which is the
-default behavior.
+This option sets the ``:error-format`` flag to ``false``.
 
 .. _output-format-query-repo:
 

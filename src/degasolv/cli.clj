@@ -1,20 +1,20 @@
 (ns degasolv.cli
   (:require
-   [clojure.pprint :as pprint]
-   [clojure.data.json :as json]
-   [clojure.edn :as edn]
-   [clojure.set :as st]
-   [clojure.spec :as s]
-   [clojure.string :as string]
-   [clojure.tools.cli :refer [parse-opts summarize]]
-   [clojure.java.io :as io]
-   [degasolv.pkgsys.apt :as apt-pkg]
-   [degasolv.pkgsys.core :as degasolv-pkg]
-   [degasolv.pkgsys.subproc :as subproc-pkg]
-   [degasolv.resolver :as r :refer :all]
-   [degasolv.util :refer :all]
-   [miner.tagged :as tag]
-   [serovers.core :as vers])
+    [clojure.pprint :as pprint]
+    [clojure.data.json :as json]
+    [clojure.edn :as edn]
+    [clojure.set :as st]
+    [clojure.spec :as s]
+    [clojure.string :as string]
+    [clojure.tools.cli :refer [parse-opts summarize]]
+    [clojure.java.io :as io]
+    [degasolv.pkgsys.apt :as apt-pkg]
+    [degasolv.pkgsys.core :as degasolv-pkg]
+    [degasolv.pkgsys.subproc :as subproc-pkg]
+    [degasolv.resolver :as r :refer :all]
+    [degasolv.util :refer :all]
+    [miner.tagged :as tag]
+    [serovers.core :as vers])
   (:gen-class))
 
 (defn- exit [status msg]
@@ -99,7 +99,7 @@
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
              :version-comparison "debian"}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
-               :version-comparison "maven"}
+               :version-comparison "semver"}
    "subproc" {:constructor subproc-pkg/make-slurper
               :required-arguments {:subproc-exe ["-x" "--subproc-exe"]}}})
 
@@ -457,7 +457,7 @@
 (def subcommand-option-defaults
   {
    :alternatives true
-   :error-format false
+   :error-format true
    :card-file "./out.dscard"
    :conflict-strat "exclusive"
    :index-file "index.dsrepo"
@@ -469,11 +469,16 @@
    :search-directory "."
    :search-strat "breadth-first"
    :subproc-out-format "json"
-   :list-strat "as-set"
+   :list-strat "lazy"
    })
 
 (def available-option-packs
   {
+   "v1"
+   {
+    :error-format false
+    :list-strat "as-set"
+    }
    "multi-version-mode"
    {
     :conflict-strat "inclusive"
@@ -590,7 +595,7 @@
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
-            :default-desc "maven"
+            :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]]}
 
@@ -611,9 +616,9 @@
             :validate [#(or (= "breadth-first" %)
                             (= "depth-first" %))
                        "Search strategy must either be 'breadth-first' or 'depth-first'."]]
-           ["-g" "--enable-error-format" "Enable output format for errors"
+           ["-g" "--enable-error-format" "Enable output format for errors (default)"
             :assoc-fn (fn [m k v] (assoc m :error-format true))]
-           ["-G" "--disable-error-format" "Disable output format for errors (default)"
+           ["-G" "--disable-error-format" "Disable output format for errors"
             :assoc-fn (fn [m k v] (assoc m :error-format false))]
            ["-f" "--conflict-strat STRAT"
             "May be 'exclusive', 'inclusive' or 'prioritized'."
@@ -691,7 +696,7 @@
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
-            :default-desc "maven"
+            :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
            ["-x" "--subproc-exe PATH"
@@ -707,9 +712,9 @@
      :required-arguments {:repositories ["-R" "--repository"]
                           :query ["-q" "--query"]}
      :cli [
-           ["-g" "--enable-error-format" "Enable output format for errors"
+           ["-g" "--enable-error-format" "Enable output format for errors (default)"
             :assoc-fn (fn [m k v] (assoc m :error-format true))]
-           ["-G" "--disable-error-format" "Disable output format for errors (default)"
+           ["-G" "--disable-error-format" "Disable output format for errors"
             :assoc-fn (fn [m k v] (assoc m :error-format false))]
            ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
             :default nil
@@ -745,7 +750,7 @@
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
-            :default-desc "maven"
+            :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
            ]
