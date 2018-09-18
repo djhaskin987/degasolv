@@ -1758,8 +1758,8 @@ the `Serovers docs`_.
 
 .. _subproc-exe:
 
-Specify Subproc Package System Output Format
-********************************************
+Specify Subproc Package System Executable
+*****************************************
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-x PATH``                           |

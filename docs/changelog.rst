@@ -48,6 +48,8 @@ Fixed
 
 - Fixed #6, "If one config file fails to load, the rest do as well"
 
+- Fixed #9, "Heading for 'Specifying Subproc Executable' is wrong in docs"
+
 `1.12.1`_
 ---------
 
