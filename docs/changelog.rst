@@ -50,6 +50,9 @@ Fixed
 
 - Fixed #9, "Heading for 'Specifying Subproc Executable' is wrong in docs"
 
+- Fixed #10, "How do you specify requirements of a package (deps) in the output
+  of a subproc to degasolv?"
+
 `1.12.1`_
 ---------
 

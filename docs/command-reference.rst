@@ -1638,13 +1638,23 @@ is ``any``.
 
 The ``subproc`` package system allows the user to give Degasolv
 package information via a subprocess (shell-out) command. A path
-to an executable on the filesystem is given via the `subproc-exe`_ option.
-For each repository specified via the `repository option`_, the
-subproc executable path is executed with the string given for the
-repository as its only argument. The executable is expected to
-print out JSON or EDN to standard output, depending on the value
-of the `subproc-output-format`_ option. This information will then
-be read into Degasolv and used to resolve dependencies.
+to an executable on the filesystem is given via the `subproc-exe`_ option.  For
+each repository specified via the `repository option`_, the subproc executable
+path is executed with the string given for the repository as its only argument.
+The executable is expected to print out JSON or EDN to standard output,
+depending on the value of the `subproc-output-format`_ option.
+
+The output should be a dictionary of packages listed by name.  The value for
+each dictionary key should be an array of dictionaries, with each dictionary
+giving information about a particular package instance. Within each package
+instance dictionary, there should exist the keys ``id`` for the package name,
+``version`` for its version, and ``location`` giving its location. Any
+requirements for the package instance should be listed under the
+``requirements`` key according to the rules laid out in :ref:`Specifying a
+requirement`.
+
+This information will then be read into Degasolv and used to resolve
+dependencies.
 
 If the format is JSON, which is the default, the output should be of the form::
 
@@ -1654,6 +1664,7 @@ If the format is JSON, which is the default, the output should be of the form::
               "id": "pkgname",
               "version": "p.k.g-version",
               "location": "pkg-url",
+              "requirements": ["birch>=3.3", "lime|lemon"],
               <optional kv-pairs associated with package>
           }
       ],
@@ -1667,8 +1678,9 @@ If the format is EDN, the output should be of the form::
           # The following will be referred
           {
               :id "pkgname"
-              :version: "p.k.g-version"
-              :location": "pkg-url"
+              :version "p.k.g-version"
+              :location" "pkg-url"
+              :requirements ["birch>=3.3" "lime|lemon"]
               <optional kv-pairs associated with package>
           }
       ]
@@ -1976,8 +1988,8 @@ This option works exactly the same as the `index strategy`_ option for the
 ``resolve-locations`` command, except that it is used for simple index
 queries. See that option's explanation for more information.
 
-Specify a Package System (Experimental)
-***************************************
+Specify a Package System
+************************
 
 +--------------+---------------------------+-----------------------------------+
 | Short option | Long option               | Config File Key                   |
