@@ -8,7 +8,7 @@ shift
 . target/manifest
 
 #native-image --enable-url-protocols=http,https -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
-/opt/graalvm/current/bin/native-image -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
+native-image -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
 
 mkdir -p target/graal
 
