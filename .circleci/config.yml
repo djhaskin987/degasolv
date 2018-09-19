@@ -38,6 +38,23 @@ jobs:
       - store_test_results:
           path: target/test-results/xml/
 
+  graal_compile:
+    docker:
+      - image: findepi/graalvm
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/tested-artifacts
+      - checkout
+      - run: cp -af /tmp/tested-artifacts/target ./
+      - run: buildutils/graal
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/graal/
+      - store_artifacts:
+          path: target/graal/
+          destination: graal/
   package_ubuntu:
     docker:
       - image: alanfranz/fpm-within-docker:ubuntu-zesty
@@ -103,6 +120,9 @@ workflows:
     jobs:
       - script_tests
       - lein_tests
+      - graal_compile:
+          requires:
+            - lein_tests
       - package_ubuntu:
           requires:
             - lein_tests

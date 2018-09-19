@@ -1,0 +1,10 @@
+#!/bin/sh
+export POSIXLY_CORRECT=1
+set -exou pipefail
+
+. target/manifest
+
+native-image -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
+
+mkdir -p target/graal
+mv ./${name}-${version}-standalone target/graal
