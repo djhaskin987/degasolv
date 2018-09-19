@@ -1,5 +1,33 @@
 version: 2
 jobs:
+  lein_tests:
+    docker:
+      - image: clojure:lein
+    version: 2
+    steps:
+      - checkout
+      - run:
+          command: |
+            set -ex
+            lein test2junit
+            ls target/test-results
+            ls target/test-results/html
+            lein uberjar
+            buildutils/generate-manifest
+      - store_artifacts:
+          path: target/test-results/xml/
+          destination: test-results/xml
+      - store_artifacts:
+          path: target/uberjar/
+          destination: uberjar/
+      - store_test_results:
+          path: target/test-results/xml/
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/uberjar/degasolv-*-standalone.jar
+            - target/manifest
+
   script_tests:
     docker:
       - image: djhaskin987/lein-script-tester:latest
@@ -15,7 +43,10 @@ jobs:
       - image: djhaskin987/graal-lein-fpm:ubuntu16
     version: 2
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout
+      - run: cp -af /tmp/workspace/target ./
       - run: buildutils/package deb
       - persist_to_workspace:
           root: .
@@ -23,40 +54,52 @@ jobs:
             - target/package/*.deb
       - store_artifacts:
           path: target/package/
-          destination: package/
-      - store_artifacts:
-          path: target/test-results/xml/
-          destination: test-results/xml
+          destination: package_u16/
       - store_artifacts:
           path: target/graal/
-          destination: graal/
-      - store_artifacts:
-          path: target/uberjar/
-          destination: uberjar/
-      - store_test_results:
-          path: target/test-results/xml/
+          destination: graal_u16/
 
   package_ubuntu18:
     docker:
       - image: djhaskin987/graal-lein-fpm:ubuntu18
     version: 2
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout
+      - run: cp -af /tmp/workspace/target ./
       - run: buildutils/package deb
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package/*.deb
       - store_artifacts:
           path: target/package/
-          destination: package/
-      - store_artifacts:
-          path: target/test-results/xml/
-          destination: test-results/xml
+          destination: package_u18/
       - store_artifacts:
           path: target/graal/
-          destination: graal/
+          destination: graal_u18/
+
+  package_centos7:
+    docker:
+      - image: djhaskin987/graal-lein-fpm:centos7
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: buildutils/package rpm
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package/*.rpm
       - store_artifacts:
-          path: target/uberjar/
-          destination: uberjar/
-      - store_test_results:
-          path: target/test-results/xml/
+          path: target/package/
+          destination: package_c7/
+      - store_artifacts:
+          path: target/graal/
+          destination: graal_c7/
 
   test_ubuntu_package:
     docker:
@@ -69,31 +112,6 @@ jobs:
       - run: cp -af /tmp/workspace/target ./
       - run: buildutils/test-install-package-ubuntu
 
-  package_centos7:
-    docker:
-      - image: djhaskin987/graal-lein-fpm:centos7
-    version: 2
-    steps:
-      - checkout
-      - run: buildutils/package rpm
-      - persist_to_workspace:
-          root: .
-          paths:
-            - target/package/*.rpm
-      - store_artifacts:
-          path: target/package/
-          destination: package/
-      - store_artifacts:
-          path: target/test-results/xml/
-          destination: test-results/xml
-      - store_artifacts:
-          path: target/graal/
-          destination: graal/
-      - store_artifacts:
-          path: target/uberjar/
-          destination: uberjar/
-      - store_test_results:
-          path: target/test-results/xml/
 
   test_centos_package:
     docker:
@@ -111,9 +129,16 @@ workflows:
   build_and_test:
     jobs:
       - script_tests
-      - package_ubuntu16
-      - package_ubuntu18
-      - package_centos7
+      - lein_tests
+      - package_ubuntu16:
+          requires:
+            - lein_tests
+      - package_ubuntu18:
+          requires:
+            - lein_tests
+      - package_centos7:
+          requires:
+            - lein_tests
       - test_ubuntu_package:
           requires:
             - package_ubuntu16

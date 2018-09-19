@@ -5,38 +5,9 @@ set -ex
 type="${1}"
 shift
 
-lein test2junit
-ls target/test-results
-ls target/test-results/html
-lein uberjar
-buildutils/generate-manifest
+. target/manifest
 
-name=$(lein print :name | sed 's|"||g')
-version=$(lein print :version | sed 's|"||g')
-basic_version=$(echo "${version}" | sed -e 's|-.*$||g')
-branch=$(git branch | awk '/^[*] /{print $2}')
-builddate=$(date --utc '+%Y%m%d%H%M%S')
-git_desc=$(git describe --long --match '[0-9].[0-9].[0-9]')
-previous_version=$(echo "${git_desc}" | sed 's|-.*$||g')
-iteration="$(echo "${git_desc}" | sed -e 's|^[^-]*-||g' -e 's|-[^-]*$||g')"
-hash=$(git rev-parse HEAD)
-description=$(lein print :description)
-url=$(lein print :url)
-
-cat > target/manifest << MANIFEST
-name=${name}
-version=${version}
-basic_version=${basic_version}
-branch=${branch}
-builddate=${builddate}
-git_desc=${git_desc}
-description=${description}
-previous_version=${previous_version}
-iteration=${iteration}
-hash=${hash}
-url=${url}
-MANIFEST
-
+#native-image --enable-url-protocols=http,https -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
 native-image -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
 
 mkdir -p target/graal
