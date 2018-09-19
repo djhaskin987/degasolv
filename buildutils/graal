@@ -1,6 +1,6 @@
 #!/bin/sh
 export POSIXLY_CORRECT=1
-set -exou pipefail
+set -ex
 
 . target/manifest
 
