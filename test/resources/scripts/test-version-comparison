@@ -41,10 +41,19 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
 
 output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
-    --search-strat depth-first \
     -R ${PWD}/index.dsrepo \
     -V maven \
-    --requirement "a<=1.0.0")
+    --requirement "a>1.0.0")
+
+printf '%s\n' "${output}"
+
+echo "${output}" | grep -qE '==1\.0\.0-1 @'
+
+output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    -V maven \
+    --requirement "a<1.0.0-1")
 
 printf '%s\n' "${output}"
 
@@ -52,10 +61,9 @@ echo "${output}" | grep -qE '==1\.0\.0 @'
 
 output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
-    --search-strat depth-first \
     -R ${PWD}/index.dsrepo \
     -V semver \
-    --requirement "a<=1.0.0")
+    --requirement "a<1.0.0")
 
 printf '%s\n' "${output}"
 
@@ -63,25 +71,8 @@ echo "${output}" | grep -qE '==1\.0\.0-1 @'
 
 output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
-    --search-strat depth-first \
     -R ${PWD}/index.dsrepo \
-    --requirement "a")
-
-printf '%s\n' "${output}"
-
-echo "${output}" | grep -qE '==1\.0\.0-1 @'
-
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    generate-repo-index \
-    -d $PWD \
-    -V semver \
-    -I $PWD/index.dsrepo
-
-output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
-    resolve-locations \
-    --search-strat depth-first \
-    -R ${PWD}/index.dsrepo \
-    --requirement "a")
+    --requirement "a>1.0.0-1")
 
 printf '%s\n' "${output}"
 
