@@ -113,10 +113,10 @@ workflows:
       - script_tests
       - package_ubuntu16
       - package_ubuntu18
+      - package_centos7
       - test_ubuntu_package:
           requires:
             - package_ubuntu16
-      - package_centos7:
       - test_centos_package:
           requires:
             - package_centos7
