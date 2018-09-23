@@ -171,7 +171,7 @@ workflows:
             - package_ubuntu16
       - test_ubuntu18_package:
           requires:
-            - package_ubuntu16
+            - package_ubuntu18
       - test_centos7_package:
           requires:
             - package_centos7
