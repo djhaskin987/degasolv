@@ -47,7 +47,10 @@ jobs:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
-      - run: buildutils/package deb
+      - run:
+          name: "Package debian for Ubuntu 16"
+          command: buildutils/package deb
+          no_output_timeout: 30m
       - persist_to_workspace:
           root: .
           paths:
@@ -68,7 +71,10 @@ jobs:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
-      - run: buildutils/package deb
+      - run:
+          name: "Package debian for Ubuntu 18"
+          command: buildutils/package deb
+          no_output_timeout: 30m
       - persist_to_workspace:
           root: .
           paths:
@@ -89,7 +95,10 @@ jobs:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
-      - run: buildutils/package rpm
+      - run:
+          name: "Package debian for CentOS 7"
+          command: buildutils/package rpm
+          no_output_timeout: 30m
       - persist_to_workspace:
           root: .
           paths:
