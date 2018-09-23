@@ -75,15 +75,17 @@ jobs:
           name: "Package debian for Ubuntu 18"
           command: buildutils/package deb
           no_output_timeout: 30m
+      - run: mv target/package target/package_u18
+      - run: mv target/graal target/graal_u18
       - persist_to_workspace:
           root: .
           paths:
-            - target/package/*.deb
+            - target/package_u18/*.deb
       - store_artifacts:
-          path: target/package/
+          path: target/package_u18/
           destination: package_u18/
       - store_artifacts:
-          path: target/graal/
+          path: target/graal_u18/
           destination: graal_u18/
 
   package_centos7:
@@ -99,30 +101,45 @@ jobs:
           name: "Package debian for CentOS 7"
           command: buildutils/package rpm
           no_output_timeout: 30m
+      - run: mv target/package target/package_c7
+      - run: mv target/graal target/graal_c7
       - persist_to_workspace:
           root: .
           paths:
-            - target/package/*.rpm
+            - target/package_c7/*.rpm
       - store_artifacts:
-          path: target/package/
+          path: target/package_c7/
           destination: package_c7/
       - store_artifacts:
-          path: target/graal/
+          path: target/graal_c7/
           destination: graal_c7/
 
-  test_ubuntu_package:
+  test_ubuntu16_package:
     docker:
-      - image: djhaskin987/test-ubuntu-installer:latest
+      - image: djhaskin987/test-ubuntu-installer:ubuntu16
     version: 2
     steps:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_u16 target/package
+      - run: buildutils/test-install-package-ubuntu
+
+  test_ubuntu18_package:
+    docker:
+      - image: djhaskin987/test-ubuntu-installer:ubuntu18
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_u18 target/package
       - run: buildutils/test-install-package-ubuntu
 
 
-  test_centos_package:
+  test_centos7_package:
     docker:
       - image: bzohdy/centos-sudo:latest
     version: 2
@@ -131,6 +148,7 @@ jobs:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_c7 target/package
       - run: buildutils/test-install-package-centos
 
 workflows:
@@ -148,9 +166,12 @@ workflows:
       - package_centos7:
           requires:
             - lein_tests
-      - test_ubuntu_package:
+      - test_ubuntu16_package:
           requires:
             - package_ubuntu16
-      - test_centos_package:
+      - test_ubuntu18_package:
+          requires:
+            - package_ubuntu16
+      - test_centos7_package:
           requires:
             - package_centos7
