@@ -27,6 +27,7 @@ Fork Degasolv on Github:
    Code of Conduct <code-of-conduct>
    Contributing Guide <contributing>
    Authors and Contributions <authors>
+   3rd Party Licenses <3rd-party-licenses>
 
 Indices and tables
 ******************
