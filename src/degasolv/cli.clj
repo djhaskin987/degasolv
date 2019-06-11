@@ -4,7 +4,7 @@
     [clojure.data.json :as json]
     [clojure.edn :as edn]
     [clojure.set :as st]
-    [clojure.spec :as s]
+    [clojure.spec.alpha:as s]
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts summarize]]
     [clojure.java.io :as io]

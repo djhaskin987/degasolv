@@ -399,6 +399,23 @@ Clojure
 
 .. _Clojure Programming Language: https://github.com/clojure/clojure/releases/tag/clojure-1.10.1
 
+spec.alpha
+++++++++++
+
++------------------------------+--------------------------------------+
+| Software                     | `spec.alpha`_                        |
++------------------------------+--------------------------------------+
+| Author(s)                    | Rich Hickey and Contributors         |
++------------------------------+--------------------------------------+
+| License type                 | Eclipse Public License 1.0           |
++------------------------------+--------------------------------------+
+| Version of software          | 0.2.176                              |
++------------------------------+--------------------------------------+
+| Degasolv version introduced  | 1.0.2                                |
++------------------------------+--------------------------------------+
+
+.. _spec.alpha: https://github.com/clojure/spec.alpha
+
 Serovers
 ++++++++
 

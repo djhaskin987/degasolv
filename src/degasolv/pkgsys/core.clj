@@ -1,7 +1,7 @@
 (ns degasolv.pkgsys.core
   (:require
     [degasolv.util :refer :all]
-    [clojure.spec :as s]
+    [clojure.spec.alpha:as s]
     [degasolv.resolver :as r :refer :all]
     [serovers.core :as vers]
     [clojure.java.io :as io]
