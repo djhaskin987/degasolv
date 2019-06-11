@@ -21,6 +21,8 @@ Added
 
 - For #15, added ability to specify output format for ``display-config``.
 
+- Added :ref:`3rd Party Licenses <3rd-party-licenses>` document
+
 Changed
 +++++++
 
