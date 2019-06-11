@@ -226,8 +226,19 @@
 (defn-
   display-config!
   [options arguments]
-  (pprint/pprint
-   (assoc options :arguments arguments)))
+  (let [result-info
+        {
+         :command "display-config"
+         :options options
+         :arguments arguments
+         }]
+      (case (:output-format options)
+           "json"
+           (println (json/write-str result-info :escape-slash false))
+           "edn"
+           (println (pr-str result-info))
+           "plain"
+           (pprint/pprint result-info))))
 
 (defn- resolver-error
   [problems]
@@ -808,7 +819,7 @@
       (when (nil? subcmd-cli)
         (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments]}
-            (parseplz! subcommand (rest arguments) (get subcommand-cli subcommand))]
+            (parseplz! subcommand (rest arguments) subcmd-cli)]
         (let [config-files
               (if (empty? (:config-files global-options))
                        [{:file (io/file "./degasolv.edn")

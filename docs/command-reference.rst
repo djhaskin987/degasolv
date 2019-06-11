@@ -437,6 +437,11 @@ subcommand. This enables the user to print out the effective
 configuration resulting from multiple config files as well
 as any options that might be given on the CLI.
 
+As of version 2.0.0, ``display-config`` honors the setting of
+``--output-format``, if given in the configuration or on the command line: It
+will output JSON if set to ``json``, EDN if set to ``edn`` or what it printed
+before version 2.0.0 (pretty EDN) if set to ``plain``.
+
 .. _generate-card-options:
 
 CLI for ``generate-card``

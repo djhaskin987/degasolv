@@ -17,12 +17,14 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
-- Documentation saying what return codes are given and what they mean
+- Documentation saying what return codes are given and what they mean.
+
+- For #15, added ability to specify output format for ``display-config``.
 
 Changed
 +++++++
 
-- Return code for ``resolve-locations`` changed to 3 when dependency
+- For #13, return code for ``resolve-locations`` changed to 3 when dependency
   resolutions occur to distinguish them from normal "you got the argument
   string wrong" errors
 
@@ -48,6 +50,9 @@ Changed
 
 Fixed
 +++++
+
+- Fixed bug where ``display-config`` didn't allow the user
+  to specify valid options for other things, now it does
 
 - Fixed bug where index.dsrepo didn't generate anything except
   an empty map inside the file. This was *completely* broken.
