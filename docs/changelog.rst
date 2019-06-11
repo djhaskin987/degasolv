@@ -51,6 +51,8 @@ Changed
 Fixed
 +++++
 
+- Fixed #14, "Degasolv pulls in X"
+
 - Fixed bug where ``display-config`` didn't allow the user
   to specify valid options for other things, now it does
 

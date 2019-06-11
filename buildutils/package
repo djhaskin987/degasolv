@@ -5,6 +5,13 @@ set -ex
 type="${1}"
 shift
 
+if [ "${type}" = "rpm" ]
+then
+    dep="java-headless"
+else
+    dep="java-runtime"
+fi
+
 . target/manifest
 
 native-image --verbose --enable-url-protocols=http,https -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
