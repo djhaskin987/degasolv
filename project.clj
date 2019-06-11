@@ -8,7 +8,7 @@
                  [com.velisco/tagged "0.5.0"]
                  [org.clojure/clojure "1.10.1"]
                  [org.clojure/data.json "0.2.6"]
-                 [org.clojure/spec.alpha "0.2.176"]
+                 ;;[org.clojure/spec.alpha "0.2.176"]
                  [org.clojure/tools.cli "0.3.5"]
                  [serovers "1.6.2"]
                  ]
