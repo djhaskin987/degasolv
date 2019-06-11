@@ -17,8 +17,14 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+- Documentation saying what return codes are given and what they mean
+
 Changed
 +++++++
+
+- Return code for ``resolve-locations`` changed to 3 when dependency
+  resolutions occur to distinguish them from normal "you got the argument
+  string wrong" errors
 
 - Default ``--{enable|disable}-error-format`` set to ``enabled`` for
   :ref:`resolve-locations <enable-error-format-resolve>` and

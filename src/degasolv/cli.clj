@@ -360,7 +360,7 @@
                             :output-format output-format
                             :result (first result)}))))
         (if error-format
-          (out-exit 1
+          (out-exit 3
                     (case output-format
                       "json"
                       (json/write-str result-info :escape-slash false)
@@ -372,7 +372,7 @@
                                       {:subcommand "resolve-locations"
                                        :output-format output-format
                                        :result (first result)}))))
-          (exit 1 (resolver-error (:problems result-info))))))))
+          (exit 3 (resolver-error (:problems result-info))))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file meta]}

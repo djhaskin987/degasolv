@@ -78,7 +78,9 @@ Explanation of Options
 ++++++++++++++++++++++
 
 Degasolv parses global options before it parses subcommands or the options for
-subcommands; therefore, global options need to be specified first.
+subcommands; therefore, global options need to be specified first. If any
+option, whether global or for a subcommand is given incorrectly, the program
+exits with a return code of 1.
 
 Using Configuration Files
 *************************
@@ -866,8 +868,8 @@ resolve the requirements given at the command line. If successful, it
 exits with a return code of 0 and outputs the name of each package in
 the solution it has found, together with that package's location.
 
-If the command fails, a non-zero exit code is returned. The output from such
-a run might look like this::
+If the command fails because of dependency resolution problems, an exit code of
+3 is returned. The output from such a run might look like this::
 
   The resolver encountered the following problems:
 
@@ -1829,7 +1831,9 @@ Overview of ``query-repo``
 
 This subcommand queries a repository index or indices for
 packages. This comand is intended to be useful or debugging dependency
-problems.
+problems. If errors occur relative to finding packages in the repository,
+as opposed to errors occuring because incorrect arguments were given,
+a return code of 2 is returned to the calling program (likely a shell).
 
 Explanation of Options for ``query-repo``
 +++++++++++++++++++++++++++++++++++++++++
