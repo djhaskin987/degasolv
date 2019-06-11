@@ -377,9 +377,10 @@ exception as provided by Oracle in the LICENSE file that accompanied this code."
 Clojure and its Dependencies
 ----------------------------
 
-All of Clojure, the langauge in which Degasolv was written, and its
-dependencies essentially use the same license: The eclipse public license 1.0 .
-It is presented below along with the names of the libraries used in Degasolv.
+All of Clojure, the language in which Degasolv was written, and its
+dependencies essentially use the same license: The Eclipse Public License,
+version 1.0 .  It is presented below along with the names of the libraries used
+in Degasolv.
 
 Clojure
 +++++++
