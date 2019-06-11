@@ -3,7 +3,7 @@
 Degasolv Command Reference
 ==========================
 
-This article describes the Degasolv CLI, what subcommands and options
+This guide describes the Degasolv CLI, what subcommands and options
 there are, and what they are for.
 
 Some Notes on Versions
@@ -34,7 +34,7 @@ Top-Level CLI
 Top-Level Usage Page
 ++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar -h`` will yield
+Running ``degasolv -h`` will yield
 a page that looks something like this::
 
   Usage: degasolv <options> <command> <<command>-options>
@@ -57,6 +57,13 @@ a page that looks something like this::
     - query-repo
 
   Simply run `degasolv <command> -h` for help information.
+
+
+.. note:: In this guide, for brevity, the reference is presented
+  as if the command to execute degasolv were simply ``degasolv`` rather
+  than the more correct ``java -jar degasolv-<version>-standalone.jar``. A
+  bash or batch script can easily be made to turn one command into the other,
+  and the change was made to the former form for clarity.
 
 .. _specifying-files:
 
@@ -109,7 +116,7 @@ in the `EDN format`_. As a rule, any option for any sub-command may be
 given a value from this config file, using the keyword form of the
 argument. For example, instead of running this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
      generate-repo-index --search-directory /some/directory \
      [...]
 
@@ -122,7 +129,7 @@ A configuration file that looks like this could be used instead::
 
 With this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/config.edn" \
     generate-repo-index [...]
 
@@ -135,7 +142,7 @@ configuration file keys are specified using plural nouns (e.g.,
 So, instead of using this
 command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     resolve-locations \
     --disable-alternatives \
     --present-package "x==0.1" \
@@ -161,7 +168,7 @@ This configuration file might be used::
 
 With this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/config.edn" \
     resolve-locations \
     [...]
@@ -202,7 +209,7 @@ For example, instead of using this config file::
 
 With this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/config.edn" \
     resolve-locations \
     [...]
@@ -223,7 +230,7 @@ This JSON config file may be used instead::
 
 The command to use the above JSON config file would look like this::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --json-config "$PWD/config.json" \
     resolve-locations \
     [...]
@@ -245,7 +252,7 @@ option specified in the latter specified configuration file will be used.
 
 As an example, consider the following `display-config command`_::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/a.edn" \
     --json-config "$PWD/j.json" \
     --config-file "$PWD/b.edn" \
@@ -315,7 +322,7 @@ site config file, then serving that config file internally via HTTP(S) would
 allow all instances of Degasolv to point to a site-wide file, together with a
 build-specific config file, as in this example::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
       --config-file "https://nas.example.com/degasolv/site.edn" \
       --config-file "./degasolv.edn" \
       generate-card
@@ -390,7 +397,7 @@ CLI for ``display-config``
 Usage Page for ``display-config``
 +++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar display-config -h``
+Running ``degasolv display-config -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> display-config <display-config-options>
@@ -450,7 +457,7 @@ CLI for ``generate-card``
 Usage Page for ``generate-card``
 ++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
+Running ``degasolv generate-card -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> generate-card <generate-card-options>
@@ -664,7 +671,7 @@ CLI for ``generate-repo-index``
 Usage Page for ``generate-repo-index``
 ++++++++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar generate-repo-index -h``
+Running ``degasolv generate-repo-index -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
@@ -797,11 +804,11 @@ to a repository index file in the same build script::
 
   #!/bin/sh
 
-  java -jar degasolv-<version>-standalone.jar generate-card \
+  degasolv generate-card \
     -i "a" -v "1.0.0" -l "http://example.com/repo/a-1.0.0.zip" \
     -C "a-1.0.0.zip.dscard"
 
-  java -jar degasolv-<version>-standalone.jar generate-repo-index \
+  degasolv generate-repo-index \
     -I "new-index.dsrepo" -a "http://example.com/repo/index.dsrepo" \
     -d "."
 
@@ -829,7 +836,7 @@ CLI for ``resolve-locations``
 Usage Page for ``resolve-locations``
 ++++++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar resolve-locations -h``
+Running ``degasolv resolve-locations -h``
 returns a page that looks something like this::
 
     Usage: resolve-locations <options>
@@ -1620,14 +1627,14 @@ Or, in the case of naive apt repositories::
 
 For example, I might use the repository option like this::
 
-  java -jar degasolv-<version>-standalone.jar resolve-locations \
+  degasolv resolve-locations \
       -R "binary-amd64 https://example.com/ubuntu/ /"
       -t "apt" \
       --requirement "ubuntu-desktop"
 
 Or this::
 
-  java -jar degasolv-<version>-standalone.jar resolve-locations \
+  degasolv resolve-locations \
       -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
       -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
       -t "apt" \
@@ -1806,7 +1813,7 @@ CLI for ``query-repo``
 Usage Page for ``query-repo``
 +++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar query-repo -h`` returns a
+Running ``degasolv query-repo -h`` returns a
 page that looks something like this::
 
   Usage: degasolv <options> query-repo <query-repo-options>

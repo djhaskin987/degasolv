@@ -24,6 +24,9 @@ Added
 Changed
 +++++++
 
+- In the docs, ``java -jar degasolv-<version>-standalone.jar`` changed to
+  ``degasolv`` with added note for clarity
+
 - For #13, return code for ``resolve-locations`` changed to 3 when dependency
   resolutions occur to distinguish them from normal "you got the argument
   string wrong" errors
