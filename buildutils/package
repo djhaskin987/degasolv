@@ -9,7 +9,7 @@ if [ "${type}" = "rpm" ]
 then
     dep="java-headless"
 else
-    dep="java-runtime"
+    dep="default-jre-headless"
 fi
 
 . target/manifest
