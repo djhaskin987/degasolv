@@ -374,12 +374,12 @@ exception as provided by Oracle in the LICENSE file that accompanied this code."
     the library, but you are not obligated to do so.  If you do not wish to do
     so, delete this exception statement from your version.
 
-Clojure and its Dependencies
-----------------------------
+Clojure and Clojure Libraries
+-----------------------------
 
-All of Clojure, the language in which Degasolv was written, and its
-dependencies essentially use the same license: The Eclipse Public License,
-version 1.0 .  It is presented below along with the names of the libraries used
+All of Clojure, the language in which Degasolv was written, and the clojure
+libraries it uses all use the same license: The Eclipse Public License,
+version 1.0. It is presented below along with the names of the libraries used
 in Degasolv.
 
 Clojure
@@ -390,8 +390,6 @@ Clojure
 +------------------------------+--------------------------------------+
 | Author(s)                    | Rich Hickey and Contributors         |
 +------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License 1.0           |
-+------------------------------+--------------------------------------+
 | Version of software          | 1.10.1                               |
 +------------------------------+--------------------------------------+
 | Degasolv version introduced  | 1.0.2                                |
@@ -399,32 +397,13 @@ Clojure
 
 .. _Clojure Programming Language: https://github.com/clojure/clojure/releases/tag/clojure-1.10.1
 
-spec.alpha
-++++++++++
-
-+------------------------------+--------------------------------------+
-| Software                     | `spec.alpha`_                        |
-+------------------------------+--------------------------------------+
-| Author(s)                    | Rich Hickey and Contributors         |
-+------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License 1.0           |
-+------------------------------+--------------------------------------+
-| Version of software          | 0.2.176                              |
-+------------------------------+--------------------------------------+
-| Degasolv version introduced  | 1.0.2                                |
-+------------------------------+--------------------------------------+
-
-.. _spec.alpha: https://github.com/clojure/spec.alpha
-
-Serovers
+serovers
 ++++++++
 
 +------------------------------+--------------------------------------+
-| Software                     | `Serovers`_                          |
+| Software                     | `serovers`_                          |
 +------------------------------+--------------------------------------+
 | Author(s)                    | Daniel Jay Haskin                    |
-+------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License               |
 +------------------------------+--------------------------------------+
 | Version of software          | 1.6.2                                |
 +------------------------------+--------------------------------------+
@@ -442,8 +421,6 @@ tools.cli
 +------------------------------+--------------------------------------+
 | Author(s)                    | Rich Hickey and contributors         |
 +------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License 1.0           |
-+------------------------------+--------------------------------------+
 | Version of software          | 0.3.5                                |
 +------------------------------+--------------------------------------+
 | Degasolv version introduced  | 1.0.2                                |
@@ -459,8 +436,6 @@ tagged
 +------------------------------+--------------------------------------+
 | Author(s)                    | Stephen E. Miner                     |
 +------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License               |
-+------------------------------+--------------------------------------+
 | Version of software          | 0.5.0                                |
 +------------------------------+--------------------------------------+
 | Degasolv version introduced  | 1.0.2                                |
@@ -475,8 +450,6 @@ data.json
 | Software                     | `data.json`_                         |
 +------------------------------+--------------------------------------+
 | Author(s)                    | Stuart Sierra                        |
-+------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License 1.0           |
 +------------------------------+--------------------------------------+
 | Version of software          | 0.2.6                                |
 +------------------------------+--------------------------------------+
@@ -494,8 +467,6 @@ core.match
 +------------------------------+--------------------------------------+
 | Author(s)                    | David Nolen, Ambrose Bonnaire-       |
 |                              | Sergeant, Rich Hickey & contributors |
-+------------------------------+--------------------------------------+
-| License type                 | Eclipse Public License 1.0           |
 +------------------------------+--------------------------------------+
 | Version of software          | 0.3.0-alpha5                         |
 +------------------------------+--------------------------------------+
