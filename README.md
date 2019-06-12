@@ -1,4 +1,4 @@
-![Degasolv Logo](https://github.com/djhaskin987/degasolv/raw/develop/Degasolv.png)
+![Degasolv Logo](https://github.com/djhaskin987/degasolv/raw/develop/Degasolv-small.png)
 
 
 # Degasolv

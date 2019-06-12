@@ -5,7 +5,7 @@ set -exuo
 . target/manifest
 
 find /tmp
-sudo yum install -y /tmp/workspace/target/package/*.rpm
+sudo yum install -y target/package/*.rpm
 java -version
 rpm -qi degasolv
 rpm -q --list degasolv

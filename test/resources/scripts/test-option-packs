@@ -9,7 +9,7 @@ rm -rf "${test_home}"
 mkdir -p "${test_home}"
 
 name=$(lein print :name | sed 's|"||g' )
-version=$(lein print :version | sed 's|"||g')   
+version=$(lein print :version | sed 's|"||g')
 
 cat > ${test_home}/test-option-packs.edn <<EDN
 {

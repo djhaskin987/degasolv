@@ -1,25 +1,24 @@
 (ns degasolv.cli
   (:require
-   [clojure.data.json :as json]
-   [clojure.edn :as edn]
-   [clojure.pprint :as pprint]
-   [clojure.set :as st]
-   [clojure.spec :as s]
-   [clojure.string :as string]
-   [clojure.tools.cli :refer [parse-opts summarize]]
-   [degasolv.pkgsys.apt :as apt-pkg]
-   [degasolv.pkgsys.core :as degasolv-pkg]
-   [degasolv.pkgsys.subproc :as subproc-pkg]
-   [degasolv.resolver :as r :refer :all]
-   [degasolv.util :refer :all]
-   [me.raynes.fs :as fs]
-   [miner.tagged :as tag]
-   [serovers.core :as vers]
-   [tupelo.core :as t])
+    [clojure.pprint :as pprint]
+    [clojure.data.json :as json]
+    [clojure.edn :as edn]
+    [clojure.set :as st]
+    [clojure.spec.alpha :as s]
+    [clojure.string :as string]
+    [clojure.tools.cli :refer [parse-opts summarize]]
+    [clojure.java.io :as io]
+    [degasolv.pkgsys.apt :as apt-pkg]
+    [degasolv.pkgsys.core :as degasolv-pkg]
+    [degasolv.pkgsys.subproc :as subproc-pkg]
+    [degasolv.resolver :as r :refer :all]
+    [degasolv.util :refer :all]
+    [miner.tagged :as tag]
+    [serovers.core :as vers])
   (:gen-class))
 
 (defn- exit [status msg]
-  (.println *err* msg)
+  (.println ^java.io.PrintWriter *err* msg)
   (System/exit status))
 
 (defn- out-exit [status msg]
@@ -100,7 +99,7 @@
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
              :version-comparison "debian"}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
-               :version-comparison "maven"}
+               :version-comparison "semver"}
    "subproc" {:constructor subproc-pkg/make-slurper
               :required-arguments {:subproc-exe ["-x" "--subproc-exe"]}}})
 
@@ -227,8 +226,19 @@
 (defn-
   display-config!
   [options arguments]
-  (pprint/pprint
-   (assoc options :arguments arguments)))
+  (let [result-info
+        {
+         :command "display-config"
+         :options options
+         :arguments arguments
+         }]
+      (case (:output-format options)
+           "json"
+           (println (json/write-str result-info :escape-slash false))
+           "edn"
+           (println (pr-str result-info))
+           "plain"
+           (pprint/pprint result-info))))
 
 (defn- resolver-error
   [problems]
@@ -321,7 +331,7 @@
              version-comparator)
             (catch Exception e (exit 1 (str
                                         "Error while evaluating repositories: "
-                                        (.getMessage e)))))
+                                        (.getMessage ^java.lang.Exception e)))))
           result
           (resolve-dependencies
            requirement-data
@@ -361,7 +371,7 @@
                             :output-format output-format
                             :result (first result)}))))
         (if error-format
-          (out-exit 1
+          (out-exit 3
                     (case output-format
                       "json"
                       (json/write-str result-info :escape-slash false)
@@ -373,7 +383,7 @@
                                       {:subcommand "resolve-locations"
                                        :output-format output-format
                                        :result (first result)}))))
-          (exit 1 (resolver-error (:problems result-info))))))))
+          (exit 3 (resolver-error (:problems result-info))))))))
 
 (defn- generate-card!
   [{:keys [id version location requirements card-file meta]}
@@ -458,7 +468,7 @@
 (def subcommand-option-defaults
   {
    :alternatives true
-   :error-format false
+   :error-format true
    :card-file "./out.dscard"
    :conflict-strat "exclusive"
    :index-file "index.dsrepo"
@@ -470,11 +480,16 @@
    :search-directory "."
    :search-strat "breadth-first"
    :subproc-out-format "json"
-   :list-strat "as-set"
+   :list-strat "lazy"
    })
 
 (def available-option-packs
   {
+   "v1"
+   {
+    :error-format false
+    :list-strat "as-set"
+    }
    "multi-version-mode"
    {
     :conflict-strat "inclusive"
@@ -580,9 +595,9 @@
            ["-d" "--search-directory DIR" "Find degasolv cards here"
             :default nil
             :default-desc (str (:search-directory subcommand-option-defaults))
-            :validate [#(and
-                         (fs/directory? %)
-                         (fs/exists? %))
+            :validate [#(let [f (io/file %)]
+                          (and (.isDirectory ^java.io.File f)
+                               (.exists ^java.io.File f)))
                        "Must be a directory which exists on the file system."]]
            ["-I" "--index-file FILE"
             "The name of the repo file"
@@ -591,7 +606,7 @@
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
-            :default-desc "maven"
+            :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]]}
 
@@ -612,9 +627,9 @@
             :validate [#(or (= "breadth-first" %)
                             (= "depth-first" %))
                        "Search strategy must either be 'breadth-first' or 'depth-first'."]]
-           ["-g" "--enable-error-format" "Enable output format for errors"
+           ["-g" "--enable-error-format" "Enable output format for errors (default)"
             :assoc-fn (fn [m k v] (assoc m :error-format true))]
-           ["-G" "--disable-error-format" "Disable output format for errors (default)"
+           ["-G" "--disable-error-format" "Disable output format for errors"
             :assoc-fn (fn [m k v] (assoc m :error-format false))]
            ["-f" "--conflict-strat STRAT"
             "May be 'exclusive', 'inclusive' or 'prioritized'."
@@ -692,14 +707,14 @@
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
-            :default-desc "maven"
+            :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
            ["-x" "--subproc-exe PATH"
             "Path to the executable to call to get package data"
-            :validate [#(and
-                         (fs/exists? %)
-                         (fs/executable? %))
+            :validate [#(let [f (io/file %)]
+                          (and (.exists ^java.io.File f)
+                               (.canExecute ^java.io.File f)))
                        "Must be an executable file which exists on the file system."]]
            ]}
     "query-repo"
@@ -708,9 +723,9 @@
      :required-arguments {:repositories ["-R" "--repository"]
                           :query ["-q" "--query"]}
      :cli [
-           ["-g" "--enable-error-format" "Enable output format for errors"
+           ["-g" "--enable-error-format" "Enable output format for errors (default)"
             :assoc-fn (fn [m k v] (assoc m :error-format true))]
-           ["-G" "--disable-error-format" "Disable output format for errors (default)"
+           ["-G" "--disable-error-format" "Disable output format for errors"
             :assoc-fn (fn [m k v] (assoc m :error-format false))]
            ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
             :default nil
@@ -746,7 +761,7 @@
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
-            :default-desc "maven"
+            :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
            ]
@@ -768,24 +783,14 @@
                ""))
 
 (defn get-config [configs]
-  (try
-    (as-> configs it
-      (map (fn [{:keys [file read-fn]}]
-             {:string (default-slurp file)
-              :read-fn read-fn}) it)
-      (map (fn [{:keys [string read-fn]}]
-             (read-fn string))
-           it)
-      (reduce merge it))
-    (catch Exception e
-      (binding [*out* *err*]
-        (println "Warning: problem reading config files, they were not used:"
-                 (str "\n"
-                      (string/join
-                       \newline
-                       (map #(str "  - " %)
-                            (map :file configs))))))
-      (hash-map))))
+  (as-> configs it
+        (map (fn [{:keys [file read-fn]}]
+               (try
+                 (read-fn (default-slurp file))
+                 (catch Exception e
+                   (hash-map))))
+               it)
+             (reduce merge it)))
 
 
 (defn -main [& args]
@@ -797,7 +802,7 @@
           subcmd-cli (if (not (= subcommand "display-config"))
                        (get subcommand-cli subcommand)
                        ; this grabs all other options as part of display-config
-                       (t/it-> subcommand-cli
+                       (as-> subcommand-cli it
                                (vals it)
                                (map :cli it)
                                (filter #(not (nil? %)) it)
@@ -814,10 +819,10 @@
       (when (nil? subcmd-cli)
         (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
       (let [{:keys [options arguments]}
-            (parseplz! subcommand (rest arguments) (get subcommand-cli subcommand))]
+            (parseplz! subcommand (rest arguments) subcmd-cli)]
         (let [config-files
               (if (empty? (:config-files global-options))
-                       [{:file (fs/file (fs/expand-home "./degasolv.edn"))
+                       [{:file (io/file "./degasolv.edn")
                          :read-fn tag/read-string}]
                 (:config-files global-options))
               config
@@ -828,8 +833,8 @@
                 (into [] (:option-packs config))
                 cli-option-packs)
               effective-options
-              (t/it->
-               selected-option-packs
+              (as->
+               selected-option-packs it
                (mapv available-option-packs it)
                (into [subcommand-option-defaults] it)
                (conj it (dissoc config :option-packs))

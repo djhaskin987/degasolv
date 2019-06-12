@@ -7,7 +7,6 @@
             [clojure.walk :as walk]
             [miner.tagged :as tag]
             [degasolv.util :refer :all]
-            [tupelo.core :as t]
             [degasolv.resolver :as r :refer :all])
   (:import (java.util.zip GZIPInputStream)))
 

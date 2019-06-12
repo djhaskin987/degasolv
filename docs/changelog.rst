@@ -17,12 +17,59 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+- Documentation saying what return codes are given and what they mean.
+
+- For #15, added ability to specify output format for ``display-config``.
+
+- Added :ref:`3rd Party Licenses <3rd-party-licenses>` document
+
 Changed
 +++++++
+
+- In the docs, ``java -jar degasolv-<version>-standalone.jar`` changed to
+  ``degasolv`` with added note for clarity
+
+- For #13, return code for ``resolve-locations`` changed to 3 when dependency
+  resolutions occur to distinguish them from normal "you got the argument
+  string wrong" errors
+
+- Default ``--{enable|disable}-error-format`` set to ``enabled`` for
+  :ref:`resolve-locations <enable-error-format-resolve>` and
+  :ref:`query-repo <enable-error-format-query>`.
+
+- Default for ``--list-strat`` option for :ref:`resolve-locations
+  <list-strategy>` set to ``lazy``, a much saner default.
+
+- Option pack ``v1`` :ref:`added <option-pack>` to help administrators
+  keep compatibility with version 1 of degasolv if required.
+
+- Default for the ``--version-comparison`` option when ``--package-system``
+  is ``degasolv`` set to ``semver`` for
+  :ref:`generate-repo-index <generate-repo-index>` (option :ref:`here
+  <version-comparison-generate>`), :ref:`resolve-locations
+  <resolve-locations>` (option :ref:`here <version-comparison-resolve>`)
+  and :ref:`query-repo <query-repo>` (option :ref:`here
+  <version-comparison-query>`).
+
+- Removed less-than-useful warning about absent config files.
 
 Fixed
 +++++
 
+- Fixed #14, "Degasolv pulls in X"
+
+- Fixed bug where ``display-config`` didn't allow the user
+  to specify valid options for other things, now it does
+
+- Fixed bug where index.dsrepo didn't generate anything except
+  an empty map inside the file. This was *completely* broken.
+
+- Fixed #6, "If one config file fails to load, the rest do as well"
+
+- Fixed #9, "Heading for 'Specifying Subproc Executable' is wrong in docs"
+
+- Fixed #10, "How do you specify requirements of a package (deps) in the output
+  of a subproc to degasolv?"
 
 `1.12.1`_
 ---------

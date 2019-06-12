@@ -1,26 +1,26 @@
-(defproject degasolv/degasolv "1.12.1"
+(defproject degasolv/degasolv "2.0.0"
   :description "Dependency tracker with an eye toward building and shipping software."
   :url "http://github.com/djhaskin987/degasolv"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main degasolv.cli
   :dependencies [
-                 [org.clojure/clojure "1.9.0-alpha14"]
-                 [serovers "1.6.0"]
-                 [org.clojure/tools.cli "0.3.5"]
-                 [me.raynes/fs "1.4.6"]
                  [com.velisco/tagged "0.5.0"]
-                 [tupelo "0.9.31"]
+                 [org.clojure/clojure "1.10.1"]
                  [org.clojure/data.json "0.2.6"]
+                 ;;[org.clojure/spec.alpha "0.2.176"]
+                 [org.clojure/tools.cli "0.3.5"]
+                 [serovers "1.6.2"]
                  ]
-  :plugins [[lein-print "0.1.0"]]
+  :plugins [[lein-licenses "0.2.2"]
+            [lein-print "0.1.0"]]
 ;;  :source-paths ["src/degasolv"]
 
               :java-source-paths ["src/java" "test/java"]
               :junit ["test/java"]
 
 
-
+  :global-vars {*warn-on-reflection* true}
 
   :test-selectors
   {
@@ -28,6 +28,14 @@
    }
   :profiles {
              :dev {
+                   :dependencies [
+                                  [org.clojure/core.match "0.3.0-alpha5"]
+                                  [org.clojure/clojure "1.10.1"]
+                                  [serovers "1.6.2"]
+                                  [org.clojure/tools.cli "0.3.5"]
+                                  [com.velisco/tagged "0.5.0"]
+                                  [org.clojure/data.json "0.2.6"]
+                                  ]
                    :plugins [[test2junit "1.3.3"]]
                    :test2junit-output-dir "target/test-results"
                    }

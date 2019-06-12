@@ -4,7 +4,6 @@
             [clojure.java.io :as io]
             [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]
-            [tupelo.core :as t]
             [serovers.core :as vers])
   (:import (java.util.zip GZIPInputStream)))
 
@@ -19,7 +18,7 @@
   [s]
   (if (empty? s)
     nil
-    (t/it-> s
+    (as-> s it
           (string/replace it #":(any|i386|amd64)" "")
           (string/replace it #"[ ()]" "")
           (string/replace it #"<<" "<")
@@ -33,7 +32,7 @@
 
 (defn lines-to-map
   [lines]
-  (t/it-> lines
+  (as-> lines it
         (map
           (fn [line]
             (let [[_ k v] (re-matches #"^([^:]+): +(.*)$" line)]
@@ -58,7 +57,7 @@
   [pkg url]
   (assoc! pkg
          :location
-         (t/it-> url
+         (as-> url it
                (str it "/" (:filename pkg))
                (string/replace
                  it
@@ -71,7 +70,7 @@
 
 (defn deb-to-degasolv-provides
   [s]
-  (t/it-> s
+  (as-> s it
         (string/replace it #"\p{Blank}" "")
         (string/split it #",")
         (into [] it)))
@@ -96,8 +95,8 @@
           (:depends pkg))
          restof-package)]
   (if (:provides pkg)
-    (t/it->
-      (deb-to-degasolv-provides (:provides pkg))
+    (as->
+      (deb-to-degasolv-provides (:provides pkg)) it
         (map
          #(into (->PackageInfo
                  %
@@ -113,8 +112,8 @@
 
 (defn apt-repo
   [url info]
-  (t/it->
-    info
+  (as->
+    info it
     (string/split it #"\n\n")
     (map
       (fn each-package
@@ -158,16 +157,16 @@
      (mapv
       (fn each-loc
            [loc]
-           (t/it->
-            loc
+           (as-> loc it
             (string/join "/" it)
-            (with-open
+            (let
               [in
                (->zip-input-stream
                 (io/input-stream it))]
-              (slurp in))
+              (try (slurp in)
+                (finally (.close ^java.io.InputStream in))))
             (apt-repo url it)))
-           (if (.contains dist "/")
+           (if (.contains ^java.lang.String dist "/")
              [[url
                dist
                "Packages.gz"]]

@@ -3,7 +3,7 @@
 Degasolv Command Reference
 ==========================
 
-This article describes the Degasolv CLI, what subcommands and options
+This guide describes the Degasolv CLI, what subcommands and options
 there are, and what they are for.
 
 Some Notes on Versions
@@ -34,7 +34,7 @@ Top-Level CLI
 Top-Level Usage Page
 ++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar -h`` will yield
+Running ``degasolv -h`` will yield
 a page that looks something like this::
 
   Usage: degasolv <options> <command> <<command>-options>
@@ -58,6 +58,13 @@ a page that looks something like this::
 
   Simply run `degasolv <command> -h` for help information.
 
+
+.. note:: In this guide, for brevity, the reference is presented
+  as if the command to execute degasolv were simply ``degasolv`` rather
+  than the more correct ``java -jar degasolv-<version>-standalone.jar``. A
+  bash or batch script can easily be made to turn one command into the other,
+  and the change was made to the former form for clarity.
+
 .. _specifying-files:
 
 A Note on Specifying Files
@@ -78,7 +85,9 @@ Explanation of Options
 ++++++++++++++++++++++
 
 Degasolv parses global options before it parses subcommands or the options for
-subcommands; therefore, global options need to be specified first.
+subcommands; therefore, global options need to be specified first. If any
+option, whether global or for a subcommand is given incorrectly, the program
+exits with a return code of 1.
 
 Using Configuration Files
 *************************
@@ -107,7 +116,7 @@ in the `EDN format`_. As a rule, any option for any sub-command may be
 given a value from this config file, using the keyword form of the
 argument. For example, instead of running this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
      generate-repo-index --search-directory /some/directory \
      [...]
 
@@ -120,7 +129,7 @@ A configuration file that looks like this could be used instead::
 
 With this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/config.edn" \
     generate-repo-index [...]
 
@@ -133,7 +142,7 @@ configuration file keys are specified using plural nouns (e.g.,
 So, instead of using this
 command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     resolve-locations \
     --disable-alternatives \
     --present-package "x==0.1" \
@@ -159,7 +168,7 @@ This configuration file might be used::
 
 With this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/config.edn" \
     resolve-locations \
     [...]
@@ -200,7 +209,7 @@ For example, instead of using this config file::
 
 With this command::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/config.edn" \
     resolve-locations \
     [...]
@@ -221,7 +230,7 @@ This JSON config file may be used instead::
 
 The command to use the above JSON config file would look like this::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --json-config "$PWD/config.json" \
     resolve-locations \
     [...]
@@ -243,7 +252,7 @@ option specified in the latter specified configuration file will be used.
 
 As an example, consider the following `display-config command`_::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
     --config-file "$PWD/a.edn" \
     --json-config "$PWD/j.json" \
     --config-file "$PWD/b.edn" \
@@ -313,7 +322,7 @@ site config file, then serving that config file internally via HTTP(S) would
 allow all instances of Degasolv to point to a site-wide file, together with a
 build-specific config file, as in this example::
 
-  java -jar degasolv-<version>-standalone.jar \
+  degasolv \
       --config-file "https://nas.example.com/degasolv/site.edn" \
       --config-file "./degasolv.edn" \
       generate-card
@@ -347,11 +356,19 @@ file, the option packs on the command line are used and the ones in
 the config file are ignored.
 
 The following option packs are supported in the current version:
+  - ``v1``: Added as of version 2.0.0 . Implies
+    ``--list-strat as-set`` and ``--disable-error-format``. This
+    pack was added to help support legacy deployments of degasolv.
+    It should be noted that to achieve full compatibility with degasolv
+    version 1, the argument ``--version-comparison maven`` should be used
+    as well as this option pack. It could not be included in the option
+    pack due to complications with the version comparison option and its
+    relationship to how the ``--package-system`` option is affected by it.
   - ``multi-version-mode``: Added as of version 1.7.0 . Implies
     ``--conflict-strat inclusive``,
     ``--resolve-strat fast``, and ``--disable-alternatives``.
   - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
-    ``--conflic-strat prioritized``,
+    ``--conflict-strat prioritized``,
     ``--resolve-strat fast``, and ``--disable-alternatives``.
 
 Print the Help Page
@@ -380,7 +397,7 @@ CLI for ``display-config``
 Usage Page for ``display-config``
 +++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar display-config -h``
+Running ``degasolv display-config -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> display-config <display-config-options>
@@ -406,7 +423,7 @@ returns a page that looks something like this::
         --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
         --location true                          URL or filepath of the package
         --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
-        --version-comparison CMP  maven          May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
+        --version-comparison CMP  semver         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
         --version true                           Version of the package
     -h, --help                                   Print this help page
 
@@ -427,6 +444,11 @@ subcommand. This enables the user to print out the effective
 configuration resulting from multiple config files as well
 as any options that might be given on the CLI.
 
+As of version 2.0.0, ``display-config`` honors the setting of
+``--output-format``, if given in the configuration or on the command line: It
+will output JSON if set to ``json``, EDN if set to ``edn`` or what it printed
+before version 2.0.0 (pretty EDN) if set to ``plain``.
+
 .. _generate-card-options:
 
 CLI for ``generate-card``
@@ -435,7 +457,7 @@ CLI for ``generate-card``
 Usage Page for ``generate-card``
 ++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar generate-card -h``
+Running ``degasolv generate-card -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> generate-card <generate-card-options>
@@ -649,7 +671,7 @@ CLI for ``generate-repo-index``
 Usage Page for ``generate-repo-index``
 ++++++++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar generate-repo-index -h``
+Running ``degasolv generate-repo-index -h``
 returns a page that looks something like this::
 
   Usage: degasolv <options> generate-repo-index <generate-repo-index-options>
@@ -741,10 +763,10 @@ created within the index. These lists are sorted in descending order
 by version number, so that the latest version of a given package is
 tried first when resolving dependencies.
 
-This option allows the operator to change what version comparison
-algorithm is used. By default, the algorithm is ``maven``. May be
-``maven``, ``debian``, ``maven``, ``naive``, ``python``, ``npm``,
-``rubygem``, or ``semver``.
+This option allows the operator to change what version comparison algorithm is
+used.  May be ``debian``, ``maven``, ``naive``, ``python``, ``npm``,
+``rubygem``, or ``semver``.  As of version 2.0, the default algorithm is
+``semver``.
 
 .. caution:: This is one of those options that should not be used
            unless the operator has a good reason, but it is available
@@ -782,11 +804,11 @@ to a repository index file in the same build script::
 
   #!/bin/sh
 
-  java -jar degasolv-<version>-standalone.jar generate-card \
+  degasolv generate-card \
     -i "a" -v "1.0.0" -l "http://example.com/repo/a-1.0.0.zip" \
     -C "a-1.0.0.zip.dscard"
 
-  java -jar degasolv-<version>-standalone.jar generate-repo-index \
+  degasolv generate-repo-index \
     -I "new-index.dsrepo" -a "http://example.com/repo/index.dsrepo" \
     -d "."
 
@@ -814,7 +836,7 @@ CLI for ``resolve-locations``
 Usage Page for ``resolve-locations``
 ++++++++++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar resolve-locations -h``
+Running ``degasolv resolve-locations -h``
 returns a page that looks something like this::
 
     Usage: resolve-locations <options>
@@ -826,10 +848,10 @@ returns a page that looks something like this::
       -a, --enable-alternatives                          Consider all alternatives (default)
       -A, --disable-alternatives                         Consider only first alternatives
       -e, --search-strat STRAT            breadth-first  May be 'breadth-first' or 'depth-first'.
-      -g, --enable-error-format                          Enable output format for errors
-      -G, --disable-error-format                         Disable output format for errors (default)
+      -g, --enable-error-format                          Enable output format for errors (default)
+      -G, --disable-error-format                         Disable output format for errors
       -f, --conflict-strat STRAT          exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
-      -L, --list-strat STRAT              as-set         May be 'as-set', 'lazy' or 'eager'.
+      -L, --list-strat STRAT              lazy           May be 'as-set', 'lazy' or 'eager'.
       -o, --output-format FORMAT          plain          May be 'plain', 'edn' or 'json'
       -p, --present-package PKG                          Hard present package. **
       -r, --requirement REQ                              Resolve req. **
@@ -858,8 +880,8 @@ resolve the requirements given at the command line. If successful, it
 exits with a return code of 0 and outputs the name of each package in
 the solution it has found, together with that package's location.
 
-If the command fails, a non-zero exit code is returned. The output from such
-a run might look like this::
+If the command fails because of dependency resolution problems, an exit code of
+3 is returned. The output from such a run might look like this::
 
   The resolver encountered the following problems:
 
@@ -1057,8 +1079,8 @@ Specify List Strategy
 +-----------------------------+---------------------------------------+
 
 This option determines how packages will be listed once they are resolved.
-Valid values are ``as-set``, ``lazy``, and ``eager``. The default value
-is ``as-set``.
+Valid values are ``as-set``, ``lazy``, and ``eager``. As of version 2.0.0,
+the default value is ``lazy``.
 
 
 When the value is ``as-set``, packages are listed in no particular order.
@@ -1151,8 +1173,7 @@ in the dictionary, except:
 - A new key, ``problems``, appears in place of the ``packages`` key containing
   information describing what went wrong.
 
-The default behavior is to have ``:error-format`` disabled; this
-CLI option enables it.
+As of version 2.0, the default behavior is to have ``:error-format`` enabled.
 
 .. _disable-error-format-resolve:
 
@@ -1171,8 +1192,7 @@ Disable Error Output Format
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
 
-This option sets the ``:error-format`` flag back to ``false``, which is the
-default behavior.
+This option sets the ``:error-format`` flag to ``false``.
 
 .. _output-format:
 
@@ -1607,14 +1627,14 @@ Or, in the case of naive apt repositories::
 
 For example, I might use the repository option like this::
 
-  java -jar degasolv-<version>-standalone.jar resolve-locations \
+  degasolv resolve-locations \
       -R "binary-amd64 https://example.com/ubuntu/ /"
       -t "apt" \
       --requirement "ubuntu-desktop"
 
 Or this::
 
-  java -jar degasolv-<version>-standalone.jar resolve-locations \
+  degasolv resolve-locations \
       -R "binary-amd64 https://example.com/ubuntu/ yakkety main" \
       -R "binary-i386 https://example.com/ubuntu/ yakkety main" \
       -t "apt" \
@@ -1632,13 +1652,23 @@ is ``any``.
 
 The ``subproc`` package system allows the user to give Degasolv
 package information via a subprocess (shell-out) command. A path
-to an executable on the filesystem is given via the `subproc-exe`_ option.
-For each repository specified via the `repository option`_, the
-subproc executable path is executed with the string given for the
-repository as its only argument. The executable is expected to
-print out JSON or EDN to standard output, depending on the value
-of the `subproc-output-format`_ option. This information will then
-be read into Degasolv and used to resolve dependencies.
+to an executable on the filesystem is given via the `subproc-exe`_ option.  For
+each repository specified via the `repository option`_, the subproc executable
+path is executed with the string given for the repository as its only argument.
+The executable is expected to print out JSON or EDN to standard output,
+depending on the value of the `subproc-output-format`_ option.
+
+The output should be a dictionary of packages listed by name.  The value for
+each dictionary key should be an array of dictionaries, with each dictionary
+giving information about a particular package instance. Within each package
+instance dictionary, there should exist the keys ``id`` for the package name,
+``version`` for its version, and ``location`` giving its location. Any
+requirements for the package instance should be listed under the
+``requirements`` key according to the rules laid out in :ref:`Specifying a
+requirement`.
+
+This information will then be read into Degasolv and used to resolve
+dependencies.
 
 If the format is JSON, which is the default, the output should be of the form::
 
@@ -1648,6 +1678,7 @@ If the format is JSON, which is the default, the output should be of the form::
               "id": "pkgname",
               "version": "p.k.g-version",
               "location": "pkg-url",
+              "requirements": ["birch>=3.3", "lime|lemon"],
               <optional kv-pairs associated with package>
           }
       ],
@@ -1661,8 +1692,9 @@ If the format is EDN, the output should be of the form::
           # The following will be referred
           {
               :id "pkgname"
-              :version: "p.k.g-version"
-              :location": "pkg-url"
+              :version "p.k.g-version"
+              :location" "pkg-url"
+              :requirements ["birch>=3.3" "lime|lemon"]
               <optional kv-pairs associated with package>
           }
       ]
@@ -1752,8 +1784,8 @@ the `Serovers docs`_.
 
 .. _subproc-exe:
 
-Specify Subproc Package System Output Format
-********************************************
+Specify Subproc Package System Executable
+*****************************************
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-x PATH``                           |
@@ -1781,7 +1813,7 @@ CLI for ``query-repo``
 Usage Page for ``query-repo``
 +++++++++++++++++++++++++++++
 
-Running ``java -jar degasolv-<version>-standalone.jar query-repo -h`` returns a
+Running ``degasolv query-repo -h`` returns a
 page that looks something like this::
 
   Usage: degasolv <options> query-repo <query-repo-options>
@@ -1790,8 +1822,8 @@ page that looks something like this::
     descriptions. Options marked with `**` may be
     used more than once.
 
-    -g, --enable-error-format               Enable output format for errors
-    -G, --disable-error-format              Disable output format for errors (default)
+    -g, --enable-error-format               Enable output format for errors (default)
+    -G, --disable-error-format              Disable output format for errors
     -q, --query QUERY                       Display packages matching query string.
     -R, --repository INDEX                  Search INDEX for packages. **
     -S, --index-strat STRAT       priority  May be 'priority' or 'global'.
@@ -1811,7 +1843,9 @@ Overview of ``query-repo``
 
 This subcommand queries a repository index or indices for
 packages. This comand is intended to be useful or debugging dependency
-problems.
+problems. If errors occur relative to finding packages in the repository,
+as opposed to errors occuring because incorrect arguments were given,
+a return code of 2 is returned to the calling program (likely a shell).
 
 Explanation of Options for ``query-repo``
 +++++++++++++++++++++++++++++++++++++++++
@@ -1838,9 +1872,9 @@ when errors happen as well.
 
 Normally, when the `output-format`_ key is specified, such as to cause
 Degasolv to emit JSON or EDN, this only happens if the command runs
-successfully. If querying thre repo was unsuccessful, an error message
+successfully. If querying the repo was unsuccessful, an error message
 is printed to standard error and the program exits with non-zero
-return code. If ``error-format`` is specified, then any error
+return code. If ``error-format`` is enabled, then any error
 information will be printed in the form of whatever `output-format`_
 specifies to standard output, while still maintaining the same exit
 code.
@@ -1855,8 +1889,7 @@ in the dictionary, except:
 - A new key, ``problems``, appears in place of the ``packages`` key containing
   information describing what went wrong.
 
-The default behavior is to have ``:error-format`` disabled; this
-CLI option enables it.
+As of version 2.0, the default behavior is to have ``:error-format`` enabled.
 
 .. _disable-error-format-query:
 
@@ -1875,8 +1908,7 @@ Disable Error Output Format
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
 
-This option sets the ``:error-format`` flag back to ``false``, which is the
-default behavior.
+This option sets the ``:error-format`` flag to ``false``.
 
 .. _output-format-query-repo:
 
@@ -1972,8 +2004,8 @@ This option works exactly the same as the `index strategy`_ option for the
 ``resolve-locations`` command, except that it is used for simple index
 queries. See that option's explanation for more information.
 
-Specify a Package System (Experimental)
-***************************************
+Specify a Package System
+************************
 
 +--------------+---------------------------+-----------------------------------+
 | Short option | Long option               | Config File Key                   |

@@ -1,14 +1,5 @@
 version: 2
 jobs:
-  script_tests:
-    docker:
-      - image: djhaskin987/lein-script-tester:latest
-    version: 2
-    steps:
-      - checkout
-      - run:
-          command: |
-            test/resources/scripts/test-all
   lein_tests:
     docker:
       - image: clojure:lein
@@ -23,12 +14,6 @@ jobs:
             ls target/test-results/html
             lein uberjar
             buildutils/generate-manifest
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - target/uberjar/degasolv-*-standalone.jar
-            - target/manifest
       - store_artifacts:
           path: target/test-results/xml/
           destination: test-results/xml
@@ -37,55 +22,113 @@ jobs:
           destination: uberjar/
       - store_test_results:
           path: target/test-results/xml/
-
-  package_ubuntu:
-    docker:
-      - image: alanfranz/fpm-within-docker:ubuntu-zesty
-    version: 2
-    steps:
-      - attach_workspace:
-          at: /tmp/tested-artifacts
-      - checkout
-      - run: cp -af /tmp/tested-artifacts/target ./
-      - run: buildutils/package deb
       - persist_to_workspace:
           root: .
           paths:
-            - target/package/*.deb
-      - store_artifacts:
-          path: target/package/
-          destination: package/
+            - target/uberjar/degasolv-*-standalone.jar
+            - target/manifest
 
-  test_ubuntu_package:
+  script_tests:
     docker:
-      - image: djhaskin987/test-ubuntu-installer:latest
+      - image: djhaskin987/lein-script-tester:latest
+    version: 2
+    steps:
+      - checkout
+      - run:
+          command: |
+            test/resources/scripts/test-all
+
+  package_ubuntu16:
+    docker:
+      - image: djhaskin987/graal-lein-fpm:ubuntu16
     version: 2
     steps:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
-      - run: buildutils/test-install-package-ubuntu
-
-  package_centos:
-    docker:
-      - image: alanfranz/fpm-within-docker:centos-7
-    version: 2
-    steps:
-      - attach_workspace:
-          at: /tmp/tested-artifacts
-      - checkout
-      - run: cp -af /tmp/tested-artifacts/target ./
-      - run: buildutils/package rpm
+      - run:
+          name: "Package debian for Ubuntu 16"
+          command: buildutils/package deb
+          no_output_timeout: 30m
+      - run: mv target/package target/package_u16
       - persist_to_workspace:
           root: .
           paths:
-            - target/package/*.rpm
+            - target/package_u16/*.deb
       - store_artifacts:
-          path: target/package/
-          destination: package/
+          path: target/package_u16/
+          destination: package_u16/
 
-  test_centos_package:
+  package_ubuntu18:
+    docker:
+      - image: djhaskin987/graal-lein-fpm:ubuntu18
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run:
+          name: "Package debian for Ubuntu 18"
+          command: buildutils/package deb
+          no_output_timeout: 30m
+      - run: mv target/package target/package_u18
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package_u18/*.deb
+      - store_artifacts:
+          path: target/package_u18/
+          destination: package_u18/
+
+  package_centos7:
+    docker:
+      - image: djhaskin987/graal-lein-fpm:centos7
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run:
+          name: "Package debian for CentOS 7"
+          command: buildutils/package rpm
+          no_output_timeout: 30m
+      - run: mv target/package target/package_c7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package_c7/*.rpm
+      - store_artifacts:
+          path: target/package_c7/
+          destination: package_c7/
+
+  test_ubuntu16_package:
+    docker:
+      - image: djhaskin987/test-ubuntu-installer:ubuntu16
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_u16 target/package
+      - run: buildutils/test-install-package-ubuntu
+
+  test_ubuntu18_package:
+    docker:
+      - image: djhaskin987/test-ubuntu-installer:ubuntu18
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_u18 target/package
+      - run: buildutils/test-install-package-ubuntu
+
+  test_centos7_package:
     docker:
       - image: bzohdy/centos-sudo:latest
     version: 2
@@ -94,8 +137,8 @@ jobs:
           at: /tmp/workspace
       - checkout
       - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_c7 target/package
       - run: buildutils/test-install-package-centos
-
 
 workflows:
   version: 2
@@ -103,15 +146,21 @@ workflows:
     jobs:
       - script_tests
       - lein_tests
-      - package_ubuntu:
+      - package_ubuntu16:
           requires:
             - lein_tests
-      - test_ubuntu_package:
-          requires:
-            - package_ubuntu
-      - package_centos:
+      - package_ubuntu18:
           requires:
             - lein_tests
-      - test_centos_package:
+      - package_centos7:
           requires:
-            - package_centos
+            - lein_tests
+      - test_ubuntu16_package:
+          requires:
+            - package_ubuntu16
+      - test_ubuntu18_package:
+          requires:
+            - package_ubuntu18
+      - test_centos7_package:
+          requires:
+            - package_centos7
