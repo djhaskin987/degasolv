@@ -14,11 +14,6 @@ fi
 
 . target/manifest
 
-native-image --verbose --enable-url-protocols=http,https -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
-#native-image --verbose -H:+ReportUnsupportedElementsAtRuntime -jar target/uberjar/${name}-${version}-standalone.jar
-
-mkdir -p target/graal
-
 mkdir -p pkg/
 mkdir -p pkg/usr/bin/
 mkdir -p pkg/usr/lib/${name}/
@@ -33,13 +28,10 @@ Git hash:           ${hash}
 Build date:         ${builddate}
 MANIFEST
 
-cp ./${name}-${version}-standalone target/graal
-cp ./${name}-${version}-standalone pkg/usr/bin/${name}
+cp target/uberjar/${name}-${version}-standalone.jar \
+    pkg/usr/lib/degasolv/degasolv.jar
 
-#cp target/uberjar/${name}-${version}-standalone.jar \
-#    pkg/usr/lib/degasolv/degasolv.jar
-
-#cp scripts/degasolv pkg/usr/bin
+cp scripts/degasolv pkg/usr/bin
 
 fpm \
     --verbose \
