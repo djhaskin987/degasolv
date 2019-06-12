@@ -30,7 +30,7 @@
              :dev {
                    :dependencies [
                                   [org.clojure/core.match "0.3.0-alpha5"]
-                                  [org.clojure/clojure "1.9.0-alpha14"]
+                                  [org.clojure/clojure "1.10.1"]
                                   [serovers "1.6.2"]
                                   [org.clojure/tools.cli "0.3.5"]
                                   [com.velisco/tagged "0.5.0"]
