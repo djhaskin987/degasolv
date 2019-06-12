@@ -58,9 +58,6 @@ jobs:
       - store_artifacts:
           path: target/package/
           destination: package_u16/
-      - store_artifacts:
-          path: target/graal/
-          destination: graal_u16/
 
   package_ubuntu18:
     docker:
@@ -76,7 +73,6 @@ jobs:
           command: buildutils/package deb
           no_output_timeout: 30m
       - run: mv target/package target/package_u18
-      - run: mv target/graal target/graal_u18
       - persist_to_workspace:
           root: .
           paths:
@@ -84,9 +80,6 @@ jobs:
       - store_artifacts:
           path: target/package_u18/
           destination: package_u18/
-      - store_artifacts:
-          path: target/graal_u18/
-          destination: graal_u18/
 
   package_centos7:
     docker:
@@ -102,7 +95,6 @@ jobs:
           command: buildutils/package rpm
           no_output_timeout: 30m
       - run: mv target/package target/package_c7
-      - run: mv target/graal target/graal_c7
       - persist_to_workspace:
           root: .
           paths:
@@ -110,9 +102,6 @@ jobs:
       - store_artifacts:
           path: target/package_c7/
           destination: package_c7/
-      - store_artifacts:
-          path: target/graal_c7/
-          destination: graal_c7/
 
   test_ubuntu16_package:
     docker:
