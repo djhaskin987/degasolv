@@ -51,6 +51,7 @@ jobs:
           name: "Package debian for Ubuntu 16"
           command: buildutils/package deb
           no_output_timeout: 30m
+      - run: mv target/package target/package_u16
       - persist_to_workspace:
           root: .
           paths:
