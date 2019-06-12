@@ -127,7 +127,6 @@ jobs:
       - run: mv target/package_u18 target/package
       - run: buildutils/test-install-package-ubuntu
 
-
   test_centos7_package:
     docker:
       - image: bzohdy/centos-sudo:latest

@@ -6,7 +6,7 @@ set -exuo
 
 find /tmp
 sudo apt-get update
-sudo dpkg -i /tmp/workspace/target/package/*.deb || :
+sudo dpkg -i target/package/*.deb || :
 sudo apt-get install -y -f
 java -version
 dpkg-query -l degasolv

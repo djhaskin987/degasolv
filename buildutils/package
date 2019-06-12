@@ -40,7 +40,7 @@ fpm \
     --name "${name}" \
     --version "${basic_version}" \
     --iteration "${iteration}.djh987" \
-    --license "Eclipse Public License" \
+    --license "Eclipse Public License v1.0" \
     --architecture "all" \
     --depends "${dep}" \
     --maintainer "djhaskin987@gmail.com" \
