@@ -55,7 +55,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - target/package/*.deb
+            - target/package_u16/*.deb
       - store_artifacts:
           path: target/package/
           destination: package_u16/
