@@ -559,12 +559,12 @@
             "ID (name) of the package"
             :validate [#(not (empty? %))
                        "ID must be a non-empty string."]
-            :required true]
+            ]
            ["-l" "--location LOCATION"
             "URL or filepath of the package"
             :validate [#(not (empty? %))
                        "Location must be a non-empty string."]
-            :required true]
+            ]
            ["-m" "--meta K=V"
             "Add additional metadata"
             :validate [#(re-matches #"^[^=]+=[^=].*$" %)
@@ -585,7 +585,7 @@
             "Version of the package"
             :validate [#(re-matches r/version-regex %)
                        "Sorry, given argument doesn't look like a version."]
-            :required true]
+            ]
            ]}
     "generate-repo-index"
     {:description "Generate repository index based on degasolv package cards"

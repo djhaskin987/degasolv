@@ -17,6 +17,19 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+Changed
++++++++
+
+Fixed
++++++
+
+
+`2.0.0`_
+--------
+
+Added
++++++
+
 - Documentation saying what return codes are given and what they mean.
 
 - For #15, added ability to specify output format for ``display-config``.
@@ -308,7 +321,8 @@ Added
 
 - This isn't the first release, but for the purposes of these docs, it is :D
 
-.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.12.1...HEAD
+.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/2.0.0...HEAD
+.. _2.0.0: https://github.com/djhaskin987/degasolv/compare/1.12.1...2.0.0
 .. _1.12.1: https://github.com/djhaskin987/degasolv/compare/1.12.0...1.12.1
 .. _1.12.0: https://github.com/djhaskin987/degasolv/compare/1.11.0...1.12.0
 .. _1.11.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.11.0

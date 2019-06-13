@@ -414,17 +414,17 @@ returns a page that looks something like this::
         --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
         --repository INDEX                       Search INDEX for packages. **
         --enable-alternatives                    Consider all alternatives (default)
-        --id true                                ID (name) of the package
+        --id ID                                  ID (name) of the package
         --query QUERY                            Display packages matching query string.
         --disable-alternatives                   Consider only first alternatives
         --add-to INDEX                           Add to repo index INDEX
         --card-file FILE          ./out.dscard   The name of the card file
         --present-package PKG                    Hard present package. **
         --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
-        --location true                          URL or filepath of the package
+        --location LOCATION                      URL or filepath of the package
         --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
         --version-comparison CMP  semver         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
-        --version true                           Version of the package
+        --version VERSION                        Version of the package
     -h, --help                                   Print this help page
 
 Overview of ``display-config``
@@ -467,11 +467,11 @@ returns a page that looks something like this::
     used more than once.
 
     -C, --card-file FILE   ./out.dscard  The name of the card file
-    -i, --id true                        ID (name) of the package
-    -l, --location true                  URL or filepath of the package
+    -i, --id ID                          ID (name) of the package
+    -l, --location LOCATION              URL or filepath of the package
     -m, --meta K=V                       Add additional metadata
     -r, --requirement REQ                List requirement **
-    -v, --version true                   Version of the package
+    -v, --version VERSION                Version of the package
     -h, --help                           Print this help page
 
   The following options are required for subcommand `generate-card`:
