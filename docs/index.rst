@@ -26,6 +26,7 @@ Fork Degasolv on Github:
    Command Reference <command-reference>
    Code of Conduct <code-of-conduct>
    Contributing Guide <contributing>
+   Roadmap <roadmap>
    Authors and Contributions <authors>
    3rd Party Licenses <3rd-party-licenses>
 
