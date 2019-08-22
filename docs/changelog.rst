@@ -20,6 +20,8 @@ Added
 Changed
 +++++++
 
+- Removed the deprecated functions ``->requirement``, ``->package``, and ``->version-predicate`` from usage in the code base.
+
 Fixed
 +++++
 

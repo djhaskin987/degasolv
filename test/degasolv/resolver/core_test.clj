@@ -10,7 +10,7 @@
 ;; TODO: disjunctive clause tests
 
 (let  [package-a30
-       (->package
+       (->PackageInfo
         "a"
         30
         "a_loc30"
@@ -18,25 +18,25 @@
          [(present "c")]
          ])
        package-a20
-       (->package
+       (->PackageInfo
         "a"
         20
         "a_loc20"
         nil)
        package-c10
-       (->package
+       (->PackageInfo
         "c"
         10
         "c_loc10"
         nil)
        package-d22
-       (->package
+       (->PackageInfo
         "d"
         22
         "d_loc22"
         nil)
        package-e18
-       (->package
+       (->PackageInfo
         "e"
         18
         "e_loc18"
@@ -143,7 +143,7 @@
                      ]
                     query
                     :present-packages {"b"
-                                       [(->package "b" 10 "b-loc10" nil)]}))))
+                                       [(->PackageInfo "b" 10 "b-loc10" nil)]}))))
     (testing
         (str "Asking to install a package that is already "
              "installed, but the installed version doesn't "
@@ -198,7 +198,7 @@
 
 (deftest ^:unit-tests requires
   (let [package-a
-        (->package
+        (->PackageInfo
          "a"
          30
          "a_loc30"
@@ -206,7 +206,7 @@
           [(present "b")]
           ])
         package-b
-        (->package
+        (->PackageInfo
          "b"
          20
          "b_loc20"
@@ -235,13 +235,13 @@
                     query
                     :present-packages {"b" [package-b]})))))
   (let [package-a
-        (->package
+        (->PackageInfo
          "a"
          10
          "a_loc10"
          nil)
         package-b
-        (->package
+        (->PackageInfo
          "b"
          20
          "b_loc20"
@@ -249,7 +249,7 @@
           [(present "c")]
           ])
         package-c
-        (->package
+        (->PackageInfo
          "c"
          10
          "c_loc10"
@@ -276,13 +276,13 @@
                         ]
                        query))))))
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            10
            "a_loc10"
            nil)
           package-b
-          (->package
+          (->PackageInfo
            "b"
            10
            "b_loc10"
@@ -291,7 +291,7 @@
             ]
            )
           package-c
-          (->package
+          (->PackageInfo
            "c"
            10
            "c_loc10"
@@ -329,7 +329,7 @@
   (testing
       "Skip past a conflict"
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            30
            "a_loc30"
@@ -337,7 +337,7 @@
             [(present "b")]
             ])
           package-b
-          (->package
+          (->PackageInfo
            "b"
            20
            "b_loc20"
@@ -352,14 +352,14 @@
                      [(absent "c") (present "b")]
                      ]
                     query
-                    :present-packages {"c" [(->package "c" 10 "c_loc10" nil)]}))))))
+                    :present-packages {"c" [(->PackageInfo "c" 10 "c_loc10" nil)]}))))))
 
 (deftest ^:unit-tests no-locking
   (testing
       (str "Find two packages, even when the preferred version "
            "of one package conflicts with the other")
     (let [package-a30
-          (->package
+          (->PackageInfo
            "a"
            30
            "a_loc30"
@@ -367,13 +367,13 @@
             [(absent "c")]
             ])
           package-a20
-          (->package
+          (->PackageInfo
            "a"
            20
            "a_loc20"
            nil)
           package-c10
-          (->package
+          (->PackageInfo
            "c"
            10
            "c_loc10"
@@ -391,7 +391,7 @@
                     query)))))
   (testing (str "Diamond problem")
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            1
            "a_loc1"
@@ -401,7 +401,7 @@
             ]
            )
           package-b
-          (->package
+          (->PackageInfo
            "b"
            1
            "b_loc1"
@@ -412,7 +412,7 @@
             ]
            )
           package-c
-          (->package
+          (->PackageInfo
            "c"
            1
            "c_loc1"
@@ -423,13 +423,13 @@
             ]
            )
           package-d3
-          (->package
+          (->PackageInfo
            "d"
            3
            "d_loc3"
            nil)
           package-d4
-          (->package
+          (->PackageInfo
            "d"
            4
            "d_loc4"
@@ -451,7 +451,7 @@
                     query)))))
   (testing (str "Inter-Locking Diamond problem")
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            1
            "a_loc1"
@@ -461,7 +461,7 @@
             ]
            )
           package-b
-          (->package
+          (->PackageInfo
            "b"
            1
            "b_loc1"
@@ -471,7 +471,7 @@
             ]
            )
           package-c
-          (->package
+          (->PackageInfo
            "c"
            1
            "c_loc1"
@@ -481,25 +481,25 @@
             ]
            )
           package-d3
-          (->package
+          (->PackageInfo
            "d"
            3
            "d_loc3"
            nil)
           package-d4
-          (->package
+          (->PackageInfo
            "d"
            4
            "d_loc4"
            nil)
           package-e6
-          (->package
+          (->PackageInfo
            "e"
            6
            "e_loc6"
            nil)
           package-e5
-          (->package
+          (->PackageInfo
            "e"
            5
            "e_loc5"
@@ -526,7 +526,7 @@
                    ))))
   (testing (str "The puzzle")
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            1
            "a_loc1"
@@ -536,7 +536,7 @@
             ]
            )
           package-b
-          (->package
+          (->PackageInfo
            "b"
            1
            "b_loc1"
@@ -545,7 +545,7 @@
             ]
            )
           package-c
-          (->package
+          (->PackageInfo
            "c"
            1
            "c_loc1"
@@ -554,7 +554,7 @@
             ]
            )
           package-d1
-          (->package
+          (->PackageInfo
            "d"
            1
            "d_loc1"
@@ -563,7 +563,7 @@
             ]
            )
           package-d2
-          (->package
+          (->PackageInfo
            "d"
            2
            "d_loc2"
@@ -572,13 +572,13 @@
             ]
            )
           package-e4
-          (->package
+          (->PackageInfo
            "e"
            4
            "e_loc4"
            nil)
           package-e3
-          (->package
+          (->PackageInfo
            "3"
            3
            "e_loc3"
@@ -603,7 +603,7 @@
                     query)))))
   (testing (str "Double diamond")
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            1
            "a_loc1"
@@ -613,7 +613,7 @@
             ]
            )
           package-b
-          (->package
+          (->PackageInfo
            "b"
            1
            "b_loc1"
@@ -623,7 +623,7 @@
             ]
            )
           package-c
-          (->package
+          (->PackageInfo
            "c"
            1
            "c_loc1"
@@ -632,19 +632,19 @@
             ]
            )
           package-d4
-          (->package
+          (->PackageInfo
            "d"
            4
            "d_loc4"
            nil)
           package-d3
-          (->package
+          (->PackageInfo
            "d"
            3
            "d_loc3"
            nil)
           package-d2
-          (->package
+          (->PackageInfo
            "d"
            2
            "d_loc2"
@@ -666,7 +666,7 @@
 (deftest
   ^:resolve-basic hoisting
   (let [package-a
-        (->package
+        (->PackageInfo
          "a"
          1
          "a_loc1"
@@ -675,7 +675,7 @@
           ]
          )
         package-b
-        (->package
+        (->PackageInfo
          "b"
          1
          "b_loc1"
@@ -685,13 +685,13 @@
           ]
          )
         package-c
-        (->package
+        (->PackageInfo
          "c"
          1
          "c_loc1"
          nil)
         package-d
-        (->package
+        (->PackageInfo
          "d"
          1
          "d_loc1"
@@ -731,7 +731,7 @@
 (deftest ^:unit-tests circular-dependencies
   (testing "circular dependencies"
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            30
            "a_loc30"
@@ -739,7 +739,7 @@
             [(present "b")]
             ])
           package-b
-          (->package
+          (->PackageInfo
            "b"
            20
            "b_loc20"
