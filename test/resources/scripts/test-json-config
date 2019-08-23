@@ -20,7 +20,7 @@ cd "${test_home}"
 
 cat > "degasolv.json" << JSON
 {
-    "id": "a",
+    "id": "a\\\\b",
     "version": "1.0.0",
     "location": "https://example.com/repo/a-1.0.0.zip",
     "requirements": ["c", "d"]

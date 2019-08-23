@@ -5,20 +5,20 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main degasolv.cli
   :dependencies [
+                 [cheshire "5.9.0"]
+                 [org.clojure/tools.reader "1.3.2"]
                  [com.velisco/tagged "0.5.0"]
                  [org.clojure/clojure "1.10.1"]
-                 [org.clojure/data.json "0.2.6"]
-                 ;;[org.clojure/spec.alpha "0.2.176"]
                  [org.clojure/tools.cli "0.3.5"]
                  [serovers "1.6.2"]
                  ]
   :plugins [[lein-licenses "0.2.2"]
             [lein-print "0.1.0"]]
-;;  :source-paths ["src/degasolv"]
 
-              :java-source-paths ["src/java" "test/java"]
-              :junit ["test/java"]
-
+  :java-source-paths ["src/java"
+                      "test/java"]
+  :junit ["test/java"]
+;;:source-paths ["src/degasolv"]
 
   :global-vars {*warn-on-reflection* true}
 
@@ -43,6 +43,7 @@
                              degasolv.pkgsys.core
                              degasolv.pkgsys.apt
                              degasolv.pkgsys.subproc
+                             degasolv.pkgsys.git
                              degasolv.util
                              degasolv.resolver
                              degasolv.cli
