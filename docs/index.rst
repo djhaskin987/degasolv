@@ -24,6 +24,7 @@ Fork Degasolv on Github:
    A Longer Example <longer-example>
    Changelog <changelog>
    Command Reference <command-reference>
+   Architecture <architecture>
    Code of Conduct <code-of-conduct>
    Contributing Guide <contributing>
    Roadmap <roadmap>

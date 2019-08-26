@@ -974,6 +974,8 @@ option on a command line, the last argument of the two specified wins.
    when debugging a build. If it *is* used routinely, it should be used
    `site-wide`_.
 
+.. _search-strat:
+
 Specify Solution Search Strategy
 ********************************
 
@@ -1503,6 +1505,9 @@ authentication is required to download the index, as in this example::
       degasolv resolve-locations -R - "req"
 
 .. _cURL: https://curl.haxx.se/
+
+
+.. _resolve-strat:
 
 Specify a Resolution Strategy
 *****************************
