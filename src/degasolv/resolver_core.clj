@@ -303,6 +303,42 @@
     (let [{:keys [pkg-list visited]} (list-pkgs-rec #{} #{:root} :root)]
       pkg-list)))
 
+(defn vet-candidate
+  "Takes a candidate package which has been chosen in hopes of fulfilling a
+  requirement and ensures that:
+  1) It does not violate any 'ensure absent' specifications and
+  2) It fulfills the particular 'ensure present' spec."
+  [absent-specs safe-spec-call id spec candidate]
+  (and
+    (safe-spec-call spec candidate)
+    (reduce
+      (fn [x y]
+        (and
+          x
+          (not
+            (safe-spec-call
+              y
+              candidate))))
+      true
+      (get absent-specs id))))
+
+(defn seek-package
+  "Seek a package from a repository meeting the specs given."
+  [safe-spec-call repo absent-specs id spec]
+  (let [query-results (repo id)]
+    (if (empty? query-results)
+      [:unsuccessful
+       {:problem :empty-query-results}]
+      (let [filtered-query-results
+              (filter
+                (partial vet-candidate absent-specs safe-spec-call id spec)
+                query-results)]
+        (if (empty? filtered-query-results)
+          [:unsuccessful
+           {:problem :unsatisfactory-query-results}]
+          [:successful
+           filtered-query-results])))))
+
 (defn make-resolve-deps
   [conflict-strat
    concat-reqs
@@ -384,7 +420,21 @@
                                (not (nil? present-id-packages)))
                              (not (= conflict-strat :inclusive)))
                         [:unsuccessful
-                         {:problems
+                         {:suggestions
+                          ;; pass suggestions up the chain
+                          (when (and
+                                  (nil? present-id-packages)
+                                  (not (nil? found-id-packages)))
+                            (when-let [[status pkgs]
+                                       (first-successful
+                                         (seek-package
+                                           safe-spec-call
+                                           repo
+                                           absent-specs
+                                           id
+                                           spec))]
+                              {id pkgs}))
+                          :problems
                           [
                            {:term clause
                             :found-packages found-packages
@@ -407,37 +457,72 @@
                           rclauses
                           package-graph)
                         (= status :present)
-                        (let [query-results (repo id)]
-                          (if (empty? query-results)
-                            [:unsuccessful
-                             {:problems
-                              [
-                               {:term clause
-                                :alternative alternative
-                                :found-packages found-packages
-                                :present-packages present-packages
-                                :absent-specs absent-specs
-                                :reason :package-not-found
-                                :package-id id}]}]
+                        (let [[status query-response]
+                              (seek-package
+                                safe-spec-call
+                                repo
+                                absent-specs
+                                id
+                                spec)]
+                          (if (= status :successful)
                             (let [filtered-query-results
-                                  (cull
-                                    (filter
-                                      (fn vet-candidate
-                                        [candidate]
-                                        (and
-                                          (safe-spec-call spec candidate)
-                                          (reduce
-                                            (fn [x y]
-                                              (and
-                                                x
-                                                (not
-                                                  (safe-spec-call
-                                                    y
-                                                    candidate))))
-                                            true
-                                            (get absent-specs id))))
-                                      query-results))]
-                              (if (empty? filtered-query-results)
+                                  (cull query-response)
+                                  candidate-results
+                                  (first-found
+                                    (fn
+                                      try-candidate
+                                      [candidate]
+                                      (resolve-deps
+                                        repo
+                                        present-packages
+                                        (update-in found-packages
+                                                   [id]
+                                                   #(if (empty? %1)
+                                                      (do [%2])
+                                                      (conj %1 %2))
+                                                   candidate)
+                                        absent-specs
+                                        (concat-reqs
+                                          rclauses
+                                          (map
+                                            #(->DecoratedRequirement
+                                               %
+                                               candidate)
+                                            (:requirements
+                                              candidate)))
+                                        (update-in package-graph
+                                                   [parent]
+                                                   #(if (empty? %1)
+                                                      (do [%2])
+                                                      (conj %1 %2))
+                                                   candidate)))
+                                    successful?
+                                    filtered-query-results)]
+                              (or
+                                (some
+                                  first-successful
+                                  candidate-results)
+                                [:unsuccessful
+                                 {:problems
+                                  (flatten
+                                    (map
+                                      #(:problems
+                                         (get % 1))
+                                      candidate-results))}]))
+                            (let [{problem :problem} query-response]
+                              (cond
+                                (= problem :empty-query-results)
+                                [:unsuccessful
+                                 {:problems
+                                  [
+                                   {:term clause
+                                    :alternative alternative
+                                    :found-packages found-packages
+                                    :present-packages present-packages
+                                    :absent-specs absent-specs
+                                    :reason :package-not-found
+                                    :package-id id}]}]
+                                (= problem :unsatisfactory-query-results)
                                 [:unsuccessful
                                  {:problems
                                   [{:term clause
@@ -447,74 +532,35 @@
                                     :absent-specs absent-specs
                                     :reason :package-rejected
                                     :package-id id}]}]
-                                (let [candidate-results
-                                      (first-found
-                                        (fn
-                                          try-candidate
-                                          [candidate]
-                                          (resolve-deps
-                                            repo
-                                            present-packages
-                                            (update-in found-packages
-                                                       [id]
-                                                       #(if (empty? %1)
-                                                          (do [%2])
-                                                          (conj %1 %2))
-                                                       candidate)
-                                            absent-specs
-                                            (concat-reqs
-                                              rclauses
-                                              (map
-                                                #(->DecoratedRequirement
-                                                   %
-                                                   candidate)
-                                                (:requirements
-                                                  candidate)))
-                                            (update-in package-graph
-                                                       [parent]
-                                                       #(if (empty? %1)
-                                                          (do [%2])
-                                                          (conj %1 %2))
-                                                       candidate)))
-                                        successful?
-                                        filtered-query-results)]
-                                  (or
-                                    (some
-                                      first-successful
-                                      candidate-results)
-                                    [:unsuccessful
-                                     {:problems
-                                      (flatten
-                                        (map
-                                          #(:problems
-                                             (get % 1))
-                                          candidate-results))}]))))))
-                        :else
-                        [:unsuccessful {:problems
-                                        [{:term clause
-                                          :reason :uncovered-case
-                                          :alternative alternative
-                                          :found-packages found-packages
-                                          :present-packages present-packages
-                                          :absent-specs absent-specs}]}])))
-                        successful?
-                        ;; Hoisting
-                        (hoist (cull-alternatives
-                                 clause)
-                               absent-specs
-                               found-packages
-                               present-packages))]
-                        (or
-                          (some
-                            first-successful
-                            clause-result)
-                          [:unsuccessful
-                           {:problems
-                            (flatten
-                              (map
-                                #(:problems
-                                   (get % 1))
-                                clause-result))}])))))))
+                                :else
+                                [:unsuccessful
+                                 {:problems
+                                  [{:term clause
+                                    :alternative alternative
+                                    :found-packages found-packages
+                                    :present-packages present-packages
+                                    :absent-specs absent-specs
+                                    :reason :seek-package-logic-error
+                                    :package-id id}]}]))
+                            )))))
+successful?
+;; Hoisting
+(hoist (cull-alternatives
+         clause)
+       absent-specs
+       found-packages
+       present-packages))]
+(or
+  (some
+    first-successful
+    clause-result)
+  [:unsuccessful
+   {:problems
+    (flatten
+      (map
+        #(:problems
+           (get % 1))
+        clause-result))}])))))))
 
 (defn resolve-dependencies
   [requirements

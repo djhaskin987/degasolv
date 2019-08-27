@@ -5,8 +5,12 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main degasolv.cli
   :dependencies [
+                 ;; optional dependencies to clj-http
                  [cheshire "5.9.0"]
-                 [org.clojure/tools.reader "1.3.2"]
+                 ;;[org.clojure/tools.reader "1.3.2"]
+                 ;;[crouton "0.1.2"]
+                 ;;[ring/ring-codec "1.1.2"]
+                 ;;[
                  [com.velisco/tagged "0.5.0"]
                  [org.clojure/clojure "1.10.1"]
                  [org.clojure/tools.cli "0.3.5"]
