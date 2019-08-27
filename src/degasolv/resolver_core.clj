@@ -517,40 +517,18 @@
                                       #(:problems
                                          (get % 1))
                                       candidate-results))}]))
-                            (let [{problem :problem} query-response]
+                            (let [{problem :problem} query-response
+                                  pkg-error (fn [reason]
+                                              (mkerror reason
+                                                       :alternative alternative
+                                                       :package-id id))]
                               (cond
                                 (= problem :empty-query-results)
-                                [:unsuccessful
-                                 {:problems
-                                  [
-                                   {:term clause
-                                    :alternative alternative
-                                    :found-packages found-packages
-                                    :present-packages present-packages
-                                    :absent-specs absent-specs
-                                    :reason :package-not-found
-                                    :package-id id}]}]
+                                (pkg-error :package-not-found)
                                 (= problem :unsatisfactory-query-results)
-                                [:unsuccessful
-                                 {:problems
-                                  [{:term clause
-                                    :alternative alternative
-                                    :found-packages found-packages
-                                    :present-packages present-packages
-                                    :absent-specs absent-specs
-                                    :reason :package-rejected
-                                    :package-id id}]}]
+                                (pkg-error :package-rejected)
                                 :else
-                                [:unsuccessful
-                                 {:problems
-                                  [{:term clause
-                                    :alternative alternative
-                                    :found-packages found-packages
-                                    :present-packages present-packages
-                                    :absent-specs absent-specs
-                                    :reason :seek-package-logic-error
-                                    :package-id id}]}]))
-                            )))))
+                                (pkg-error :seek-package-logic-error))))))))
 conj
 successful?
 ;; Hoisting
