@@ -209,19 +209,19 @@
       result)))
 
 ;; If transformed value passes test,
-;; return a singleton list of those;
-;; otherwise, return the full list of transformed stuffs.
+;; return the it; otherwise, return an aggregated version of the
+;; values that don't pass the test.
 ;; This is because lazy seqs in clojure aren't exactly lazy;
 ;; they're "chunked" lazy, which is sad. Sad panda :'(
 (defn- first-found
-  [f pred coll]
+  [f aggregate pred coll]
   (reduce
     (fn find-first
       [c v]
       (let [new-v (f v)]
         (if (pred new-v)
           (reduced [new-v])
-          (conj c new-v))))
+          (aggregate c new-v))))
     []
     coll))
 
@@ -339,6 +339,21 @@
           [:successful
            filtered-query-results])))))
 
+(defn make-error
+  [present-packages found-packages absent-specs clause reason &
+   {:keys [] :as additional}]
+  (let [base-problem
+        {:term clause
+         :found-packages found-packages
+         :present-packages present-packages
+         :absent-specs absent-specs
+         :reason reason}
+        problem
+        (into base-problem additional)]
+    [:unsuccessful
+     {:problems
+      [problem]}]))
+
 (defn make-resolve-deps
   [conflict-strat
    concat-reqs
@@ -358,15 +373,14 @@
       (let [fclause (first clauses)
             rclauses (rest clauses)
             {:keys [clause parent]}
-            fclause]
+            fclause
+            mkerror (partial make-error
+                             present-packages
+                             found-packages
+                             absent-specs
+                             clause)]
         (if (empty? clause)
-          [:unsuccessful
-           {:problems
-            [{:term clause
-              :found-packages found-packages
-              :present-packages present-packages
-              :absent-specs absent-specs
-              :reason :empty-alternative-set}]}]
+          (mkerror :empty-alternative-set)
           (let [clause-result
                 (first-found
                   (fn try-alternative
@@ -419,8 +433,10 @@
                                (not (nil? found-id-packages))
                                (not (nil? present-id-packages)))
                              (not (= conflict-strat :inclusive)))
-                        [:unsuccessful
-                         {:suggestions
+                        (mkerror
+                          :present-package-conflict
+                          :alternative alternative
+                          :suggestions
                           ;; pass suggestions up the chain
                           (when (and
                                   (nil? present-id-packages)
@@ -433,16 +449,7 @@
                                            absent-specs
                                            id
                                            spec))]
-                              {id pkgs}))
-                          :problems
-                          [
-                           {:term clause
-                            :found-packages found-packages
-                            :present-packages present-packages
-                            :absent-specs absent-specs
-                            :reason :present-package-conflict
-                            :alternative alternative
-                            :package-id id}]}]
+                              {id pkgs})))
                         (= status :absent)
                         (resolve-deps
                           repo
@@ -496,6 +503,7 @@
                                                       (do [%2])
                                                       (conj %1 %2))
                                                    candidate)))
+                                    conj
                                     successful?
                                     filtered-query-results)]
                               (or
@@ -543,6 +551,7 @@
                                     :reason :seek-package-logic-error
                                     :package-id id}]}]))
                             )))))
+conj
 successful?
 ;; Hoisting
 (hoist (cull-alternatives
