@@ -363,9 +363,9 @@
             (assoc
               base-answer
               :suggestions
-              (merge-with set/intersection
-                          a-suggestions
-                          b-suggestions))
+              (set/intersection
+                a-suggestions
+                b-suggestions))
             (assoc
               base-answer
               :suggestions
