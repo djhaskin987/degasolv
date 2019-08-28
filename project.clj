@@ -5,6 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main degasolv.cli
   :dependencies [
+                 ;; ordered set for version suggestion
+                 [org.flatland/ordered "1.5.7"]
                  ;; optional dependencies to clj-http
                  [cheshire "5.9.0"]
                  ;;[org.clojure/tools.reader "1.3.2"]

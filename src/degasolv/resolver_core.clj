@@ -308,7 +308,7 @@
   requirement and ensures that:
   1) It does not violate any 'ensure absent' specifications and
   2) It fulfills the particular 'ensure present' spec."
-  [absent-specs safe-spec-call id spec candidate]
+  [id-absent-specs safe-spec-call spec candidate]
   (and
     (safe-spec-call spec candidate)
     (reduce
@@ -320,18 +320,18 @@
               y
               candidate))))
       true
-      (get absent-specs id))))
+      id-absent-specs)))
 
 (defn seek-package
   "Seek a package from a repository meeting the specs given."
-  [safe-spec-call repo absent-specs id spec]
+  [repo vet]
   (let [query-results (repo id)]
     (if (empty? query-results)
       [:unsuccessful
        {:problem :empty-query-results}]
       (let [filtered-query-results
               (filter
-                (partial vet-candidate absent-specs safe-spec-call id spec)
+                vet
                 query-results)]
         (if (empty? filtered-query-results)
           [:unsuccessful
@@ -353,6 +353,55 @@
     [:unsuccessful
      {:problems
       [problem]}]))
+
+
+(defn merge-failure-records
+  "Merge two different resolution failure records.
+   Merge using ``(merge-with into ...)`` for everything but suggestions;
+   within the suggestions, merge using ``(merge-with set/intersection ...)``."
+  [a b]
+  (let [(merge-with into (dissoc a :suggestions)
+                (dissoc b :suggestions)) base-answer]
+        (if-let [a-suggestions (:suggestions a)]
+          (if-let [b-suggestions (:suggestions b)]
+            (assoc
+              base-answer
+              :suggestions
+              (merge-with set/intersection
+                          a-suggestions
+                          b-suggestions))
+            (assoc
+              base-answer
+              :suggestions
+              a-suggestions))
+          (if-let [b-suggestions (:suggestions b)]
+            (assoc
+              base-answer
+              :suggestions
+              b-suggestions))
+            base-answer)))
+
+(defn try-candidates
+  [vet
+   try-candidate
+   candidates]
+  (loop [remaining
+         failure-record]
+    (if (empty? remaining)
+      [:unsuccessful
+       failure-record]
+      (let [falt (first remaining)
+            ralt (rest remaining)
+            [status result :as response] (try-candidate falt)]
+        (if (successful? response)
+          response
+            (recur
+              (if-let [suggestions (:suggestions result)]
+                (into (filter vet suggestions)
+                        ralt)
+                ralt)
+              (merge-with merge-failure-records failure-record base-failure-record)))))))
+
 
 (defn make-resolve-deps
   [conflict-strat
@@ -387,6 +436,11 @@
                     [alternative]
                     (let [{status :status id :id spec :spec}
                           alternative
+                          vet
+                          (partial vet-candidate
+                                   (get absent-specs id)
+                                   safe-spec-call
+                                   spec)
                           present-id-packages
                           (get present-packages id)
                           found-id-packages
@@ -429,27 +483,33 @@
                                         (do [%2])
                                         (conj %1 %2))
                                      found-package))
-                        (and (or
-                               (not (nil? found-id-packages))
-                               (not (nil? present-id-packages)))
-                             (not (= conflict-strat :inclusive)))
+
+                        (and
+                          (not (= conflict-strat :inclusive))
+                          (not (nil? present-id-packages)))
                         (mkerror
                           :present-package-conflict
                           :alternative alternative
-                          :suggestions
-                          ;; pass suggestions up the chain
-                          (when (and
-                                  (nil? present-id-packages)
-                                  (not (nil? found-id-packages)))
-                            (when-let [[status pkgs]
-                                       (first-successful
-                                         (seek-package
-                                           safe-spec-call
-                                           repo
-                                           absent-specs
-                                           id
-                                           spec))]
-                              {id pkgs})))
+                          :package-present-by :given)
+                        (and
+                          (not (= conflict-strat :inclusive))
+                          (not (nil? found-id-packages)))
+                        (if-let [[status pkgs]
+                                 (first-successful
+                                   (seek-package
+                                     repo
+                                     vet))]
+                                 (mkerror
+                                   :present-package-conflict
+                                   :alternative alternative
+                                   ;; pass suggestions up the chain
+                                   :suggestions
+                                   {id (memset/ordered-set pkgs)}
+                                   :package-present-by :found)
+                                 (mkerror
+                                   :present-package-conflict
+                                   :alternative alternative
+                                   :package-present-by :found))
                         (= status :absent)
                         (resolve-deps
                           repo
@@ -473,9 +533,8 @@
                                 spec)]
                           (if (= status :successful)
                             (let [filtered-query-results
-                                  (cull query-response)
-                                  candidate-results
-                                  (first-found
+                                  (cull query-response)]
+                                  (try-candidates
                                     (fn
                                       try-candidate
                                       [candidate]
@@ -503,20 +562,8 @@
                                                       (do [%2])
                                                       (conj %1 %2))
                                                    candidate)))
-                                    conj
-                                    successful?
-                                    filtered-query-results)]
-                              (or
-                                (some
-                                  first-successful
-                                  candidate-results)
-                                [:unsuccessful
-                                 {:problems
-                                  (flatten
-                                    (map
-                                      #(:problems
-                                         (get % 1))
-                                      candidate-results))}]))
+                                    vet
+                                    filtered-query-results))
                             (let [{problem :problem} query-response
                                   pkg-error (fn [reason]
                                               (mkerror reason
