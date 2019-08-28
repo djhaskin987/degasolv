@@ -9,11 +9,6 @@ after all. Nevertheless, for what it's worth, here is the current roadmap.
 2.1.0
 -----
 
-- **Catch and release**: Catch failed clause resolutions early when the failed
-  clause's package name in a recursive call matches the present clause. This
-  should significantly speed up clause resolution and make the idea of minimum
-  version selection possible. Supporting features:
-
 - **Minimum Version Selection**: Implement minimum version selection as an
   option pack. Supporting features:
     - Version suggestion: when trying different candidates, if a matching id is
@@ -28,6 +23,10 @@ after all. Nevertheless, for what it's worth, here is the current roadmap.
     - Proper documentation surrounding order of encounter, that for example for
       subproc degasolv will honor the order of packages found in the repo index
       and that this enables things like MVS.
+
+- **Git package system**: Implement git package system that knows how to
+  read bitbucket, bitbucket server, github, github server, gitlab, gitlab
+  server, and raw git repos.
 
 Future Features
 ---------------
