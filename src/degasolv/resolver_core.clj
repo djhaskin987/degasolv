@@ -1,10 +1,5 @@
 (in-ns 'degasolv.resolver)
 
-(defmacro dbg2 [body]
-  `(let [x# ~body]
-     (println "dbg:" '~body "=" x#)
-     x#))
-
 (def ^:private relation-strings
   {:greater-than ">"
    :greater-equal ">="
@@ -324,8 +319,7 @@
 
 (defn seek-package
   "Seek a package from a repository meeting the specs given."
-  [repo vet]
-  (let [query-results (repo id)]
+  [query-results vet]
     (if (empty? query-results)
       [:unsuccessful
        {:problem :empty-query-results}]
@@ -337,7 +331,7 @@
           [:unsuccessful
            {:problem :unsatisfactory-query-results}]
           [:successful
-           filtered-query-results])))))
+           filtered-query-results]))))
 
 (defn make-error
   [present-packages found-packages absent-specs clause reason &
@@ -360,8 +354,10 @@
    Merge using ``(merge-with into ...)`` for everything but suggestions;
    within the suggestions, merge using ``(merge-with set/intersection ...)``."
   [a b]
-  (let [(merge-with into (dissoc a :suggestions)
-                (dissoc b :suggestions)) base-answer]
+  (let [base-answer (merge-with
+                      into
+                      (dissoc a :suggestions)
+                      (dissoc b :suggestions))]
         (if-let [a-suggestions (:suggestions a)]
           (if-let [b-suggestions (:suggestions b)]
             (assoc
@@ -378,15 +374,15 @@
             (assoc
               base-answer
               :suggestions
-              b-suggestions))
-            base-answer)))
+              b-suggestions)
+            base-answer))))
 
 (defn try-candidates
-  [vet
-   try-candidate
+  [try-candidate
+   vet
    candidates]
-  (loop [remaining
-         failure-record]
+  (loop [remaining candidates
+         failure-record {}]
     (if (empty? remaining)
       [:unsuccessful
        failure-record]
@@ -395,13 +391,12 @@
             [status result :as response] (try-candidate falt)]
         (if (successful? response)
           response
-            (recur
-              (if-let [suggestions (:suggestions result)]
-                (into (filter vet suggestions)
-                        ralt)
-                ralt)
-              (merge-with merge-failure-records failure-record base-failure-record)))))))
-
+          (recur
+            (if-let [suggestions (:suggestions result)]
+              (into (filter vet suggestions)
+                    ralt)
+              ralt)
+            (merge-failure-records failure-record result)))))))
 
 (defn make-resolve-deps
   [conflict-strat
@@ -497,7 +492,7 @@
                         (if-let [[status pkgs]
                                  (first-successful
                                    (seek-package
-                                     repo
+                                     (repo id)
                                      vet))]
                                  (mkerror
                                    :present-package-conflict
@@ -526,11 +521,8 @@
                         (= status :present)
                         (let [[status query-response]
                               (seek-package
-                                safe-spec-call
-                                repo
-                                absent-specs
-                                id
-                                spec)]
+                                (repo id)
+                                vet)]
                           (if (= status :successful)
                             (let [filtered-query-results
                                   (cull query-response)]

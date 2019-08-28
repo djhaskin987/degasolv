@@ -35,12 +35,15 @@
   :profiles {
              :dev {
                    :dependencies [
+                                  ;; ordered set for version suggestion
+                                  [org.flatland/ordered "1.5.7"]
                                   [org.clojure/core.match "0.3.0-alpha5"]
                                   [org.clojure/clojure "1.10.1"]
                                   [serovers "1.6.2"]
                                   [org.clojure/tools.cli "0.3.5"]
                                   [com.velisco/tagged "0.5.0"]
-                                  [org.clojure/data.json "0.2.6"]
+                                  ;; optional dependencies to clj-http
+                                  [cheshire "5.9.0"]
                                   ]
                    :plugins [[test2junit "1.3.3"]]
                    :test2junit-output-dir "target/test-results"
