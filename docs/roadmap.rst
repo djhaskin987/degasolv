@@ -28,6 +28,14 @@ after all. Nevertheless, for what it's worth, here is the current roadmap.
   read bitbucket, bitbucket server, github, github server, gitlab, gitlab
   server, and raw git repos.
 
+- **Inclusive/Absent corner case**: In the case that ``conflict-strat`` is
+  inclusive, a case may arise where an absence is required, but then another
+  requirement asks for the same package to be present at a conflicting version.
+  basically, what do requirements of absence mean within and inclusive context.
+  because right now when absence requirements are given, they hold force even
+  in inclusive contexts. This seems silly. Requirements of absence should just
+  be ignored when ``conflict-strat`` is ``inclusive``.
+
 Future Features
 ---------------
 - **Compile with GraalVM's ``native-image``**: Compile degasolv to machine
