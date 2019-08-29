@@ -36,6 +36,8 @@ after all. Nevertheless, for what it's worth, here is the current roadmap.
   in inclusive contexts. This seems silly. Requirements of absence should just
   be ignored when ``conflict-strat`` is ``inclusive``.
 
+- Fix #17, it is awful.
+
 Future Features
 ---------------
 - **Compile with GraalVM's ``native-image``**: Compile degasolv to machine
