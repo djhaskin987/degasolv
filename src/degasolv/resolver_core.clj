@@ -386,16 +386,17 @@
     (if (empty? remaining)
       [:unsuccessful
        failure-record]
-      (let [falt (first remaining)
-            ralt (rest remaining)
-            [status result :as response] (try-candidate falt)]
+      (let [fcand (first remaining)
+            rcand (rest remaining)
+            [status result :as response] (try-candidate fcand)]
+        (dbg fcand)
         (if (successful? response)
           response
           (recur
             (if-let [suggestions (:suggestions result)]
               (into (filter vet suggestions)
-                    ralt)
-              ralt)
+                    rcand)
+              rcand)
             (merge-failure-records failure-record result)))))))
 
 (defn make-resolve-deps
