@@ -70,8 +70,8 @@
     (testing
       "Make sure that the bomb version (c20) is skipped."
       (is (.equals [:successful #{a b c30}]
-                   (resolve-dependencies
+                   (dbg (resolve-dependencies
                     [
                      [(present "a")]
                      ]
-                    query-asc)))))))
+                    query-asc))))))))

@@ -10,6 +10,7 @@
 (defmacro dbg [body]
   `(let [x# ~body]
      (println "dbg:" '~body "=" x#)
+     (flush)
      x#))
 
 (load "resolver_core")

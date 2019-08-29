@@ -335,7 +335,9 @@
 
 (defn make-error
   [present-packages found-packages absent-specs clause reason &
-   {:keys [] :as additional}]
+   {:keys [suggestions additional] :or {suggestions {}
+                                        additional {}}}]
+  (dbg suggestions)
   (let [base-problem
         {:term clause
          :found-packages found-packages
@@ -345,8 +347,14 @@
         problem
         (into base-problem additional)]
     [:unsuccessful
-     {:problems
-      [problem]}]))
+     (if (empty? suggestions)
+       {:problems
+        [problem]}
+       {:problems
+        [problem]
+        :suggestions
+        suggestions})]))
+
 
 
 (defn merge-failure-records
@@ -354,6 +362,9 @@
    Merge using ``(merge-with into ...)`` for everything but suggestions;
    within the suggestions, merge using ``(merge-with set/intersection ...)``."
   [a b]
+  (println "merge-failure-records")
+  (dbg a)
+  (dbg b)
   (let [base-answer (merge-with
                       into
                       (dissoc a :suggestions)
@@ -390,14 +401,17 @@
             rcand (rest remaining)
             [status result :as response] (try-candidate fcand)]
         (dbg fcand)
+        (dbg rcand)
         (if (successful? response)
           response
           (recur
-            (if-let [suggestions (:suggestions result)]
-              (into (filter vet suggestions)
-                    rcand)
+            (if-let [suggestions (:suggestions (dbg result))]
+              (do
+                (print "WHAT")
+                (dbg (into (set/select vet suggestions)
+                           rcand)))
               rcand)
-            (merge-failure-records failure-record result)))))))
+            (dbg (merge-failure-records failure-record result))))))))
 
 (defn make-resolve-deps
   [conflict-strat
@@ -455,6 +469,7 @@
                           (get-pkg-exists present-id-packages)
                           found-package
                           (get-pkg-exists found-id-packages)]
+                      (dbg id)
                       (cond
                         (not
                           (nil? present-package))
@@ -485,27 +500,32 @@
                           (not (nil? present-id-packages)))
                         (mkerror
                           :present-package-conflict
-                          :alternative alternative
-                          :package-present-by :given)
+                          :additional
+                          {:alternative alternative
+                           :package-present-by :given})
                         (and
                           (not (= conflict-strat :inclusive))
                           (not (nil? found-id-packages)))
-                        (if-let [[status pkgs]
+                        (dbg (if-let [[status pkgs]
                                  (first-successful
                                    (seek-package
                                      (repo id)
                                      vet))]
                                  (mkerror
                                    :present-package-conflict
-                                   :alternative alternative
+                                   :additional
+                                   {:alternative alternative
+                                    :package-present-by :found
+                                    :suggestion-attempt :successful}
                                    ;; pass suggestions up the chain
                                    :suggestions
-                                   {id (memset/ordered-set pkgs)}
-                                   :package-present-by :found)
+                                   {id (into (memset/ordered-set) pkgs)})
                                  (mkerror
                                    :present-package-conflict
-                                   :alternative alternative
-                                   :package-present-by :found))
+                                   :additional
+                                   {:alternative alternative
+                                    :package-present-by :found
+                                    :suggestion-attempt :unsuccessful })))
                         (= status :absent)
                         (resolve-deps
                           repo
@@ -560,8 +580,9 @@
                             (let [{problem :problem} query-response
                                   pkg-error (fn [reason]
                                               (mkerror reason
-                                                       :alternative alternative
-                                                       :package-id id))]
+                                                       :additional
+                                                       {:alternative alternative
+                                                        :package-id id}))]
                               (cond
                                 (= problem :empty-query-results)
                                 (pkg-error :package-not-found)
@@ -582,12 +603,12 @@ successful?
     first-successful
     clause-result)
   [:unsuccessful
-   {:problems
-    (flatten
-      (map
-        #(:problems
-           (get % 1))
-        clause-result))}])))))))
+   (reduce
+     merge-failure-records
+     {}
+     (map
+       #(get % 1)
+       clause-result))])))))))
 
 (defn resolve-dependencies
   [requirements
