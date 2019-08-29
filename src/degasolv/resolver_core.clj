@@ -337,7 +337,6 @@
   [present-packages found-packages absent-specs clause reason &
    {:keys [suggestions additional] :or {suggestions {}
                                         additional {}}}]
-  (dbg suggestions)
   (let [base-problem
         {:term clause
          :found-packages found-packages
@@ -362,9 +361,6 @@
    Merge using ``(merge-with into ...)`` for everything but suggestions;
    within the suggestions, merge using ``(merge-with set/intersection ...)``."
   [a b]
-  (println "merge-failure-records")
-  (dbg a)
-  (dbg b)
   (let [base-answer (merge-with
                       into
                       (dissoc a :suggestions)
@@ -374,9 +370,9 @@
             (assoc
               base-answer
               :suggestions
-              (set/intersection
-                a-suggestions
-                b-suggestions))
+              (merge-with set/intersection
+                          a-suggestions
+                          b-suggestions))
             (assoc
               base-answer
               :suggestions
@@ -394,24 +390,24 @@
    candidates]
   (loop [remaining candidates
          failure-record {}]
+    (dbg remaining)
     (if (empty? remaining)
       [:unsuccessful
        failure-record]
       (let [fcand (first remaining)
             rcand (rest remaining)
+            id (:id fcand)
             [status result :as response] (try-candidate fcand)]
-        (dbg fcand)
-        (dbg rcand)
         (if (successful? response)
           response
           (recur
-            (if-let [suggestions (:suggestions (dbg result))]
-              (do
-                (print "WHAT")
-                (dbg (into (set/select vet suggestions)
-                           rcand)))
-              rcand)
-            (dbg (merge-failure-records failure-record result))))))))
+              (if-let [relevant-suggestions
+                       (get (:suggestions result) id)]
+                (into (set/select vet relevant-suggestions)
+                           rcand)
+
+                rcand)
+            (merge-failure-records failure-record result)))))))
 
 (defn make-resolve-deps
   [conflict-strat
@@ -469,7 +465,6 @@
                           (get-pkg-exists present-id-packages)
                           found-package
                           (get-pkg-exists found-id-packages)]
-                      (dbg id)
                       (cond
                         (not
                           (nil? present-package))
@@ -506,7 +501,7 @@
                         (and
                           (not (= conflict-strat :inclusive))
                           (not (nil? found-id-packages)))
-                        (dbg (if-let [[status pkgs]
+                        (if-let [[status pkgs]
                                  (first-successful
                                    (seek-package
                                      (repo id)
@@ -525,7 +520,7 @@
                                    :additional
                                    {:alternative alternative
                                     :package-present-by :found
-                                    :suggestion-attempt :unsuccessful })))
+                                    :suggestion-attempt :unsuccessful }))
                         (= status :absent)
                         (resolve-deps
                           repo
