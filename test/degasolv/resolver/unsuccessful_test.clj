@@ -180,7 +180,7 @@
                :found-packages {"a"
                                 [a2]
                                 "b"
-                                [b3]}
+                                [b2]}
                :present-packages {}
                :absent-specs {}
                :reason :package-not-found
@@ -190,7 +190,7 @@
                :found-packages {"a"
                                 [a2]
                                 "b"
-                                [b2]}
+                                [b3]}
                :present-packages {}
                :absent-specs {}
                :reason :package-not-found

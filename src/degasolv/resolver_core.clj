@@ -389,25 +389,30 @@
    vet
    candidates]
   (loop [remaining candidates
-         failure-record {}]
-    (dbg remaining)
+         failure-record {}
+         previously-examined #{}]
     (if (empty? remaining)
       [:unsuccessful
        failure-record]
       (let [fcand (first remaining)
             rcand (rest remaining)
             id (:id fcand)
+            already-seen (conj previously-examined fcand)
             [status result :as response] (try-candidate fcand)]
         (if (successful? response)
           response
           (recur
               (if-let [relevant-suggestions
                        (get (:suggestions result) id)]
-                (into (set/select vet relevant-suggestions)
+                (into (set/select (fn [y]
+                                    (and (not (already-seen y))
+                                         (vet y)))
+                                  relevant-suggestions)
                            rcand)
 
                 rcand)
-            (merge-failure-records failure-record result)))))))
+            (merge-failure-records failure-record result)
+            already-seen))))))
 
 (defn make-resolve-deps
   [conflict-strat
