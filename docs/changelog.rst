@@ -17,6 +17,8 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+- Added version suggestion, allowing for minimum version selection
+
 - If the reason for failure in the ``resolve-dependencies`` function
   is ``:present-package-conflict``, add a key ``:package-present-by`` with
   value as either ``:found`` meaning the package was in conflict with a package
