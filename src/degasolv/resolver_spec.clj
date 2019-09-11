@@ -6,11 +6,15 @@
                     :greater-equal
                     :greater-than})
 
+(def str-id-pattern "[^!=<>]*")
+(def id-regex (re-pattern (str "^" str-id-pattern "$")))
+
 (s/def ::id (s/and
               string?
-              #(not (empty? %))))
+              #(re-matches #"^[^!=<>]+$")
+              #(re-matches #"^\p{Print}+$")))
 
-(def str-version-pattern "[A-Za-z0-9][A-Za-z0-9]*([.-][A-Za-z0-9]+)*")
+(def str-version-pattern "(\\p{Alnum}|\\p{Punct})*")
 
 (def version-regex (re-pattern (str
                                  "^"
@@ -72,6 +76,7 @@
            ::package
            :into [])))
 
+
 (def str-equals-pattern "==")
 (def str-relation-pattern "(>=|==|!=|<=|<|>)")
 (def str-id-pattern "[^>=<!;,|]+")
@@ -123,9 +128,9 @@
       "^"
       str-frozen-package-pattern
       "$")))
+
 (s/def ::frozen-package-string
        #(re-matches str-frozen-package-regex %))
 
 (s/def ::requirement-string
        #(re-matches str-requirement-regex %))
-
