@@ -1,4 +1,5 @@
 /target
+.cpcache
 /pkg/
 /presentation/target/
 /presentation/auto/
