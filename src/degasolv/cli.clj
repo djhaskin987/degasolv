@@ -218,7 +218,7 @@
                                     #(- (version-comparison
                                           (:version %1)
                                           (:version %2))))]
-              (fn [x] (into [] (sort vercmp (second x))))))]
+              (fn [x] (into [] (sort vercmp x)))))]
     (degasolv-pkg/generate-repo-index!
       search-directory
       index-file
