@@ -92,7 +92,7 @@ jobs:
       - checkout
       - run: cp -af /tmp/workspace/target ./
       - run:
-          name: "Package debian for CentOS 7"
+          name: "Package rpm for CentOS 7"
           command: buildutils/package rpm
           no_output_timeout: 30m
       - run: mv target/package target/package_c7
@@ -103,6 +103,28 @@ jobs:
       - store_artifacts:
           path: target/package_c7/
           destination: package_c7/
+
+  package_centos8:
+    docker:
+      - image: djhaskin987/graal-lein-fpm:centos8
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run:
+          name: "Package rpm for CentOS 8"
+          command: buildutils/package rpm
+          no_output_timeout: 30m
+      - run: mv target/package target/package_c8
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/package_c8/*.rpm
+      - store_artifacts:
+          path: target/package_c8/
+          destination: package_c8/
 
   test_ubuntu16_package:
     docker:
@@ -130,7 +152,7 @@ jobs:
 
   test_centos7_package:
     docker:
-      - image: bzohdy/centos-sudo:latest
+      - image: djhaskin987/test-centos-installer:centos7
     version: 2
     steps:
       - attach_workspace:
@@ -138,6 +160,18 @@ jobs:
       - checkout
       - run: cp -af /tmp/workspace/target ./
       - run: mv target/package_c7 target/package
+      - run: buildutils/test-install-package-centos
+
+  test_centos8_package:
+    docker:
+      - image: djhaskin987/test-centos-installer:centos8
+    version: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: cp -af /tmp/workspace/target ./
+      - run: mv target/package_c8 target/package
       - run: buildutils/test-install-package-centos
 
 workflows:
@@ -155,6 +189,9 @@ workflows:
       - package_centos7:
           requires:
             - lein_tests
+      - package_centos8:
+          requires:
+            - lein_tests
       - test_ubuntu16_package:
           requires:
             - package_ubuntu16
@@ -164,3 +201,6 @@ workflows:
       - test_centos7_package:
           requires:
             - package_centos7
+      - test_centos8_package:
+          requires:
+            - package_centos8
