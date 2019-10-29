@@ -6,13 +6,13 @@
                     :greater-equal
                     :greater-than})
 
-(def str-id-pattern "[^!=<>]*")
+(def str-id-pattern "[^>=<!;,|]+")
 (def id-regex (re-pattern (str "^" str-id-pattern "$")))
 
 (s/def ::id (s/and
               string?
-              #(re-matches #"^[^!=<>]+$")
-              #(re-matches #"^\p{Print}+$")))
+              #(re-matches id-regex %)
+              #(re-matches #"^\p{Print}+$" %)))
 
 (def str-version-pattern "(\\p{Alnum}|\\p{Punct})*")
 
@@ -79,7 +79,6 @@
 
 (def str-equals-pattern "==")
 (def str-relation-pattern "(>=|==|!=|<=|<|>)")
-(def str-id-pattern "[^>=<!;,|]+")
 (def str-version-predicate-pattern
   (str str-relation-pattern
        str-version-pattern))
