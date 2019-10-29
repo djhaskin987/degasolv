@@ -29,24 +29,22 @@
   [search-directory
    index-file
    add-to
-   version-comparator
+   sortindex
    ]
   (let [output-file index-file
         initial-repository
         (if add-to
           (tag/read-string
             (default-slurp add-to))
-          (hash-map))]
+          (hash-map))
+        ]
     (default-spit
       output-file
         (into (hash-map)
               (map
                 (fn [x]
                   [(first x)
-                   (into []
-                         (sort #(- (version-comparator (:version %1)
-                                                       (:version %2)))
-                               (second x)))])
+                   (sortindex (second x))])
                 (reduce
                   (fn merg [c v]
                     (update-in c [(:id v)] conj v))
