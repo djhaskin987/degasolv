@@ -209,13 +209,14 @@
                 add-to
                 index-sort-order
                 ]} options
+        version-comparator (get version-comparators version-comparison)
         sortindex
           (if (= index-sort-order "as-is")
             (fn [x] x)
             (let [vercmp (if (= index-sort-order "ascending")
-                           #(version-comparison (:version %1)
+                           #(version-comparator (:version %1)
                                                 (:version %2))
-                                    #(- (version-comparison
+                                    #(- (version-comparator
                                           (:version %1)
                                           (:version %2))))]
               (fn [x] (into [] (sort vercmp x)))))]

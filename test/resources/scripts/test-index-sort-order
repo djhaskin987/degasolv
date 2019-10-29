@@ -36,7 +36,7 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
 
 java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -O ascending -d $PWD -I $PWD/ascending.dsrepo
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -O descending -d $PWD -I $PWD/descending.dsrepo
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index --index-sort-order descending -d $PWD -I $PWD/descending.dsrepo
 
 if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
