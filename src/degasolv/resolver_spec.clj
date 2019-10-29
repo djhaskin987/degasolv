@@ -11,8 +11,7 @@
 
 (s/def ::id (s/and
               string?
-              #(re-matches id-regex %)
-              #(re-matches #"^\p{Print}+$" %)))
+              #(re-matches id-regex %)))
 
 (def str-version-pattern "(\\p{Alnum}|\\p{Punct})*")
 

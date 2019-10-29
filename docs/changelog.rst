@@ -39,6 +39,11 @@ Fixed
 
 - Fix #16
 
+- Fix spec for package id's. This should have the effect of enforcing that
+  names should not have ``>``, ``<``, ``!``, ``=``, ``,``, ``;``, or ``|``
+  characters in them. This simply has the effect of changing the error message,
+  as this was never allowed but handled poorly.
+
 `2.0.0`_
 --------
 
