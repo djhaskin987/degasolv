@@ -103,36 +103,36 @@ This database will allow us to track and manage:
       on the commandline. Its order will be reset if it is encountered again.
       It can be turned off with ``--disable-from-installation``. Last wins.
 
-- [ ] A new subcommand, ``init-installation``, would require that ``--installation`` were given,
-      optional username and password for the
-      connection. It would record present configuration (that is,
-      configuration as observed by init-installation),
-      and set up the necessary tables for future use.
+- [ ] A new subcommand, ``init-installation``, would require that
+  ``--installation`` were given, optional username and password for the
+  connection. It would record present configuration (that is, configuration as
+  observed by init-installation), and set up the necessary tables for future
+  use.
 
 - [ ] A new subcommand, ``resolve-dependents``, that takes an installation,
-      package and version (presumably installed) and lists all packages and
-      versions that depend on that version of that package.
+  package and version (presumably installed) and lists all packages and
+  versions that depend on that version of that package.
 
-      - [ ] A new function, ``resolve-dependents``, that takes a package and version
-            and query function and uses the query function to determine
-            what other packages depend on the current package, recursively.
+      - [ ] A new function, ``resolve-dependents``, that takes a package and
+        version and query function and uses the query function to determine
+        what other packages depend on the current package, recursively.
 
 - [ ] A new subcommand, ``install-package``, that would take a plain list or
-      json blob of packages and installs them provided their resources
-      were mutually exclusive with each other and all installed packages
-      (see below) and provided their dependencies were met. this can easily
-      be done by calling ``resolve-dependencies`` with a nullary query function
-      and big list of packages to install. Dependencies will not be checked
-      if ``--force`` is present.
+  json blob of packages and installs them provided their resources were
+  mutually exclusive with each other and all installed packages (see below) and
+  provided their dependencies were met. this can easily be done by calling
+  ``resolve-dependencies`` with a nullary query function and big list of
+  packages to install. Dependencies will not be checked if ``--force`` is
+  present.
 
 - [ ] A new subcommand, ``remove-package``, that would take a plain list or
-      json blob of packages and remove them provided all dependencies were met.
-      Package dependencies will not be checked if ``--force`` is present.
+  json blob of packages and remove them provided all dependencies were met.
+  Package dependencies will not be checked if ``--force`` is present.
 
-- [ ] A new subcommand, ``list-packages``, that would yield to standard out
-      a plain/json list of packages from an installation. It would take an
-      optional parameter that lists out a particular package at a particular version,
-      or all packages matching only a package name.
+- [ ] A new subcommand, ``list-packages``, that would yield to standard out a
+  plain/json list of packages from an installation. It would take an optional
+  parameter that lists out a particular package at a particular version, or all
+  packages matching only a package name.
 
 A New Notion of Resources
 +++++++++++++++++++++++++
@@ -161,19 +161,19 @@ With this new notion of resources, resource management can be correctly
 implemented upon package installation, removal, creation, and verification.
 
 - [ ] A new option needs to be added to ``generate-card`` to specify resources.
-      This would be an executable that would take a package name, version and
-      location and would return resources in JSON over standard output.
+  This would be an executable that would take a package name, version and
+  location and would return resources in JSON over standard output.
 
 - [ ] A new subcommand, ``verify-package``, needs to be created that verifies
-      listed package resources against listed resources. This would take an
-      executable as an option that took the name and type of a resource and yielded
-      a string on standard output that would be the state. A diff of the supposed
-      state and the actual state would be printed. If no arguments are given, it
-      lists verification information for all such packages, plain/json.
+  listed package resources against listed resources. This would take an
+  executable as an option that took the name and type of a resource and yielded
+  a string on standard output that would be the state. A diff of the supposed
+  state and the actual state would be printed. If no arguments are given, it
+  lists verification information for all such packages, plain/json.
 
-- [ ] A feature of ``install-package``: A package can only be installed if
-      no package, currently being installed or previously installed,
-      installs the same resources.
+- [ ] A feature of ``install-package``: A package can only be installed if no
+  package, currently being installed or previously installed, installs the same
+  resources.
 
 2.1.0
 -----
@@ -189,8 +189,7 @@ implemented upon package installation, removal, creation, and verification.
       and if the dependencies are the same as the previous candidate, then skip
       the candidate; do not try it.
 
-      This was cancelled because it was not needed to implement version
-      suggestion, when at first I thought I would need it.
+      This was cancelled because it was problematic.
 
     - [ ] Minimum version preference: In generate repo index, add option to
       sort packages the other way.
