@@ -211,15 +211,13 @@
                 ]} options
         version-comparator (get version-comparators version-comparison)
         sortindex
-          (if (= index-sort-order "as-is")
-            (fn [x] x)
-            (let [vercmp (if (= index-sort-order "ascending")
-                           #(version-comparator (:version %1)
-                                                (:version %2))
-                                    #(- (version-comparator
-                                          (:version %1)
-                                          (:version %2))))]
-              (fn [x] (into [] (sort vercmp x)))))]
+        (let [vercmp (if (= index-sort-order "ascending")
+                       #(version-comparator (:version %1)
+                                            (:version %2))
+                       #(- (version-comparator
+                             (:version %1)
+                             (:version %2))))]
+          (fn [x] (into [] (sort vercmp x))))]
     (degasolv-pkg/generate-repo-index!
       search-directory
       index-file
@@ -616,13 +614,12 @@
                           (and (.isDirectory ^java.io.File f)
                                (.exists ^java.io.File f)))
                        "Must be a directory which exists on the file system."]]
-
            ["-O" "--index-sort-order ORDER"
-            "May be 'ascending', 'descending' or 'as-is'."
+            "May be 'ascending' or 'descending'."
             :default nil
             :default-desc "descending"
-            :validate [#(some #{%} ["ascending" "descending" "as-is"])
-                       "Index sort order may be 'ascending', 'descending' or 'as-is'."]]
+            :validate [#(some #{%} ["ascending" "descending"])
+                       "Index sort order may be 'ascending' or 'descending'."]]
            ["-I" "--index-file FILE"
             "The name of the repo file"
             :default nil
