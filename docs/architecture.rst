@@ -31,15 +31,15 @@ So I decided to build a tool that would do these things:
 Core Resolver
 -------------
 
-At the core of degasolv is a monster method called `resolve-dependencies`_. It
+At the core of Degasolv is a monster method called `resolve-dependencies`_. It
 is a rather large method with a backtracking SAT-solver-ish design. Originally
 it was written to have a :ref:`conflict-strat<conflict-strat>` of ``exclusive``
 and a :ref:`resolve-strat<resolve-strat>` of ``thorough`` hard-coded. In other
-words, the "first class" original use case of degasolv was a SAT-solver-class
+words, the "first class" original use case of Degasolv was a SAT-solver-class
 depedency resolver that only allowed a single version of any dependency, and
 ensured that all parties depending on that dependency had a chance to agree on
-what was chosen. These options were later added to allow degasolv to act more
-like maven and give any Building Engineer using degasolv useful "handbreaks" to
+what was chosen. These options were later added to allow Degasolv to act more
+like maven and give any Building Engineer using Degasolv useful "handbreaks" to
 change how resolution was being done in-house so that it could be modified to
 conform to business needs. Other options, such as `list-strat<list-strat>` and
 `search-strat<search-strat>` were added as time progressed as well for similar

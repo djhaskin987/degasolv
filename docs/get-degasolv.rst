@@ -44,7 +44,7 @@ Degasolv lives out on `Github`_.
 Support & Problems
 ------------------
 
-If you have a hard time using degasolv to resolve dependencies within
+If you have a hard time using Degasolv to resolve dependencies within
 builds, it is a bug! Please do not hesitate to let the authors know
 via `GitHub issue`_ :).
 
@@ -59,6 +59,7 @@ You can also talk to us using `Gitter`_ or the `Google Group "degasolv-users"`_.
 Contributions
 -------------
 
-Please contribute to Degasolv! `Pull requests`_ are most welcome.
+Please contribute to Degasolv! `Pull requests`_ are most welcome. Please
+have a look at the :ref:`Contributing Guide` first.
 
 .. _Pull requests: https://github.com/djhaskin987/degasolv/pulls
