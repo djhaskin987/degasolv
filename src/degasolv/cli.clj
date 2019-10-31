@@ -614,16 +614,16 @@
                           (and (.isDirectory ^java.io.File f)
                                (.exists ^java.io.File f)))
                        "Must be a directory which exists on the file system."]]
+           ["-I" "--index-file FILE"
+            "The name of the repo file"
+            :default nil
+            :default-desc (str (:index-file subcommand-option-defaults))]
            ["-O" "--index-sort-order ORDER"
             "May be 'ascending' or 'descending'."
             :default nil
             :default-desc "descending"
             :validate [#(some #{%} ["ascending" "descending"])
                        "Index sort order may be 'ascending' or 'descending'."]]
-           ["-I" "--index-file FILE"
-            "The name of the repo file"
-            :default nil
-            :default-desc (str (:index-file subcommand-option-defaults))]
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
