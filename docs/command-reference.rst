@@ -60,7 +60,7 @@ a page that looks something like this::
 
 
 .. note:: In this guide, for brevity, the reference is presented
-  as if the command to execute degasolv were simply ``degasolv`` rather
+  as if the command to execute Degasolv were simply ``degasolv`` rather
   than the more correct ``java -jar degasolv-<version>-standalone.jar``. A
   bash or batch script can easily be made to turn one command into the other,
   and the change was made to the former form for clarity.
@@ -70,7 +70,7 @@ a page that looks something like this::
 A Note on Specifying Files
 ++++++++++++++++++++++++++
 
-As of version 1.3.0, The whenever an option takes a file in degasolv,
+As of version 1.3.0, The whenever an option takes a file in Degasolv,
 the user can actually specify one of three things:
 
   1. An ``http://`` or ``https://`` URL. No authentication is
@@ -358,8 +358,8 @@ the config file are ignored.
 The following option packs are supported in the current version:
   - ``v1``: Added as of version 2.0.0 . Implies
     ``--list-strat as-set`` and ``--disable-error-format``. This
-    pack was added to help support legacy deployments of degasolv.
-    It should be noted that to achieve full compatibility with degasolv
+    pack was added to help support legacy deployments of Degasolv.
+    It should be noted that to achieve full compatibility with Degasolv
     version 1, the argument ``--version-comparison maven`` should be used
     as well as this option pack. It could not be included in the option
     pack due to complications with the version comparison option and its
@@ -414,17 +414,17 @@ returns a page that looks something like this::
         --conflict-strat STRAT    exclusive      May be 'exclusive', 'inclusive' or 'prioritized'.
         --repository INDEX                       Search INDEX for packages. **
         --enable-alternatives                    Consider all alternatives (default)
-        --id true                                ID (name) of the package
+        --id ID                                  ID (name) of the package
         --query QUERY                            Display packages matching query string.
         --disable-alternatives                   Consider only first alternatives
         --add-to INDEX                           Add to repo index INDEX
         --card-file FILE          ./out.dscard   The name of the card file
         --present-package PKG                    Hard present package. **
         --resolve-strat STRAT     thorough       May be 'fast' or 'thorough'.
-        --location true                          URL or filepath of the package
+        --location LOCATION                      URL or filepath of the package
         --package-system SYS      degasolv       May be 'degasolv' or 'apt'.
         --version-comparison CMP  semver         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
-        --version true                           Version of the package
+        --version VERSION                        Version of the package
     -h, --help                                   Print this help page
 
 Overview of ``display-config``
@@ -467,11 +467,11 @@ returns a page that looks something like this::
     used more than once.
 
     -C, --card-file FILE   ./out.dscard  The name of the card file
-    -i, --id true                        ID (name) of the package
-    -l, --location true                  URL or filepath of the package
+    -i, --id ID                          ID (name) of the package
+    -l, --location LOCATION              URL or filepath of the package
     -m, --meta K=V                       Add additional metadata
     -r, --requirement REQ                List requirement **
-    -v, --version true                   Version of the package
+    -v, --version VERSION                Version of the package
     -h, --help                           Print this help page
 
   The following options are required for subcommand `generate-card`:
@@ -683,6 +683,7 @@ returns a page that looks something like this::
     -a, --add-to INDEX                          Add to repo index INDEX
     -d, --search-directory DIR    .             Find degasolv cards here
     -I, --index-file FILE         index.dsrepo  The name of the repo file
+    -O, --index-sort-order ORDER  descending    May be 'ascending' or 'descending'.
     -V, --version-comparison CMP  maven         May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'.
     -h, --help                                  Print this help page
 
@@ -738,6 +739,45 @@ Specify the Repo Index File
 
 Write the index file at the location ``FILE``. Default value is
 ``index.dsrepo``. It is good practice to use the default value.
+
+.. _index-sort-order:
+
+Specify the Index Sort Order
+****************************
+
++-----------------------------+---------------------------------------+
+| Short option                | ``-O ORDER``                          |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--index-sort-order ORDER``          |
++-----------------------------+---------------------------------------+
+| EDN Config file key         | ``:index-sort-order "ORDER"``         |
++-----------------------------+---------------------------------------+
+| JSON Config file key        | ``"index-sort-order": "ORDER",``      |
++-----------------------------+---------------------------------------+
+| Version introduced          | 2.1.0                                 |
++-----------------------------+---------------------------------------+
+
+Specify that the packages within the index should be sorted by version number
+in either ``descending`` or ``ascending`` order. This has a significant impact
+on which version Degasolv chooses during dependency resolution.
+
+Degasolv "trusts" the index. The index lists versions packages under a
+particular package name in a particular order, and Degasolv tries packages
+according to the order found in the index. This means that if the list of
+available package versions for any particular package name are sorted in
+descending order by version, then Degasolv will try the latest versions first.
+This is almost always what admins want in most dependency settings, and so has
+been the default for Degasolv before version 2.1.0 .
+
+However, with the advent of golang's use of `Minimum Version Selection`_, a use
+case has arisen for picking the smallest version first as part of resolution.
+
+As of version 2.1.0, specific performance enhancements (internally labelled
+"version suggestion"), together with the option to specify an ``ascending``
+version index sort order, allows the admin to ask Degasolv to practice
+minimum version selection.
+
+.. _Minimum Version Selection: https://research.swtch.com/vgo-mvs
 
 .. _version-comparison-generate:
 
@@ -973,6 +1013,8 @@ option on a command line, the last argument of the two specified wins.
    in the first place. This option is intended generally for use
    when debugging a build. If it *is* used routinely, it should be used
    `site-wide`_.
+
+.. _search-strat:
 
 Specify Solution Search Strategy
 ********************************
@@ -1504,6 +1546,9 @@ authentication is required to download the index, as in this example::
 
 .. _cURL: https://curl.haxx.se/
 
+
+.. _resolve-strat:
+
 Specify a Resolution Strategy
 *****************************
 
@@ -1608,7 +1653,7 @@ Specify a Package System
 +-----------------------------+---------------------------------------+
 
 Specify package system to use. By default, this
-value is ``degasolv``. This causes the Degasolv ``resolve-locations``
+value is ``degasolv``. This causes the Degasolv's ``resolve-locations``
 command to behave normally.
 
 Other available values are shown below.

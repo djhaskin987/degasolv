@@ -1,7 +1,7 @@
 (ns degasolv.cli
   (:require
     [clojure.pprint :as pprint]
-    [clojure.data.json :as json]
+    [cheshire.core :as json]
     [clojure.edn :as edn]
     [clojure.set :as st]
     [clojure.spec.alpha :as s]
@@ -9,6 +9,7 @@
     [clojure.tools.cli :refer [parse-opts summarize]]
     [clojure.java.io :as io]
     [degasolv.pkgsys.apt :as apt-pkg]
+    [degasolv.pkgsys.git :as git-pkg]
     [degasolv.pkgsys.core :as degasolv-pkg]
     [degasolv.pkgsys.subproc :as subproc-pkg]
     [degasolv.resolver :as r :refer :all]
@@ -41,13 +42,13 @@
   ^:private
   version-comparators
   {
-   "debian" vers/debian-vercmp
-   "maven" vers/debian-vercmp
-   "naive" vers/naive-vercmp
-   "python" vers/python-vercmp
-   "rpm" vers/rpm-vercmp
+   "debian"  vers/debian-vercmp
+   "maven"   vers/debian-vercmp
+   "naive"   vers/naive-vercmp
+   "python"  vers/python-vercmp
+   "rpm"     vers/rpm-vercmp
    "rubygem" vers/rubygem-vercmp
-   "semver" vers/semver-vercmp
+   "semver"  vers/semver-vercmp
    })
 
 (defn required-args-msg [required-args & {:keys [sub-command]}]
@@ -97,7 +98,9 @@
   ^:private
   package-systems
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
-             :version-comparison "debian"}
+          :version-comparison "debian"}
+   "git" {:constructor git-pkg/make-slurper
+          :version-comparison "semver"}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :version-comparison "semver"}
    "subproc" {:constructor subproc-pkg/make-slurper
@@ -203,20 +206,31 @@
   (let [{:keys [search-directory
                 index-file
                 version-comparison
-                add-to]} options]
+                add-to
+                index-sort-order
+                ]} options
+        version-comparator (get version-comparators version-comparison)
+        sortindex
+        (let [vercmp (if (= index-sort-order "ascending")
+                       #(version-comparator (:version %1)
+                                            (:version %2))
+                       #(- (version-comparator
+                             (:version %1)
+                             (:version %2))))]
+          (fn [x] (into [] (sort vercmp x))))]
     (degasolv-pkg/generate-repo-index!
       search-directory
       index-file
       add-to
-      (get version-comparators version-comparison))))
+      sortindex)))
 
 (defn- aggregate-repositories
   [index-strat
    repositories
    genrepo
-   cmp]
+   version-comparator]
   ((aggregator index-strat
-               cmp)
+               version-comparator)
    (flatten
     (map
        (fn [url]
@@ -234,7 +248,7 @@
          }]
       (case (:output-format options)
            "json"
-           (println (json/write-str result-info :escape-slash false))
+           (println (json/generate-string result-info)) ;; escape-slash false
            "edn"
            (println (pr-str result-info))
            "plain"
@@ -359,7 +373,7 @@
         (println
          (case output-format
            "json"
-           (json/write-str result-info :escape-slash false)
+           (json/generate-string result-info)
            "edn"
            (pr-str result-info)
            "plain"
@@ -374,7 +388,7 @@
           (out-exit 3
                     (case output-format
                       "json"
-                      (json/write-str result-info :escape-slash false)
+                      (json/generate-string result-info)
                       "edn"
                       (pr-str result-info)
                       "plain"
@@ -415,10 +429,10 @@
         (get version-comparators version-comparison)
         aggregate-repo
         (aggregate-repositories
-         index-strat
-         repositories
-         (get-in package-systems [package-system :genrepo])
-         version-comparator)
+          index-strat
+          repositories
+          (get-in package-systems [package-system :genrepo])
+          version-comparator)
         req (first (string-to-requirement query))
         {:keys [id spec]} req
         spec-call (make-spec-call
@@ -438,7 +452,7 @@
         (out-exit 2
                   (case output-format
                     "json"
-                    (json/write-str result-info :escape-slash false)
+                    (json/generate-string result-info)
                     "edn"
                     (pr-str result-info)
                     "plain"
@@ -451,7 +465,7 @@
         (println
          (case output-format
            "json"
-           (json/write-str result-info :escape-slash false)
+           (json/generate-string result-info)
            "edn"
            (pr-str result-info)
            "plain"
@@ -473,6 +487,7 @@
    :conflict-strat "exclusive"
    :index-file "index.dsrepo"
    :index-strat "priority"
+   :index-sort-order "descending"
    :output-format "plain"
    :subproc-output-format "json"
    :package-system "degasolv"
@@ -524,7 +539,7 @@
      (fn [m k v] (update-in m [:config-files]
                             (fn add-cfg [coll]
                               (conj coll {:file v
-                                          :read-fn #(json/read-str % :key-fn keyword)}))))]
+                                          :read-fn #(json/parse-string % true)}))))]
     ["-k" "--option-pack PACK" "Specify option pack **"
      :id :option-packs
      :default []
@@ -559,12 +574,12 @@
             "ID (name) of the package"
             :validate [#(not (empty? %))
                        "ID must be a non-empty string."]
-            :required true]
+            ]
            ["-l" "--location LOCATION"
             "URL or filepath of the package"
             :validate [#(not (empty? %))
                        "Location must be a non-empty string."]
-            :required true]
+            ]
            ["-m" "--meta K=V"
             "Add additional metadata"
             :validate [#(re-matches #"^[^=]+=[^=].*$" %)
@@ -585,7 +600,7 @@
             "Version of the package"
             :validate [#(re-matches r/version-regex %)
                        "Sorry, given argument doesn't look like a version."]
-            :required true]
+            ]
            ]}
     "generate-repo-index"
     {:description "Generate repository index based on degasolv package cards"
@@ -603,6 +618,12 @@
             "The name of the repo file"
             :default nil
             :default-desc (str (:index-file subcommand-option-defaults))]
+           ["-O" "--index-sort-order ORDER"
+            "May be 'ascending' or 'descending'."
+            :default nil
+            :default-desc "descending"
+            :validate [#(some #{%} ["ascending" "descending"])
+                       "Index sort order may be 'ascending' or 'descending'."]]
            ["-V" "--version-comparison CMP"
             "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
             :default nil
@@ -791,7 +812,6 @@
                    (hash-map))))
                it)
              (reduce merge it)))
-
 
 (defn -main [& args]
   (let [{:keys [options arguments]}

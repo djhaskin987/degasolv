@@ -17,6 +17,48 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+- Added "version suggestion", a performance enhancement allowing for minimum
+  version selection
+
+- Added the ``:index-sort-order`` option to ``generate-repo-index``,
+  allowing users to specify ``ascending`` or ``descending``. Previously
+  only ``descending`` was supported. With this new option,
+  users will be able to use Degasolv in a minimum version selection
+  configuration.
+
+- If the reason for failure in the ``resolve-dependencies`` function
+  is ``:present-package-conflict``, add a key ``:package-present-by`` with
+  value as either ``:found`` meaning the package was in conflict with a package
+  found during resolution, or with value as ``:given`` meaning the package
+  was in conflict with a package given via the parameter ``present-packages``.
+
+Changed
++++++++
+
+- Removed the deprecated functions ``->requirement``, ``->package``, and
+  ``->version-predicate`` from usage in the code base.
+
+- Removed ``dbg2`` macro in favor of keeping ``dbg``
+
+Fixed
++++++
+
+- Standardized capitalization of the word "Degasolv" to be title case for
+  consistency in the documentation unless it is in a code snippet.
+
+- Fix #16
+
+- Fix spec for package id's. This should have the effect of enforcing that
+  names should not have ``>``, ``<``, ``!``, ``=``, ``,``, ``;``, or ``|``
+  characters in them. This simply has the effect of changing the error message,
+  as this was never allowed but handled poorly.
+
+`2.0.0`_
+--------
+
+Added
++++++
+
 - Documentation saying what return codes are given and what they mean.
 
 - For #15, added ability to specify output format for ``display-config``.
@@ -41,7 +83,7 @@ Changed
   <list-strategy>` set to ``lazy``, a much saner default.
 
 - Option pack ``v1`` :ref:`added <option-pack>` to help administrators
-  keep compatibility with version 1 of degasolv if required.
+  keep compatibility with version 1 of Degasolv if required.
 
 - Default for the ``--version-comparison`` option when ``--package-system``
   is ``degasolv`` set to ``semver`` for
@@ -69,7 +111,7 @@ Fixed
 - Fixed #9, "Heading for 'Specifying Subproc Executable' is wrong in docs"
 
 - Fixed #10, "How do you specify requirements of a package (deps) in the output
-  of a subproc to degasolv?"
+  of a subproc to Degasolv?"
 
 `1.12.1`_
 ---------
@@ -249,7 +291,7 @@ Added
 Fixed
 +++++
 
-- While using the apt data and package system to profile degasolv, I
+- While using the apt data and package system to profile Degasolv, I
   found some rather nasty bugs. This release fixes them. This tool is
   now ready for prime time.
 
@@ -271,7 +313,7 @@ Added
 - Added the ``--present-package`` :ref:`option <present-package>` and
   the ``--package-system`` :ref:`option <package-system>` to the
   :ref:`resolve-locations <resolve-locations>` subcommand.  This was so
-  that degasolv could be profiled using apt package repos
+  that Degasolv could be profiled using apt package repos
   (real-world data) and thereby have its performance optimized.
 
 `1.3.0`_
@@ -308,7 +350,8 @@ Added
 
 - This isn't the first release, but for the purposes of these docs, it is :D
 
-.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/1.12.1...HEAD
+.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/2.0.0...HEAD
+.. _2.0.0: https://github.com/djhaskin987/degasolv/compare/1.12.1...2.0.0
 .. _1.12.1: https://github.com/djhaskin987/degasolv/compare/1.12.0...1.12.1
 .. _1.12.0: https://github.com/djhaskin987/degasolv/compare/1.11.0...1.12.0
 .. _1.11.0: https://github.com/djhaskin987/degasolv/compare/1.10.0...1.11.0

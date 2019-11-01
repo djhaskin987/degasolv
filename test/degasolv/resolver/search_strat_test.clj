@@ -11,7 +11,7 @@
 (deftest ^:unit-tests basic-dfs
   (testing "Make sure ``the puzzle`` still works"
     (let [package-a
-          (->package
+          (->PackageInfo
            "a"
            1
            "a_loc1"
@@ -21,7 +21,7 @@
             ]
            )
           package-b
-          (->package
+          (->PackageInfo
            "b"
            1
            "b_loc1"
@@ -30,7 +30,7 @@
             ]
            )
           package-c
-          (->package
+          (->PackageInfo
            "c"
            1
            "c_loc1"
@@ -39,7 +39,7 @@
             ]
            )
           package-d1
-          (->package
+          (->PackageInfo
            "d"
            1
            "d_loc1"
@@ -48,7 +48,7 @@
             ]
            )
           package-d2
-          (->package
+          (->PackageInfo
            "d"
            2
            "d_loc2"
@@ -57,13 +57,13 @@
             ]
            )
           package-e4
-          (->package
+          (->PackageInfo
            "e"
            4
            "e_loc4"
            nil)
           package-e3
-          (->package
+          (->PackageInfo
            "3"
            3
            "e_loc3"

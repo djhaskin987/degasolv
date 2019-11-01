@@ -3,12 +3,11 @@
    integration point."
   (:require [clojure.string :as string]
             [clojure.java.shell :as sh]
-            [clojure.data.json :as json]
+            [cheshire.core :as json]
             [clojure.walk :as walk]
             [miner.tagged :as tag]
             [degasolv.util :refer :all]
-            [degasolv.resolver :as r :refer :all])
-  (:import (java.util.zip GZIPInputStream)))
+            [degasolv.resolver :as r :refer :all]))
 
 (defn convert-input [raw-repo-info]
   (as-> raw-repo-info it
@@ -61,7 +60,7 @@
       (let [raw-repo-info
             (cond
               (= subproc-output-format "json")
-              (json/read-str out)
+              (json/parse-string out)
               (= subproc-output-format "edn")
               (tag/read-string out)
               :else

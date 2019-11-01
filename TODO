@@ -1,3 +1,0 @@
-- [ ] Docs: common pitfall of subproc: "name" vs "id" in json or
-  strings vs keywords in EDN
-- [ ] 2.0.0 release: run test scripts on graal output as part of the build
