@@ -152,7 +152,7 @@ jobs:
 
   test_centos7_package:
     docker:
-      - image: djhaskin987/test-centos-installer:centos7
+      - image: djhaskin987/test-centos-installers:centos7
     version: 2
     steps:
       - attach_workspace:
@@ -164,7 +164,7 @@ jobs:
 
   test_centos8_package:
     docker:
-      - image: djhaskin987/test-centos-installer:centos8
+      - image: djhaskin987/test-centos-installers:centos8
     version: 2
     steps:
       - attach_workspace:
