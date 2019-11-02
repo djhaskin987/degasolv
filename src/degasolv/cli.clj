@@ -813,6 +813,38 @@
                it)
              (reduce merge it)))
 
+(defn get-env-vars [env-vars]
+  (->> env-vars
+    (filter (fn [[k v]]
+              (re-matches #"^DEGASOLV_[A-Z_]+$" k)))
+    (map (fn [[k v]]
+           (let [option-key (as-> k it
+                                  (subs it 9)
+                                  (string/lower-case it)
+                                  (string/replace it #"_" "-")
+                              (keyword it))]
+             [option-key
+              (if (not
+                    (or (= option-key :alternatives)
+                        (= option-key :error-format)))
+                (if (not (re-matches #".*\^.*" v))
+                  v
+                  (string/split v #"\^")))
+                (cond (= v "true")
+                      true
+                      (= v "false")
+                      false
+                      :else
+                      (throw
+                        (ex-info
+                          (str
+                            "Boolean options require `true` or `false` to be"
+                            "set in environment variables")
+                          {:option
+                           option-key
+                           :value-given v})))])))
+    (into {})))
+
 (defn -main [& args]
   (let [{:keys [options arguments]}
         (parseplz! "degasolv" args cli-spec)]
@@ -847,6 +879,8 @@
                 (:config-files global-options))
               config
               (get-config config-files)
+              env-vars
+              (get-env-vars (System/getenv))
               cli-option-packs (:option-packs global-options)
               selected-option-packs
               (if (empty? cli-option-packs)

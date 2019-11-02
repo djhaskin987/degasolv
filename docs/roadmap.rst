@@ -14,19 +14,6 @@ Future Releases
 
 - [ ] Shortened versions of all subcommands, including documentation updates.
 
-- [ ] Environment-variable specification of options: the ability to specify
-  options using environment variables. Options taking a list will accept
-  comma-separated lists in the environment variable. Commas in strings
-  as values in these lists will simply not be supported in the initial version.
-
-- [ ] Authenticated HTTP and HTTPS connections: we will provide a way by which
-  HTTP and HTTPS connections are authenticated, I think using a .netrc-like
-  mapping between hosts and username/password pairs. Documentation should be
-  written around specifying username and password securely according to needs,
-  whether by standard input using the conventional config file mechanisms, by
-  environment variable, or by command line. Each has security implications that
-  the user needs to be aware of.
-
 - [ ] Documentation and/or code on the topic of supporting the use case of
   different architectures of the same package using prioritized indexes of
   packages named the same with different contents.
@@ -36,7 +23,7 @@ Future Releases
   coincide with upgrading to Clojure 1.11 because native-image doesn't work with
   Clojure 1.10.1 .
 
-2.2.0
+2.3.0
 -----
 
 Package Installation Manager
@@ -81,11 +68,7 @@ This database will allow us to track and manage:
       present any functionality would be turned off, including ignoring the
       installation for configuration items. An optional username and password
       for the connection, ``--installation-username``, and ``--installation-password``,
-      would be allowed. Last wins. Documentation should be written around
-      specifying username and password securely according to needs, whether by
-      standard input using the conventional config file mechanisms, by
-      environment variable, or by command line. Each has security implications
-      that the user needs to be aware of.
+      would be allowed. Last wins. 
 
 - [ ] If the ``--installation`` option is present, the ``resolve-locations``
       subcommand would take the installation into account in its resolution as
@@ -174,6 +157,34 @@ implemented upon package installation, removal, creation, and verification.
 - [ ] A feature of ``install-package``: A package can only be installed if no
   package, currently being installed or previously installed, installs the same
   resources.
+
+
+2.2.0
+-----
+
+- [ ] Environment-variable specification of options: the ability to specify
+  options using environment variables. A string will be returned as the value
+  of the option, unless a caret (``^``) character is present in the string, in
+  which case the string will be split into a list of strings using the caret
+  characters as boundaries. Arguments that take a boolean option will atttempt
+  to parse the string, expecting either the values ``true`` or ``false`` as the
+  value of the string. It is an error for boolean arguments (e.g.,
+  ``DEGASOLV_ALTERNATIVES`` or ``DEGASOLV_ERROR_FORMAT``) to have any other
+  string.
+
+- [ ] Authenticated HTTP and HTTPS connections: we will provide a way by which
+  HTTP and HTTPS connections are authenticated, I think using a .netrc-like
+  mapping between hosts and username/password pairs. Documentation should be
+  written around specifying username and password securely according to needs,
+  whether by standard input using the conventional config file mechanisms, by
+  environment variable, or by command line. Each has security implications that
+  the user needs to be aware of.
+
+- [ ] Documentation should be written around specifying username and password
+  securely according to needs, whether by standard input using the conventional
+  config file mechanisms, by environment variable, or by command line. Each has
+  security implications that the user needs to be aware of.
+
 
 2.1.0
 -----
