@@ -890,8 +890,11 @@
               (as->
                selected-option-packs it
                (mapv available-option-packs it)
-               (into [subcommand-option-defaults] it)
-               (conj it (dissoc config :option-packs))
+               [
+                subcommand-option-defaults
+                it
+                (dissoc config :option-packs)
+                env-vars]
                (conj it (into {}
                               (filter
                                #(not (nil? (second %)))
