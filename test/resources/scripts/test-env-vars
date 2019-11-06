@@ -1,0 +1,104 @@
+#!/bin/sh
+set -eoux
+
+export POSIXLY_CORRECT=1
+
+if [ ! -f './project.clj' -a ! -f './build.boot' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+root_path=${PWD}
+test_home=test/resources/data/test-env-vars
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf "${test_home}"
+mkdir -p "${test_home}"
+cd "${test_home}"
+
+# First, generate the needed cards for resolution.
+
+DEGASOLV_ID="a" DEGASOLV_REQUIREMENTS="^b"
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+     generate-card \
+     -i "a" \
+     -v "1.0.0" \
+     -r "b" \
+     -l "https://example.com/repo/a-1.0.0.zip" \
+     -C $PWD/a-1.0.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    generate-card \
+    -i "b" \
+    -v "2.3.0" \
+    -l "https://example.com/repo/b-2.3.0.zip" \
+    -C $PWD/b-2.3.0.zip.dscard
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar generate-repo-index -d $PWD -I $PWD/index.dsrepo
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --output-format json \
+    --requirement "a<=1.0.0"
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --output-format json \
+    --requirement "z<=1.0.0"
+then
+    exit 1
+fi
+
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --enable-error-format \
+    --output-format json \
+    --requirement "z<=1.0.0" | jq .problems
+then
+    exit 1
+fi
+
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --output-format edn \
+    -R ${PWD}/index.dsrepo \
+    --requirement "a<=1.0.0"
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --output-format edn \
+    -R ${PWD}/index.dsrepo \
+    --requirement "z<=1.0.0"
+then
+    exit 1
+fi
+
+if ! java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+        resolve-locations \
+        --enable-error-format \
+        --output-format edn \
+        -R ${PWD}/index.dsrepo \
+        --requirement "z<=1.0.0" | grep -q -E ':problems'
+then
+    exit 1
+fi
+
+java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --requirement "a<=1.0.0"
+
+if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    -R ${PWD}/index.dsrepo \
+    --requirement "z<=1.0.0"
+then
+    exit 1
+fi
