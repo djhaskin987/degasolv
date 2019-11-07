@@ -872,7 +872,7 @@
                  (if-let [tf (transform-functions option-key)]
                    [option-key (tf v)]
                    [option-key v]))) it)
-        (into {} it)
+            (into {} it)
         (if (or (:config-files it) (:json-config-files it))
           (assoc
             (dissoc it :json-config-files)
@@ -884,12 +884,20 @@
                     (:json-config-files it)]))
           it)))))
 
+(defn expand-option-packs
+  [options]
+  (as-> (:option-packs options) it
+        (mapv available-option-packs it)
+        (into {} it)
+        (merge it options)
+        (dissoc it :option-packs)))
+
 (defn -main [& args]
   (let [env-vars
         (get-env-vars (System/getenv))
         {:keys [options arguments]}
         (parseplz! "degasolv" args cli-spec)
-        global-options (reduce merge [env-vars options])
+        global-options options
         subcommand (first arguments)
         subcommand-cli (:subcommands cli-spec)
         subcmd-cli (if (not (= subcommand "display-config"))
@@ -914,57 +922,68 @@
     (let [{:keys [options arguments]}
           (parseplz! subcommand (rest arguments) subcmd-cli)
           config-files
-          (reduce (fn [[seen result] ^java.io.File new]
+          (reduce (fn [[seen result] {^java.io.File new :file read-fn :read-fn
+                                      :as unit}]
                     (let [abs-path (.getAbsolutePath new)]
                       (if (or (seen abs-path)
-                            (not (.exists new)))
-                      [seen result]
-                      [(conj seen abs-path)
-                       (conj result new)])))
+                              (not (.exists new)))
+                        [seen result]
+                        [(conj seen abs-path)
+                         (conj result unit)])))
                   [#{} []]
-            (into []
-                  (if-let [app-data (System/getenv "AppData")]
-                    [{:file (io/file (string/join java.io.File/pathSeparator
-                                                  [app-data
-                                                   "degasolv"
-                                                   "config.json"]))
-                      :read-fn #(json/parse-string % true)}
-                     {:file (io/file (string/join java.io.File/pathSeparator
-                                                  [app-data
-                                                   "degasolv"
-                                                   "config.edn"]))
-                      :read-fn tag/read-string}])
-                  (if-let [home (System/getenv "HOME")]
-                    [{:file (io/file (string/join java.io.File/pathSeparator
-                                                  [home
-                                                   ".degasolv.json"]))
-                      :read-fn #(json/parse-string % true)}
-                     {:file (io/file (string/join java.io.File/pathSeparator
-                                                 [home
-                                                  ".degasolv.edn"]))
-                      :read-fn tag/read-string}])
-                  [{:file (io/file (string/join java.io.File/pathSeparator
-                                                ["." "degasolv.json"]))
-                    :read-fn #(json/parse-string % true)}
-                   {:file (io/file (string/join java.io.File/pathSeparator
-                                                ["." "degasolv.edn"]))
-                    :read-fn tag/read-string}]
-                  (:config-files global-options)))
+                  (reduce
+                    into
+                    []
+                    [(if-let [app-data (System/getenv "AppData")]
+                       [{:file (io/file (string/join java.io.File/pathSeparator
+                                                     [app-data
+                                                      "degasolv"
+                                                      "config.json"]))
+                         :read-fn #(json/parse-string % true)}
+                        {:file (io/file (string/join java.io.File/pathSeparator
+                                                     [app-data
+                                                      "degasolv"
+                                                      "config.edn"]))
+                         :read-fn tag/read-string}])
+                     (if-let [home (System/getenv "HOME")]
+                       [{:file (io/file (string/join java.io.File/pathSeparator
+                                                     [home
+                                                      ".degasolv.json"]))
+                         :read-fn #(json/parse-string % true)}
+                        {:file (io/file (string/join java.io.File/pathSeparator
+                                                     [home
+                                                      ".degasolv.edn"]))
+                         :read-fn tag/read-string}])
+                     [{:file (io/file (string/join java.io.File/pathSeparator
+                                                   ["." "degasolv.json"]))
+                       :read-fn #(json/parse-string % true)}
+                      {:file (io/file (string/join java.io.File/pathSeparator
+                                                   ["." "degasolv.edn"]))
+                       :read-fn tag/read-string}]
+                     (:config-files env-vars)
+                     (:config-files global-options)]))
           config
           (get-config config-files)
-          cli-option-packs (:option-packs global-options)
-          selected-option-packs
-          (if (empty? cli-option-packs)
-            (into [] (:option-packs config))
-            cli-option-packs)
+          expanded-cfg (expand-option-packs config)
+          expanded-env (expand-option-packs env-vars)
+          expanded-cli (expand-option-packs global-options)
           effective-options
           (as->
-            selected-option-packs it
-            (mapv available-option-packs it)
             [subcommand-option-defaults
-             it
-             (dissoc config :option-packs)
-             env-vars]
+             expanded-cfg
+             (reduce dissoc
+                     expanded-cli
+                     [:config-files
+                      :json-config-files
+                      :edn-config-files
+                      ])
+             (reduce dissoc
+                     expanded-env
+                     [:config-files
+                      :json-config-files
+                      :edn-config-files
+                      ])
+             ] it
             (conj it (into {}
                            (filter
                              #(not (nil? (second %)))

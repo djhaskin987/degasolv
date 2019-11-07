@@ -18,11 +18,20 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+- Configuration file tower
+- Environment variable support: environment variables are consulted first,
+  but "matter" in between config files and command-line options.
+
+
 Changed
 +++++++
 
 Fixed
 +++++
+
+- option packs are expanded at the level upon which they are defined. TODO NEEDS DOCS
+
+- json-config-files are collapsed to config files at the end
 
 `2.1.0`_
 -------------

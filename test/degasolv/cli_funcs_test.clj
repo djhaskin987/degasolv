@@ -2,6 +2,39 @@
   (:require [clojure.test :refer :all]
             [degasolv.cli :refer :all]))
 
+(deftest ^:unit-tests expand-option-packs-test
+         (testing "Empty option packs test"
+                  (is (empty? (expand-option-packs {}))))
+         (testing "Disparate option packs"
+                  (is (empty?
+                        (expand-option-packs
+                          {:option-packs ["a"]}))))
+         (testing "Normal option packs expansion"
+                  (is (=
+                        {
+                         :conflict-strat "prioritized"
+                         :resolve-strat "fast"
+                         :alternatives true
+                         }
+                        (expand-option-packs
+                          {
+                           :option-packs ["firstfound-version-mode"]
+                           :alternatives true
+                           }))))
+         (testing "Option packs override each other"
+                  (is (=
+                        {
+                         :conflict-strat "prioritized"
+                         :resolve-strat "fast"
+                         :alternatives false
+                         :error-format false
+                         :list-strat "as-set"
+                         }
+                        (expand-option-packs
+                          {:option-packs ["v1"
+                                        "multi-version-mode"
+                                        "firstfound-version-mode"]})))))
+
 (deftest ^:unit-tests env-vars-test
          (testing "Works okay with no vars"
                   (is (empty? (get-env-vars nil))))
