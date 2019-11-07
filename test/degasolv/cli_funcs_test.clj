@@ -26,17 +26,31 @@
                         (get-env-vars {"DEGASOLV_ALTERNATIVES"
                                        "literally any other value"}))))
          (testing "Filters out the right ones"
-                  (is (=
-                        {:a "it takes all kinds"
-                         :alternatives true
-                         :error-format false
-                         :conflict-strat "inclusive"
-                         :requirements
-                         ["a>=1,!=2;<=0"
-                          "b|c"]}
-                        (get-env-vars
-                          {"DEGASOLV_A" "it takes all kinds"
-                           "DEGASOLV_ALTERNATIVES" "true"
-                           "DEGASOLV_ERROR_FORMAT" "false"
-                           "DEGASOLV_CONFLICT_STRAT" "inclusive"
-                           "DEGASOLV_REQUIREMENTS" "a>=1,!=2;<=0^b|c" })))))
+                  (let [result (get-env-vars
+                                 {"DEGASOLV_A" "it takes all kinds"
+                                  "DEGASOLV_ALTERNATIVES" "true"
+                                  "DEGASOLV_ERROR_FORMAT" "false"
+                                  "DEGASOLV_CONFLICT_STRAT" "inclusive"
+                                  "DEGASOLV_REQUIREMENTS" "a>=1,!=2;<=0^b|c"
+                                  "DEGASOLV_REPOSITORIES" "https://a^https://b"
+                                  "DEGASOLV_CONFIG_FILES" "a.edn^b.edn"
+                                  "DEGASOLV_JSON_CONFIG_FILES" "a.json^b.json"
+                                  "DEGASOLV_META" "a=1^b=2^c=3" })]
+                    (is (=
+                          {
+                           :a "it takes all kinds"
+                           :alternatives true
+                           :error-format false
+                           :conflict-strat "inclusive"
+                           :requirements
+                           ["a>=1,!=2;<=0"
+                            "b|c"]
+                           :repositories ["https://a", "https://b"]
+                           :meta {
+                                  "a" "1"
+                                  "b" "2"
+                                  "c" "3"
+                                  }
+                           }
+                          (dissoc result :config-files)))
+                    (is (= (count (:config-files result)) 4)))))

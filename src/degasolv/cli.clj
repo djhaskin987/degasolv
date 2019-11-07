@@ -814,10 +814,12 @@
                it)
              (reduce merge it)))
 
-(defn get-env-vars [env-vars]
+(defn
+  get-env-vars
+  [env-vars]
   (letfn [(map-transform [v]
             (->> (string/split v #"\^")
-              (map #(into [] (string/split % #":")))
+              (map #(into [] (string/split % #"=")))
               (into {})))
           (config-transform [f]
             (->> f
@@ -856,10 +858,11 @@
            :present-packages list-transform
            :repositories list-transform
            :requirements list-transform
-           }]
-      (->> env-vars
+           }
+          ]
+      (as-> env-vars it
         (filter (fn [[k v]]
-                  (re-matches #"^DEGASOLV_[A-Z_]+$" k)))
+                  (re-matches #"^DEGASOLV_[A-Z_]+$" k)) it)
         (map (fn [[k v]]
                (let [option-key (as-> k it
                                       (subs it 9)
@@ -868,8 +871,18 @@
                                       (keyword it))]
                  (if-let [tf (transform-functions option-key)]
                    [option-key (tf v)]
-                   [option-key v])))
-             (into {}))))))
+                   [option-key v]))) it)
+        (into {} it)
+        (if (or (:config-files it) (:json-config-files it))
+          (assoc
+            (dissoc it :json-config-files)
+            :config-files
+            (reduce
+                   into
+                   []
+                   [(:config-files it)
+                    (:json-config-files it)]))
+          it)))))
 
 (defn -main [& args]
   (let [env-vars
