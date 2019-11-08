@@ -84,29 +84,90 @@ This is true for options of Degasolv and options for any of its subcommands.
 Explanation of Options
 ++++++++++++++++++++++
 
+There are lots of options to degasolv and a few ways in which to specify them.
+This section details the ways by which they should be specified.
+
+Global Options
+**************
+
 Degasolv parses global options before it parses subcommands or the options for
 subcommands; therefore, global options need to be specified first. If any
 option, whether global or for a subcommand is given incorrectly, the program
 exits with a return code of 1.
 
+.. _environment-variables:
+
+Environment Variables
+*********************
+
+Every option in Degasolv has a corresponding environment variable which, if
+set, will be consulted for the value of that option. Each option in
+this document will have its corresponding environment variable listed next
+to it.
+
+* Options which take a boolean value must be specified as ``true` or ``false`,
+  as in ``export DEGASOLV_ALTERNATIVES=true``.
+
+* Options which take a list will be specified as a single string of values
+  separated by the caret (``^``) character, as in
+  ``export DEGASOLV_REQUIREMENTS=a^b^c``.
+
+* The ``:meta`` option is the only option that takes a map or dictionary of
+  values. In this option, keys and values are separated by the equals sign
+ (``=``) and the list of key/value pairs are also separated by the caret
+ character, as in ``k=v^k=v^k=v...``
+
+.. note:: The environment variables and their formatting will be
+   listed for the options of all the subcommands in this document;
+   however, **environment variables can only be used with Degasolv version
+   2.2.0 or greater.** This point bears special emphasis. Lots of config
+   options say they were released in earlier versions. This is true; however,
+   the only format of config file available for use was the EDN config file
+   type before version 1.12.0 of Degasolv.
+
 Using Configuration Files
 *************************
 
 Configuration files may be specified at the command line before specifying any
-subcommands. The config file structure is designed so that any command-line
-option may be set in the config file instead, and vice versa.
+subcommands, or in the ``DEGASOLV_CONFIG_FILES`` and/or the
+``DEGASOLV_JSON_CONFIG_FILES`` environemnt. The config file structure is
+designed so that any command-line option may be set in the config file instead,
+and vice versa. More information can be found at `edn-config`_ and
+`json-config`_ below.
 
 In addition, config files may be specified either in the EDN format or JSON
 format. Multiple config files may be specified. "Mixing and matching" of JSON
-and EDN config files is supported.
+and EDN config files is supported. For more information, see the
+`Multiple Configuration Files`_ section.
+
+.. _gathering-options:
+
+How Options are Gathered
+************************
+
+First, the ``DEGASOLV_CONFIG_FILES`` and ``DEGASOLV_JSON_CONFIG_FILES``
+environment variables are consulted to find any configuration files.
+
+Next, the options in the configuration files are consulted and are merged onto
+each other in the order given in those variables, first EDN files and then JSON
+files. The last config file encountered "wins" for any given key for which
+multiple files specify a value.
+
+These options are then added to and overridden by any values in environment
+variables, and finally added to and overridden by any values found
+by consulting the command line options.
+
+.. _edn-config:
 
 Basic EDN Configuration Usage
-#############################
+*****************************
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-c FILE``                           |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--config-file FILE``                |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_CONFIG_FILES=f1^f2^f3``    |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -173,17 +234,17 @@ With this command::
     resolve-locations \
     [...]
 
-
-
 .. _json-config:
 
 Basic JSON Configuration Usage
-##############################
+******************************
 
 +-----------------------------+---------------------------------------+
 | Short option                | ``-j FILE``                           |
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--json-config FILE``                |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_JSON_CONFIG_FILES=f1^f2``  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -235,33 +296,57 @@ The command to use the above JSON config file would look like this::
     resolve-locations \
     [...]
 
+.. _Multiple Configuration Files:
+
 Using Multiple Configuration Files
-##################################
+**********************************
 
 As of version 1.2.0, the ``--config-file`` option may be specified multiple
 times. As of version 1.12.0, the ``--json-config`` option may also be
-specified, and it too may be multiple times.
+specified, and it too may be multiple times. As of version 2.2.0,
+configuration files can be specified using the ``DEGASOLV_CONFIG_FILES``
+and ``DEGASOLV_JSON_CONFIG_FILES`` environment variables.
 
 Degasolv processes JSON config files together with EDN config
 files. Each configuration file specified will get its configuration
 merged into the previously specified configuration files, whether those
-files be EDN or JSON. If both configuration files contain the same option, the
-option specified in the latter specified configuration file will be used.
+files be EDN or JSON. The exception is for environment variables;
+the EDN files specified in the environment will be consulted first, followed by
+the JSON config files specified in the environment, followed by any
+configuration files on the command line whether JSON or EDN.  If both
+configuration files contain the same option, the option specified in the latter
+specified configuration file will be used.
 
 .. _config files section:
 
 As an example, consider the following `display-config command`_::
 
+  DEGASOLV_JSON_CONFIG_FILES="$PWD/y.json" \
+  DEGASOLV_CONFIG_FILES="$PWD/x.edn" \
   degasolv \
     --config-file "$PWD/a.edn" \
     --json-config "$PWD/j.json" \
     --config-file "$PWD/b.edn" \
     display-config
 
-If this is the contents of the file ``a.edn``::
+If this is the contents of the file ``x.edn``::
+
+    {
+        :conflict-strat "inclusive"
+        :error-format false
+    }
+
+And this were the contents of the file ``y.json``::
+
+    {
+        "conflict-strat": "prioritized",
+        "error-format": true
+    }
+
+And this is the contents of the file ``a.edn``::
 
   {
-      :index-strat "priority"
+      :index-strat "prioritized"
       :repositories ["https://example.com/repo1/"]
       :id "a"
       :version "1.0.0"
@@ -270,6 +355,7 @@ If this is the contents of the file ``a.edn``::
 And this were the contents of ``j.json``::
 
   {
+      "id": "j",
       "alternatives": false,
       "requirements": ["x", "y"]
   }
@@ -277,7 +363,6 @@ And this were the contents of ``j.json``::
 And this were the contents of ``b.edn``::
 
   {
-      :conflict-strat "exclusive"
       :repositories ["https://example.com/repo2/"]
       :id "b"
       :version "2.0.0"
@@ -287,14 +372,15 @@ And this were the contents of ``b.edn``::
 Then the output of the above command would look like this::
 
   {
-      :alternatives false,
-      :index-strat "priority",
-      :repositories ["https://example.com/repo2/"],
-      :id "b",
-      :version "2.0.0",
-      :conflict-strat "exclusive",
+      :alternatives false
+      :error-format true
+      :index-strat "priority"
+      :repositories ["https://example.com/repo2/"]
+      :id "b"
+      :version "2.0.0"
+      :conflict-strat "prioritized"
       :requirements []
-      :arguments ["display-config"],
+      :arguments ["display-config"]
   }
 
 .. note:: The JSON config file keys and their formatting will be
@@ -305,10 +391,30 @@ Then the output of the above command would look like this::
    format of config file available for use was the EDN config file type before
    version 1.12.0 of Degasolv.
 
+
+.. _default-configuration-files:
+
+Default Configuration Files
+***************************
+
+All previous versions prior to 2.2.0 of degasolv will look for a file called
+``./degasolv.edn`` if no other config file was specified.
+
+As of version 2.2.0, If no configuration files are specified, they will be
+looked for in the following locations, if they exist, as if they were specified
+in the following order on the command line:
+
+1. ``${AppData}/degasolv/config.edn``
+2. ``${AppData}/degasolv/config.json``
+3. ``${HOME}/.degasolv.edn``
+4. ``${HOME}/.degasolv.json``
+5. ``./degasolv.edn``
+6. ``./degasolv.json``
+
 .. _site-wide:
 
 Using Site-Wide Configuration Files
-###################################
+***********************************
 
 The merging of config files, together with the interesting
 fact that config files may be specified via HTTP/HTTPS URLs,
@@ -327,6 +433,21 @@ build-specific config file, as in this example::
       --config-file "./degasolv.edn" \
       generate-card
 
+Also remember that config files can be specified as environment variables. For
+example, the above example would look like this, if environment variables
+were used::
+
+  export DEGASOLV_CONFIG_FILES="https://nas.example.com/degasolv/site.edn^./degasolv.edn"
+  degasolv \
+      generate-card
+
+Here is a version of that example that uses JSON instead::
+
+
+  export DEGASOLV_JSON_CONFIG_FILES="https://nas.example.com/degasolv/site.json^./degasolv.json"
+  degasolv \
+      generate-card
+
 .. _option-pack:
 .. _option pack:
 
@@ -338,38 +459,52 @@ Option Packs
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--option-pack PACK``                |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:option-packs ["PACK1",...]``       |
+| EDN config file key         | ``:option-packs ["PACK1",...]``       |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"option-packs": ["PACK1",...],``    |
+| JSON config file key        | ``"option-packs": ["PACK1",...],``    |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_OPTION_PACKS="P1^P2^..."`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.7.0                                 |
 +-----------------------------+---------------------------------------+
 
-Specify one or more option packs.
+Specify one or more option packs. The commandline version
+of this option may be specified multiple times.
 
 Degasolv ships with several "option packs", each of which imply
 several Degasolv options at once. When an option pack is specified,
 Degasolv looks up which option pack is used and what options are
-implied by using it. More than one option pack may be specified.  If
-option packs are specified both on the command line and in the config
-file, the option packs on the command line are used and the ones in
-the config file are ignored.
+implied by using it. More than one option pack may be specified.
+
+Prior to version 2.2.0, If option packs were specified both on the command line
+and in the config file, the option packs on the command line are used and the
+ones in the config file were ignored.
+
+As of version 2.2.0, Option packs are "expanded" into
+the options they imply on the level in which they are specified, where in a
+particular configuration file, in the environment, or on the commandline. Then
+options are merged according to the usual rules -- first configuration files
+are merged (see `Multiple Configuration Files`_ on how they are merged), then
+environment variables, and finally commandline options.
 
 The following option packs are supported in the current version:
-  - ``v1``: Added as of version 2.0.0 . Implies
-    ``--list-strat as-set`` and ``--disable-error-format``. This
-    pack was added to help support legacy deployments of Degasolv.
-    It should be noted that to achieve full compatibility with Degasolv
-    version 1, the argument ``--version-comparison maven`` should be used
-    as well as this option pack. It could not be included in the option
-    pack due to complications with the version comparison option and its
-    relationship to how the ``--package-system`` option is affected by it.
-  - ``multi-version-mode``: Added as of version 1.7.0 . Implies
-    ``--conflict-strat inclusive``,
-    ``--resolve-strat fast``, and ``--disable-alternatives``.
-  - ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
-    ``--conflict-strat prioritized``,
-    ``--resolve-strat fast``, and ``--disable-alternatives``.
+
+* ``v1``: Added as of version 2.0.0 . Implies ``--list-strat as-set`` and
+  ``--disable-error-format``. This pack was added to help support legacy
+  deployments of Degasolv.  It should be noted that to achieve full
+  compatibility with Degasolv version 1, the argument ``--version-comparison
+  maven`` should be used as well as this option pack. It could not be included
+  in the option pack due to complications with the version comparison option
+  and its relationship to how the ``--package-system`` option is affected by
+  it.
+
+* ``multi-version-mode``: Added as of version 1.7.0 . Implies
+  ``--conflict-strat inclusive``, ``--resolve-strat fast``, and
+  ``--disable-alternatives``.
+
+* ``firstfound-version-mode``: Added as of version 1.7.0 . Implies
+  ``--conflict-strat prioritized``, ``--resolve-strat fast``, and
+  ``--disable-alternatives``.
 
 Print the Help Page
 *******************
@@ -502,9 +637,11 @@ Specify Location of the Card File
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--card-file FILE``                  |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:card-file "FILE"``                 |
+| EDN config file key         | ``:card-file "FILE"``                 |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"card-file": ["FILE",...],``        |
+| JSON config file key        | ``"card-file": "FILE"``               |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_CARD_FILE="FILE"``         |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -525,9 +662,11 @@ Specify the ID (Name) of the Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--id ID``                           |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:id "ID"``                          |
+| EDN config file key         | ``:id "ID"``                          |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"id": "ID",``                       |
+| JSON config file key        | ``"id": "ID",``                       |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ID="ID"``                  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -545,9 +684,11 @@ Specify the Location of the Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--location LOCATION``               |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:location "LOCATION"``              |
+| EDN config file key         | ``:location "LOCATION"``              |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"location": "LOCATION",``           |
+| JSON config file key        | ``"location": "LOCATION",``           |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_LOCATION="LOCATION"``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -567,9 +708,11 @@ Specify Additional Metadata for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--meta K=V``                        |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:meta {:key1 "value1" ...}``        |
+| EDN config file key         | ``:meta {:key1 "value1" ...}``        |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"meta": {"key1": "value1", ...},``  |
+| JSON config file key        | ``"meta": {"key1": "value1", ...},``  |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_META="k1=v1^k2=v2..."``    |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.11.0                                |
 +-----------------------------+---------------------------------------+
@@ -620,9 +763,11 @@ Specify a Requirement for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--requirement REQ``                 |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:requirements ["REQ1", ...]``       |
+| EDN config file key         | ``:requirements ["REQ1", ...]``       |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"requirements": ["REQ1", ...],``    |
+| JSON config file key        | ``"requirements": ["REQ1", ...],``    |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_REQUIREMENTS="r1^r2..."``  |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -640,9 +785,11 @@ Specify a Version for a Package
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version VERSION``                 |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:version "VERSION"``                |
+| EDN config file key         | ``:version "VERSION"``                |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"version": "VERSION",``             |
+| JSON config file key        | ``"version": "VERSION",``             |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_VERSION="VERSION"``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -710,9 +857,11 @@ Specify the Repo Search Directory
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--search-directory DIR``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:search-directory "DIR"``           |
+| EDN config file key         | ``:search-directory "DIR"``           |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"search-directory": "DIR",``        |
+| JSON config file key        | ``"search-directory": "DIR",``        |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_SEARCH_DIRECTORY="DIR"``   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -730,9 +879,11 @@ Specify the Repo Index File
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-file FILE``                 |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:index-file "FILE"``                |
+| EDN config file key         | ``:index-file "FILE"``                |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"index-file": "FILE",``             |
+| JSON config file key        | ``"index-file": "FILE",``             |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_INDEX_FILE="FILE"``        |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -750,9 +901,11 @@ Specify the Index Sort Order
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-sort-order ORDER``          |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:index-sort-order "ORDER"``         |
+| EDN config file key         | ``:index-sort-order "ORDER"``         |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"index-sort-order": "ORDER",``      |
+| JSON config file key        | ``"index-sort-order": "ORDER",``      |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_INDEX_SORT_ORDER="ORDER"`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 2.1.0                                 |
 +-----------------------------+---------------------------------------+
@@ -789,9 +942,11 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:version-comparison "CMP"``         |
+| EDN config file key         | ``:version-comparison "CMP"``         |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"version-comparison": "CMP",``      |
+| JSON config file key        | ``"version-comparison": "CMP",``      |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_VERSION_COMPARISON="CMP"`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -827,9 +982,11 @@ Add to an Existing Repository Index
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--add-to INDEX``                    |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:add-to "INDEX"``                   |
+| EDN config file key         | ``:add-to "INDEX"``                   |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"add-to": "INDEX",``                |
+| JSON config file key        | ``"add-to": "INDEX",``                |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ADD_TO="INDEX"``           |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -966,9 +1123,11 @@ Enable the Use of Alternatives
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--enable-alternatives``             |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:alternatives true``                |
+| EDN config file key         | ``:alternatives true``                |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"alternatives": true,``             |
+| JSON config file key        | ``"alternatives": true,``             |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ALTERNATIVES="true"``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.5.0                                 |
 +-----------------------------+---------------------------------------+
@@ -991,9 +1150,11 @@ Disable the Use of Alternatives
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--disable-alternatives``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:alternatives false``               |
+| EDN config file key         | ``:alternatives false``               |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"alternatives": false,``            |
+| JSON config file key        | ``"alternatives": false,``            |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ALTERNATIVES="false"``     |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.5.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1024,9 +1185,11 @@ Specify Solution Search Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--search-strat STRAT``              |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:search-strat "STRAT"``             |
+| EDN config file key         | ``:search-strat "STRAT"``             |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"search-strat": "STRAT",``          |
+| JSON config file key        | ``"search-strat": "STRAT",``          |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_SEARCH_STRAT="STRAT"``     |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1048,9 +1211,11 @@ Specify Conflict Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--conflict-strat STRAT``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:conflict-strat "STRAT"``           |
+| EDN config file key         | ``:conflict-strat "STRAT"``           |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"conflict-strat": "STRAT",``        |
+| JSON config file key        | ``"conflict-strat": "STRAT",``        |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_CONFLICT_STRAT="STRAT"``   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.1.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1113,9 +1278,11 @@ Specify List Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--list-strat STRAT``                |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:list-strat "STRAT"``               |
+| EDN config file key         | ``:list-strat "STRAT"``               |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"list-strat": "STRAT",``            |
+| JSON config file key        | ``"list-strat": "STRAT",``            |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_LIST_STRAT="STRAT"``       |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -1164,7 +1331,7 @@ the following rules:
        sheep==1.0 @ http://example.com/repo/sheep-1.0.zip
        steel==1.0 @ http://example.com/repo/steel-1.0.zip
 
-     It is worth noting that commandline arguments are listed in
+     It is worth noting that command line arguments are listed in
      reverse order. Thus, generating a card file with arguments ``-r
      wool -r wood -r sheep`` would yield a list that looks like this::
 
@@ -1188,9 +1355,11 @@ Enable Error Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--enable-error-format``             |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:error-format true``                |
+| EDN config file key         | ``:error-format true``                |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"error-format": true,``             |
+| JSON config file key        | ``"error-format": true,``             |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ERROR_FORMAT="true"``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -1227,9 +1396,11 @@ Disable Error Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--disable-error-format``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:error-format false``               |
+| EDN config file key         | ``:error-format false``               |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"error-format": false,``            |
+| JSON config file key        | ``"error-format": false,``            |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ERROR_FORMAT="false"``     |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -1246,9 +1417,11 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--output-format FORMAT``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:output-format "FORMAT"``           |
+| EDN config file key         | ``:output-format "FORMAT"``           |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"output-format": "FORMAT",``        |
+| JSON config file key        | ``"output-format": "FORMAT",``        |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_OUTPUT_FORMAT="FORMAT"``   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.10.0; EDN introduced 1.11.0         |
 +-----------------------------+---------------------------------------+
@@ -1444,9 +1617,11 @@ Specify that a Package is Already Present
 +-----------------------------+----------------------------------------+
 | Long option                 | ``--present-package PKG``              |
 +-----------------------------+----------------------------------------+
-| EDN Config file key         | ``:present-packages ["PKG1", ...]``    |
+| EDN config file key         | ``:present-packages ["PKG1", ...]``    |
 +-----------------------------+----------------------------------------+
-| JSON Config file key        | ``"present-packages": ["PKG1", ...],`` |
+| JSON config file key        | ``"present-packages": ["PKG1", ...],`` |
++-----------------------------+----------------------------------------+
+| Environment variable        | ``DEGASOLV_PRESENT_PACKAGES="P1^..."`` |
 +-----------------------------+----------------------------------------+
 | Version introduced          | 1.4.0                                  |
 +-----------------------------+----------------------------------------+
@@ -1484,9 +1659,11 @@ Specify a Requirement
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--requirement REQ``                 |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:requirements ["REQ1", ...]``       |
+| EDN config file key         | ``:requirements ["REQ1", ...]``       |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"requirements": ["REQ1", ...],``    |
+| JSON config file key        | ``"requirements": ["REQ1", ...],``    |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_REQUIREMENTS="R1^R2^..."`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1514,9 +1691,11 @@ Specify a Repository to Search
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--repository INDEX``                |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:repositories ["INDEX1", ...]``     |
+| EDN config file key         | ``:repositories ["INDEX1", ...]``     |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"repositories": ["INDEX1", ...],``  |
+| JSON config file key        | ``"repositories": ["INDEX1", ...],``  |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_REPOSITORIES="I1^I2^..."`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1557,9 +1736,11 @@ Specify a Resolution Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--resolve-strat STRAT``             |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:resolve-strat "STRAT"``            |
+| EDN config file key         | ``:resolve-strat "STRAT"``            |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"resolve-strat": "STRAT",``         |
+| JSON config file key        | ``"resolve-strat": "STRAT",``         |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_RESOLVE_STRAT="I1^..."``   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1589,9 +1770,11 @@ Specify an Index Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-strat STRAT``               |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:index-strat "STRAT"``              |
+| EDN config file key         | ``:index-strat "STRAT"``              |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"index-strat": "STRAT",``           |
+| JSON config file key        | ``"index-strat": "STRAT",``           |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_INDEX_STRAT="STRAT"``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -1645,9 +1828,11 @@ Specify a Package System
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--package-system SYS``              |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:package-system "SYS"``             |
+| EDN config file key         | ``:package-system "SYS"``             |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"package-system": "SYS",``          |
+| JSON config file key        | ``"package-system": "SYS",``          |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_PACKAGE_SYSTEM="SYS"``     |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.4.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1774,9 +1959,11 @@ Specify Subproc Package System Output Format
 +-----------------------------+----------------------------------------+
 | Long option                 | ``--subproc-output-format FORMAT``     |
 +-----------------------------+----------------------------------------+
-| EDN Config file key         | ``:subproc-output-format "FORMAT"``    |
+| EDN config file key         | ``:subproc-output-format "FORMAT"``    |
 +-----------------------------+----------------------------------------+
-| JSON Config file key        | ``"subproc-output-format": "FORMAT",`` |
+| JSON config file key        | ``"subproc-output-format": "FORMAT",`` |
++-----------------------------+----------------------------------------+
+| Environment variable        | ``DEGASOLV_SUBPROC_OUTPUT_FORMAT="F"`` |
 +-----------------------------+----------------------------------------+
 | Version introduced          | 1.12.0                                 |
 +-----------------------------+----------------------------------------+
@@ -1797,9 +1984,11 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:version-comparison "CMP"``         |
+| EDN config file key         | ``:version-comparison "CMP"``         |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"version-comparison": "CMP",``      |
+| JSON config file key        | ``"version-comparison": "CMP",``      |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_VERSION_COMPARISON="CMP"`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
@@ -1837,9 +2026,11 @@ Specify Subproc Package System Executable
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--subproc-exe PATH``                |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:subproc-exe "PATH"``               |
+| EDN config file key         | ``:subproc-exe "PATH"``               |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"subproc-exe": "PATH",``            |
+| JSON config file key        | ``"subproc-exe": "PATH",``            |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_SUBPROC_EXE="PATH"``       |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -1905,9 +2096,11 @@ Enable Error Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--enable-error-format``             |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:error-format true``                |
+| EDN config file key         | ``:error-format true``                |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"error-format": true,``             |
+| JSON config file key        | ``"error-format": true,``             |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ERROR_FORMAT="true"``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -1946,9 +2139,11 @@ Disable Error Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--disable-error-format``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:error-format false``               |
+| EDN config file key         | ``:error-format false``               |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"error-format": false,``            |
+| JSON config file key        | ``"error-format": false,``            |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_ERROR_FORMAT="false"``     |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.12.0                                |
 +-----------------------------+---------------------------------------+
@@ -1965,9 +2160,11 @@ Specify Output Format
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--output-format FORMAT``            |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:output-format "FORMAT"``           |
+| EDN config file key         | ``:output-format "FORMAT"``           |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"output-format": "FORMAT"``         |
+| JSON config file key        | ``"output-format": "FORMAT"``         |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_OUTPUT_FORMAT="FORMAT"``   |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.11.0                                |
 +-----------------------------+---------------------------------------+
@@ -2017,9 +2214,11 @@ Specify a Repository to Search
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--repository INDEX``                |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:repositories ["INDEX1", ...]``     |
+| EDN config file key         | ``:repositories ["INDEX1", ...]``     |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"repositories": ["INDEX1", ...],``  |
+| JSON config file key        | ``"repositories": ["INDEX1", ...],``  |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_REPOSITORIES="I1^I2^..."`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -2038,9 +2237,11 @@ Specify an Index Strategy
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--index-strat STRAT``               |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:index-strat "STRAT"``              |
+| EDN config file key         | ``:index-strat "STRAT"``              |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"index-strat": "STRAT",``           |
+| JSON config file key        | ``"index-strat": "STRAT",``           |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_INDEX_STRAT="STRAT"``      |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.0.2                                 |
 +-----------------------------+---------------------------------------+
@@ -2052,11 +2253,19 @@ queries. See that option's explanation for more information.
 Specify a Package System
 ************************
 
-+--------------+---------------------------+-----------------------------------+
-| Short option | Long option               | Config File Key                   |
-+--------------+---------------------------+-----------------------------------+
-| ``-t SYS``   | ``--package-system SYS``  | ``:package-system "SYS"``         |
-+--------------+---------------------------+-----------------------------------+
++-----------------------------+---------------------------------------+
+| Short option                | ``-t SYS``                            |
++-----------------------------+---------------------------------------+
+| Long option                 | ``--package-system SYS``              |
++-----------------------------+---------------------------------------+
+| EDN config file key         | ``:package-system "SYS"``             |
++-----------------------------+---------------------------------------+
+| JSON config file key        | ``"package-system": "SYS",``          |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_PACKAGE_SYSTEM="SYS"``     |
++-----------------------------+---------------------------------------+
+| Version introduced          | 1.4.0                                 |
++-----------------------------+---------------------------------------+
 
 This option works exactly the same as the `package system`_ option for
 the ``resolve-locations`` command, except that it is used for simple
@@ -2072,9 +2281,11 @@ Specify the Version Comparison Algorithm
 +-----------------------------+---------------------------------------+
 | Long option                 | ``--version-comparison CMP``          |
 +-----------------------------+---------------------------------------+
-| EDN Config file key         | ``:version-comparison "CMP"``         |
+| EDN config file key         | ``:version-comparison "CMP"``         |
 +-----------------------------+---------------------------------------+
-| JSON Config file key        | ``"version-comparison": "CMP",``      |
+| JSON config file key        | ``"version-comparison": "CMP",``      |
++-----------------------------+---------------------------------------+
+| Environment variable        | ``DEGASOLV_VERSION_COMPARISON="CMP"`` |
 +-----------------------------+---------------------------------------+
 | Version introduced          | 1.8.0                                 |
 +-----------------------------+---------------------------------------+
