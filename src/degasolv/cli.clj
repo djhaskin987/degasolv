@@ -922,7 +922,7 @@
     (let [{:keys [options arguments]}
           (parseplz! subcommand (rest arguments) subcmd-cli)
           config-files
-          (reduce (fn [[seen result] {^java.io.File new :file read-fn :read-fn
+          (get (reduce (fn [[seen result] {^java.io.File new :file read-fn :read-fn
                                       :as unit}]
                     (let [abs-path (.getAbsolutePath new)]
                       (if (or (seen abs-path)
@@ -935,33 +935,39 @@
                     into
                     []
                     [(if-let [app-data (System/getenv "AppData")]
-                       [{:file (io/file (string/join java.io.File/pathSeparator
+                       [
+                        {:file (io/file (string/join java.io.File/separator
+                                                     [app-data
+                                                      "degasolv"
+                                                      "config.edn"]))
+                         :read-fn tag/read-string}
+                        {:file (io/file (string/join java.io.File/separator
                                                      [app-data
                                                       "degasolv"
                                                       "config.json"]))
                          :read-fn #(json/parse-string % true)}
-                        {:file (io/file (string/join java.io.File/pathSeparator
-                                                     [app-data
-                                                      "degasolv"
-                                                      "config.edn"]))
-                         :read-fn tag/read-string}])
+                        ])
                      (if-let [home (System/getenv "HOME")]
-                       [{:file (io/file (string/join java.io.File/pathSeparator
+                       [
+                        {:file (io/file (string/join java.io.File/separator
+                                                     [home
+                                                      ".degasolv.edn"]))
+                         :read-fn tag/read-string}
+                        {:file (io/file (string/join java.io.File/separator
                                                      [home
                                                       ".degasolv.json"]))
                          :read-fn #(json/parse-string % true)}
-                        {:file (io/file (string/join java.io.File/pathSeparator
-                                                     [home
-                                                      ".degasolv.edn"]))
-                         :read-fn tag/read-string}])
-                     [{:file (io/file (string/join java.io.File/pathSeparator
+                        ])
+                     [
+                      {:file (io/file (string/join java.io.File/separator
+                                                   ["." "degasolv.edn"]))
+                       :read-fn tag/read-string}
+                      {:file (io/file (string/join java.io.File/separator
                                                    ["." "degasolv.json"]))
                        :read-fn #(json/parse-string % true)}
-                      {:file (io/file (string/join java.io.File/pathSeparator
-                                                   ["." "degasolv.edn"]))
-                       :read-fn tag/read-string}]
+                      ]
                      (:config-files env-vars)
-                     (:config-files global-options)]))
+                     (:config-files global-options)])) 1)
           config
           (get-config config-files)
           expanded-cfg (expand-option-packs config)
