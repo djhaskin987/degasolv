@@ -13,6 +13,7 @@
                            ;;[crouton "0.1.2"]
                            ;;[ring/ring-codec "1.1.2"]
                            ;;[
+                           [clj-http "3.10.0"]
                            [com.velisco/tagged "0.5.0"]
                            [org.clojure/clojure "1.10.1"]
                            [org.clojure/tools.cli "0.3.5"]
