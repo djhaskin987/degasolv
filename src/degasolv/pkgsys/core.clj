@@ -10,7 +10,7 @@
 
 (defn- read-card!
   [card]
-  (let [card-data (tag/read-string (default-slurp card))
+  (let [card-data (tag/read-string (base-slurp card))
         vetted-card-data
         (s/conform ::r/package card-data)]
     (if (= vetted-card-data
