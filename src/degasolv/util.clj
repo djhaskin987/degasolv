@@ -19,7 +19,7 @@
 (defn default-slurp [resource]
   (if-let [[whole-thing protocol auth-stuff rest-of-it]
            (re-matches #"(https?://)([^@]+)@(.+)" resource)]
-    (if-let [[_ username password]
+    (:body (if-let [[_ username password]
              (re-matches #"([^:]+):([^:]+)" auth-stuff)]
       (client/get (str
                     protocol
@@ -32,7 +32,7 @@
                   {:headers
                    {"Authorization" (str "Bearer "
                                          (java.net.URLDecoder/decode
-                                           auth-stuff))}}))
+                                           auth-stuff))}})))
     (base-slurp resource)))
 
 

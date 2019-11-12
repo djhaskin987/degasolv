@@ -26,7 +26,8 @@
       card-data)))
 
 (defn generate-repo-index!
-  [search-directory
+  [
+   search-directory
    index-file
    add-to
    sortindex
