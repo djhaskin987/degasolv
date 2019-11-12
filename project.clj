@@ -36,6 +36,7 @@
             :profiles {
                        :dev {
                              :dependencies [
+                                            [clj-wiremock "0.3.0"]
                                             [pjstadig/humane-test-output "0.9.0"]
                                             ;; ordered set for version suggestion
                                             [org.flatland/ordered "1.5.7"]
