@@ -4,13 +4,6 @@
             [clojure.pprint :as pprint]
             [clj-http.client :as client]))
 
-
-(defmacro dbg [body]
-  `(let [x# ~body]
-     (println "dbg:" '~body "=" x#)
-     (flush)
-     x#))
-
 ; UTF-8 by default :)
 (defn base-slurp [loc]
   (let [input (if (= loc "-")
@@ -20,34 +13,35 @@
 
 (defn default-slurp [resource]
   (if (re-matches #"https?://.*" resource)
-    (if-let [[whole-thing protocol auth-stuff rest-of-it]
-             (re-matches #"(https?://)([^@]+)@(.+)" resource)]
-      (:body (if-let [[_ username password]
-                      (re-matches #"([^:]+):([^:]+)" auth-stuff)]
-                 (client/get (str
-                                protocol
-                                rest-of-it)
-                   {
-                    :basic-auth [(java.net.URLDecoder/decode username)
-                                 (java.net.URLDecoder/decode password)]})
-               (if-let [[_ headerkey headerval]
-                        (re-matches #"([^=]+)=([^=]+)" auth-stuff)]
-               (client/get (dbg (str
-                             protocol
-                             rest-of-it))
-                           (dbg {
-                            :headers
-                            {
-                             (keyword (java.net.URLDecoder/decode headerkey))
-                             (java.net.URLDecoder/decode headerval)}}))
-               (client/get (str
-                             protocol
-                             rest-of-it)
-                           {
-                            :oauth-token (java.net.URLDecoder/decode auth-stuff)
-                            }))))
-      (client/get resource))
-      (base-slurp resource)))
+    (:body
+      (if-let [[whole-thing protocol auth-stuff rest-of-it]
+               (re-matches #"(https?://)([^@]+)@(.+)" resource)]
+        (if-let [[_ username password]
+                 (re-matches #"([^:]+):([^:]+)" auth-stuff)]
+          (client/get (str
+                        protocol
+                        rest-of-it)
+                      {
+                       :basic-auth [(java.net.URLDecoder/decode username)
+                                    (java.net.URLDecoder/decode password)]})
+          (if-let [[_ headerkey headerval]
+                   (re-matches #"([^=]+)=([^=]+)" auth-stuff)]
+            (client/get (str
+                               protocol
+                               rest-of-it)
+                        {
+                              :headers
+                              {
+                               (keyword (java.net.URLDecoder/decode headerkey))
+                               (java.net.URLDecoder/decode headerval)}})
+            (client/get (str
+                          protocol
+                          rest-of-it)
+                        {
+                         :oauth-token (java.net.URLDecoder/decode auth-stuff)
+                         })))
+        (client/get resource)))
+        (base-slurp resource)))
 
 
 (defn default-spit [loc stuff]
