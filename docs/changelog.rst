@@ -31,6 +31,8 @@ Added
 Changed
 +++++++
 
+* Removed deprecated, unused function ``degasolv.util.assoc-conj``
+
 Fixed
 +++++
 

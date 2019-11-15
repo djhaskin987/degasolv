@@ -25,6 +25,44 @@
              {:request
               {
                :method "GET"
+               :url "/raw-query-string"
+               :queryParameters {
+                                 :in { :equalTo "tact" }
+                         }
+               }
+              :response
+              {
+               :status 200
+               :body "raw query string"
+               :headers {
+                         :Content-Type "text/plain"
+                         }
+               }})
+           (stub
+             {
+              :request
+              {
+               :method "GET"
+               :url "/header-auth"
+               :headers {
+                         :X-Auth-Token { :equalTo "da7a=" }
+                         }
+               :queryParameters {
+                                 :q { :equalTo "s" }
+                                 }
+               }
+              :response
+              {
+               :status 200
+               :body "header auth"
+               :headers {
+                         :Content-Type "text/plain"
+                         }
+               }})
+           (stub
+             {:request
+              {
+               :method "GET"
                :url "/bearer-auth"
                :headers {
                          :Authorization { :equalTo "Bearer deadbeef" }
@@ -56,19 +94,11 @@
                          }
                }
               })
-           (testing "Basic authentication"
+           (testing "different authentication techniques"
+                    (is (= "raw query string"
+                           (default-slurp "http://localhost:8080/raw-query-string?in=tact")))
                     (is (= "bay" (default-slurp "http://localhost:8080/unauthenticated")))
                     (is (= "boy oh boy" (default-slurp "http://abc:123@localhost:8080/basic-auth")))
                     (is (= "ay" (default-slurp "http://deadbeef@localhost:8080/bearer-auth")))
-           (stop wiremock-server))))
-
-(deftest ^:unit-tests assoc-conj-basic
-  (testing "Add to a blank map"
-    (is (.equals {:a [1]}
-           (assoc-conj {} :a 1))))
-  (testing "Add to a map with an empty list"
-    (is (.equals {:a [1]}
-           (assoc-conj {:a []} :a 1))))
-  (testing "Add to a map with an existing list"
-    (is (.equals {:a [1 2]}
-           (assoc-conj {:a [1]} :a 2)))))
+                    (is (= "header auth" (default-slurp "http://X-Auth-Token=da7a%3D@localhost:8080/header-auth?q=s"))))
+           (stop wiremock-server)))
