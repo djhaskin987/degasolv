@@ -12,8 +12,8 @@
     (clojure.core/slurp input :encoding "UTF-8")))
 
 (defn default-slurp [resource]
-  (if (re-matches #"https?://.*" resource)
-    (:body
+  (if (re-matches #"https?://.*" (str resource))
+              (:body
       (if-let [[whole-thing protocol auth-stuff rest-of-it]
                (re-matches #"(https?://)([^@]+)@(.+)" resource)]
         (if-let [[_ username password]
@@ -41,7 +41,7 @@
                          :oauth-token (java.net.URLDecoder/decode auth-stuff)
                          })))
         (client/get resource)))
-        (base-slurp resource)))
+                  (base-slurp resource)))
 
 
 (defn default-spit [loc stuff]

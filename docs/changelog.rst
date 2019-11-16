@@ -20,13 +20,16 @@ Added
 
 * Configuration file tower: Degasolv looks for config files in pre-defined
   locations on the file system if they exist, see
-  :ref:`Default Configuration Files <default-configuration-files>`
+  :ref:`Default Configuration Files <default-configuration-files>`.
 
 * Environment variable support: environment variables are consulted first,
   but are merged into the option map AFTER config file material and BEFORE
   any given command line options, see
   :ref:`Environment Variables <environment-variables>` and
   :ref:`How Options are Gathered <gathering-options>`
+
+* Added support for HTTP/HTTPS authentication using basic, oauth2 token
+  and header methods, see :ref:`A Note on Specifying Files <specifying-files>`.
 
 Changed
 +++++++
@@ -37,11 +40,8 @@ Fixed
 +++++
 
 * Option packs are expanded at the level upon which they are defined, then the
-  options are merged together. This seemed like a bug. Though this change is
-  breaking, we made an exception and released it as part of a minor patch
-  release, hoping that it would unbreak more than it would break, and knowing
-  if it broke anybody that they wouldn't be left without a way to fix their
-  scripts. See :ref:`Option Packs <option-pack>` for more information.
+  options are merged together. This seemed like a bug that needed fixing.
+  See :ref:`Option Packs <option-pack>` for more information.
 
 `2.1.0`_
 -------------

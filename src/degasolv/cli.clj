@@ -38,7 +38,6 @@
                  (:version %1)
                  (:version %2))))))
 
-
 (def
   ^:private
   version-comparators
