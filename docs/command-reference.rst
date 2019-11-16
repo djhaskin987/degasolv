@@ -4,7 +4,8 @@ Degasolv Command Reference
 ==========================
 
 This guide describes the Degasolv CLI, what subcommands and options
-there are, and what they are for.
+there are, and what they are for. It also describes how to specify
+options.
 
 Some Notes on Versions
 ----------------------
@@ -73,13 +74,43 @@ A Note on Specifying Files
 As of version 1.3.0, The whenever an option takes a file in Degasolv,
 the user can actually specify one of three things:
 
-  1. An ``http://`` or ``https://`` URL. No authentication is
-     currently supported.
+  1. An ``http://`` or ``https://`` URL. Prior to version 2.2.0, no
+     authentication was supported. As of version 2.2.0, authentication
+     can be specified in one of three ways:
+
+       1. **HTTP Basic Authentication**: You can specify a URL-encoded username
+          and password to use HTTP basic authentication by separating the
+          username and password via a ``:`` (colon) character and put the
+          entire thing before the ``@`` character in the URL. For example::
+
+                https://username:password@example.com/...
+
+       2. **OAuth2 Token Authentication**: You can specify a URL-encoded
+          `OAuth2 token`_ by simply specifying one string before the ``@`` in
+          any given URL, without any separators, like this::
+
+                https://thisisthetoken@example.com/...
+
+       3. **Header-Based Authentication**: You can specify a custom HTTP
+          header, together with its URL encoded value, by separating the
+          header name from the value of the header with an ``=`` (equals) sign
+          before the ``@`` in any given URL, like this::
+
+                https://X-Auth-Token=feefiefofum@example.com/...
+
+          This would yield a HTTP GET request with the following header::
+
+                X-Auth-Token: feefiefofum
+
+     As of version 2.2.0, query strings as part of the HTTP URL are also
+     supported.
   2. A ``file://`` URL.
   3. A filesystem reference.
   4. The character ``-``, signifying standard input to the Degasolv process.
 
 This is true for options of Degasolv and options for any of its subcommands.
+
+.. _OAuth2 token: https://tools.ietf.org/html/rfc6750
 
 Explanation of Options
 ++++++++++++++++++++++
@@ -114,8 +145,8 @@ to it.
 
 * The ``:meta`` option is the only option that takes a map or dictionary of
   values. In this option, keys and values are separated by the equals sign
- (``=``) and the list of key/value pairs are also separated by the caret
- character, as in ``k=v^k=v^k=v...``
+  (``=``) and the list of key/value pairs are also separated by the caret
+  character, as in ``k=v^k=v^k=v...``
 
 .. note:: The environment variables and their formatting will be
    listed for the options of all the subcommands in this document;
