@@ -921,19 +921,7 @@
     (let [{:keys [options arguments]}
           (parseplz! subcommand (rest arguments) subcmd-cli)
           config-files
-          (get (reduce (fn [[seen result] {^java.io.File new :file read-fn :read-fn
-                                      :as unit}]
-                    (let [abs-path (.getAbsolutePath new)]
-                      (if (or (seen abs-path)
-                              (not (.exists new)))
-                        [seen result]
-                        [(conj seen abs-path)
-                         (conj result unit)])))
-                  [#{} []]
-                  (reduce
-                    into
-                    []
-                    [(if-let [app-data (System/getenv "AppData")]
+          (as-> [(if-let [app-data (System/getenv "AppData")]
                        [
                         {:file (io/file (string/join java.io.File/separator
                                                      [app-data
@@ -966,7 +954,8 @@
                        :read-fn #(json/parse-string % true)}
                       ]
                      (:config-files env-vars)
-                     (:config-files global-options)])) 1)
+                 (:config-files global-options)] it
+                (reduce into [] it))
           config
           (get-config config-files)
           expanded-cfg (expand-option-packs config)
