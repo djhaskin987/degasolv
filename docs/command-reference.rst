@@ -482,6 +482,37 @@ Here is a version of that example that uses JSON instead::
 .. _option-pack:
 .. _option pack:
 
+Security Considerations
+***********************
+
+Some configuration items in Degasolv, such as URLs that point to config files
+and repository indexes, may have passwords or API tokens in-line in the URL.
+As an admin, you're going to have to figure out how you want to get sensitive
+information of this kind into the configuration for Degasolv to consume.
+
+There are three main ways to do this for the purposes of security:
+
+  1. **Environment Variable**: Any option in Degasolv can be specified using
+       environment variables. See the `environment-variables`_ section.
+  2. **Standard Input**: Degasolv configuration can be specified using
+       standard input. This is probably the most secure and least convenient
+       way of providing sensitive information to Degasolv. Here is
+       an example::
+
+           degasolv -j - << DEGASOLV_CONFIG
+           <CONFIG ITEMS HERE>
+           DEGASOLV_CONFIG
+
+  3. **Configuration File**: This method is somewhat secure as long
+       as the filesystem is deemed trustworthy and as long as the proper
+       file permissions are in place so that the credentials can only be viewed
+       by approved users.
+  4. **CLI**: This is not normally secure, but Degasolv leaves the decision
+       of what is sufficiently secure to the user, and allows sensitive
+       information to be specified on the command line in the normal way
+       in an effort to make extra, extra sure the tool is usable even
+       in a firestorm (read: even in the presence of bizarre use cases).
+
 Option Packs
 ************
 
