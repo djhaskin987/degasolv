@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Degasolv'
-copyright = '2017-2018, Daniel Jay Haskin et. al., see all authors under "Authors and Contributions"'
+copyright = '2017-2019, Daniel Jay Haskin et. al., see all authors under "Authors and Contributions"'
 author = 'Daniel Jay Haskin et. al., see the authors under "Authors and Contributions"'
 
 # The version info for the project you're documenting, acts as replacement for
