@@ -46,11 +46,11 @@ situation.
   as in an installation/removal context
 - New subcommand: resolve-dependents to find all dependents in an *index*
 - USER GUIDES
-- How to use repositories as generic installation trackers
-- How to track dependencies between kubernetes services
-- How to track dependencies between cross-language builds and use this for
-  that
 
+  - How to use repositories as generic installation trackers
+  - How to track dependencies between kubernetes services
+  - How to track dependencies between cross-language builds and use this for
+    that
   - Documentation and/or code on the topic of supporting the use case
     of different architectures of the same package using prioritized
     indexes of packages named the same with different contents.
