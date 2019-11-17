@@ -10,7 +10,7 @@ Future Releases
 ---------------
 
 - Tutorial-like help screens designed to keep people from needing to switch
-      from docs to cli and back.
+  from docs to cli and back.
 
 - Shortened versions of all subcommands, including documentation updates.
 
