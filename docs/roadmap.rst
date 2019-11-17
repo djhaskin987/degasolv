@@ -31,7 +31,6 @@ DevOps professionals, for whom we build this tool, need to a dependency
 management tool that can get them out of dependency hell no matter what their
 situation.
 
-- Shortened versions of all subcommands, including documentation updates.
 - The ability to slurp from JDBC URLs for indexes
 
   - An extension will be made to ensure that username and password
