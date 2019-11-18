@@ -10,7 +10,7 @@
 
 (defn- read-card!
   [card]
-  (let [card-data (tag/read-string (default-slurp card))
+  (let [card-data (tag/read-string (base-slurp card))
         vetted-card-data
         (s/conform ::r/package card-data)]
     (if (= vetted-card-data
@@ -26,7 +26,8 @@
       card-data)))
 
 (defn generate-repo-index!
-  [search-directory
+  [
+   search-directory
    index-file
    add-to
    sortindex
@@ -49,11 +50,14 @@
                   (fn merg [c v]
                     (update-in c [(:id v)] conj v))
                   initial-repository
-                  (map
-                    read-card!
+                  (->> search-directory
+                    (io/file)
+                    (file-seq)
                     (filter #(and (.isFile ^java.io.File (io/file %))
-                                  (= "dscard" (st/replace % #"[^.]*[.]" "")))
-                            (file-seq (io/file search-directory))))))))))
+                                  (= "dscard" (st/replace % #"[^.]*[.]" ""))))
+                    (map (fn [^java.io.File f] (.getAbsolutePath f)))
+                    (map read-card!)
+                           )))))))
 
 (defn slurp-degasolv-repo
   [url]

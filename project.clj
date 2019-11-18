@@ -1,5 +1,5 @@
-(defproject degasolv/degasolv "2.1.0"
-            :description "Dependency tracker with an eye toward building and shipping software."
+(defproject degasolv/degasolv "2.2.0"
+            :description "Democratize dependency management."
             :url "http://github.com/djhaskin987/degasolv"
             :license {:name "Eclipse Public License"
                       :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -13,6 +13,7 @@
                            ;;[crouton "0.1.2"]
                            ;;[ring/ring-codec "1.1.2"]
                            ;;[
+                           [clj-http "3.10.0"]
                            [com.velisco/tagged "0.5.0"]
                            [org.clojure/clojure "1.10.1"]
                            [org.clojure/tools.cli "0.3.5"]
@@ -35,6 +36,7 @@
             :profiles {
                        :dev {
                              :dependencies [
+                                            [clj-wiremock "0.3.0"]
                                             [pjstadig/humane-test-output "0.9.0"]
                                             ;; ordered set for version suggestion
                                             [org.flatland/ordered "1.5.7"]

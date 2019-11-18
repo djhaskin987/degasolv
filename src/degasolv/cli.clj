@@ -813,72 +813,192 @@
                it)
              (reduce merge it)))
 
+(defn
+  get-env-vars
+  [env-vars]
+  (letfn [(map-transform [v]
+            (->> (string/split v #"\^")
+              (map #(into [] (string/split % #"=")))
+              (into {})))
+          (config-transform [f]
+            (->> f
+              (list-transform)
+              (map (fn [x]
+                     {:file (io/file x)
+                      :read-fn tag/read-string}))))
+          (json-config-transform [f]
+            (->> f
+              (list-transform)
+              (map (fn [x]
+                     {:file (io/file x)
+                      :read-fn #(json/parse-string % true)}))))
+          (list-transform [v]
+            (string/split v #"\^"))
+          (boolean-transform [v]
+            (cond (= v "true")
+                  true
+                  (= v "false")
+                  false
+                  :else
+                  (throw
+                    (ex-info
+                      (str
+                        "Boolean options require `true` or `false` to be"
+                        "set in environment variables")
+                      {:value-given v}))))]
+    (let [transform-functions
+          {
+           :alternatives boolean-transform
+           :config-files config-transform
+           :error-format boolean-transform
+           :json-config-files json-config-transform
+           :meta map-transform
+           :option-packs list-transform
+           :present-packages list-transform
+           :repositories list-transform
+           :requirements list-transform
+           }
+          ]
+      (as-> env-vars it
+        (filter (fn [[k v]]
+                  (re-matches #"^DEGASOLV_[A-Z_]+$" k)) it)
+        (map (fn [[k v]]
+               (let [option-key (as-> k it
+                                      (subs it 9)
+                                      (string/lower-case it)
+                                      (string/replace it #"_" "-")
+                                      (keyword it))]
+                 (if-let [tf (transform-functions option-key)]
+                   [option-key (tf v)]
+                   [option-key v]))) it)
+            (into {} it)
+        (if (or (:config-files it) (:json-config-files it))
+          (assoc
+            (dissoc it :json-config-files)
+            :config-files
+            (reduce
+                   into
+                   []
+                   [(:config-files it)
+                    (:json-config-files it)]))
+          it)))))
+
+(defn expand-option-packs
+  [options]
+  (as-> (:option-packs options) it
+        (mapv available-option-packs it)
+        (into {} it)
+        (merge it options)
+        (dissoc it :option-packs)))
+
 (defn -main [& args]
-  (let [{:keys [options arguments]}
-        (parseplz! "degasolv" args cli-spec)]
-    (let [global-options options
-          subcommand (first arguments)
-          subcommand-cli (:subcommands cli-spec)
-          subcmd-cli (if (not (= subcommand "display-config"))
-                       (get subcommand-cli subcommand)
-                       ; this grabs all other options as part of display-config
-                       (as-> subcommand-cli it
-                               (vals it)
-                               (map :cli it)
-                               (filter #(not (nil? %)) it)
-                               (apply concat it)
-                               (map #(concat [nil] (subvec % 1)) it)
-                               (map #(do [(second %) %]) it)
-                               (into {} it)
-                               (vals it)
-                               (assoc
-                                (get subcommand-cli subcommand)
-                                :cli
-                                it)
-                               it))]
-      (when (nil? subcmd-cli)
-        (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
-      (let [{:keys [options arguments]}
-            (parseplz! subcommand (rest arguments) subcmd-cli)]
-        (let [config-files
-              (if (empty? (:config-files global-options))
-                       [{:file (io/file "./degasolv.edn")
-                         :read-fn tag/read-string}]
-                (:config-files global-options))
-              config
-              (get-config config-files)
-              cli-option-packs (:option-packs global-options)
-              selected-option-packs
-              (if (empty? cli-option-packs)
-                (into [] (:option-packs config))
-                cli-option-packs)
-              effective-options
-              (as->
-               selected-option-packs it
-               (mapv available-option-packs it)
-               (into [subcommand-option-defaults] it)
-               (conj it (dissoc config :option-packs))
-               (conj it (into {}
-                              (filter
-                               #(not (nil? (second %)))
-                               (seq options))))
-               (reduce merge (hash-map) it)
-               (if (not (:version-comparison it))
-                 (assoc
-                  it
-                  :version-comparison
-                  (if (get-in package-systems
-                              [(:package-system it) :version-comparison])
-                    (get-in package-systems
+  (let [env-vars
+        (get-env-vars (System/getenv))
+        {:keys [options arguments]}
+        (parseplz! "degasolv" args cli-spec)
+        global-options options
+        subcommand (first arguments)
+        subcommand-cli (:subcommands cli-spec)
+        subcmd-cli (if (not (= subcommand "display-config"))
+                     (get subcommand-cli subcommand)
+                     ; this grabs all other options as part of display-config
+                     (as-> subcommand-cli it
+                           (vals it)
+                           (map :cli it)
+                           (filter #(not (nil? %)) it)
+                           (apply concat it)
+                           (map #(concat [nil] (subvec % 1)) it)
+                           (map #(do [(second %) %]) it)
+                           (into {} it)
+                           (vals it)
+                           (assoc
+                             (get subcommand-cli subcommand)
+                             :cli
+                             it)
+                           it))]
+    (when (nil? subcmd-cli)
+      (exit 1 (error-msg [(str "Unknown command: " subcommand)])))
+    (let [{:keys [options arguments]}
+          (parseplz! subcommand (rest arguments) subcmd-cli)
+          config-files
+          (as-> [(if-let [app-data (System/getenv "AppData")]
+                       [
+                        {:file (io/file (string/join java.io.File/separator
+                                                     [app-data
+                                                      "degasolv"
+                                                      "config.edn"]))
+                         :read-fn tag/read-string}
+                        {:file (io/file (string/join java.io.File/separator
+                                                     [app-data
+                                                      "degasolv"
+                                                      "config.json"]))
+                         :read-fn #(json/parse-string % true)}
+                        ])
+                     (if-let [home (System/getenv "HOME")]
+                       [
+                        {:file (io/file (string/join java.io.File/separator
+                                                     [home
+                                                      ".degasolv.edn"]))
+                         :read-fn tag/read-string}
+                        {:file (io/file (string/join java.io.File/separator
+                                                     [home
+                                                      ".degasolv.json"]))
+                         :read-fn #(json/parse-string % true)}
+                        ])
+                     [
+                      {:file (io/file (string/join java.io.File/separator
+                                                   ["." "degasolv.edn"]))
+                       :read-fn tag/read-string}
+                      {:file (io/file (string/join java.io.File/separator
+                                                   ["." "degasolv.json"]))
+                       :read-fn #(json/parse-string % true)}
+                      ]
+                     (:config-files env-vars)
+                 (:config-files global-options)] it
+                (reduce into [] it))
+          config
+          (get-config config-files)
+          expanded-cfg (expand-option-packs config)
+          expanded-env (expand-option-packs env-vars)
+          expanded-cli (expand-option-packs global-options)
+          effective-options
+          (as->
+            [subcommand-option-defaults
+             expanded-cfg
+             (reduce dissoc
+                     expanded-cli
+                     [:config-files
+                      :json-config-files
+                      :edn-config-files
+                      ])
+             (reduce dissoc
+                     expanded-env
+                     [:config-files
+                      :json-config-files
+                      :edn-config-files
+                      ])
+             ] it
+            (conj it (into {}
+                           (filter
+                             #(not (nil? (second %)))
+                             (seq options))))
+            (reduce merge (hash-map) it)
+            (if (not (:version-comparison it))
+              (assoc
+                it
+                :version-comparison
+                (if (get-in package-systems
                             [(:package-system it) :version-comparison])
-                    (get-in package-systems
-                            [(:package-system subcommand-option-defaults)
-                             :version-comparison])))
-                 it))]
-          (check-required! effective-options subcmd-cli)
-          ((:function subcmd-cli)
-           effective-options
-           arguments)))))
+                  (get-in package-systems
+                          [(:package-system it) :version-comparison])
+                  (get-in package-systems
+                          [(:package-system subcommand-option-defaults)
+                           :version-comparison])))
+              it))]
+      (check-required! effective-options subcmd-cli)
+      ((:function subcmd-cli)
+         effective-options
+         arguments)))
   ;; Subproc package system forks processess,
   ;; which causes the VM to hang unless this is called
   ;; https://dev.clojure.org/jira/browse/CLJ-959

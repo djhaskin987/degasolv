@@ -1,6 +1,7 @@
 /target
 .cpcache
 /pkg/
+/__files/
 /presentation/target/
 /presentation/auto/
 /presentation/_minted-*/
@@ -21,6 +22,7 @@
 /test/resources/data/grill/
 /test/resources/data/meta/
 /test/resources/data/test-index-sort-order/
+/test/resources/data/test-env-vars/
 /test/resources/data/test-json-config/
 /test/resources/data/test-list-strat/
 /test/resources/data/test-option-packs/

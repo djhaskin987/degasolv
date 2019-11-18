@@ -14,8 +14,6 @@ Named for *Degas* the painter, and it's a *Solv*er.
 
 ## Download
 
-
-
 Ubuntu: [ ![Download for Ubuntu](https://api.bintray.com/packages/degasolv/ubuntu/degasolv/images/download.svg) ](https://bintray.com/degasolv/ubuntu/degasolv/_latestVersion)
 
 CentOS: [ ![Download for CentOS](https://api.bintray.com/packages/degasolv/centos/degasolv/images/download.svg) ](https://bintray.com/degasolv/centos/degasolv/_latestVersion)
@@ -28,7 +26,6 @@ tab for more (including the jar file).
 This quickstart is meant to be illustrative. For ideas on how to use
 degasolv in real life, have a look at
 [A Longer Example](http://degasolv.readthedocs.io/en/latest/longer-example.html).
-
 **Given these artifacts**:
 
   - `http://example.com/repo/a-1.0.zip`
@@ -98,7 +95,7 @@ See [here](http://bit.ly/degasolv2017pres).
 
 ## License
 
-Copyright © 2016-2017 Daniel Jay Haskin and others, see the AUTHORS.md file.
+Copyright © 2016-2019 Daniel Jay Haskin and others, see the AUTHORS.md file.
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
