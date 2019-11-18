@@ -18,6 +18,18 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+Changed
++++++++
+
+Fixed
++++++
+
+`2.2.0`_
+--------
+
+Added
++++++
+
 * Configuration file tower: Degasolv looks for config files in pre-defined
   locations on the file system if they exist, see
   :ref:`Default Configuration Files <default-configuration-files>`.
@@ -382,7 +394,8 @@ Added
 
 * This isn't the first release, but for the purposes of these docs, it is :D
 
-.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/2.1.0...HEAD
+.. _Unreleased: https://github.com/djhaskin987/degasolv/compare/2.2.0...HEAD
+.. _2.2.0: https://github.com/djhaskin987/degasolv/compare/2.1.0...2.2.0
 .. _2.1.0: https://github.com/djhaskin987/degasolv/compare/2.0.0...2.1.0
 .. _2.0.0: https://github.com/djhaskin987/degasolv/compare/1.12.1...2.0.0
 .. _1.12.1: https://github.com/djhaskin987/degasolv/compare/1.12.0...1.12.1
