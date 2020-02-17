@@ -9,17 +9,6 @@ the Degasolv developers.
 Future Releases
 ---------------
 
-
-- The ability to slurp from JDBC URLs for indexes
-
-  - An extension will be made to ensure that username and password
-    can be specified along with a URL. Not all drivers support this
-    and it is an important use case.
-  - Generate-repo-index to support JDBC URLs
-  - query-repo and resolve-locations to support JDBC URLs
-  - If the database is empty or doesn't exist, it will be created on
-    generate repo index or on index-add
-
 - Tutorial-like help screens designed to keep people from needing to switch
   from docs to cli and back.
 
@@ -42,10 +31,18 @@ DevOps professionals, for whom we build this tool, need to a dependency
 management tool that can get them out of dependency hell no matter what their
 situation.
 
+- The ability to slurp from JDBC URLs for indexes
+
+  - An extension will be made to ensure that username and password
+    can be specified along with a URL. Not all drivers support this
+    and it is an important use case.
+  - Generate-repo-index to support JDBC URLs
+  - query-repo and resolve-locations to support JDBC URLs
+  - If the database is empty or doesn't exist, it will be created on
+    generate repo index or on index-add
+
 - New subcommands: index-add, index-rm, to take away from and add to
-  as in an installation/removal context. With option ``--enable-create`` and
-  ``--disable-create``, with it enabled by default, for creating a new
-  index automatically if it doesn't exist
+  as in an installation/removal context
 - New subcommand: resolve-dependents to find all dependents in an *index*
 - USER GUIDES
 

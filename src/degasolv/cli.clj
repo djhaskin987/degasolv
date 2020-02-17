@@ -268,12 +268,6 @@
     (map r/explain-problem problems))))
 
 (defn-
-  resolve-dependents!
-  [options arguments]
-  (let [{:keys [alternatives
-
-
-(defn-
   resolve-locations!
   [options arguments]
   (let [{:keys [alternatives
@@ -579,11 +573,13 @@
            ["-i" "--id ID"
             "ID (name) of the package"
             :validate [#(not (empty? %))
-                       "ID must be a non-empty string."]]
+                       "ID must be a non-empty string."]
+            ]
            ["-l" "--location LOCATION"
             "URL or filepath of the package"
             :validate [#(not (empty? %))
-                       "Location must be a non-empty string."]]
+                       "Location must be a non-empty string."]
+            ]
            ["-m" "--meta K=V"
             "Add additional metadata"
             :validate [#(re-matches #"^[^=]+=[^=].*$" %)
@@ -634,42 +630,7 @@
             :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]]}
-    "resolve-dependents"
-    {
-     :description "Print the names and versions of the packages in an index that rely or depend on the given package id and version."
-     :function resolve-dependents!
-     :required-arguments {
-                          :packages ["-P" "--package"]
-                          :repositories ["-R" "--repository"]
-                          }
 
-     :cli [
-           ["-o" "--output-format FORMAT" "May be 'plain', 'edn' or 'json'"
-            :default nil
-            :default-desc (str (:output-format subcommand-option-defaults))
-            :validate [#(or (= "plain" %)
-                            (= "json" %)
-                            (= "edn" %))
-                       "Output format may be either be 'plain', 'edn' or 'json'"]]
-           ["-P" "--package PKG"
-            "Package for which to resolve dependents. **"
-            :id :packages
-            :validate
-            [#(re-matches r/str-frozen-package-regex %)
-             "Package must be specified as `<pkgname>==<pkgversion>`"]
-            :assoc-fn
-            (fn [m k v] (update-in m [k] #(conj % v)))]
-           ["-R" "--repository INDEX"
-            "Search INDEX for packages. **"
-            :id :repositories
-            :assoc-fn
-            (fn [m k v] (update-in m [k] #(conj % v)))]
-           ["-V" "--version-comparison CMP"
-            "May be 'debian', 'maven', 'naive', 'python', 'rpm', 'rubygem', or 'semver'."
-            :default nil
-            :default-desc "semver"
-            :validate [#(some #{%} (keys version-comparators))
-                       "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
     "resolve-locations"
     {:description "Print the locations of the packages which will resolve all given dependencies."
      :function resolve-locations!
