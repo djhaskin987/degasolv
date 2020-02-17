@@ -670,8 +670,11 @@
             :default-desc "semver"
             :validate [#(some #{%} (keys version-comparators))
                        "Version comparison must be 'debian', 'maven', 'naive', 'python', 'rubygem', or 'semver'."]]
+           ]
+     }
     "resolve-locations"
-    {:description "Print the locations of the packages which will resolve all given dependencies."
+    {
+     :description "Print the locations of the packages which will resolve all given dependencies."
      :function resolve-locations!
      :required-arguments {:repositories ["-R" "--repository"]
                           :requirements ["-r" "--requirement"]}
@@ -776,9 +779,11 @@
                           (and (.exists ^java.io.File f)
                                (.canExecute ^java.io.File f)))
                        "Must be an executable file which exists on the file system."]]
-           ]}
+           ]
+    }
     "query-repo"
-    {:description "Query repository for a particular package"
+    {
+     :description "Query repository for a particular package"
      :function query-repo!
      :required-arguments {:repositories ["-R" "--repository"]
                           :query ["-q" "--query"]}
@@ -829,8 +834,6 @@
     }
    }
   )
-
-
 
 (defn errors [errors usg]
   (string/join \newline
