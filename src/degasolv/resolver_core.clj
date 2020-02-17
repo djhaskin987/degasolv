@@ -299,10 +299,12 @@
       pkg-list)))
 
 (defn vet-candidate
-  "Takes a candidate package which has been chosen in hopes of fulfilling a
+  "
+  Takes a candidate package which has been chosen in hopes of fulfilling a
   requirement and ensures that:
   1) It does not violate any 'ensure absent' specifications and
-  2) It fulfills the particular 'ensure present' spec."
+  2) It fulfills the particular 'ensure present' spec.
+  "
   [id-absent-specs safe-spec-call spec candidate]
   (and
     (safe-spec-call spec candidate)
@@ -318,7 +320,9 @@
       id-absent-specs)))
 
 (defn seek-package
-  "Seek a package from a repository meeting the specs given."
+  "
+  Seek a package from a repository meeting the specs given.
+  "
   [query-results vet]
     (if (empty? query-results)
       [:unsuccessful
@@ -354,12 +358,12 @@
         :suggestions
         suggestions})]))
 
-
-
 (defn merge-failure-records
-  "Merge two different resolution failure records.
-   Merge using ``(merge-with into ...)`` for everything but suggestions;
-   within the suggestions, merge using ``(merge-with set/intersection ...)``."
+  "
+  Merge two different resolution failure records.
+  Merge using ``(merge-with into ...)`` for everything but suggestions;
+  within the suggestions, merge using ``(merge-with set/intersection ...)``.
+  "
   [a b]
   (let [base-answer (merge-with
                       into
