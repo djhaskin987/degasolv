@@ -362,14 +362,11 @@
            :command "degasolv"
            :subcommand "resolve-locations"
            :options options
-           :result (first result)
            }
           result-info
-          (if  (= (first result) :successful)
-            (into base-result-info
-                  {:packages (second result)})
-            (into base-result-info (second result)))]
-      (if (= (first result) :successful)
+          (into base-result-info
+                result)]
+      (if (= (:result result) :successful)
         (println
          (case output-format
            "json"
@@ -381,9 +378,8 @@
             \newline
             (map explain-package (:packages result-info)))
            (throw (ex-info "This shouldn't happen"
-                           {:subcommand "resolve-locations"
-                            :output-format output-format
-                            :result (first result)}))))
+                           (into {:subcommand "resolve-locations"
+                            :output-format output-format} result)))))
         (if error-format
           (out-exit 3
                     (case output-format
@@ -394,9 +390,9 @@
                       "plain"
                       (resolver-error (:problems result-info))
                       (throw (ex-info "This shouldn't happen"
-                                      {:subcommand "resolve-locations"
-                                       :output-format output-format
-                                       :result (first result)}))))
+                                      (into {:subcommand "resolve-locations"
+                                       :output-format output-format}
+                                            result)))))
           (exit 3 (resolver-error (:problems result-info))))))))
 
 (defn- generate-card!

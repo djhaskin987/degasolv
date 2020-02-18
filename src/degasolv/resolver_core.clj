@@ -252,7 +252,9 @@
 ;; b -> e
 ;; e -> a
 ;; b -> a
-(defn list-packages [package-graph & {:keys [list-strat] :or {list-strat :lazy}}]
+(defn list-packages [package-graph & {:keys [list-strat
+                                             exclude] :or {list-strat :lazy
+                                                           exclude #{}}}]
   (letfn [(list-pkgs-rec
             [already-visited
              parents
@@ -483,7 +485,12 @@
                           found-packages
                           absent-specs
                           rclauses
-                          package-graph)
+                          (update-in package-graph
+                                     [parent]
+                                     #(if (empty? %1)
+                                        (do [%2])
+                                        (conj %1 %2))
+                                     present-package))
                         (not
                           (nil? found-package))
                         (resolve-deps
@@ -498,7 +505,6 @@
                                         (do [%2])
                                         (conj %1 %2))
                                      found-package))
-
                         (and
                           (not (= conflict-strat :inclusive))
                           (not (nil? present-id-packages)))
@@ -614,6 +620,17 @@ successful?
        #(get % 1)
        clause-result))])))))))
 
+(defn handle [p]
+  (str (:id p) "@" (:version p)))
+
+(defn make-install-graph
+  [package-graph]
+  (as-> package-graph grph
+    (map (fn [[k v]]
+         [(handle k)
+          (into k {:dependees (map handle v)})]) grph)
+    (into {} grph)))
+
 (defn resolve-dependencies
   [requirements
    query & {:keys [present-packages
@@ -667,13 +684,21 @@ successful?
             (map #(->DecoratedRequirement % :root) requirements)
             {})]
       (if (= :successful (first result))
-        [:successful
+        {
+         :result :successful
+         :packages
          (if (= :as-set list-strat)
            (set
              (list-packages
                (second result)
-               :list-strat :lazy))
+               :list-strat :lazy
+               :exclude (reduce (fn [c [k v]] (into c v))
+                                #{})
+                               present-packages))
            (list-packages
              (second result)
-             :list-strat list-strat))]
-        result))))
+             :list-strat list-strat))
+         :install-graph
+         (make-install-graph (second result))
+         }
+        (into {:result (first result)} (second result))))))
