@@ -620,11 +620,8 @@ successful?
        #(get % 1)
        clause-result))])))))))
 
-(defn handle [p]
-  (str (:id p) "@" (:version p)))
-
 (defn make-install-graph
-  [package-graph]
+  [package-graph handle]
   (as-> package-graph grph
     (map (fn [[k v]]
            [(handle k)
@@ -633,14 +630,6 @@ successful?
               (dissoc thing :id :version :location :requirements)
               (into thing {:dependees (map handle v)}))]) grph)
     (into {} grph)))
-
-(defn resolve-dependencies
-  [requirements
-   query & options]
-  (let [r (resolve-dependencies-deluxe requirements query options)]
-    (if (= (:result r) :successful)
-           [:successful (:packages r)]
-           [(:result r) r])))
 
 (defn resolve-dependencies-deluxe
   [requirements
@@ -705,12 +694,25 @@ successful?
                (second result)
                :list-strat :lazy
                :exclude (reduce (fn [c [k v]] (into c v))
-                                #{})
-                               present-packages))
+                                #{}
+                               present-packages)))
            (list-packages
              (second result)
              :list-strat list-strat))
          :install-graph
-         (make-install-graph (second result))
+         (make-install-graph
+           (second result)
+           (if (= conflict-strat :inclusive)
+             #(str (:id %) "@" (:version %))
+             :id))
          }
         (into {:result (first result)} (second result))))))
+
+(defn resolve-dependencies
+  [requirements
+   query & {:as options}]
+  (let [r (resolve-dependencies-deluxe requirements query options)]
+    (if (= (:result r) :successful)
+           [:successful (:packages r)]
+           [(:result r) r])))
+
