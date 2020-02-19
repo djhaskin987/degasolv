@@ -347,16 +347,18 @@
                                         "Error while evaluating repositories: "
                                         (.getMessage ^java.lang.Exception e)))))
           result
-          (resolve-dependencies
-           requirement-data
-           aggregate-repo
-           :present-packages present-packages
-           :strategy (keyword resolve-strat)
-           :conflict-strat (keyword conflict-strat)
-           :list-strat (keyword list-strat)
-           :search-strat (keyword search-strat)
-           :compare version-comparator
-           :allow-alternatives alternatives)
+          (resolve-dependencies-deluxe
+            requirement-data
+            aggregate-repo
+            {
+             :present-packages present-packages
+             :strategy (keyword resolve-strat)
+             :conflict-strat (keyword conflict-strat)
+             :list-strat (keyword list-strat)
+             :search-strat (keyword search-strat)
+             :compare version-comparator
+             :allow-alternatives alternatives
+             })
           base-result-info
           {
            :command "degasolv"

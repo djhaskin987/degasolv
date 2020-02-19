@@ -627,13 +627,25 @@ successful?
   [package-graph]
   (as-> package-graph grph
     (map (fn [[k v]]
-         [(handle k)
-          (into k {:dependees (map handle v)})]) grph)
+           [(handle k)
+            (as-> k thing
+              (assoc thing :metadata (dissoc thing :id :version :location :requirements))
+              (dissoc thing :id :version :location :requirements)
+              (into thing {:dependees (map handle v)}))]) grph)
     (into {} grph)))
 
 (defn resolve-dependencies
   [requirements
-   query & {:keys [present-packages
+   query & options]
+  (let [r (resolve-dependencies-deluxe requirements query options)]
+    (if (= (:result r) :successful)
+           [:successful (:packages r)]
+           [(:result r) r])))
+
+(defn resolve-dependencies-deluxe
+  [requirements
+   query
+   {:keys [present-packages
                    conflicts
                    strategy
                    conflict-strat
