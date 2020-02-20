@@ -262,6 +262,7 @@
             (let [children (filter
                              #(and
                                 (not (get already-visited %))
+                                (not (exclude %))
                                 (not (get parents %)))
                              (get package-graph children-of))]
               (if (empty? children)
@@ -706,7 +707,10 @@ successful?
                                present-packages)))
            (list-packages
              (second result)
-             :list-strat list-strat))
+             :list-strat list-strat
+             :exclude (reduce (fn [c [k v]] (into c v))
+                                #{}
+                               present-packages)))
          :install-graph
          (make-install-graph
            (second result)
@@ -722,5 +726,5 @@ successful?
   (let [r (resolve-dependencies-deluxe requirements query options)]
     (if (= (:result r) :successful)
            [:successful (:packages r)]
-           [(:result r) r])))
+           [(:result r) (dissoc r :result)])))
 
