@@ -623,12 +623,20 @@ successful?
 (defn make-install-graph
   [package-graph handle]
   (as-> package-graph grph
-    (map (fn [[k v]]
+    (filter
+      (fn [[k v]]
+        (not (= k :root)))
+      grph)
+    (map
+      (fn [[k v]]
            [(handle k)
-            (as-> k thing
-              (assoc thing :metadata (dissoc thing :id :version :location :requirements))
-              (dissoc thing :id :version :location :requirements)
-              (into thing {:dependees (map handle v)}))]) grph)
+            (let [ks-metadata
+                  (dissoc k :id :version :location :requirements)]
+              (as-> k thing
+                (reduce dissoc thing (keys ks-metadata))
+                (assoc thing :metadata ks-metadata)
+                (assoc thing :dependees (map handle v))))])
+      grph)
     (into {} grph)))
 
 (defn resolve-dependencies-deluxe
