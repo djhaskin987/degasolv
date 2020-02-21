@@ -621,7 +621,7 @@ successful?
        #(get % 1)
        clause-result))])))))))
 
-(defn make-install-graph
+(defn make-packrat-install-graph
   [package-graph handle]
   (as-> package-graph grph
     (filter
@@ -635,6 +635,8 @@ successful?
                   (dissoc k :id :version :location :requirements)]
               (as-> k thing
                 (reduce dissoc thing (keys ks-metadata))
+                (assoc thing :name (:id thing))
+                (dissoc thing :id)
                 (assoc thing :metadata ks-metadata)
                 (assoc thing :dependees (map handle v))))])
       grph)
@@ -711,8 +713,8 @@ successful?
              :exclude (reduce (fn [c [k v]] (into c v))
                                 #{}
                                present-packages)))
-         :install-graph
-         (make-install-graph
+         :packrat-install-graph
+         (make-packrat-install-graph
            (second result)
            (if (= conflict-strat :inclusive)
              #(str (:id %) "@" (:version %))
