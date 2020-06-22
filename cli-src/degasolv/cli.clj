@@ -18,6 +18,24 @@
     [serovers.core :as vers])
   (:gen-class))
 
+(defmethod
+  print-method
+  degasolv.resolver.PackageInfo
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+(defmethod
+  print-method
+  degasolv.resolver.VersionPredicate
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
+(defmethod
+  print-method
+  degasolv.resolver.Requirement
+  [this w]
+  (tag/pr-tagged-record-on this w))
+
 (defn- exit [status msg]
   (.println ^java.io.PrintWriter *err* msg)
   (System/exit status))

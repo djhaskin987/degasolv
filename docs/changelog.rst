@@ -18,6 +18,12 @@ and this project adheres to `Semantic Versioning`_.
 Added
 +++++
 
+* Separated CLI uberjar from library jar, both dependencies and source.
+  Now degasolv can be included as a dependency and its resolver used elsewhere.
+
+* Added capability to build using graalvm, allowing for statically compiled
+  builds
+
 Changed
 +++++++
 

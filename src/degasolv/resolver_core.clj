@@ -41,24 +41,6 @@
 
 (defrecord PackageInfo [id version location requirements])
 
-(defmethod
-  print-method
-  degasolv.resolver.PackageInfo
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defmethod
-  print-method
-  degasolv.resolver.VersionPredicate
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
-(defmethod
-  print-method
-  degasolv.resolver.Requirement
-  [this w]
-  (tag/pr-tagged-record-on this w))
-
 (defn present
   ([id] (present id nil))
   ([id spec] (->Requirement :present id spec)))
