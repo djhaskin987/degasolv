@@ -20,7 +20,7 @@ cd "${test_home}"
 
 # First, generate *most* of the needed cards for the tests to pass.
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      -i "a" \
      -v "1.0.0" \
@@ -29,7 +29,7 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      -r "c|d" \
      -C $PWD/a-1.0.0.zip.dscard
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      -i "b" \
      -v "1.0.0" \
@@ -37,27 +37,27 @@ java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
      -r "d|c" \
      -C $PWD/b-1.0.0.zip.dscard
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      -i "c" \
      -v "1.0.0" \
      -l "https://example.com/repo/c-1.0.0.zip" \
      -C $PWD/c-1.0.0.zip.dscard
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      -i "d" \
      -v "1.0.0" \
      -l "https://example.com/repo/d-1.0.0.zip" \
      -C $PWD/d-1.0.0.zip.dscard
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
     generate-repo-index \
     -d $PWD \
     -I $PWD/index.dsrepo
 
 # should fail
-if java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+if ./${name}-${version}-standalone \
     resolve-locations \
     --search-strat deapth-first \
     -R ${PWD}/index.dsrepo \
@@ -66,20 +66,20 @@ then
     exit 1
 fi
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
     resolve-locations \
     --search-strat depth-first \
     -R ${PWD}/index.dsrepo \
     --requirement a
 
-output1=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+output1=$(./${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement a)
 
 printf '%s\n' "${output1}"
 
-output2=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+output2=$(./${name}-${version}-standalone \
     resolve-locations \
     --search-strat breadth-first \
     -R ${PWD}/index.dsrepo \

@@ -17,16 +17,16 @@ cat > ${test_home}/test-option-packs.edn <<EDN
 }
 EDN
 
-java -jar target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
     -c ${test_home}/test-option-packs.edn \
     display-config | grep -E ':conflict-strat "prioritized"'
 
 
-java -jar target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      -k "multi-version-mode" \
     display-config | grep -E ':conflict-strat "inclusive"'
 
-java -jar target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      -c ${test_home}/test-option-packs.edn \
      -k "multi-version-mode" \
     display-config | grep -E ':conflict-strat "inclusive"'

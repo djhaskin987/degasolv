@@ -27,5 +27,5 @@ cat > "degasolv.json" << JSON
 }
 JSON
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
     -j "degasolv.json" display-config

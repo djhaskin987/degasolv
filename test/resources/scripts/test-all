@@ -9,7 +9,7 @@ fi
 root_path=${PWD}
 test_home=test/resources/data/grill
 
-lein uberjar
+#lein uberjar
 
 # Script tests
 for i in test/resources/scripts/test-*

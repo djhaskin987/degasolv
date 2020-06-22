@@ -20,26 +20,26 @@ cd "${test_home}"
 
 # First, generate *most* of the needed cards for the tests to pass.
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      -i "a" \
      -v "1.0.0" \
      -l "https://example.com/repo/a-1.0.0.zip" \
      -C $PWD/a-1.0.0.zip.dscard
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      -i "a" \
      -v "1.0.0-1" \
      -l "https://example.com/repo/a-1.0.0-1.zip" \
      -C $PWD/a-1.0.0-1.zip.dscard
 
-java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
     generate-repo-index \
     -d $PWD \
     -I $PWD/index.dsrepo
 
-output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+output=$(./${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -V maven \
@@ -49,7 +49,7 @@ printf '%s\n' "${output}"
 
 echo "${output}" | grep -qE '==1\.0\.0-1 @'
 
-output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+output=$(./${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -V maven \
@@ -59,7 +59,7 @@ printf '%s\n' "${output}"
 
 echo "${output}" | grep -qE '==1\.0\.0 @'
 
-output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+output=$(./${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -V semver \
@@ -69,7 +69,7 @@ printf '%s\n' "${output}"
 
 echo "${output}" | grep -qE '==1\.0\.0-1 @'
 
-output=$(java -jar ${root_path}/target/uberjar/${name}-${version}-standalone.jar \
+output=$(./${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement "a>1.0.0-1")

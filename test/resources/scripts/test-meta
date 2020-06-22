@@ -13,8 +13,7 @@ mkdir -p ${test_home}
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
 
-java \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      --card-file ${test_home}/out.dscard \
      --id yer \
@@ -40,8 +39,7 @@ cat > ${test_home}/degasolv.edn <<EOF
 }
 EOF
 
-java \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
     -c ${test_home}/degasolv.edn \
     generate-card
 
@@ -54,8 +52,7 @@ then
     exit 1
 fi
 
-java \
-    -jar target/uberjar/${name}-${version}-standalone.jar \
+./${name}-${version}-standalone \
      generate-card \
      --card-file ${test_home}/out3.dscard \
      --id yer \

@@ -1,11 +1,15 @@
 #!/bin/sh
 
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
 #    --initialize-at-run-time=org.postgresql.sspi.SSPIClient
 #    --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
 #    -J-Dclojure.compiler.direct-linking=true \
 #    -J-Dclojure.spec.skip-macros=true \
 #    -J-Xmx4G \
-#    -H:+JNI 
+#    -H:+JNI
 native-image \
     --enable-url-protocols=file,https,http \
     --report-unsupported-elements-at-runtime \
@@ -16,5 +20,5 @@ native-image \
     --verbose \
     --static \
     -H:+ReportExceptionStackTraces \
-    -H:Name="onecli" \
-    -jar target/uberjar/onecli-0.6.0-SNAPSHOT-standalone.jar
+    -H:Name="${name}" \
+    -jar target/uberjar/${name}-${version}-standalone.jar
