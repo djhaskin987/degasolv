@@ -1,0 +1,24 @@
+﻿#!/usr/bin/sh
+
+lein uberjar
+
+root_path=${PWD}
+
+test_home=test/resources/data/apt
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf ${root_path}/META-INF
+mkdir -p ${root_path}/META-INF/native-image
+
+
+#    -agentlib:native-image-agent=config-merge-output-dir=META-INF/native-image \
+java \
+    -agentlib:native-image-agent=config-output-dir=META-INF/native-image \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --resolve-strat "fast" \
+    --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
+    --package-system apt \
+    --requirement "libc6"

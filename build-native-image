@@ -1,5 +1,5 @@
 #!/bin/sh
-
+root_path=${PWD}
 
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
@@ -10,15 +10,23 @@ version=$(lein print :version | sed 's|"||g')
 #    -J-Dclojure.spec.skip-macros=true \
 #    -J-Xmx4G \
 #    -H:+JNI
+#    --configurations-path ${root_path}/META-INF/native-image
 native-image \
+    --verbose \
     --enable-url-protocols=file,https,http \
     --report-unsupported-elements-at-runtime \
     --no-fallback \
     --no-server \
     --enable-all-security-services \
     --initialize-at-build-time \
-    --verbose \
     --static \
     -H:+ReportExceptionStackTraces \
+    -H:+JNI \
     -H:Name="${name}" \
-    -jar target/uberjar/${name}-${version}-standalone.jar
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+    --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
+    "-H:ReflectionConfigurationFiles=META-INF/native-image/reflect-config.json" \
+    "-H:JNIConfigurationFiles=META-INF/native-image/jni-config.json" \
+    -J-Dclojure.compiler.direct-linking=true \
+    -J-Dclojure.spec.skip-macros=true \
+    -J-Xmx4G

@@ -10,6 +10,8 @@ root_path=${PWD}
 test_home=test/resources/data/grill
 
 #lein uberjar
+#./build-native-image
+
 
 # Script tests
 for i in test/resources/scripts/test-*
