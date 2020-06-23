@@ -27,5 +27,5 @@ cat > "degasolv.json" << JSON
 }
 JSON
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
     -j "degasolv.json" display-config

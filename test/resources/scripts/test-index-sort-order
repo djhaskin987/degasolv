@@ -20,25 +20,25 @@ cd "${test_home}"
 
 # First, generate the needed cards for resolution.
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      -i "a" \
      -v "1.0.0" \
      -l "https://example.com/repo/a-1.0.0.zip" \
      -C $PWD/a-1.0.0.zip.dscard
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      -i "a" \
      -v "2.0.0" \
      -l "https://example.com/repo/a-2.0.0.zip" \
      -C $PWD/a-2.0.0.zip.dscard
 
-./${name}-${version}-standalone generate-repo-index -O ascending -d $PWD -I $PWD/ascending.dsrepo
+${root_path}/${name}-${version}-standalone generate-repo-index -O ascending -d $PWD -I $PWD/ascending.dsrepo
 
-./${name}-${version}-standalone generate-repo-index --index-sort-order descending -d $PWD -I $PWD/descending.dsrepo
+${root_path}/${name}-${version}-standalone generate-repo-index --index-sort-order descending -d $PWD -I $PWD/descending.dsrepo
 
-if ./${name}-${version}-standalone \
+if ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/descending.dsrepo \
     --requirement "a" | grep -F -q '1.0.0'
@@ -46,7 +46,7 @@ then
     exit 1
 fi
 
-if ./${name}-${version}-standalone \
+if ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/ascending.dsrepo \
     --requirement "a" | grep -F -q '2.0.0'

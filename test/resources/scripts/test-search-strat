@@ -20,7 +20,7 @@ cd "${test_home}"
 
 # First, generate *most* of the needed cards for the tests to pass.
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      -i "a" \
      -v "1.0.0" \
@@ -29,7 +29,7 @@ cd "${test_home}"
      -r "c|d" \
      -C $PWD/a-1.0.0.zip.dscard
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      -i "b" \
      -v "1.0.0" \
@@ -37,27 +37,27 @@ cd "${test_home}"
      -r "d|c" \
      -C $PWD/b-1.0.0.zip.dscard
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      -i "c" \
      -v "1.0.0" \
      -l "https://example.com/repo/c-1.0.0.zip" \
      -C $PWD/c-1.0.0.zip.dscard
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      -i "d" \
      -v "1.0.0" \
      -l "https://example.com/repo/d-1.0.0.zip" \
      -C $PWD/d-1.0.0.zip.dscard
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
     generate-repo-index \
     -d $PWD \
     -I $PWD/index.dsrepo
 
 # should fail
-if ./${name}-${version}-standalone \
+if ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --search-strat deapth-first \
     -R ${PWD}/index.dsrepo \
@@ -66,20 +66,20 @@ then
     exit 1
 fi
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --search-strat depth-first \
     -R ${PWD}/index.dsrepo \
     --requirement a
 
-output1=$(./${name}-${version}-standalone \
+output1=$(${root_path}/${name}-${version}-standalone \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement a)
 
 printf '%s\n' "${output1}"
 
-output2=$(./${name}-${version}-standalone \
+output2=$(${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --search-strat breadth-first \
     -R ${PWD}/index.dsrepo \

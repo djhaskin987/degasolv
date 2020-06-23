@@ -17,32 +17,32 @@ try_time() {
     }
 }
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     query-repo \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --query "libc6"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --resolve-strat "fast" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "libc6"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "libc6"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "bash"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --resolve-strat fast \
     --disable-alternatives \
@@ -55,7 +55,7 @@ try_time ./${name}-${version}-standalone \
     --resolve-strat fast \
     --requirement "firefox"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
@@ -65,7 +65,7 @@ try_time ./${name}-${version}-standalone \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "firefox"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --disable-alternatives \
     --resolve-strat fast \
@@ -77,7 +77,7 @@ try_time ./${name}-${version}-standalone \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "ubuntu-desktop"
 
-try_time ./${name}-${version}-standalone \
+try_time ${root_path}/${name}-${version}-standalone \
     resolve-locations \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \

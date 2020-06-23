@@ -5,7 +5,7 @@ if [ ! -f './project.clj' -a ! -f './build.boot' ]
 then
     echo "This script must be run from the root of the project."
 fi
-
+root_path=${PWD}
 test_home=test/resources/data/meta
 rm -rf ${test_home}
 mkdir -p ${test_home}
@@ -13,7 +13,7 @@ mkdir -p ${test_home}
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      --card-file ${test_home}/out.dscard \
      --id yer \
@@ -39,7 +39,7 @@ cat > ${test_home}/degasolv.edn <<EOF
 }
 EOF
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
     -c ${test_home}/degasolv.edn \
     generate-card
 
@@ -52,7 +52,7 @@ then
     exit 1
 fi
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      generate-card \
      --card-file ${test_home}/out3.dscard \
      --id yer \

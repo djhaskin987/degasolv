@@ -17,16 +17,16 @@ cat > ${test_home}/test-option-packs.edn <<EDN
 }
 EDN
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
     -c ${test_home}/test-option-packs.edn \
     display-config | grep -E ':conflict-strat "prioritized"'
 
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      -k "multi-version-mode" \
     display-config | grep -E ':conflict-strat "inclusive"'
 
-./${name}-${version}-standalone \
+${root_path}/${name}-${version}-standalone \
      -c ${test_home}/test-option-packs.edn \
      -k "multi-version-mode" \
     display-config | grep -E ':conflict-strat "inclusive"'
