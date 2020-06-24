@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eoux
+export POSIXLY_CORRECT=1
+
+if [ ! -f './project.clj' ]
+then
+    echo "This script must be run from the root of the project."
+fi
+
+root_path=${PWD}
+test_home=test/resources/data/test-packrat
+test_data=test/resources/data/packrat
+
+name=$(lein print :name | sed 's|"||g')
+version=$(lein print :version | sed 's|"||g')
+
+rm -rf "${test_home}"
+mkdir -p "${test_home}"
+
+${root_path}/${name}-${version}-standalone \
+    resolve-locations \
+        -R ${test_data}/index.dsrepo -r b -o json | \
+        jq  -c '."packrat-install-graph"' | tee ${test_home}/actual.json
+
+if [ "$(cat "${test_home}/actual.json")" != \
+     "$(cat "${test_data}/expected.json")" ]
+then
+    echo "output mismatch" >&2
+    exit 1
+fi

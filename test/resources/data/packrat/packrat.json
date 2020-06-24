@@ -1,0 +1,96 @@
+{
+    "e": {
+        "name": "e",
+        "version": "1.8.0",
+        "location": "https://example.com/repo/e-1.8.0.zip",
+        "requirements": [],
+        "dependees": []
+    },
+    "b": {
+        "version": "2.3.0",
+        "location": "https://example.com/repo/b-2.3.0.zip",
+        "requirements": [
+            [
+                {
+                    "status": "present",
+                    "id": "c",
+                    "spec": [
+                        [
+                            {
+                                "relation": "greater-equal",
+                                "version": "3.5.0"
+                            }
+                        ]
+                    ]
+                }
+            ],
+            [
+                {
+                    "status": "present",
+                    "id": "d",
+                    "spec": null
+                }
+            ]
+        ],
+        "name": "b",
+        "metadata": {},
+        "dependees": [
+            "c",
+            "d"
+        ]
+    },
+    "c": {
+        "version": "3.5.0",
+        "location": "https://example.com/repo/c-3.5.0.zip",
+        "requirements": [
+            [
+                {
+                    "status": "present",
+                    "id": "e",
+                    "spec": [
+                        [
+                            {
+                                "relation": "greater-equal",
+                                "version": "1.8.0"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        ],
+        "name": "c",
+        "metadata": {},
+        "dependees": [
+            "e"
+        ]
+    },
+    "d": {
+        "version": "0.8.0",
+        "location": "https://example.com/repo/d-0.8.0.zip",
+        "requirements": [
+            [
+                {
+                    "status": "present",
+                    "id": "e",
+                    "spec": [
+                        [
+                            {
+                                "relation": "greater-equal",
+                                "version": "1.1.0"
+                            },
+                            {
+                                "relation": "less-than",
+                                "version": "2.0.0"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        ],
+        "name": "d",
+        "metadata": {},
+        "dependees": [
+            "e"
+        ]
+    }
+}
