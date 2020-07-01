@@ -17,6 +17,8 @@ and this project adheres to `Semantic Versioning`_.
 
 Added
 +++++
+* Added ``packrat-install-graph``, a packrat-compliant install graph,
+  to the JSON output
 
 * Separated CLI uberjar from library jar, both dependencies and source.
   Now degasolv can be included as a dependency and its resolver used elsewhere.
