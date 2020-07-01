@@ -14,10 +14,25 @@ test_data=test/resources/data/packrat
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
 
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni}"
+else
+    runthis="java -jar ${jar}"
+fi
+
+
 rm -rf "${test_home}"
 mkdir -p "${test_home}"
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
+    resolve-locations \
+        -R ${test_data}/index.dsrepo -r b
+
+${runthis} \
     resolve-locations \
         -R ${test_data}/index.dsrepo -r b -o json | \
         jq  -c '."packrat-install-graph"' | tee ${test_home}/actual.json

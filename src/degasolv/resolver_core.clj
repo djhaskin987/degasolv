@@ -606,23 +606,27 @@ successful?
 (defn make-packrat-install-graph
   [package-graph handle]
   (as-> package-graph grph
-    (filter
-      (fn [[k v]]
-        (not (= k :root)))
-      grph)
+    ;; get all the packages in the graph
+    (reduce
+      into
+      #{}
+      (vals grph))
     (map
-      (fn [[k v]]
-           [(handle k)
-            (let [ks-metadata
-                  (dissoc k :id :version :location :requirements)]
-              (as-> k thing
-                (reduce dissoc thing (keys ks-metadata))
+      (fn [pkg]
+           [(handle pkg)
+            (let [pkg-metadata
+                  (dissoc pkg :id :version :location :requirements)]
+              (as-> pkg thing
+                (reduce dissoc thing (keys pkg-metadata))
                 (assoc thing :name (:id thing))
                 (dissoc thing :id)
-                (assoc thing :metadata ks-metadata)
-                (assoc thing :dependees (map handle v))))])
+                (assoc thing :metadata pkg-metadata)
+                (if-let [v (get package-graph pkg)]
+                  (assoc thing :dependees (map handle v))
+                  (assoc thing :dependees []))))])
       grph)
     (into {} grph)))
+
 
 (defn resolve-dependencies-deluxe
   [requirements
