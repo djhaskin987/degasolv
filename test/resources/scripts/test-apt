@@ -5,7 +5,7 @@ if [ ! -f './project.clj' -a ! -f './build.boot' ]
 then
     echo "This script must be run from the root of the project."
 fi
-
+root_path="${PWD}"
 test_home=test/resources/data/apt
 
 name=$(lein print :name | sed 's|"||g')
@@ -17,32 +17,42 @@ try_time() {
     }
 }
 
-try_time ${root_path}/${name}-${version}-standalone \
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni}"
+else
+    runthis="java -jar ${jar}"
+fi
+
+try_time ${runthis} \
     query-repo \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --query "libc6"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --resolve-strat "fast" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "libc6"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "libc6"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "bash"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --resolve-strat fast \
     --disable-alternatives \
@@ -55,7 +65,7 @@ try_time ${root_path}/${name}-${version}-standalone \
     --resolve-strat fast \
     --requirement "firefox"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
@@ -65,7 +75,7 @@ try_time ${root_path}/${name}-${version}-standalone \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "firefox"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --disable-alternatives \
     --resolve-strat fast \
@@ -77,7 +87,7 @@ try_time ${root_path}/${name}-${version}-standalone \
     --present-package "libpng12-0==1.2.13-4" \
     --requirement "ubuntu-desktop"
 
-try_time ${root_path}/${name}-${version}-standalone \
+try_time ${runthis} \
     resolve-locations \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \

@@ -30,7 +30,7 @@ mkdir -p "${test_home}"
 
 ${runthis} \
     resolve-locations \
-        -R ${test_data}/index.dsrepo -r b
+        -R ${test_data}/index.dsrepo -r b -p 'e==1.8.0'
 
 ${runthis} \
     resolve-locations \
@@ -39,6 +39,18 @@ ${runthis} \
 
 if [ "$(cat "${test_home}/actual.json")" != \
      "$(cat "${test_data}/expected.json")" ]
+then
+    echo "output mismatch" >&2
+    exit 1
+fi
+
+${runthis} \
+    resolve-locations \
+        -R ${test_data}/index.dsrepo -r b -p 'e==1.8.0' -o json | \
+        jq  -c '."packrat-install-graph"' | tee ${test_home}/actual2.json
+
+if [ "$(cat "${test_home}/actual2.json")" != \
+     "$(cat "${test_data}/expected2.json")" ]
 then
     echo "output mismatch" >&2
     exit 1

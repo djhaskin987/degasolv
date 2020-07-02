@@ -22,3 +22,11 @@ java \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "libc6"
+
+java \
+    -agentlib:native-image-agent=config-merge-dir=META-INF/native-image \
+    -jar target/uberjar/${name}-${version}-standalone.jar \
+    resolve-locations \
+    --repository "binary-amd64 https://github.com/djhaskin987/degasolv/raw/develop/test/resources/data/apt/avail /" \
+    --package-system apt \
+    --requirement "ubuntu-desktop"
