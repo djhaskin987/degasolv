@@ -15,6 +15,7 @@ mkdir -p ${root_path}/META-INF/native-image
 
 #    -agentlib:native-image-agent=config-merge-output-dir=META-INF/native-image \
 java \
+    -Xss16m \
     -agentlib:native-image-agent=config-output-dir=META-INF/native-image \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
@@ -24,9 +25,11 @@ java \
     --requirement "libc6"
 
 java \
+    -Xss16m \
     -agentlib:native-image-agent=config-merge-dir=META-INF/native-image \
     -jar target/uberjar/${name}-${version}-standalone.jar \
     resolve-locations \
+    --resolve-strat "fast" \
     --repository "binary-amd64 https://github.com/djhaskin987/degasolv/raw/develop/test/resources/data/apt/avail /" \
     --package-system apt \
-    --requirement "ubuntu-desktop"
+    --requirement "libc6"
