@@ -28,12 +28,14 @@ else
 fi
 
 try_time ${runthis} \
+    -Xss16m \
     query-repo \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --query "libc6"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --resolve-strat "fast" \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
@@ -41,18 +43,21 @@ try_time ${runthis} \
     --requirement "libc6"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "libc6"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --repository "binary-amd64 file://${PWD}/${test_home}/avail /" \
     --package-system apt \
     --requirement "bash"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --resolve-strat fast \
     --disable-alternatives \
@@ -66,6 +71,7 @@ try_time ${runthis} \
     --requirement "firefox"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
@@ -76,6 +82,7 @@ try_time ${runthis} \
     --requirement "firefox"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --disable-alternatives \
     --resolve-strat fast \
@@ -88,6 +95,7 @@ try_time ${runthis} \
     --requirement "ubuntu-desktop"
 
 try_time ${runthis} \
+    -Xss16m \
     resolve-locations \
     --repository "binary-i386 file://${PWD}/${test_home}/i386 /" \
     --repository "binary-amd64 file://${PWD}/${test_home}/amd64 /" \
