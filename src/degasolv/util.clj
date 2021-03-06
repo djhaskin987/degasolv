@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clj-http.lite.client :as client]))
+            [clj-http.client :as client]))
 
 ; UTF-8 by default :)
 (defn base-slurp [loc]

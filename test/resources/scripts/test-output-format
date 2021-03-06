@@ -18,9 +18,18 @@ rm -rf "${test_home}"
 mkdir -p "${test_home}"
 cd "${test_home}"
 
-# First, generate the needed cards for resolution.
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
 
-${root_path}/${name}-${version}-standalone \
+# First, generate the needed cards for resolution.
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0" \
@@ -28,22 +37,24 @@ ${root_path}/${name}-${version}-standalone \
      -l "https://example.com/repo/a-1.0.0.zip" \
      -C $PWD/a-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     generate-card \
     -i "b" \
     -v "2.3.0" \
     -l "https://example.com/repo/b-2.3.0.zip" \
     -C $PWD/b-2.3.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone generate-repo-index -d $PWD -I $PWD/index.dsrepo
+${runthis} \
+ generate-repo-index -d $PWD -I $PWD/index.dsrepo
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --output-format json \
     --requirement "a<=1.0.0"
 
-if ${root_path}/${name}-${version}-standalone \
+if \
+    ${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --output-format json \
@@ -52,7 +63,8 @@ then
     exit 1
 fi
 
-if ! ${root_path}/${name}-${version}-standalone \
+if ! \
+    ${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --enable-error-format \
@@ -63,13 +75,14 @@ then
 fi
 
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     resolve-locations \
     --output-format edn \
     -R ${PWD}/index.dsrepo \
     --requirement "a<=1.0.0"
 
-if ${root_path}/${name}-${version}-standalone \
+if \
+    ${runthis} \
     resolve-locations \
     --output-format edn \
     -R ${PWD}/index.dsrepo \
@@ -78,7 +91,8 @@ then
     exit 1
 fi
 
-if ! ${root_path}/${name}-${version}-standalone \
+if ! \
+    ${runthis} \
         resolve-locations \
         --enable-error-format \
         --output-format edn \
@@ -88,12 +102,13 @@ then
     exit 1
 fi
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement "a<=1.0.0"
 
-if ${root_path}/${name}-${version}-standalone \
+if \
+    ${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement "z<=1.0.0"

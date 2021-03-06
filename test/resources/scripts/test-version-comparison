@@ -18,28 +18,37 @@ rm -rf "${test_home}"
 mkdir -p "${test_home}"
 cd "${test_home}"
 
-# First, generate *most* of the needed cards for the tests to pass.
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
 
-${root_path}/${name}-${version}-standalone \
+# First, generate *most* of the needed cards for the tests to pass.
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0" \
      -l "https://example.com/repo/a-1.0.0.zip" \
      -C $PWD/a-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0-1" \
      -l "https://example.com/repo/a-1.0.0-1.zip" \
      -C $PWD/a-1.0.0-1.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     generate-repo-index \
     -d $PWD \
     -I $PWD/index.dsrepo
 
-output=$(${root_path}/${name}-${version}-standalone \
+output=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -V maven \
@@ -49,7 +58,7 @@ printf '%s\n' "${output}"
 
 echo "${output}" | grep -qE '==1\.0\.0-1 @'
 
-output=$(${root_path}/${name}-${version}-standalone \
+output=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -V maven \
@@ -59,7 +68,7 @@ printf '%s\n' "${output}"
 
 echo "${output}" | grep -qE '==1\.0\.0 @'
 
-output=$(${root_path}/${name}-${version}-standalone \
+output=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -V semver \
@@ -69,7 +78,7 @@ printf '%s\n' "${output}"
 
 echo "${output}" | grep -qE '==1\.0\.0-1 @'
 
-output=$(${root_path}/${name}-${version}-standalone \
+output=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement "a>1.0.0-1")

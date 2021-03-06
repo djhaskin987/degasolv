@@ -19,26 +19,35 @@ mkdir -p "${test_home}"
 cd "${test_home}"
 
 # First, generate the needed cards for resolution.
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0" \
      -l "https://example.com/repo/a-1.0.0.zip" \
      -C $PWD/a-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "a" \
      -v "2.0.0" \
      -l "https://example.com/repo/a-2.0.0.zip" \
      -C $PWD/a-2.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone generate-repo-index -O ascending -d $PWD -I $PWD/ascending.dsrepo
+${runthis} generate-repo-index -O ascending -d $PWD -I $PWD/ascending.dsrepo
 
-${root_path}/${name}-${version}-standalone generate-repo-index --index-sort-order descending -d $PWD -I $PWD/descending.dsrepo
+${runthis} generate-repo-index --index-sort-order descending -d $PWD -I $PWD/descending.dsrepo
 
-if ${root_path}/${name}-${version}-standalone \
+if ${runthis} \
     resolve-locations \
     -R ${PWD}/descending.dsrepo \
     --requirement "a" | grep -F -q '1.0.0'
@@ -46,7 +55,7 @@ then
     exit 1
 fi
 
-if ${root_path}/${name}-${version}-standalone \
+if ${runthis} \
     resolve-locations \
     -R ${PWD}/ascending.dsrepo \
     --requirement "a" | grep -F -q '2.0.0'

@@ -13,7 +13,17 @@ mkdir -p ${test_home}
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
 
-${root_path}/${name}-${version}-standalone \
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
+
+${runthis} \
      generate-card \
      --card-file ${test_home}/out.dscard \
      --id yer \
@@ -39,7 +49,7 @@ cat > ${test_home}/degasolv.edn <<EOF
 }
 EOF
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     -c ${test_home}/degasolv.edn \
     generate-card
 
@@ -52,7 +62,7 @@ then
     exit 1
 fi
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      --card-file ${test_home}/out3.dscard \
      --id yer \

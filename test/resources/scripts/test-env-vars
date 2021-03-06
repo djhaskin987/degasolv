@@ -19,13 +19,22 @@ mkdir -p "${test_home}"
 cd "${test_home}"
 
 # First, generate the needed cards for resolution.
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
 
 DEGASOLV_ID="a" \
     DEGASOLV_REQUIREMENTS="b" \
     DEGASOLV_VERSION="1.0.0" \
     DEGASOLV_LOCATION="https://example.com/repo/a-1.0.0.zip" \
     DEGASOLV_CARD_FILE=$PWD/a-1.0.0.zip.dscard \
-    ${root_path}/${name}-${version}-standalone \
+    ${runthis} \
          generate-card
 
 cat > ./config.json << JSON_CONFIG
@@ -44,12 +53,12 @@ EDN_CONFIG
     DEGASOLV_CONFIG_FILES="./config.edn" \
     DEGASOLV_JSON_CONFIG_FILES="./config.json" \
     DEGASOLV_CARD_FILE=$PWD/b-2.3.0.zip.dscard \
-${root_path}/${name}-${version}-standalone \
+    ${runthis} \
     generate-card
 
-${root_path}/${name}-${version}-standalone generate-repo-index -d $PWD -I $PWD/index.dsrepo
+${runthis} generate-repo-index -d $PWD -I $PWD/index.dsrepo
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement "a<=1.0.0"

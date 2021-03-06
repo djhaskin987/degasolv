@@ -603,7 +603,7 @@ successful?
        #(get % 1)
        clause-result))])))))))
 
-(defn make-packrat-install-graph
+(defn make-install-graph
   [package-graph handle]
   (as-> package-graph grph
     ;; get all the packages in the graph
@@ -699,8 +699,8 @@ successful?
              :exclude (reduce (fn [c [k v]] (into c v))
                                 #{}
                                present-packages)))
-         :packrat-install-graph
-         (make-packrat-install-graph
+         :install-graph
+         (make-install-graph
            (second result)
            (if (= conflict-strat :inclusive)
              #(str (:id %) "@" (:version %))

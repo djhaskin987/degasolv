@@ -18,9 +18,19 @@ rm -rf "${test_home}"
 mkdir -p "${test_home}"
 cd "${test_home}"
 
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
+
 # First, generate *most* of the needed cards for the tests to pass.
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0" \
@@ -29,7 +39,7 @@ ${root_path}/${name}-${version}-standalone \
      -r "c" \
      -C $PWD/a-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "b" \
      -v "1.0.0" \
@@ -38,7 +48,7 @@ ${root_path}/${name}-${version}-standalone \
      -r "e" \
      -C $PWD/b-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "e" \
      -v "1.0.0" \
@@ -46,7 +56,7 @@ ${root_path}/${name}-${version}-standalone \
      -r "a" \
      -C $PWD/e-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "x" \
      -v "1.0.0" \
@@ -55,35 +65,35 @@ ${root_path}/${name}-${version}-standalone \
      -r "y" \
      -C $PWD/x-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "y" \
      -v "1.0.0" \
      -l "https://example.com/repo/y-1.0.0.zip" \
      -C $PWD/y-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "z" \
      -v "1.0.0" \
      -l "https://example.com/repo/z-1.0.0.zip" \
      -C $PWD/z-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "c" \
      -v "1.0.0" \
      -l "https://example.com/repo/c-1.0.0.zip" \
      -C $PWD/c-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "d" \
      -v "1.0.0" \
      -l "https://example.com/repo/d-1.0.0.zip" \
      -C $PWD/d-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     generate-repo-index \
     -d $PWD \
     -I $PWD/index.dsrepo
@@ -101,7 +111,7 @@ EOF
 )
 
 
-actual=$(${root_path}/${name}-${version}-standalone \
+actual=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -L eager \
@@ -138,7 +148,7 @@ b==1.0.0 @ https://example.com/repo/b-1.0.0.zip
 EOF
 )
 
-actual=$(${root_path}/${name}-${version}-standalone \
+actual=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     -L lazy \

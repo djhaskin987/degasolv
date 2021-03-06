@@ -17,16 +17,25 @@ cat > ${test_home}/test-option-packs.edn <<EDN
 }
 EDN
 
-${root_path}/${name}-${version}-standalone \
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
+
+${runthis} \
     -c ${test_home}/test-option-packs.edn \
     display-config | grep -E ':conflict-strat "prioritized"'
 
-
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      -k "multi-version-mode" \
     display-config | grep -E ':conflict-strat "inclusive"'
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      -c ${test_home}/test-option-packs.edn \
      -k "multi-version-mode" \
     display-config | grep -E ':conflict-strat "inclusive"'

@@ -18,9 +18,18 @@ rm -rf "${test_home}"
 mkdir -p "${test_home}"
 cd "${test_home}"
 
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
 # First, generate *most* of the needed cards for the tests to pass.
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0" \
@@ -29,7 +38,7 @@ ${root_path}/${name}-${version}-standalone \
      -r "c|d" \
      -C $PWD/a-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "b" \
      -v "1.0.0" \
@@ -37,27 +46,27 @@ ${root_path}/${name}-${version}-standalone \
      -r "d|c" \
      -C $PWD/b-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "c" \
      -v "1.0.0" \
      -l "https://example.com/repo/c-1.0.0.zip" \
      -C $PWD/c-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "d" \
      -v "1.0.0" \
      -l "https://example.com/repo/d-1.0.0.zip" \
      -C $PWD/d-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     generate-repo-index \
     -d $PWD \
     -I $PWD/index.dsrepo
 
 # should fail
-if ${root_path}/${name}-${version}-standalone \
+if ${runthis} \
     resolve-locations \
     --search-strat deapth-first \
     -R ${PWD}/index.dsrepo \
@@ -66,20 +75,20 @@ then
     exit 1
 fi
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     resolve-locations \
     --search-strat depth-first \
     -R ${PWD}/index.dsrepo \
     --requirement a
 
-output1=$(${root_path}/${name}-${version}-standalone \
+output1=$(${runthis} \
     resolve-locations \
     -R ${PWD}/index.dsrepo \
     --requirement a)
 
 printf '%s\n' "${output1}"
 
-output2=$(${root_path}/${name}-${version}-standalone \
+output2=$(${runthis} \
     resolve-locations \
     --search-strat breadth-first \
     -R ${PWD}/index.dsrepo \

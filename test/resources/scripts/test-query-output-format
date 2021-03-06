@@ -18,9 +18,18 @@ rm -rf "${test_home}"
 mkdir -p "${test_home}"
 cd "${test_home}"
 
+ni=${root_path}/${name}-${version}-standalone
+jar=${root_path}/target/uberjar/${name}-${version}-standalone.jar
+runthis=
+if [ -e "${ni}" ]
+then
+    runthis="${ni} -Xss16m"
+else
+    runthis="java -Xss16m -jar ${jar}"
+fi
 # First, generate the needed cards for resolution.
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-card \
      -i "a" \
      -v "1.0.0" \
@@ -28,25 +37,26 @@ ${root_path}/${name}-${version}-standalone \
      -l "https://example.com/repo/a-1.0.0.zip" \
      -C $PWD/a-1.0.0.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     generate-card \
     -i "a" \
     -v "1.0.1" \
     -l "https://example.com/repo/a-1.0.1.zip" \
     -C $PWD/a-1.0.1.zip.dscard
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
      generate-repo-index \
      -d $PWD \
      -I $PWD/index.dsrepo
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --output-format json \
     --query "a"
 
-if ${root_path}/${name}-${version}-standalone \
+if \
+    ${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --output-format json \
@@ -55,7 +65,8 @@ then
     exit 1
 fi
 
-if ! ${root_path}/${name}-${version}-standalone \
+if ! \
+    ${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --enable-error-format \
@@ -65,13 +76,14 @@ then
     exit 1
 fi
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --output-format edn \
     --query "a"
 
-if ${root_path}/${name}-${version}-standalone \
+if \
+    ${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --output-format edn \
@@ -81,7 +93,8 @@ then
 fi
 
 
-if ! ${root_path}/${name}-${version}-standalone \
+if ! \
+    ${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --output-format edn \
@@ -91,12 +104,13 @@ then
     exit 1
 fi
 
-${root_path}/${name}-${version}-standalone \
+${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --query "a"
 
-if ${root_path}/${name}-${version}-standalone \
+if \
+${runthis} \
     query-repo \
     -R ${PWD}/index.dsrepo \
     --query "a>2.0"
