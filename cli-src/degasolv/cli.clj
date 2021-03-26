@@ -119,7 +119,7 @@
           :version-comparison "debian"}
    "git" {:query-contructor git-pkg/make-query
           :version-comparison "semver"
-          {:required-arguments {:clone-folder ["-n" "--clone-folder"]}}}
+          :required-arguments {:clone-folder ["-n" "--clone-folder"]}}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :version-comparison "semver"}
    "subproc" {:repo-constructor subproc-pkg/make-slurper

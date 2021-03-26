@@ -9,5 +9,5 @@
             [degasolv.util :refer :all]
             [degasolv.resolver :as r :refer :all]))
 
-(defn make-slurper [options]
+(defn make-query [options]
   )
