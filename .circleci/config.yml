@@ -33,7 +33,10 @@ jobs:
       - image: djhaskin987/lein-script-tester:latest
     version: 2
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout
+      - run: cp -af /tmp/workspace/target ./
       - run:
           command: |
             test/resources/scripts/test-all
@@ -178,8 +181,10 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - script_tests
       - lein_tests
+      - script_tests:
+          requires:
+            - lein_tests
       - package_ubuntu16:
           requires:
             - lein_tests
