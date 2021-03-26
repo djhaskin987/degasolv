@@ -19,7 +19,7 @@
 /docs/_template/
 /.nrepl-history
 /test-data/
-/test/resources/data/test-packrat/
+/test/resources/data/test-install-graph/
 /test/resources/data/grill/
 /test/resources/data/meta/
 /test/resources/data/test-index-sort-order/

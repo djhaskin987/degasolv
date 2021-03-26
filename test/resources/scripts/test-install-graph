@@ -8,8 +8,8 @@ then
 fi
 
 root_path=${PWD}
-test_home=test/resources/data/test-packrat
-test_data=test/resources/data/packrat
+test_home=test/resources/data/test-install-graph
+test_data=test/resources/data/install-graph
 
 name=$(lein print :name | sed 's|"||g')
 version=$(lein print :version | sed 's|"||g')
@@ -47,7 +47,7 @@ fi
 ${runthis} \
     resolve-locations \
         -R ${test_data}/index.dsrepo -r b -p 'e==1.8.0' -o json | \
-        jq  -c '."install-graph"' | tee ${test_home}/actual2.json
+        jq  -c '.' | tee ${test_home}/actual2.json
 
 if [ "$(cat "${test_home}/actual2.json")" != \
      "$(cat "${test_data}/expected2.json")" ]
