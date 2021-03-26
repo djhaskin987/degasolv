@@ -117,11 +117,12 @@
   package-systems
   {"apt" {:genrepo apt-pkg/slurp-apt-repo
           :version-comparison "debian"}
-   "git" {:constructor git-pkg/make-slurper
-          :version-comparison "semver"}
+   "git" {:query-contructor git-pkg/make-query
+          :version-comparison "semver"
+          {:required-arguments {:clone-folder ["-n" "--clone-folder"]}}}
    "degasolv" {:genrepo degasolv-pkg/slurp-degasolv-repo
                :version-comparison "semver"}
-   "subproc" {:constructor subproc-pkg/make-slurper
+   "subproc" {:repo-constructor subproc-pkg/make-slurper
               :required-arguments {:subproc-exe ["-x" "--subproc-exe"]}}})
 
 (defn command-list [commands]
@@ -296,7 +297,6 @@
                 output-format
                 package-system
                 present-packages
-                repositories
                 requirements
                 resolve-strat
                 search-strat
@@ -304,12 +304,11 @@
         options]
     (when (get-in package-systems [package-system :required-arguments])
       (check-required! options (get package-systems package-system)))
-    (let [genrepo
-          (if (get-in package-systems [package-system :constructor])
-            ((get-in package-systems [package-system :constructor])
-             options)
-            (get-in package-systems [package-system :genrepo]))
-          version-comparator
+    (when (not (get-in package-systems [package-system :query-constructor]))
+      (check-required!
+        options
+        {:required-arguments {:repositories ["-R" "--repository"]}}))
+    (let [version-comparator
           (get version-comparators version-comparison)
           requirement-data
           (mapv
@@ -354,20 +353,32 @@
                     "already present"
                     nil)])))
             (:present-packages options)))
-          aggregate-repo
-          (try
-            (aggregate-repositories
-             index-strat
-             repositories
-             genrepo
-             version-comparator)
-            (catch Exception e (exit 1 (str
-                                        "Error while evaluating repositories: "
-                                        (.getMessage ^java.lang.Exception e)))))
+          query
+          (if (get-in package-systems [package-systems :query-constructor])
+            ((get-in package-systems [package-systems :query-constructor])
+             options)
+            (let [genrepo
+                  (if (get-in package-systems
+                              [package-system :repo-constructor])
+                    ((get-in package-systems
+                             [package-system :repo-constructor])
+                     options)
+                    (get-in package-systems [package-system :genrepo]))
+                  repositories (:repositories options)]
+              (try
+                (aggregate-repositories
+                  index-strat
+                  repositories
+                  genrepo
+                  version-comparator)
+                (catch Exception e
+                  (exit 1 (str
+                            "Error while evaluating repositories: "
+                            (.getMessage ^java.lang.Exception e)))))))
           result
           (resolve-dependencies-deluxe
             requirement-data
-            aggregate-repo
+            query
             {
              :present-packages present-packages
              :strategy (keyword resolve-strat)
@@ -650,8 +661,7 @@
     "resolve-locations"
     {:description "Print the locations of the packages which will resolve all given dependencies."
      :function resolve-locations!
-     :required-arguments {:repositories ["-R" "--repository"]
-                          :requirements ["-r" "--requirement"]}
+     :required-arguments {:requirements ["-r" "--requirement"]}
      :cli [
            ["-a" "--enable-alternatives" "Consider all alternatives (default)"
             :assoc-fn (fn [m k v] (assoc m :alternatives true))]
@@ -753,6 +763,12 @@
                           (and (.exists ^java.io.File f)
                                (.canExecute ^java.io.File f)))
                        "Must be an executable file which exists on the file system."]]
+           ["-n" "--clone-folder PATH"
+            "Path to the folder where git repos will be cloned"
+            :validate [#(let [f (io/file %)]
+                          (and (.exists ^java.io.File f)
+                               (.isDirectory ^java.io.File f)))
+                       "Must be a directory."]]
            ]}
     "query-repo"
     {:description "Query repository for a particular package"
